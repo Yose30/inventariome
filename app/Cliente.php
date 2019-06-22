@@ -8,7 +8,7 @@ use App\Remisione;
 class Cliente extends Model
 {
     protected $fillable = [
-        'name', 'last_name', 'email', 'telefono', 'direccion', 'descuento', 'condiciones_pago'
+        'name', 'email', 'telefono', 'direccion', 'descuento', 'condiciones_pago'
     ];
 
     //Uno a muchos

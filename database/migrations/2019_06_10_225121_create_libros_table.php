@@ -15,12 +15,13 @@ class CreateLibrosTable extends Migration
     {
         Schema::create('libros', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('clave', 50)->unique();
+            $table->string('clave', 50)->nullable();
             $table->string('ISBN');
             $table->string('titulo');
             $table->string('autor');
             $table->string('editorial');
             $table->string('edicion');
+            $table->float('costo_unitario', 8, 2);
             $table->timestamps();
         });
     }

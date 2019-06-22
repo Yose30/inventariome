@@ -13,9 +13,14 @@ import BootstrapVue from 'bootstrap-vue'
 
 Vue.use(BootstrapVue)
 
+Vue.use(require('vue-moment'));
+
+
 // app.js
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+
+// import Datepicker from 'vuejs-datepicker';
 
 /**
  * The following block of code may be used to automatically register your
@@ -32,6 +37,8 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 Vue.component('new-client-component', require('./components/NewClientComponent.vue').default);
 Vue.component('new-libro-component', require('./components/NewLibroComponent.vue').default);
 Vue.component('remision-component', require('./components/RemisionComponent.vue').default);
+Vue.component('devolucion-component', require('./components/DevolucionComponent.vue').default);
+Vue.component('listado-component', require('./components/ListadoComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -41,4 +48,5 @@ Vue.component('remision-component', require('./components/RemisionComponent.vue'
 
 const app = new Vue({
     el: '#app',
+
 });
