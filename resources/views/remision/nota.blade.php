@@ -10,11 +10,11 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <!-- Styles -->
         <style>
-            @import url('https://fonts.googleapis.com/css?family=Montserrat&display=swap');
+            @import url('https://fonts.googleapis.com/css?family=Montserrat&display=swap')
             html, body {
                 background-color: #fff;
                 color: #000000;
-                font-family: 'Montserrat', sans-serif;
+                'Nunito', sans-serif;
                 font-weight: 200;
                 height: 100vh;
                 margin: 0;
@@ -194,19 +194,14 @@
                     </tr>
                     <tr>
                         <td colspan="3">Nuve millones trecientos sesenta y cinco mil docientos cincuenta y cuatro pesos mx</td>
+                               
+                    </tr>
+                    <tr>
+                         <td colspan="5"><p >Av. del Taller # 460, Col. Jardín Balbuena C. P. 15900 <br/>Del. Venustiano Carranza, Ciudad de México.<br/>Tel: 55-5803-64-15        mail: tere.omega1@hotmail.com</p></td> 
                     </tr>
                 </table>
-                <tr>
-                <td colspan="5">
-                    <p >Av. del Taller # 460, Col. Jardín Balbuena C. P. 15900 <br/>Del. Venustiano Carranza, Ciudad de México.<br/>Tel: 55-5803-64-15        mail: tere.omega1@hotmail.com</p>
-                    <p ></p>
-                    <p></p>
-                </td>        
-                </tr>
-
-
-                <br>
-                   
+              
+               
                 </div>
                
             </main>
