@@ -26,10 +26,10 @@ class HomeController extends Controller
      */
     public function index()
     {
-       //return view('/home');
-        $remision = Remisione::whereid(1)->first();
-        $datos   = Dato::where('remision_id',$remision->id)->get();
-        return view('remision.nota',compact('remision','datos'));
+       return view('/home');
+        // $remision = Remisione::whereid(1)->first();
+        // $datos   = Dato::where('remision_id',$remision->id)->get();
+        // return view('remision.nota',compact('remision','datos'));
 
     }
 

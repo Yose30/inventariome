@@ -65,9 +65,11 @@
                     <a 
                         class="btn btn-info col-md-3"
                         v-if="mostrarOpciones"
-                        href="/imprimirSalida">
+                        :href="'/imprimirSalida/' + bdremision.id">
                         <i class="fa fa-print"></i>
                     </a>
+
+                    
                 </div>
             </div>
         </div>

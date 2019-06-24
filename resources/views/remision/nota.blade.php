@@ -10,7 +10,7 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <!-- Styles -->
         <style>
-            @import url('https://fonts.googleapis.com/css?family=Montserrat&display=swap')
+            /* @import url('https://fonts.googleapis.com/css?family=Montserrat&display=swap') */
             html, body {
                 background-color: #fff;
                 color: #000000;
@@ -88,7 +88,7 @@
                 <div align="center">
                 <table>
                     <tr>
-                        <th><img src="{{ asset('img/Globo.png')}}" height="100" width="100" align="right" ></th>
+                        <!-- <th><img src="{{ asset('img/Globo.png')}}" height="100" width="100" align="right" ></th> -->
                         <th><h1 >Omega Book Company S. A. de C. V.</h1></th>
                         <th></th> 
                         <th></th>
