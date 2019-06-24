@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -33,9 +33,9 @@
             <main class="py-4">
 
                 <div align="center">
-                <table style="width:100%" >
+                <table>
                     <tr>
-                        <th><img src="{{ asset('img/Globo.png')}}" height="100" width="100" align="right" ></th>
+                        <!-- <th><img src="{{ asset('img/Globo.png')}}" height="100" width="100" align="right"></th> -->
                         <th><h1 align="center">Omega Book Company S. A. de C. V.</h1></th>
                         <th></th> 
                         <th><p align="center">Folio<p></th>
@@ -69,10 +69,10 @@
                         <th style="width:34%"><p>Dirección:</p></th>
                     </tr>
                     <tr>
-                        <td rowspan="3"></td>
+                        <td></td>
                         <td><p>{{ $remision->cliente->condiciones_pago }}</p>
                         </td>
-                        <td rowspan="3">  <p>{{ $remision->cliente->direccion }}</p></td>
+                        <td>  <p>{{ $remision->cliente->direccion }}</p></td>
                     </tr>
 
                     <tr>
@@ -140,6 +140,7 @@
                         <td colspan="3"><p align="right">Nuve millones trecientos sesenta y cinco mil docientos cincuenta y cuatro pesos mx</p></td>
                     </tr>
                 </table>
+                <table>
                 <tr>
                 <td colspan="5"><p align="center">Av. del Taller # 460, Col. Jardín Balbuena
 C. P. 15900 Del. Venustiano Carranza, Ciudad de México.
@@ -147,7 +148,7 @@ Tel: 55-5803-64-15            mail: tere.omega1@hotmail.com</p></td>
                         
                     </tr>
 
-
+                </table>
                 <br>
                    
                 </div>

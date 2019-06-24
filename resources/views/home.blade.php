@@ -10,7 +10,7 @@
 @section('content')
 <div class="container">
 <a 
-                        class="btn btn-info col-md-3"
+                        class="btn btn-info"
                         href="{{ route('imprimirSalida') }}">
                         <i class="fa fa-print"></i>
                     </a>
