@@ -9,6 +9,11 @@
 
 @section('content')
 <div class="container">
+<a 
+                        class="btn btn-info col-md-3"
+                        href="{{ route('imprimirSalida') }}">
+                        <i class="fa fa-print"></i>
+                    </a>
     <div class="row justify-content-center">
         <div class="col-md-3">
             <div class="card">

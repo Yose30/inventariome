@@ -55,13 +55,19 @@
                         <i class="fa fa-plus"></i>
                     </b-button>
                     <div class="col-md-1"></div>
-                    <b-button 
+                    <!-- <b-button 
                         variant="info" 
                         class="col-md-3"
                         v-if="mostrarOpciones"
                         @click="imprimir">
                         <i class="fa fa-print"></i>
-                    </b-button>
+                    </b-button> -->
+                    <a 
+                        class="btn btn-info col-md-3"
+                        v-if="mostrarOpciones"
+                        href="/imprimirSalida">
+                        <i class="fa fa-print"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -379,7 +385,7 @@
             },
             imprimir(){
                 axios.get('/imprimirSalida', {params: {remision_id: this.bdremision.id}}).then(response => {
-                    console.log("Listo");
+                    console.log(response);
                 });
             }, 
         }

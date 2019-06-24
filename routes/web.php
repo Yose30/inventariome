@@ -59,4 +59,4 @@ Route::get('/mostrarLibros', 'LibroController@buscar')->name('mostrarLibros');
 //Datos del libro
 Route::get('/buscarISBN', 'LibroController@show')->name('buscarISBN');
 
-Route::get('/imprimirSalida', 'RemisionController@imprimirSalida')->name('imprimirSalida');
+Route::get('imprimirSalida', 'RemisionController@imprimirSalida')->name('imprimirSalida');

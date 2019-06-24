@@ -19,6 +19,13 @@
             </div>
             <div class="col-md-4">
                 <button class="btn btn-success" @click="guardar" v-if="btnGuardar"><i class="fa fa-check"></i> Concluir</button>
+                <b-button 
+                    variant="info" 
+                    class="col-md-3"
+                    v-if="btnImprimir"
+                    @click="imprimir">
+                    <i class="fa fa-print"></i>
+                </b-button>
             </div>
         </div>
         <hr>
@@ -152,6 +159,7 @@
                 btnGuardar: false,
                 txtBoton: '',
                 inputNRemision: false,
+                btnImprimir: false,
             }
         },
         methods: {
@@ -224,7 +232,10 @@
                 }).catch(error => {
                     console.log(error.response);
                 });
-            }
+            }, 
+            imprimir(){
+
+            },
         },
     }
 </script>

@@ -1827,6 +1827,13 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -1854,7 +1861,8 @@ __webpack_require__.r(__webpack_exports__);
       inputUnidades: false,
       btnGuardar: false,
       txtBoton: '',
-      inputNRemision: false
+      inputNRemision: false,
+      btnImprimir: false
     };
   },
   methods: {
@@ -1945,7 +1953,8 @@ __webpack_require__.r(__webpack_exports__);
       })["catch"](function (error) {
         console.log(error.response);
       });
-    }
+    },
+    imprimir: function imprimir() {}
   }
 });
 
@@ -2715,6 +2724,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2984,7 +2999,7 @@ __webpack_require__.r(__webpack_exports__);
           remision_id: this.bdremision.id
         }
       }).then(function (response) {
-        console.log("Listo");
+        console.log(response);
       });
     }
   }
@@ -67005,15 +67020,35 @@ var render = function() {
           ])
         ]),
         _vm._v(" "),
-        _c("div", { staticClass: "col-md-4" }, [
-          _vm.btnGuardar
-            ? _c(
-                "button",
-                { staticClass: "btn btn-success", on: { click: _vm.guardar } },
-                [_c("i", { staticClass: "fa fa-check" }), _vm._v(" Concluir")]
-              )
-            : _vm._e()
-        ])
+        _c(
+          "div",
+          { staticClass: "col-md-4" },
+          [
+            _vm.btnGuardar
+              ? _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-success",
+                    on: { click: _vm.guardar }
+                  },
+                  [_c("i", { staticClass: "fa fa-check" }), _vm._v(" Concluir")]
+                )
+              : _vm._e(),
+            _vm._v(" "),
+            _vm.btnImprimir
+              ? _c(
+                  "b-button",
+                  {
+                    staticClass: "col-md-3",
+                    attrs: { variant: "info" },
+                    on: { click: _vm.imprimir }
+                  },
+                  [_c("i", { staticClass: "fa fa-print" })]
+                )
+              : _vm._e()
+          ],
+          1
+        )
       ]),
       _vm._v(" "),
       _c("hr"),
@@ -68455,11 +68490,10 @@ var render = function() {
               _vm._v(" "),
               _vm.mostrarOpciones
                 ? _c(
-                    "b-button",
+                    "a",
                     {
-                      staticClass: "col-md-3",
-                      attrs: { variant: "info" },
-                      on: { click: _vm.imprimir }
+                      staticClass: "btn btn-info col-md-3",
+                      attrs: { href: "/imprimirSalida" }
                     },
                     [_c("i", { staticClass: "fa fa-print" })]
                   )
