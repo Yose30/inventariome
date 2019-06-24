@@ -1802,6 +1802,31 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -1878,12 +1903,12 @@ __webpack_require__.r(__webpack_exports__);
           remision_id: this.remision.id
         }
       }).then(function (response) {
-        _this2.devoluciones = response.data;
+        _this2.devoluciones = response.data.devoluciones;
         _this2.mostrarSalida = false;
         _this2.disabled = true;
         _this2.mostrarColumnas = true;
         _this2.total_devolucion = _this2.remision.total_devolucion;
-        _this2.total_pagar = _this2.remision.total_pagar;
+        _this2.total_pagar = response.data.remision.total_pagar;
 
         if (_this2.remision.estado != 'Terminado') {
           _this2.btnGuardar = true;
@@ -2316,6 +2341,11 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2453,6 +2483,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2499,6 +2535,13 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -2925,6 +2968,8 @@ __webpack_require__.r(__webpack_exports__);
       this.dato = {};
       this.inputLibro = true;
       this.inputISBN = true;
+      this.fecha = '';
+      this.inputFecha = false;
       this.inputUnidades = false;
       this.mostrarActualizar = false;
       this.mostrarBusqueda = true;
@@ -2932,6 +2977,15 @@ __webpack_require__.r(__webpack_exports__);
       this.mostrarGuardar = true;
       this.mostrarOpciones = false;
       this.mostrarTotal = false;
+    },
+    imprimir: function imprimir() {
+      axios.get('/imprimirSalida', {
+        params: {
+          remision_id: this.bdremision.id
+        }
+      }).then(function (response) {
+        console.log("Listo");
+      });
     }
   }
 });
@@ -67031,13 +67085,13 @@ var render = function() {
                 _vm._v(" "),
                 _c("th", { attrs: { scope: "col" } }, [_vm._v("Titulo")]),
                 _vm._v(" "),
-                _c("th", { attrs: { scope: "col" } }, [_vm._v("Unidades")]),
-                _vm._v(" "),
                 _c("th", { attrs: { scope: "col" } }, [
                   _vm._v("Costo unitario")
                 ]),
                 _vm._v(" "),
-                _c("th", { attrs: { scope: "col" } }, [_vm._v("Costo total")])
+                _c("th", { attrs: { scope: "col" } }, [_vm._v("Unidades")]),
+                _vm._v(" "),
+                _c("th", { attrs: { scope: "col" } }, [_vm._v("Subtotal")])
               ])
             ]),
             _vm._v(" "),
@@ -67049,9 +67103,9 @@ var render = function() {
                   _vm._v(" "),
                   _c("td", [_vm._v(_vm._s(registro.titulo))]),
                   _vm._v(" "),
-                  _c("td", [_vm._v(_vm._s(registro.unidades))]),
-                  _vm._v(" "),
                   _c("td", [_vm._v("$ " + _vm._s(registro.costo_unitario))]),
+                  _vm._v(" "),
+                  _c("td", [_vm._v(_vm._s(registro.unidades))]),
                   _vm._v(" "),
                   _c("td", [_vm._v("$ " + _vm._s(registro.total))])
                 ])
@@ -67079,6 +67133,10 @@ var render = function() {
                       _c("td", [_vm._v(_vm._s(devolucion.clave_libro))]),
                       _vm._v(" "),
                       _c("td", [_vm._v(_vm._s(devolucion.titulo))]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _vm._v("$ " + _vm._s(devolucion.costo_unitario))
+                      ]),
                       _vm._v(" "),
                       _c("td", [
                         _c("input", {
@@ -67127,13 +67185,7 @@ var render = function() {
                         })
                       ]),
                       _vm._v(" "),
-                      _c("td", [
-                        _vm._v("$ " + _vm._s(devolucion.costo_unitario))
-                      ]),
-                      _vm._v(" "),
-                      _c("td", [_vm._v("$ " + _vm._s(devolucion.total))]),
-                      _vm._v(" "),
-                      _c("td", [_vm._v("$ " + _vm._s(devolucion.total_resta))])
+                      _c("td", [_vm._v("$ " + _vm._s(devolucion.total))])
                     ])
                   }),
                   _vm._v(" "),
@@ -67148,7 +67200,46 @@ var render = function() {
                       _c("h5", [
                         _vm._v("$ " + _vm._s(_vm.remision.total_devolucion))
                       ])
-                    ]),
+                    ])
+                  ])
+                ],
+                2
+              )
+            ])
+          ])
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.mostrarColumnas
+        ? _c("div", { staticClass: "mt-2" }, [
+            _c("h4", [_vm._v("Remisión final")]),
+            _vm._v(" "),
+            _c("table", { staticClass: "table" }, [
+              _vm._m(1),
+              _vm._v(" "),
+              _c(
+                "tbody",
+                [
+                  _vm._l(_vm.devoluciones, function(devolucion, i) {
+                    return _c("tr", { key: i }, [
+                      _c("td", [_vm._v(_vm._s(devolucion.clave_libro))]),
+                      _vm._v(" "),
+                      _c("td", [_vm._v(_vm._s(devolucion.titulo))]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _vm._v("$ " + _vm._s(devolucion.costo_unitario))
+                      ]),
+                      _vm._v(" "),
+                      _c("td", [_vm._v(_vm._s(devolucion.unidades_resta))]),
+                      _vm._v(" "),
+                      _c("td", [_vm._v("$ " + _vm._s(devolucion.total_resta))])
+                    ])
+                  }),
+                  _vm._v(" "),
+                  _c("tr", [
+                    _c("td"),
+                    _c("td"),
+                    _c("td"),
+                    _c("td"),
                     _vm._v(" "),
                     _c("td", [
                       _c("h5", [
@@ -67177,13 +67268,29 @@ var staticRenderFns = [
         _vm._v(" "),
         _c("th", { attrs: { scope: "col" } }, [_vm._v("Titulo")]),
         _vm._v(" "),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Costo unitario")]),
+        _vm._v(" "),
         _c("th", { attrs: { scope: "col" } }, [_vm._v("Unidades")]),
+        _vm._v(" "),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Subtotal")])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", [
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("ISBN")]),
+        _vm._v(" "),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Titulo")]),
         _vm._v(" "),
         _c("th", { attrs: { scope: "col" } }, [_vm._v("Costo unitario")]),
         _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Costo total")]),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Unidades")]),
         _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Total")])
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Subtotal")])
       ])
     ])
   }
@@ -67662,12 +67769,15 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    [
+  return _c("div", { attrs: { align: "center" } }, [
+    _c("h4", [_vm._v("Agregar cliente")]),
+    _vm._v(" "),
+    _c("hr"),
+    _vm._v(" "),
+    _c("div", { staticClass: "card col-md-8" }, [
       _c(
-        "b-card",
-        { attrs: { title: "Agregar cliente" } },
+        "div",
+        { staticClass: "card-body" },
         [
           _c(
             "b-form",
@@ -67683,7 +67793,10 @@ var render = function() {
               _c("b-row", { staticClass: "my-1" }, [
                 _c(
                   "label",
-                  { staticClass: "col-md-5", attrs: { for: "input-name" } },
+                  {
+                    staticClass: "col-md-5",
+                    attrs: { align: "right", for: "input-name" }
+                  },
                   [_vm._v("Nombre")]
                 ),
                 _vm._v(" "),
@@ -67715,7 +67828,10 @@ var render = function() {
               _c("b-row", { staticClass: "my-1" }, [
                 _c(
                   "label",
-                  { staticClass: "col-md-5", attrs: { for: "input-email" } },
+                  {
+                    staticClass: "col-md-5",
+                    attrs: { align: "right", for: "input-email" }
+                  },
                   [_vm._v("Correo electrónico")]
                 ),
                 _vm._v(" "),
@@ -67747,7 +67863,10 @@ var render = function() {
               _c("b-row", { staticClass: "my-1" }, [
                 _c(
                   "label",
-                  { staticClass: "col-md-5", attrs: { for: "input-telefono" } },
+                  {
+                    staticClass: "col-md-5",
+                    attrs: { align: "right", for: "input-telefono" }
+                  },
                   [_vm._v("Teléfono")]
                 ),
                 _vm._v(" "),
@@ -67781,7 +67900,7 @@ var render = function() {
                   "label",
                   {
                     staticClass: "col-md-5",
-                    attrs: { for: "input-direccion" }
+                    attrs: { align: "right", for: "input-direccion" }
                   },
                   [_vm._v("Dirección")]
                 ),
@@ -67816,7 +67935,7 @@ var render = function() {
                   "label",
                   {
                     staticClass: "col-md-5",
-                    attrs: { for: "input-descuento" }
+                    attrs: { align: "right", for: "input-descuento" }
                   },
                   [_vm._v("Descuento")]
                 ),
@@ -67855,7 +67974,7 @@ var render = function() {
                   "label",
                   {
                     staticClass: "col-md-5",
-                    attrs: { for: "input-condiciones_pago" }
+                    attrs: { align: "right", for: "input-condiciones_pago" }
                   },
                   [_vm._v("Condiciones de pago")]
                 ),
@@ -67885,6 +68004,8 @@ var render = function() {
                 )
               ]),
               _vm._v(" "),
+              _c("hr"),
+              _vm._v(" "),
               _c(
                 "b-button",
                 { attrs: { type: "submit", variant: "success" } },
@@ -67897,15 +68018,14 @@ var render = function() {
           _vm.success
             ? _c("div", { staticClass: "alert alert-success mt-3" }, [
                 _c("i", { staticClass: "fa fa-check" }),
-                _vm._v("Cliente guardado\n        ")
+                _vm._v("Cliente guardado\n            ")
               ])
             : _vm._e()
         ],
         1
       )
-    ],
-    1
-  )
+    ])
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -67929,12 +68049,15 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    [
+  return _c("div", { attrs: { align: "center" } }, [
+    _c("h4", [_vm._v("Agregar libro")]),
+    _vm._v(" "),
+    _c("hr"),
+    _vm._v(" "),
+    _c("div", { staticClass: "card col-md-8" }, [
       _c(
-        "b-card",
-        { attrs: { title: "Agregar libro" } },
+        "div",
+        { staticClass: "card-body" },
         [
           _c(
             "b-form",
@@ -67950,39 +68073,10 @@ var render = function() {
               _c("b-row", { staticClass: "my-1" }, [
                 _c(
                   "label",
-                  { staticClass: "col-md-5", attrs: { for: "input-clave" } },
-                  [_vm._v("Clave")]
-                ),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  { staticClass: "col-md-7" },
-                  [
-                    _c("b-form-input", {
-                      attrs: { id: "input-clave", required: "" },
-                      model: {
-                        value: _vm.form.clave,
-                        callback: function($$v) {
-                          _vm.$set(_vm.form, "clave", $$v)
-                        },
-                        expression: "form.clave"
-                      }
-                    }),
-                    _vm._v(" "),
-                    _vm.errors && _vm.errors.clave
-                      ? _c("div", { staticClass: "text-danger" }, [
-                          _vm._v(_vm._s(_vm.errors.clave[0]))
-                        ])
-                      : _vm._e()
-                  ],
-                  1
-                )
-              ]),
-              _vm._v(" "),
-              _c("b-row", { staticClass: "my-1" }, [
-                _c(
-                  "label",
-                  { staticClass: "col-md-5", attrs: { for: "input-titulo" } },
+                  {
+                    staticClass: "col-md-5",
+                    attrs: { align: "right", for: "input-titulo" }
+                  },
                   [_vm._v("Titulo")]
                 ),
                 _vm._v(" "),
@@ -68014,7 +68108,10 @@ var render = function() {
               _c("b-row", { staticClass: "my-1" }, [
                 _c(
                   "label",
-                  { staticClass: "col-md-5", attrs: { for: "input-ISBN" } },
+                  {
+                    staticClass: "col-md-5",
+                    attrs: { align: "right", for: "input-ISBN" }
+                  },
                   [_vm._v("ISBN")]
                 ),
                 _vm._v(" "),
@@ -68046,7 +68143,10 @@ var render = function() {
               _c("b-row", { staticClass: "my-1" }, [
                 _c(
                   "label",
-                  { staticClass: "col-md-5", attrs: { for: "input-autor" } },
+                  {
+                    staticClass: "col-md-5",
+                    attrs: { align: "right", for: "input-autor" }
+                  },
                   [_vm._v("Autor")]
                 ),
                 _vm._v(" "),
@@ -68080,7 +68180,7 @@ var render = function() {
                   "label",
                   {
                     staticClass: "col-md-5",
-                    attrs: { for: "input-editorial" }
+                    attrs: { align: "right", for: "input-editorial" }
                   },
                   [_vm._v("Editorial")]
                 ),
@@ -68113,7 +68213,10 @@ var render = function() {
               _c("b-row", { staticClass: "my-1" }, [
                 _c(
                   "label",
-                  { staticClass: "col-md-5", attrs: { for: "input-edicion" } },
+                  {
+                    staticClass: "col-md-5",
+                    attrs: { align: "right", for: "input-edicion" }
+                  },
                   [_vm._v("Edición")]
                 ),
                 _vm._v(" "),
@@ -68147,7 +68250,7 @@ var render = function() {
                   "label",
                   {
                     staticClass: "col-md-5",
-                    attrs: { for: "input-costo_unitario" }
+                    attrs: { align: "right", for: "input-costo_unitario" }
                   },
                   [_vm._v("Costo unitario")]
                 ),
@@ -68181,6 +68284,8 @@ var render = function() {
                 )
               ]),
               _vm._v(" "),
+              _c("hr"),
+              _vm._v(" "),
               _c(
                 "b-button",
                 { attrs: { type: "submit", variant: "success" } },
@@ -68193,15 +68298,14 @@ var render = function() {
           _vm.success
             ? _c("div", { staticClass: "alert alert-success mt-3" }, [
                 _c("i", { staticClass: "fa fa-check" }),
-                _vm._v("Libro guardado\n        ")
+                _vm._v("Libro guardado\n            ")
               ])
             : _vm._e()
         ],
         1
       )
-    ],
-    1
-  )
+    ])
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -68323,8 +68427,6 @@ var render = function() {
             "div",
             { staticClass: "row", attrs: { align: "right" } },
             [
-              _c("div", { staticClass: "col-md-6" }),
-              _vm._v(" "),
               _vm.mostrarOpciones
                 ? _c(
                     "b-button",
@@ -68346,6 +68448,20 @@ var render = function() {
                       on: { click: _vm.nuevaRemision }
                     },
                     [_c("i", { staticClass: "fa fa-plus" })]
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-md-1" }),
+              _vm._v(" "),
+              _vm.mostrarOpciones
+                ? _c(
+                    "b-button",
+                    {
+                      staticClass: "col-md-3",
+                      attrs: { variant: "info" },
+                      on: { click: _vm.imprimir }
+                    },
+                    [_c("i", { staticClass: "fa fa-print" })]
                   )
                 : _vm._e()
             ],

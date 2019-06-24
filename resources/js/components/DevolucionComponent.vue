@@ -42,17 +42,17 @@
                     <tr>
                         <th scope="col">ISBN</th>
                         <th scope="col">Titulo</th>
-                        <th scope="col">Unidades</th>
                         <th scope="col">Costo unitario</th>
-                        <th scope="col">Costo total</th>
+                        <th scope="col">Unidades</th>
+                        <th scope="col">Subtotal</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(registro, i) in registros" v-bind:key="i">
                         <td>{{ registro.isbn_libro }}</td>
                         <td>{{ registro.titulo }}</td>
-                        <td>{{ registro.unidades }}</td>
                         <td>$ {{ registro.costo_unitario }}</td>
+                        <td>{{ registro.unidades }}</td>
                         <td>$ {{ registro.total }}</td>
                     </tr>
                 </tbody>
@@ -67,16 +67,16 @@
                     <tr>
                         <th scope="col">ISBN</th>
                         <th scope="col">Titulo</th>
-                        <th scope="col">Unidades</th>
                         <th scope="col">Costo unitario</th>
-                        <th scope="col">Costo total</th>
-                        <th scope="col">Total</th>
+                        <th scope="col">Unidades</th>
+                        <th scope="col">Subtotal</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(devolucion, i) in devoluciones" v-bind:key="i">
                         <td>{{ devolucion.clave_libro }}</td>
                         <td>{{ devolucion.titulo }}</td>
+                        <td>$ {{ devolucion.costo_unitario }}</td>
                         <td>
                             <input 
                             type="number" 
@@ -87,14 +87,39 @@
                             @keyup.enter="guardarUnidades(devolucion, i)"
                             ></input>
                         </td>
-                        <td>$ {{ devolucion.costo_unitario }}</td>
                         <td>$ {{ devolucion.total }}</td>
-                        <td>$ {{ devolucion.total_resta }}</td>
                     </tr>
                     <tr>
                         <td></td><td></td>
                         <td></td><td></td>
                         <td><h5>$ {{ remision.total_devolucion }}</h5></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div v-if="mostrarColumnas" class="mt-2">
+            <h4>Remisión final</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">ISBN</th>
+                        <th scope="col">Titulo</th>
+                        <th scope="col">Costo unitario</th>
+                        <th scope="col">Unidades</th>
+                        <th scope="col">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(devolucion, i) in devoluciones" v-bind:key="i">
+                        <td>{{ devolucion.clave_libro }}</td>
+                        <td>{{ devolucion.titulo }}</td>
+                        <td>$ {{ devolucion.costo_unitario }}</td>
+                        <td>{{ devolucion.unidades_resta }}</td>
+                        <td>$ {{ devolucion.total_resta }}</td>
+                    </tr>
+                    <tr>
+                        <td></td><td></td><td></td><td></td>
                         <td><h5>$ {{ remision.total_pagar }}</h5></td>
                     </tr>
                 </tbody>
@@ -162,12 +187,12 @@
             },
             registrarDevolucion(){
                 axios.get('/devoluciones_remision', {params: {remision_id: this.remision.id}}).then(response => {
-                    this.devoluciones = response.data;
+                    this.devoluciones = response.data.devoluciones;
                     this.mostrarSalida = false;
                     this.disabled = true;
                     this.mostrarColumnas = true;
                     this.total_devolucion = this.remision.total_devolucion;
-                    this.total_pagar = this.remision.total_pagar;
+                    this.total_pagar = response.data.remision.total_pagar;
 
                     if(this.remision.estado != 'Terminado'){
                         this.btnGuardar = true;

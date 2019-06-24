@@ -22,6 +22,7 @@ class CreateLibrosTable extends Migration
             $table->string('editorial');
             $table->string('edicion');
             $table->float('costo_unitario', 8, 2);
+            $table->float('iva')->default(0);
             $table->timestamps();
         });
     }

@@ -13,7 +13,8 @@ class DevolucioneController extends Controller
 {
     public function show(){
         $remision_id = Input::get('remision_id');
-        $datos = Dato::where('remision_id', $remision_id)->get();
+        $remision = Remisione::whereId($remision_id)->first();
+        $datos = Dato::where('remision_id', $remision->id)->get();
         
         try {
 
@@ -21,7 +22,14 @@ class DevolucioneController extends Controller
                 
                 \DB::beginTransaction();
 
-                Remisione::whereId($remision_id)->update(['estado' => 'Proceso']);
+                $remision->update(['estado' => 'Proceso']);
+
+                $total_devolucion = 0;
+                foreach($datos as $d){
+                    $total_devolucion += $d->total;            
+                }
+
+                $remision->update(['total_pagar' => $total_devolucion]);
 
                 foreach($datos as $dato){
                     $devolucion = Devolucione::create([
@@ -29,14 +37,17 @@ class DevolucioneController extends Controller
                         'dato_id'   => $dato->id,
                         'clave_libro' => $dato->isbn_libro,
                         'titulo'    => $dato->titulo,
-                        'costo_unitario' => $dato->costo_unitario
+                        'costo_unitario' => $dato->costo_unitario,
+                        'unidades_resta' => $dato->unidades,
+                        'total_resta' => $dato->total,
                     ]);
                 }
+
                 \DB::commit();
             }
         
             $devoluciones = Devolucione::where('remision_id', $remision_id)->get();
-            return response()->json($devoluciones);
+            return response()->json(['devoluciones' => $devoluciones, 'remision' => $remision]);
         
         } catch (Exception $e) {
             \DB::rollBack();
@@ -51,6 +62,7 @@ class DevolucioneController extends Controller
         $cliente = Cliente::whereId($remision->cliente_id)->first();
 
         $unidades = $request->unidades;
+        $unidades_resta = $dato->unidades - $unidades;
         $costo_unitario = $devolucion->costo_unitario;
         $descuento = $cliente->descuento;
 
@@ -61,6 +73,7 @@ class DevolucioneController extends Controller
             \DB::beginTransaction();
             
             $devolucion->unidades = $unidades;
+            $devolucion->unidades_resta = $unidades_resta;
             $devolucion->total = $total;
             $devolucion->total_resta = $total_resta;
             $devolucion->save();

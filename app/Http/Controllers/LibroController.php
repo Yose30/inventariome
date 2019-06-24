@@ -12,12 +12,12 @@ class LibroController extends Controller
     public function store(Request $request){
         $this->validate($request, [
             'titulo' => 'min:5|max:100|required|string',
-            'clave' => 'min:5|max:20|required|string',
+            // 'clave' => 'min:5|max:20|required|string',
             'ISBN' => 'min:5|max:100|required|string',
             'autor' => 'min:5|max:100|required|string',
             'editorial' => 'required|min:5|max:100|required|string',
             'edicion' => 'min:3|max:100|required|string',
-            'costo_unitario' => 'required'
+            'costo_unitario' => 'required|min:3',
         ]);
         
         try {

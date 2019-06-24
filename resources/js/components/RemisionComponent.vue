@@ -40,7 +40,6 @@
                 </b-button>
                 
                 <div class="row" align=right>
-                    <div class="col-md-6"></div>
                     <b-button 
                         variant="warning" 
                         class="col-md-3"
@@ -54,6 +53,14 @@
                         @click="nuevaRemision"
                         v-if="mostrarOpciones">
                         <i class="fa fa-plus"></i>
+                    </b-button>
+                    <div class="col-md-1"></div>
+                    <b-button 
+                        variant="info" 
+                        class="col-md-3"
+                        v-if="mostrarOpciones"
+                        @click="imprimir">
+                        <i class="fa fa-print"></i>
                     </b-button>
                 </div>
             </div>
@@ -360,6 +367,8 @@
                 this.dato = {};
                 this.inputLibro = true;
                 this.inputISBN = true;
+                this.fecha = '';
+                this.inputFecha = false;
                 this.inputUnidades = false;
                 this.mostrarActualizar = false;
                 this.mostrarBusqueda = true;
@@ -368,6 +377,11 @@
                 this.mostrarOpciones = false;
                 this.mostrarTotal = false;
             },
+            imprimir(){
+                axios.get('/imprimirSalida', {params: {remision_id: this.bdremision.id}}).then(response => {
+                    console.log("Listo");
+                });
+            }, 
         }
     }
 </script>

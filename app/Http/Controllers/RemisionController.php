@@ -151,11 +151,16 @@ class RemisionController extends Controller
         return response()->json($remisiones);
     }
 
-    public function generarPDF(){
-        $remisiones = Remisione::with('cliente')->get();
-        $data['remisiones'] = $remisiones;
+    public function imprimirSalida(){
+        $remision_id = Input::get('remision_id');
+        $remision = Remisione::whereId('remision_id')->first();
+        $datos = Dato::where('remision_id', $remision->id)->get();
+
+        $data['remision'] = $remision;
+        $data['datos'] = $datos;
         
         $pdf = PDF::loadView('remision.nota', $data);
-        return $pdf->download('prueba.pdf');
+
+        return $pdf->download('Nota-remision.pdf');
     }
 }

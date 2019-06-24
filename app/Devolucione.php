@@ -9,7 +9,16 @@ use App\Dato;
 class Devolucione extends Model
 {
     protected $fillable = [
-        'id', 'remision_id', 'dato_id', 'clave_libro', 'titulo', 'unidades', 'costo_unitario', 'total', 'total_resta'
+        'id', 
+        'remision_id', 
+        'dato_id', 
+        'clave_libro', 
+        'titulo', 
+        'unidades', 
+        'costo_unitario', 
+        'total', 
+        'total_resta',
+        'unidades_resta'
     ];
 
     //Uno a muchos (inversa)

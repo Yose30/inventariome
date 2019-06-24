@@ -9,7 +9,6 @@
 
 @section('content')
 <div class="container">
-    <a href="{{ route('generar_nota') }}">Prueba</a>
     <div class="row justify-content-center">
         <div class="col-md-3">
             <div class="card">

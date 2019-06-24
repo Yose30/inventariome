@@ -10,7 +10,15 @@ use App\Devolucione;
 class Remisione extends Model
 {
     protected $fillable = [
-        'id', 'cliente_id', 'tipo', 'total', 'total_devolucion', 'total_pagar', 'fecha_entrega', 'estado', 'fecha_creacion'
+        'id', 
+        'cliente_id', 
+        'tipo', 
+        'total', 
+        'total_devolucion', 
+        'total_pagar', 
+        'fecha_entrega', 
+        'estado', 
+        'fecha_creacion'
     ];
 
     //Uno a muchos (Inversa)

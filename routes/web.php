@@ -17,8 +17,7 @@ Route::get('/', function () {
 
 Auth::routes();
 
-// Route::get('/home', 'HomeController@index')->name('home');
-Route::get('remision/nota', 'HomeController@index')->name('remision.nota');
+Route::get('/home', 'HomeController@index')->name('home');
 
 //Agregar cliente
 Route::post('new_client', 'ClienteController@store')->name('new_client');
@@ -60,4 +59,4 @@ Route::get('/mostrarLibros', 'LibroController@buscar')->name('mostrarLibros');
 //Datos del libro
 Route::get('/buscarISBN', 'LibroController@show')->name('buscarISBN');
 
-Route::get('generar_nota', 'RemisionController@generarPDF')->name('generar_nota');
+Route::get('/imprimirSalida', 'RemisionController@imprimirSalida')->name('imprimirSalida');
