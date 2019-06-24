@@ -151,9 +151,9 @@ class RemisionController extends Controller
         return response()->json($remisiones);
     }
 
-    public function imprimirSalida(){
+    public function imprimirSalida($id){
         //$remision_id = Input::get('remision_id');
-        $remision = Remisione::whereId(1)->first();
+        $remision = Remisione::whereId($id)->first();
         $datos = Dato::where('remision_id', $remision->id)->get();
 
         $data['remision'] = $remision;

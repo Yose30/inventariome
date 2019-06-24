@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,47 +10,55 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <!-- Styles -->
         <style>
-            
+            @page {
+                margin: 160px 50px;
+                }
             html, body {
                 background-color: #fff;
                 color: #000000;
-                'Nunito', sans-serif;
+                font-family:'Nunito', sans-serif;
                 font-weight: 200;
                 height: 100vh;
                 margin: 0;
             }
             h1{
-                font-size:32px;
+                font-size:18px;
             }
             p{
+                font-size:10px;
                 line-height:1.1;
             }
-            .card .card-body{
-                border-style: solid;
-                border-width: 1px;
-                height: 200px;
-            }
+            
             table{
                 border-collapse: collapse;
-                border-width: 1px solid #ddd;
                 width: 100%;
+                
+                
             }
             th, td {
-                padding: 8px;
-                border-width: 1px solid #ddd;
+                border-collapse: collapse;
+                padding: 1px;
+                border-left:1px solid #ddd;
+                border-right:1px solid #ddd;
+                border-top:1px solid #ddd;
+                border-bottom:1px solid #ddd;
+                
+                
             }
             th{
+                border-collapse: collapse;
                 text-align:center;
-                padding: 15px;
+                font-size:12px;
+                
             }
             td{
+                border-collapse: collapse;
                 text-align:left;
-                padding: 15px;
+                font-size:10px;
 
             }
-            .thheader{
-                border-width: 1px solid #ddd;
-            }
+            
+           
             .sinBorde{
                 border-width: 0px;
             }
@@ -58,6 +66,13 @@
             {
                 border-left:1px solid #ddd;
                 border-right:1px solid #ddd;
+                
+            }
+            .bordesVerTot
+            {
+                
+                border-right:1px solid #ddd;
+               
             }
             
             #qr{
@@ -69,7 +84,6 @@
 
             }
             #DFM{
-                padding: 0px;
                 text-align:center;
                 font-weight: bold;
             }
@@ -82,16 +96,39 @@
             #folio{
                 text-align:center;
                 color:red;
-                font-size:18px;
+                font-size:14px;
             }
             #total{
                 text-align:right;
                 font-weight: bold;
-                font-size:24px;
+                font-size:14px;
 
 
             }
 
+
+            footer {
+                color:black;
+                position: fixed;
+                left: 100px;
+                bottom: 0px;
+                right: 0px;
+                height: 100px;
+                border-bottom: 0px solid #ddd;
+                }
+                footer .page:after {
+                content: counter(page);
+                }
+                footer table {
+                width: 100%;
+                }
+                footer p {
+                text-align: center;
+                }
+                footer .izq {
+                text-align: center;
+                }
+           
         </style>
     </head>
     <body>
@@ -99,10 +136,11 @@
             <main class="py-4">
 
                 <div align="center">
-                <table style="width:100%" >
+                <table cellpadding="100">
                     <tr>
-                        <th class="sinBorde"><img src="{{ asset('img/Globo.png')}}" height="100" width="100" align="right" ></th>
-                        <th class="sinBorde"><h1 >Omega Book Company S. A. de C. V.</h1></th>
+                        <!--<img src="{{ asset('img/Globo.png')}}" height="100" width="100" align="right" ></th> -->
+                        <th class="sinBorde"></th>
+                        <th class="sinBorde"><h1>Omega Book Company S. A. de C. V.</h1></th>
                         <th class="sinBorde"></th> 
                         <th class="sinBorde"></th>
                     </tr>
@@ -122,33 +160,33 @@
                     <tr>
                         <td class="sinBorde"></td>
                         <td class="sinBorde"></td>
-                        <td class="sinBorde" style="width:22%" id="tdder">Fecha:</td> 
-                        <td class="sinBorde">
-                            <p>{{ $remision->fecha_entrega }}</p>
+                        <td class="sinBorde" style="text-align:right"> <p>Fecha </p> </td>
+                        <td class="sinBorde" id="tdder">
+                            <p align="center">{{ $remision->fecha_entrega }}</p>
                         </td>
                     </tr>
                 </table>
-                <br/>
+             
 
                 <table style="width:100%" >
                     <tr>
-                        <th style="width:33%">Cliente:</th>
-                        <th style="width:33%">Forma de pago:</th> 
-                        <th style="width:34%">Dirección:</th>
+                        <th  style="width:33%">Cliente:</th>
+                        <th  style="width:33%">Forma de pago:</th> 
+                        <th  style="width:34%">Dirección:</th>
                     </tr>
                     <tr>
-                        <td rowspan="3">{{ $remision->cliente->name }}</td>
-                        <td>
+                        <td  rowspan="3">{{ $remision->cliente->name }}</td>
+                        <td >
                             <p>{{ $remision->cliente->condiciones_pago }}</p>
                         </td>
-                        <td rowspan="3">  
+                        <td  rowspan="3">  
                             <p>{{ $remision->cliente->direccion }}</p>
                         </td>
                     </tr>
 
                     <tr>
                        
-                        <td style="width:33%" id="contacto">Contacto:</td>
+                        <td  style="width:33%" id="contacto">Contacto:</td>
                        
                     </tr>
                     <tr>
@@ -166,11 +204,11 @@
 
                 <table style="width:100%">
                     <tr>
-                        <th class="thheader">ISBN</th>
-                        <th class="thheader">Libro</th> 
-                        <th class="thheader">Unidades</th>
-                        <th class="thheader">Costo Unitario</th>
-                        <th class="thheader">Subtotal</th>
+                        <th >ISBN</th>
+                        <th >Libro</th> 
+                        <th >Unidades</th>
+                        <th >Costo Unitario</th>
+                        <th >Subtotal</th>
                     </tr>
                     @foreach($datos as $dato)
                     <tr>
@@ -186,23 +224,32 @@
                    
 
                     <tr>
-                        <td class="sinBorde" colspan="2" rowspan="2" id="qr" align="center"><img src="{{ asset('img/QR.jpg')}}" height="150px" width="300px"  ></td>
-                        <td colspan="2"  id="total">TOTAL:</td>
-                        <td id="total">{{$remision -> total}}</td>
+                        <td class="sinBorde"class="sinBorde" colspan="2" rowspan="2" id="qr" align="center"><!--<img src="{{ asset('img/QR.jpg')}}" height="150px" width="300px"  >--></td>
+                        <td class="bordesVerTot"colspan="2"  id="total">TOTAL:</td>
+                        <td class="bordesVer"id="total">{{$remision -> total}}</td>
                     </tr>
                     
                     <tr>
-                        <td colspan="3">Nuve millones trecientos sesenta y cinco mil docientos cincuenta y cuatro pesos mx</td>
+                        <td class="sinBorde" id="total" colspan="3">Nuve millones trecientos sesenta y cinco mil docientos cincuenta y cuatro pesos mx</td>
                                
                     </tr>
-                    <tr class="sinBorde">
-                         <td colspan="5"><p align="center">Av. del Taller # 460, Col. Jardín Balbuena C. P. 15900 <br/>Del. Venustiano Carranza, Ciudad de México.<br/>Tel: 55-5803-64-15        mail: tere.omega1@hotmail.com</p></td> 
-                    </tr>
+                    
                 </table>
-              
-               
+                
+
+                <footer>
+                    <table>
+                    <tr>
+                        <td>
+                            <p class="izq">
+                            <p> Av. del Taller # 460, Col. Jardín Balbuena C. P. 15900 <br/>Del. Venustiano Carranza, Ciudad de México.<br/>Tel: 55-5803-64-15        mail: tere.omega1@hotmail.com</p>
+                            </p>
+                        </td>
+                    </tr>
+                    </table>
+                </footer>
+                
                 </div>
-               
             </main>
         </div>
     </body>
