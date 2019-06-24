@@ -10,7 +10,7 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <!-- Styles -->
         <style>
-            @import url('https://fonts.googleapis.com/css?family=Montserrat&display=swap')
+            
             html, body {
                 background-color: #fff;
                 color: #000000;
@@ -32,11 +32,12 @@
             }
             table{
                 border-collapse: collapse;
+                border-width: 1px solid #ddd;
                 width: 100%;
             }
             th, td {
                 padding: 8px;
-                border-bottom: 1px solid #ddd;
+                border-width: 1px solid #ddd;
             }
             th{
                 text-align:center;
@@ -47,6 +48,18 @@
                 padding: 15px;
 
             }
+            .thheader{
+                border-width: 1px solid #ddd;
+            }
+            .sinBorde{
+                border-width: 0px;
+            }
+            .bordesVer
+            {
+                border-left:1px solid #ddd;
+                border-right:1px solid #ddd;
+            }
+            
             #qr{
                 align:center;
             }
@@ -88,29 +101,29 @@
                 <div align="center">
                 <table style="width:100%" >
                     <tr>
-                        <th><img src="{{ asset('img/Globo.png')}}" height="100" width="100" align="right" ></th>
-                        <th><h1 >Omega Book Company S. A. de C. V.</h1></th>
-                        <th></th> 
-                        <th></th>
+                        <th class="sinBorde"><img src="{{ asset('img/Globo.png')}}" height="100" width="100" align="right" ></th>
+                        <th class="sinBorde"><h1 >Omega Book Company S. A. de C. V.</h1></th>
+                        <th class="sinBorde"></th> 
+                        <th class="sinBorde"></th>
                     </tr>
                     <tr>
-                        <td></td>
-                        <td id="DFM">Distribuidor for Mexico</td>
-                        <td ></td>
-                        <td id="contacto">Folio</td>
+                        <td class="sinBorde"></td>
+                        <td class="sinBorde" id="DFM">Distribuidor for Mexico</td>
+                        <td class="sinBorde" ></td>
+                        <td class="sinBorde" id="contacto">Folio</td>
                     </tr>
 
                     <tr>
-                        <td></td>
-                        <td><br></td>
-                        <td></td>
-                        <td id="folio">{{$remision -> id}}</td>
+                        <td class="sinBorde"></td>
+                        <td class="sinBorde"><br></td>
+                        <td class="sinBorde"></td>
+                        <td class="sinBorde" id="folio">{{$remision -> id}}</td>
                     </tr>
                     <tr>
-                        <td></td>
-                        <td></td>
-                        <td style="width:22%" id="tdder">Fecha:</td> 
-                        <td >
+                        <td class="sinBorde"></td>
+                        <td class="sinBorde"></td>
+                        <td class="sinBorde" style="width:22%" id="tdder">Fecha:</td> 
+                        <td class="sinBorde">
                             <p>{{ $remision->fecha_entrega }}</p>
                         </td>
                     </tr>
@@ -153,51 +166,37 @@
 
                 <table style="width:100%">
                     <tr>
-                        <th>ISBN</th>
-                        <th>Libro</th> 
-                        <th>Unidades</th>
-                        <th>Costo Unitario</th>
-                        <th>Subtotal</th>
+                        <th class="thheader">ISBN</th>
+                        <th class="thheader">Libro</th> 
+                        <th class="thheader">Unidades</th>
+                        <th class="thheader">Costo Unitario</th>
+                        <th class="thheader">Subtotal</th>
                     </tr>
                     @foreach($datos as $dato)
                     <tr>
 
-                        <td style="width:20%">{{ $dato->isbn_libro }}</td>
-                        <td style="width:25%">{{ $dato->titulo }}</td> 
-                        <td style="width:15%" id="tdcent">{{ $dato->unidades }}</td>
-                        <td style="width:20%"  id="tdder">{{ $dato->costo_unitario }}</td>
-                        <td style="width:20%"  id="tdder">{{ $dato->total }}</td>
+                        <td class="bordesVer" style="width:20%">{{ $dato->isbn_libro }}</td>
+                        <td class="bordesVer" style="width:25%">{{ $dato->titulo }}</td> 
+                        <td class="bordesVer" style="width:15%" id="tdcent">{{ $dato->unidades }}</td>
+                        <td class="bordesVer" style="width:20%"  id="tdder">{{ $dato->costo_unitario }}</td>
+                        <td class="bordesVer" style="width:20%"  id="tdder">{{ $dato->total }}</td>
 
                     </tr>
                     @endforeach
-                    <tr>
-                        <td></td>
-                        <td></td> 
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
+                   
 
                     <tr>
-                        <td colspan="2" rowspan="7" id="qr" align="center"><img src="{{ asset('img/QR.jpg')}}" height="150px" width="300px"  ></td>
-                        <td colspan="2"></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"></td>
-                        <td></td>
-                    </tr>
-
-                    <tr>
+                        <td class="sinBorde" colspan="2" rowspan="2" id="qr" align="center"><img src="{{ asset('img/QR.jpg')}}" height="150px" width="300px"  ></td>
                         <td colspan="2"  id="total">TOTAL:</td>
                         <td id="total">{{$remision -> total}}</td>
                     </tr>
+                    
                     <tr>
                         <td colspan="3">Nuve millones trecientos sesenta y cinco mil docientos cincuenta y cuatro pesos mx</td>
                                
                     </tr>
-                    <tr>
-                         <td colspan="5"><p >Av. del Taller # 460, Col. Jardín Balbuena C. P. 15900 <br/>Del. Venustiano Carranza, Ciudad de México.<br/>Tel: 55-5803-64-15        mail: tere.omega1@hotmail.com</p></td> 
+                    <tr class="sinBorde">
+                         <td colspan="5"><p align="center">Av. del Taller # 460, Col. Jardín Balbuena C. P. 15900 <br/>Del. Venustiano Carranza, Ciudad de México.<br/>Tel: 55-5803-64-15        mail: tere.omega1@hotmail.com</p></td> 
                     </tr>
                 </table>
               
