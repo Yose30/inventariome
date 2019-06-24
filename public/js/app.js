@@ -1697,6 +1697,45 @@ module.exports = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -1836,34 +1875,36 @@ __webpack_require__.r(__webpack_exports__);
 //
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
-    return {
+    return _defineProperty({
       numero: 0,
-      registros: [],
-      remision: {},
-      id_actualizar: -1,
-      actualizar: false,
+      //Variable del input
+      inputNRemision: false,
+      //Indica si esta habilitado o no
       respuesta: '',
-      options: [{
-        value: 1,
-        text: 'Iniciado'
-      }, {
-        value: 1,
-        text: 'Proceso'
-      }, {
-        value: 1,
-        text: 'Terminado'
-      }],
+      //Indica si es correcto o no el numero de remision
+      btnGuardar: false,
+      //Indica si se muestra el boton de guardar
+      btnImprimir: false,
+      //ndica si se muestra el boton de imprimir
       mostrarDatos: false,
+      //Boton para registrar la devolucion
+      txtBoton: '',
+      //Mensaje del boton de registrar devolucion
       mostrarSalida: false,
       mostrarColumnas: false,
+      mostrarDevolucion: false,
+      mostrarFinal: false,
+      //Indica si se muestra el collspan
+      registros: [],
+      //Array de registros de salida
+      remision: {},
+      //Datos de la remision
       devoluciones: [],
-      disabled: false,
+      //Array de las devoluciones
       inputUnidades: false,
-      btnGuardar: false,
-      txtBoton: '',
-      inputNRemision: false,
-      btnImprimir: false
-    };
+      //Indica si esta habilitado o no el de unidades
+      disabled: false
+    }, "btnImprimir", false);
   },
   methods: {
     listaRemisiones: function listaRemisiones() {
@@ -1877,10 +1918,16 @@ __webpack_require__.r(__webpack_exports__);
         }).then(function (response) {
           _this.mostrarDatos = true;
           _this.mostrarSalida = true;
-          _this.devoluciones = [];
-          _this.disabled = false;
           _this.mostrarColumnas = false;
+          _this.mostrarDevolucion = false;
+          _this.mostrarFinal = false;
+          _this.disabled = false;
           _this.btnGuardar = false;
+          _this.btnImprimir = false;
+          _this.inputUnidades = false;
+          _this.remision = {};
+          _this.registros = [];
+          _this.devoluciones = [];
           _this.remision = response.data.remision;
           _this.registros = response.data.datos;
 
@@ -1895,6 +1942,7 @@ __webpack_require__.r(__webpack_exports__);
           if (_this.remision.estado == 'Terminado') {
             _this.txtBoton = 'Devolución registrada';
             _this.mostrarDatos = true;
+            _this.btnImprimir = true;
           }
         })["catch"](function (error) {
           _this.respuesta = 'No existe';
@@ -1912,11 +1960,13 @@ __webpack_require__.r(__webpack_exports__);
         }
       }).then(function (response) {
         _this2.devoluciones = response.data.devoluciones;
-        _this2.mostrarSalida = false;
         _this2.disabled = true;
+        _this2.mostrarSalida = false;
         _this2.mostrarColumnas = true;
-        _this2.total_devolucion = _this2.remision.total_devolucion;
-        _this2.total_pagar = response.data.remision.total_pagar;
+        _this2.mostrarDevolucion = true;
+        _this2.mostrarFinal = true;
+        _this2.remision.total_devolucion = response.data.remision.total_devolucion;
+        _this2.remision.total_pagar = response.data.remision.total_pagar;
 
         if (_this2.remision.estado != 'Terminado') {
           _this2.btnGuardar = true;
@@ -1949,12 +1999,12 @@ __webpack_require__.r(__webpack_exports__);
       axios.put('/concluir_remision', this.remision).then(function (response) {
         _this4.inputUnidades = true;
         _this4.btnGuardar = false;
+        _this4.btnImprimir = true;
         _this4.inputNRemision = false;
       })["catch"](function (error) {
         console.log(error.response);
       });
-    },
-    imprimir: function imprimir() {}
+    }
   }
 });
 
@@ -2544,15 +2594,6 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
 //
 //
 //
@@ -66981,7 +67022,7 @@ var render = function() {
       _c("hr"),
       _vm._v(" "),
       _c("div", { staticClass: "row" }, [
-        _c("div", { staticClass: "col-md-8" }, [
+        _c("div", { staticClass: "col-md-7" }, [
           _c("div", { staticClass: "row" }, [
             _c("label", { staticClass: "col-md-4" }, [
               _vm._v("Numero de remisión")
@@ -67022,28 +67063,29 @@ var render = function() {
           ])
         ]),
         _vm._v(" "),
+        _c("div", { staticClass: "col-md-1" }),
+        _vm._v(" "),
         _c(
           "div",
-          { staticClass: "col-md-4" },
+          { staticClass: "col-md-3" },
           [
             _vm.btnGuardar
               ? _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-success",
-                    on: { click: _vm.guardar }
-                  },
-                  [_c("i", { staticClass: "fa fa-check" }), _vm._v(" Concluir")]
+                  "b-button",
+                  { attrs: { variant: "success" }, on: { click: _vm.guardar } },
+                  [
+                    _c("i", { staticClass: "fa fa-check" }),
+                    _vm._v(" Concluir\n            ")
+                  ]
                 )
               : _vm._e(),
             _vm._v(" "),
             _vm.btnImprimir
               ? _c(
-                  "b-button",
+                  "a",
                   {
-                    staticClass: "col-md-3",
-                    attrs: { variant: "info" },
-                    on: { click: _vm.imprimir }
+                    staticClass: "btn btn-info",
+                    attrs: { href: "/imprimirSalida/" + _vm.remision.id }
                   },
                   [_c("i", { staticClass: "fa fa-print" })]
                 )
@@ -67062,7 +67104,7 @@ var render = function() {
               attrs: { variant: "primary", disabled: _vm.disabled },
               on: { click: _vm.registrarDevolucion }
             },
-            [_vm._v(_vm._s(_vm.txtBoton))]
+            [_vm._v(_vm._s(_vm.txtBoton) + "\n    ")]
           )
         : _vm._e(),
       _vm._v(" "),
@@ -67111,10 +67153,6 @@ var render = function() {
           }
         },
         [
-          _c("h5", { attrs: { align: "right" } }, [
-            _vm._v("Total: $ " + _vm._s(_vm.remision.total))
-          ]),
-          _vm._v(" "),
           _c("table", { staticClass: "table" }, [
             _c("thead", [
               _c("tr", [
@@ -67134,20 +67172,34 @@ var render = function() {
             _vm._v(" "),
             _c(
               "tbody",
-              _vm._l(_vm.registros, function(registro, i) {
-                return _c("tr", { key: i }, [
-                  _c("td", [_vm._v(_vm._s(registro.isbn_libro))]),
+              [
+                _vm._l(_vm.registros, function(registro, i) {
+                  return _c("tr", { key: i }, [
+                    _c("td", [_vm._v(_vm._s(registro.isbn_libro))]),
+                    _vm._v(" "),
+                    _c("td", [_vm._v(_vm._s(registro.titulo))]),
+                    _vm._v(" "),
+                    _c("td", [_vm._v("$ " + _vm._s(registro.costo_unitario))]),
+                    _vm._v(" "),
+                    _c("td", [_vm._v(_vm._s(registro.unidades))]),
+                    _vm._v(" "),
+                    _c("td", [_vm._v("$ " + _vm._s(registro.total))])
+                  ])
+                }),
+                _vm._v(" "),
+                _c("tr", [
+                  _c("td"),
+                  _c("td"),
                   _vm._v(" "),
-                  _c("td", [_vm._v(_vm._s(registro.titulo))]),
+                  _c("td"),
+                  _c("td"),
                   _vm._v(" "),
-                  _c("td", [_vm._v("$ " + _vm._s(registro.costo_unitario))]),
-                  _vm._v(" "),
-                  _c("td", [_vm._v(_vm._s(registro.unidades))]),
-                  _vm._v(" "),
-                  _c("td", [_vm._v("$ " + _vm._s(registro.total))])
+                  _c("td", [
+                    _c("h5", [_vm._v("$ " + _vm._s(_vm.remision.total))])
+                  ])
                 ])
-              }),
-              0
+              ],
+              2
             )
           ])
         ]
@@ -67156,182 +67208,253 @@ var render = function() {
       _c("hr"),
       _vm._v(" "),
       _vm.mostrarColumnas
-        ? _c("div", { staticClass: "mt-2" }, [
-            _c("h4", [_vm._v("Devolución")]),
-            _vm._v(" "),
-            _c("table", { staticClass: "table" }, [
-              _vm._m(0),
+        ? _c(
+            "div",
+            { staticClass: "row" },
+            [
+              _c("h4", { staticClass: "col-md-10" }, [_vm._v("Devolución")]),
               _vm._v(" "),
               _c(
-                "tbody",
-                [
-                  _vm._l(_vm.devoluciones, function(devolucion, i) {
-                    return _c("tr", { key: i }, [
-                      _c("td", [_vm._v(_vm._s(devolucion.clave_libro))]),
-                      _vm._v(" "),
-                      _c("td", [_vm._v(_vm._s(devolucion.titulo))]),
-                      _vm._v(" "),
-                      _c("td", [
-                        _vm._v("$ " + _vm._s(devolucion.costo_unitario))
-                      ]),
-                      _vm._v(" "),
-                      _c("td", [
-                        _c("input", {
-                          directives: [
-                            {
-                              name: "model",
-                              rawName: "v-model",
-                              value: devolucion.unidades,
-                              expression: "devolucion.unidades"
-                            }
-                          ],
-                          attrs: {
-                            type: "number",
-                            min: "1",
-                            max: "9999",
-                            disabled: _vm.inputUnidades
-                          },
-                          domProps: { value: devolucion.unidades },
-                          on: {
-                            keyup: function($event) {
-                              if (
-                                !$event.type.indexOf("key") &&
-                                _vm._k(
-                                  $event.keyCode,
-                                  "enter",
-                                  13,
-                                  $event.key,
-                                  "Enter"
-                                )
-                              ) {
-                                return null
-                              }
-                              return _vm.guardarUnidades(devolucion, i)
-                            },
-                            input: function($event) {
-                              if ($event.target.composing) {
-                                return
-                              }
-                              _vm.$set(
-                                devolucion,
-                                "unidades",
-                                $event.target.value
-                              )
-                            }
-                          }
-                        })
-                      ]),
-                      _vm._v(" "),
-                      _c("td", [_vm._v("$ " + _vm._s(devolucion.total))])
-                    ])
-                  }),
-                  _vm._v(" "),
-                  _c("tr", [
-                    _c("td"),
-                    _c("td"),
-                    _vm._v(" "),
-                    _c("td"),
-                    _c("td"),
-                    _vm._v(" "),
-                    _c("td", [
-                      _c("h5", [
-                        _vm._v("$ " + _vm._s(_vm.remision.total_devolucion))
-                      ])
-                    ])
-                  ])
-                ],
-                2
+                "b-button",
+                {
+                  class: _vm.mostrarDevolucion ? "collapsed" : null,
+                  attrs: {
+                    variant: "link",
+                    "aria-expanded": _vm.mostrarDevolucion ? "true" : "false",
+                    "aria-controls": "collapse-2"
+                  },
+                  on: {
+                    click: function($event) {
+                      _vm.mostrarDevolucion = !_vm.mostrarDevolucion
+                    }
+                  }
+                },
+                [_c("i", { staticClass: "fa fa-sort-asc" })]
               )
-            ])
-          ])
+            ],
+            1
+          )
         : _vm._e(),
       _vm._v(" "),
-      _vm.mostrarColumnas
-        ? _c("div", { staticClass: "mt-2" }, [
-            _c("h4", [_vm._v("Remisión final")]),
+      _c(
+        "b-collapse",
+        {
+          staticClass: "mt-2",
+          attrs: { id: "collapse-2" },
+          model: {
+            value: _vm.mostrarDevolucion,
+            callback: function($$v) {
+              _vm.mostrarDevolucion = $$v
+            },
+            expression: "mostrarDevolucion"
+          }
+        },
+        [
+          _c("table", { staticClass: "table" }, [
+            _c("thead", [
+              _c("tr", [
+                _c("th", { attrs: { scope: "col" } }, [_vm._v("ISBN")]),
+                _vm._v(" "),
+                _c("th", { attrs: { scope: "col" } }, [_vm._v("Titulo")]),
+                _vm._v(" "),
+                _c("th", { attrs: { scope: "col" } }, [
+                  _vm._v("Costo unitario")
+                ]),
+                _vm._v(" "),
+                _c("th", { attrs: { scope: "col" } }, [_vm._v("Unidades")]),
+                _vm._v(" "),
+                _c("th", { attrs: { scope: "col" } }, [_vm._v("Subtotal")])
+              ])
+            ]),
             _vm._v(" "),
-            _c("table", { staticClass: "table" }, [
-              _vm._m(1),
-              _vm._v(" "),
-              _c(
-                "tbody",
-                [
-                  _vm._l(_vm.devoluciones, function(devolucion, i) {
-                    return _c("tr", { key: i }, [
-                      _c("td", [_vm._v(_vm._s(devolucion.clave_libro))]),
-                      _vm._v(" "),
-                      _c("td", [_vm._v(_vm._s(devolucion.titulo))]),
-                      _vm._v(" "),
-                      _c("td", [
-                        _vm._v("$ " + _vm._s(devolucion.costo_unitario))
-                      ]),
-                      _vm._v(" "),
-                      _c("td", [_vm._v(_vm._s(devolucion.unidades_resta))]),
-                      _vm._v(" "),
-                      _c("td", [_vm._v("$ " + _vm._s(devolucion.total_resta))])
-                    ])
-                  }),
-                  _vm._v(" "),
-                  _c("tr", [
-                    _c("td"),
-                    _c("td"),
-                    _c("td"),
-                    _c("td"),
+            _c(
+              "tbody",
+              [
+                _vm._l(_vm.devoluciones, function(devolucion, i) {
+                  return _c("tr", { key: i }, [
+                    _c("td", [_vm._v(_vm._s(devolucion.clave_libro))]),
+                    _vm._v(" "),
+                    _c("td", [_vm._v(_vm._s(devolucion.titulo))]),
                     _vm._v(" "),
                     _c("td", [
-                      _c("h5", [
-                        _vm._v("$ " + _vm._s(_vm.remision.total_pagar))
-                      ])
+                      _vm._v("$ " + _vm._s(devolucion.costo_unitario))
+                    ]),
+                    _vm._v(" "),
+                    _c("td", [
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: devolucion.unidades,
+                            expression: "devolucion.unidades"
+                          }
+                        ],
+                        attrs: {
+                          type: "number",
+                          min: "1",
+                          max: "9999",
+                          disabled: _vm.inputUnidades
+                        },
+                        domProps: { value: devolucion.unidades },
+                        on: {
+                          keyup: function($event) {
+                            if (
+                              !$event.type.indexOf("key") &&
+                              _vm._k(
+                                $event.keyCode,
+                                "enter",
+                                13,
+                                $event.key,
+                                "Enter"
+                              )
+                            ) {
+                              return null
+                            }
+                            return _vm.guardarUnidades(devolucion, i)
+                          },
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.$set(
+                              devolucion,
+                              "unidades",
+                              $event.target.value
+                            )
+                          }
+                        }
+                      })
+                    ]),
+                    _vm._v(" "),
+                    _c("td", [_vm._v("$ " + _vm._s(devolucion.total))])
+                  ])
+                }),
+                _vm._v(" "),
+                _c("tr", [
+                  _c("td"),
+                  _c("td"),
+                  _vm._v(" "),
+                  _c("td"),
+                  _c("td"),
+                  _vm._v(" "),
+                  _c("td", [
+                    _c("h5", [
+                      _vm._v("$ " + _vm._s(_vm.remision.total_devolucion))
                     ])
                   ])
-                ],
-                2
-              )
-            ])
+                ])
+              ],
+              2
+            )
           ])
-        : _vm._e()
+        ]
+      ),
+      _vm._v(" "),
+      _c("hr"),
+      _vm._v(" "),
+      _vm.mostrarColumnas
+        ? _c(
+            "div",
+            { staticClass: "row" },
+            [
+              _c("h4", { staticClass: "col-md-10" }, [
+                _vm._v("Remisión final")
+              ]),
+              _vm._v(" "),
+              _c(
+                "b-button",
+                {
+                  class: _vm.mostrarFinal ? "collapsed" : null,
+                  attrs: {
+                    variant: "link",
+                    "aria-expanded": _vm.mostrarFinal ? "true" : "false",
+                    "aria-controls": "collapse-3"
+                  },
+                  on: {
+                    click: function($event) {
+                      _vm.mostrarFinal = !_vm.mostrarFinal
+                    }
+                  }
+                },
+                [_c("i", { staticClass: "fa fa-sort-asc" })]
+              )
+            ],
+            1
+          )
+        : _vm._e(),
+      _vm._v(" "),
+      _c(
+        "b-collapse",
+        {
+          staticClass: "mt-2",
+          attrs: { id: "collapse-3" },
+          model: {
+            value: _vm.mostrarFinal,
+            callback: function($$v) {
+              _vm.mostrarFinal = $$v
+            },
+            expression: "mostrarFinal"
+          }
+        },
+        [
+          _c("table", { staticClass: "table" }, [
+            _c("thead", [
+              _c("tr", [
+                _c("th", { attrs: { scope: "col" } }, [_vm._v("ISBN")]),
+                _vm._v(" "),
+                _c("th", { attrs: { scope: "col" } }, [_vm._v("Titulo")]),
+                _vm._v(" "),
+                _c("th", { attrs: { scope: "col" } }, [
+                  _vm._v("Costo unitario")
+                ]),
+                _vm._v(" "),
+                _c("th", { attrs: { scope: "col" } }, [_vm._v("Unidades")]),
+                _vm._v(" "),
+                _c("th", { attrs: { scope: "col" } }, [_vm._v("Subtotal")])
+              ])
+            ]),
+            _vm._v(" "),
+            _c(
+              "tbody",
+              [
+                _vm._l(_vm.devoluciones, function(devolucion, i) {
+                  return _c("tr", { key: i }, [
+                    _c("td", [_vm._v(_vm._s(devolucion.clave_libro))]),
+                    _vm._v(" "),
+                    _c("td", [_vm._v(_vm._s(devolucion.titulo))]),
+                    _vm._v(" "),
+                    _c("td", [
+                      _vm._v("$ " + _vm._s(devolucion.costo_unitario))
+                    ]),
+                    _vm._v(" "),
+                    _c("td", [_vm._v(_vm._s(devolucion.unidades_resta))]),
+                    _vm._v(" "),
+                    _c("td", [_vm._v("$ " + _vm._s(devolucion.total_resta))])
+                  ])
+                }),
+                _vm._v(" "),
+                _c("tr", [
+                  _c("td"),
+                  _c("td"),
+                  _c("td"),
+                  _c("td"),
+                  _vm._v(" "),
+                  _c("td", [
+                    _c("h5", [_vm._v("$ " + _vm._s(_vm.remision.total_pagar))])
+                  ])
+                ])
+              ],
+              2
+            )
+          ])
+        ]
+      )
     ],
     1
   )
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("thead", [
-      _c("tr", [
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("ISBN")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Titulo")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Costo unitario")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Unidades")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Subtotal")])
-      ])
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("thead", [
-      _c("tr", [
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("ISBN")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Titulo")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Costo unitario")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Unidades")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Subtotal")])
-      ])
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 

@@ -55,21 +55,12 @@
                         <i class="fa fa-plus"></i>
                     </b-button>
                     <div class="col-md-1"></div>
-                    <!-- <b-button 
-                        variant="info" 
-                        class="col-md-3"
-                        v-if="mostrarOpciones"
-                        @click="imprimir">
-                        <i class="fa fa-print"></i>
-                    </b-button> -->
                     <a 
                         class="btn btn-info col-md-3"
                         v-if="mostrarOpciones"
                         :href="'/imprimirSalida/' + bdremision.id">
                         <i class="fa fa-print"></i>
                     </a>
-
-                    
                 </div>
             </div>
         </div>

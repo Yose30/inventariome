@@ -3,7 +3,7 @@
         <h4>Devolución</h4>
         <hr>
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-7">
                 <div class="row">
                     <label class="col-md-4">Numero de remisión</label>
                     <div class="col-md-4">
@@ -17,19 +17,31 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <button class="btn btn-success" @click="guardar" v-if="btnGuardar"><i class="fa fa-check"></i> Concluir</button>
+            <div class="col-md-1">
+                
+            </div>
+            <div class="col-md-3">
                 <b-button 
-                    variant="info" 
-                    class="col-md-3"
-                    v-if="btnImprimir"
-                    @click="imprimir">
-                    <i class="fa fa-print"></i>
+                    variant="success" 
+                    @click="guardar" 
+                    v-if="btnGuardar">
+                    <i class="fa fa-check"></i> Concluir
                 </b-button>
+                <a 
+                    class="btn btn-info"
+                    v-if="btnImprimir"
+                    :href="'/imprimirSalida/' + remision.id">
+                    <i class="fa fa-print"></i>
+                </a>
             </div>
         </div>
         <hr>
-        <b-button variant="primary" v-if="mostrarDatos" :disabled="disabled" v-on:click="registrarDevolucion">{{ txtBoton }}</b-button>
+        <b-button 
+            variant="primary" 
+            v-if="mostrarDatos" 
+            :disabled="disabled" 
+            v-on:click="registrarDevolucion">{{ txtBoton }}
+        </b-button>
         <hr>
         <div class="row" v-if="mostrarDatos">
             <h4 class="col-md-10">Salida</h4>
@@ -43,7 +55,6 @@
             </b-button>
         </div>
         <b-collapse id="collapse-1" v-model="mostrarSalida" class="mt-2">
-            <h5 align="right">Total: $ {{ remision.total }}</h5>
             <table class="table">
                 <thead>
                     <tr>
@@ -62,13 +73,28 @@
                         <td>{{ registro.unidades }}</td>
                         <td>$ {{ registro.total }}</td>
                     </tr>
+                    <tr>
+                        <td></td><td></td>
+                        <td></td><td></td>
+                        <td><h5>$ {{ remision.total }}</h5></td>
+                    </tr>
                 </tbody>
             </table>
         </b-collapse>
         <hr>
         
-        <div v-if="mostrarColumnas" class="mt-2">
-            <h4>Devolución</h4>
+        <div v-if="mostrarColumnas" class="row">
+            <h4 class="col-md-10">Devolución</h4>
+            <b-button 
+                variant="link" 
+                :class="mostrarDevolucion ? 'collapsed' : null"
+                :aria-expanded="mostrarDevolucion ? 'true' : 'false'"
+                aria-controls="collapse-2"
+                @click="mostrarDevolucion = !mostrarDevolucion">
+                <i class="fa fa-sort-asc"></i>
+            </b-button>
+        </div>
+        <b-collapse id="collapse-2" v-model="mostrarDevolucion" class="mt-2">
             <table class="table">
                 <thead>
                     <tr>
@@ -103,10 +129,21 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
+        </b-collapse>
+        <hr>
 
-        <div v-if="mostrarColumnas" class="mt-2">
-            <h4>Remisión final</h4>
+        <div v-if="mostrarColumnas" class="row">
+            <h4 class="col-md-10">Remisión final</h4>
+            <b-button 
+                variant="link" 
+                :class="mostrarFinal ? 'collapsed' : null"
+                :aria-expanded="mostrarFinal ? 'true' : 'false'"
+                aria-controls="collapse-3"
+                @click="mostrarFinal = !mostrarFinal">
+                <i class="fa fa-sort-asc"></i>
+            </b-button>
+        </div>
+        <b-collapse id="collapse-3" v-model="mostrarFinal" class="mt-2">
             <table class="table">
                 <thead>
                     <tr>
@@ -131,7 +168,7 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
+        </b-collapse>
     </div>
 </template>
 
@@ -139,26 +176,22 @@
     export default {
         data() {
             return {
-                numero: 0,
-                registros: [], 
-                remision: {},
-                id_actualizar: -1,
-                actualizar: false,
-                respuesta: '',
-                options: [
-                    { value: 1, text: 'Iniciado' },
-                    { value: 1, text: 'Proceso' },
-                    { value: 1, text: 'Terminado' },
-                ],
-                mostrarDatos: false,
+                numero: 0, //Variable del input
+                inputNRemision: false, //Indica si esta habilitado o no
+                respuesta: '', //Indica si es correcto o no el numero de remision
+                btnGuardar: false, //Indica si se muestra el boton de guardar
+                btnImprimir: false, //ndica si se muestra el boton de imprimir
+                mostrarDatos: false, //Boton para registrar la devolucion
+                txtBoton: '', //Mensaje del boton de registrar devolucion
                 mostrarSalida: false,
                 mostrarColumnas: false,
-                devoluciones: [],
-                disabled: false,
-                inputUnidades: false,
-                btnGuardar: false,
-                txtBoton: '',
-                inputNRemision: false,
+                mostrarDevolucion: false,
+                mostrarFinal: false, //Indica si se muestra el collspan
+                registros: [], //Array de registros de salida
+                remision: {}, //Datos de la remision
+                devoluciones: [], //Array de las devoluciones
+                inputUnidades: false, //Indica si esta habilitado o no el de unidades
+                disabled: false, //Indica si esta hablitidado o no el boton de registrar
                 btnImprimir: false,
             }
         },
@@ -168,10 +201,18 @@
                     axios.get('/lista_datos', {params: {numero: this.numero}}).then(response => {
                         this.mostrarDatos = true;
                         this.mostrarSalida = true;
-                        this.devoluciones = [];
-                        this.disabled = false;
                         this.mostrarColumnas = false;
+                        this.mostrarDevolucion = false;
+                        this.mostrarFinal = false;
+                        this.disabled = false;
                         this.btnGuardar = false;
+                        this.btnImprimir = false;
+                        this.inputUnidades = false;
+
+                        this.remision = {};
+                        this.registros = [];
+                        this.devoluciones = [];
+
                         this.remision = response.data.remision;
                         this.registros = response.data.datos;
                 
@@ -184,6 +225,7 @@
                         if(this.remision.estado == 'Terminado'){
                             this.txtBoton = 'Devolución registrada';
                             this.mostrarDatos = true;
+                            this.btnImprimir = true;
                         }
                     }).catch(error => {
                         this.respuesta = 'No existe';
@@ -196,11 +238,14 @@
             registrarDevolucion(){
                 axios.get('/devoluciones_remision', {params: {remision_id: this.remision.id}}).then(response => {
                     this.devoluciones = response.data.devoluciones;
-                    this.mostrarSalida = false;
                     this.disabled = true;
+                    this.mostrarSalida = false;
                     this.mostrarColumnas = true;
-                    this.total_devolucion = this.remision.total_devolucion;
-                    this.total_pagar = response.data.remision.total_pagar;
+                    this.mostrarDevolucion = true;
+                    this.mostrarFinal = true;
+
+                    this.remision.total_devolucion = response.data.remision.total_devolucion;
+                    this.remision.total_pagar = response.data.remision.total_pagar;
 
                     if(this.remision.estado != 'Terminado'){
                         this.btnGuardar = true;
@@ -228,14 +273,12 @@
                 axios.put('/concluir_remision', this.remision).then(response => {
                     this.inputUnidades = true;
                     this.btnGuardar = false;
+                    this.btnImprimir = true;
                     this.inputNRemision = false;
                 }).catch(error => {
                     console.log(error.response);
                 });
-            }, 
-            imprimir(){
-
-            },
+            }
         },
     }
 </script>

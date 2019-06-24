@@ -152,16 +152,19 @@ class RemisionController extends Controller
     }
 
     public function imprimirSalida($id){
-        //$remision_id = Input::get('remision_id');
         $remision = Remisione::whereId($id)->first();
-        $datos = Dato::where('remision_id', $remision->id)->get();
-
         $data['remision'] = $remision;
-        $data['datos'] = $datos;
+
+        if($remision->estado == 'Iniciado'){
+            $datos = Dato::where('remision_id', $remision->id)->get();
+            $data['datos'] = $datos;
+            $pdf = PDF::loadView('remision.nota', $data);   
+        }         
+        if($remision->estado == 'Terminado'){
+            $devoluciones = Devolucione::where('remision_id', $remision->id)->get();
+            $data['devoluciones'] = $devoluciones;
+        }
         
-        $pdf = PDF::loadView('remision.nota', $data);
-        //return response()->json($pdf->download('Nota-remision.pdf'));
-        return $pdf->download('Nota_remision.pdf');
-        //return response()->json($data);
+        return $pdf->download('remision.pdf');
     }
 }

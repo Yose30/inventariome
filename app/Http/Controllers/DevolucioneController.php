@@ -24,12 +24,12 @@ class DevolucioneController extends Controller
 
                 $remision->update(['estado' => 'Proceso']);
 
-                $total_devolucion = 0;
+                $total_pagar = 0;
                 foreach($datos as $d){
-                    $total_devolucion += $d->total;            
+                    $total_pagar += $d->total;            
                 }
 
-                $remision->update(['total_pagar' => $total_devolucion]);
+                $remision->update(['total_pagar' => $total_pagar]);
 
                 foreach($datos as $dato){
                     $devolucion = Devolucione::create([
