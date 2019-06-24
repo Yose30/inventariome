@@ -27,6 +27,7 @@ class HomeController extends Controller
     public function index()
     {
         $remision = Remisione::whereId(1)->with('cliente')->first();
-        return view('remision.nota', compact('remision'));
+        $datos = Dato:: where('remision_id', $remision->id)->get();
+        return view('remision.nota', compact('remision', $datos));
     }
 }
