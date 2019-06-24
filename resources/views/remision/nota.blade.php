@@ -179,7 +179,7 @@
                     </tr>
 
                     <tr>
-                        <td colspan="2" rowspan="7" id="qr" align="center"><img src="{{ asset('img/QR.jpg')}}" height="150px" width="300px"  ></td>
+                        <!-- <td colspan="2" rowspan="7" id="qr" align="center"><img src="{{ asset('img/QR.jpg')}}" height="150px" width="300px"  ></td> -->
                         <td colspan="2"></td>
                         <td></td>
                     </tr>
