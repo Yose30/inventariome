@@ -17,7 +17,8 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+//Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/remision/nota', 'HomeController@index')->name('remision.nota');
 
 //Agregar cliente
 Route::post('new_client', 'ClienteController@store')->name('new_client');
