@@ -1,9 +1,9 @@
 <template>
     <div>
-        <h4>Devolución</h4>
+        <h4>Registrar devolución</h4>
         <hr>
         <div class="row">
-            <div class="col-md-7">
+            <div class="col-md-6">
                 <div class="row">
                     <label class="col-md-4">Numero de remisión</label>
                     <div class="col-md-4">
@@ -17,9 +17,12 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-1">
-                
+            <div class="col-md-2">
+                <b-badge variant="secondary" v-if="remision.estado == 'Iniciado'">{{ remision.estado }}</b-badge>
+                <b-badge variant="primary" v-if="remision.estado == 'Proceso'">{{ remision.estado }}</b-badge>
+                <b-badge variant="success" v-if="remision.estado == 'Terminado'">{{ remision.estado }}</b-badge>
             </div>
+            <div class="col-md-1"></div>
             <div class="col-md-3">
                 <b-button 
                     variant="success" 
@@ -59,7 +62,7 @@
                 <thead>
                     <tr>
                         <th scope="col">ISBN</th>
-                        <th scope="col">Titulo</th>
+                        <th scope="col">Libro</th>
                         <th scope="col">Costo unitario</th>
                         <th scope="col">Unidades</th>
                         <th scope="col">Subtotal</th>
@@ -67,9 +70,9 @@
                 </thead>
                 <tbody>
                     <tr v-for="(registro, i) in registros" v-bind:key="i">
-                        <td>{{ registro.isbn_libro }}</td>
-                        <td>{{ registro.titulo }}</td>
-                        <td>$ {{ registro.costo_unitario }}</td>
+                        <td>{{ registro.libro.ISBN }}</td>
+                        <td>{{ registro.libro.titulo }}</td>
+                        <td>$ {{ registro.libro.costo_unitario }}</td>
                         <td>{{ registro.unidades }}</td>
                         <td>$ {{ registro.total }}</td>
                     </tr>
@@ -82,7 +85,6 @@
             </table>
         </b-collapse>
         <hr>
-        
         <div v-if="mostrarColumnas" class="row">
             <h4 class="col-md-10">Devolución</h4>
             <b-button 
@@ -99,7 +101,7 @@
                 <thead>
                     <tr>
                         <th scope="col">ISBN</th>
-                        <th scope="col">Titulo</th>
+                        <th scope="col">Libro</th>
                         <th scope="col">Costo unitario</th>
                         <th scope="col">Unidades</th>
                         <th scope="col">Subtotal</th>
@@ -107,9 +109,9 @@
                 </thead>
                 <tbody>
                     <tr v-for="(devolucion, i) in devoluciones" v-bind:key="i">
-                        <td>{{ devolucion.clave_libro }}</td>
-                        <td>{{ devolucion.titulo }}</td>
-                        <td>$ {{ devolucion.costo_unitario }}</td>
+                        <td>{{ devolucion.libro.ISBN }}</td>
+                        <td>{{ devolucion.libro.titulo }}</td>
+                        <td>$ {{ devolucion.libro.costo_unitario }}</td>
                         <td>
                             <input 
                             type="number" 
@@ -119,6 +121,7 @@
                             :disabled="inputUnidades"
                             @keyup.enter="guardarUnidades(devolucion, i)"
                             ></input>
+                            <div class="text-danger" v-if="item == devolucion.id">{{ respuestaUnidades }}</div>
                         </td>
                         <td>$ {{ devolucion.total }}</td>
                     </tr>
@@ -148,7 +151,7 @@
                 <thead>
                     <tr>
                         <th scope="col">ISBN</th>
-                        <th scope="col">Titulo</th>
+                        <th scope="col">Libro</th>
                         <th scope="col">Costo unitario</th>
                         <th scope="col">Unidades</th>
                         <th scope="col">Subtotal</th>
@@ -156,9 +159,9 @@
                 </thead>
                 <tbody>
                     <tr v-for="(devolucion, i) in devoluciones" v-bind:key="i">
-                        <td>{{ devolucion.clave_libro }}</td>
-                        <td>{{ devolucion.titulo }}</td>
-                        <td>$ {{ devolucion.costo_unitario }}</td>
+                        <td>{{ devolucion.libro.ISBN }}</td>
+                        <td>{{ devolucion.libro.titulo }}</td>
+                        <td>$ {{ devolucion.libro.costo_unitario }}</td>
                         <td>{{ devolucion.unidades_resta }}</td>
                         <td>$ {{ devolucion.total_resta }}</td>
                     </tr>
@@ -179,6 +182,7 @@
                 numero: 0, //Variable del input
                 inputNRemision: false, //Indica si esta habilitado o no
                 respuesta: '', //Indica si es correcto o no el numero de remision
+                respuestaUnidades: '',
                 btnGuardar: false, //Indica si se muestra el boton de guardar
                 btnImprimir: false, //ndica si se muestra el boton de imprimir
                 mostrarDatos: false, //Boton para registrar la devolucion
@@ -193,11 +197,13 @@
                 inputUnidades: false, //Indica si esta habilitado o no el de unidades
                 disabled: false, //Indica si esta hablitidado o no el boton de registrar
                 btnImprimir: false,
+                item: 0,
             }
         },
         methods: {
             listaRemisiones(){
                 if(this.numero > 0){
+                    this.respuesta = '';
                     axios.get('/lista_datos', {params: {numero: this.numero}}).then(response => {
                         this.mostrarDatos = true;
                         this.mostrarSalida = true;
@@ -208,7 +214,7 @@
                         this.btnGuardar = false;
                         this.btnImprimir = false;
                         this.inputUnidades = false;
-
+                        
                         this.remision = {};
                         this.registros = [];
                         this.devoluciones = [];
@@ -244,6 +250,7 @@
                     this.mostrarDevolucion = true;
                     this.mostrarFinal = true;
 
+                    this.remision.estado = response.data.remision.estado;
                     this.remision.total_devolucion = response.data.remision.total_devolucion;
                     this.remision.total_pagar = response.data.remision.total_pagar;
 
@@ -259,14 +266,21 @@
                 
             },
             guardarUnidades(devolucion, i){
+                this.respuestaUnidades = '';
                 if(devolucion.unidades >= 0){
-                    axios.put('/actualizar_unidades', devolucion).then(response => {
-                        this.devoluciones.splice(i, 1, response.data.devolucion);
-                        this.remision.total_devolucion = response.data.total_devolucion;
-                        this.remision.total_pagar = response.data.total_pagar;
-                    }).catch(error => {
-                        console.log(error.response);
-                    });
+                    if(devolucion.unidades <= devolucion.dato.unidades){
+                        axios.put('/actualizar_unidades', devolucion).then(response => {
+                            this.devoluciones.splice(i, 1, response.data.devolucion);
+                            this.remision.total_devolucion = response.data.total_devolucion;
+                            this.remision.total_pagar = response.data.total_pagar;
+                        }).catch(error => {
+                            console.log(error.response);
+                        });
+                    }
+                    else{
+                        this.item = devolucion.id;
+                        this.respuestaUnidades = 'Unidades mayor a salida';
+                    }
                 }
             },
             guardar(){
@@ -275,6 +289,7 @@
                     this.btnGuardar = false;
                     this.btnImprimir = true;
                     this.inputNRemision = false;
+                    this.remision.estado = response.data.estado;
                 }).catch(error => {
                     console.log(error.response);
                 });

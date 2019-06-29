@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use App\Libro;
+use App\Entrada;
+use App\Registro;
 
 class LibroController extends Controller
 {
@@ -46,12 +48,15 @@ class LibroController extends Controller
         $isbn = Input::get('isbn');
         $libro = Libro::where('ISBN', $isbn)->first();
         $datos = [
+            'id' => $libro->id,
             'ISBN' => $libro->ISBN,
             'titulo' => $libro->titulo,
             'costo_unitario' => $libro->costo_unitario,
             'unidades' => 0,
-            'total' => 0
+            'total' => 0,
+            'piezas' => $libro->piezas
         ];
         return response()->json($datos);
     }
+
 }

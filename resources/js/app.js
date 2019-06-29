@@ -39,6 +39,7 @@ Vue.component('new-libro-component', require('./components/NewLibroComponent.vue
 Vue.component('remision-component', require('./components/RemisionComponent.vue').default);
 Vue.component('devolucion-component', require('./components/DevolucionComponent.vue').default);
 Vue.component('listado-component', require('./components/ListadoComponent.vue').default);
+Vue.component('inventario-component', require('./components/InventarioComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

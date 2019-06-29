@@ -210,14 +210,14 @@
                         <th >Unidades</th>
                         <th >Subtotal</th>
                     </tr>
-                    @foreach($datos as $dato)
+                    @foreach($devoluciones as $devolucion)
                     <tr>
 
-                        <td class="bordesVer" style="width:20%">{{ $dato->libro->ISBN }}</td>
-                        <td class="bordesVer" style="width:25%">{{ $dato->libro->titulo }}</td> 
-                        <td class="bordesVer" style="width:20%"  id="tdder">$ {{ $dato->libro->costo_unitario }}</td>
-                        <td class="bordesVer" style="width:15%" id="tdcent">{{ $dato->unidades }}</td>
-                        <td class="bordesVer" style="width:20%"  id="tdder">$ {{ $dato->total }}</td>
+                        <td class="bordesVer" style="width:20%">{{ $devolucion->libro->ISBN }}</td>
+                        <td class="bordesVer" style="width:25%">{{ $devolucion->libro->titulo }}</td> 
+                        <td class="bordesVer" style="width:20%"  id="tdder">$ {{ $devolucion->libro->costo_unitario }}</td>
+                        <td class="bordesVer" style="width:15%" id="tdcent">{{ $devolucion->unidades_resta }}</td>
+                        <td class="bordesVer" style="width:20%"  id="tdder">$ {{ $devolucion->total_resta }}</td>
 
                     </tr>
                     @endforeach
@@ -226,11 +226,11 @@
                     <tr>
                         <td class="sinBorde"class="sinBorde" colspan="2" rowspan="2" id="qr" align="center"><!--<img src="{{ asset('img/QR.jpg')}}" height="150px" width="300px"  >--></td>
                         <td class="bordesVerTot"colspan="2"  id="total">TOTAL:</td>
-                        <td class="bordesVer"id="total">$ {{$remision->total}}</td>
+                        <td class="bordesVer"id="total">$ {{$remision->total_pagar}}</td>
                     </tr>
                     
                     <tr>
-                        <td class="sinBorde" id="total" colspan="3">{{ $total_salida }} pesos MX</td>
+                        <td class="sinBorde" id="total" colspan="3">{{ $total_final }} pesos MX</td>
                                
                     </tr>
                     

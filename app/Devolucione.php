@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\Remisione;
 use App\Dato;
+use App\Libro;
 
 class Devolucione extends Model
 {
@@ -12,13 +13,14 @@ class Devolucione extends Model
         'id', 
         'remision_id', 
         'dato_id', 
-        'clave_libro', 
-        'titulo', 
+        'libro_id',
+        // 'clave_libro', 
+        // 'titulo', 
+        // 'costo_unitario', 
         'unidades', 
-        'costo_unitario', 
         'total', 
+        'unidades_resta',
         'total_resta',
-        'unidades_resta'
     ];
 
     //Uno a muchos (inversa)
@@ -31,5 +33,11 @@ class Devolucione extends Model
     //Una devolcuion solo puede pertenecer a un dato
     public function dato(){
         return $this->belongsTo(Dato::class);
+    }
+
+    //Uno a muchos (Inversa)
+    //Una devolucion solo puede tener un libro
+    public function libro(){
+        return $this->belongsTo(Libro::class);
     }
 }

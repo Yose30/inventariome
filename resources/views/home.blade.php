@@ -44,7 +44,7 @@
                             data-toggle="pill" 
                             href="#v-new_client" 
                             aria-controls="v-new_client">
-                            {{ __("Nuevo cliente") }}
+                            {{ __("Agregar cliente") }}
                         </a>
                         <a 
                             class="nav-link" 
@@ -52,7 +52,15 @@
                             data-toggle="pill" 
                             href="#v-new_libro" 
                             aria-controls="v-new_libro">
-                            {{ __("Nuevo libro") }}
+                            {{ __("Agregar libro") }}
+                        </a>
+                        <a 
+                            class="nav-link" 
+                            id="entradas-tab" 
+                            data-toggle="pill" 
+                            href="#v-entradas" 
+                            aria-controls="v-entradas">
+                            {{ __("Registrar entrada") }}
                         </a>
                     </div>
                 </div>
@@ -86,6 +94,11 @@
                             class="tab-pane fade" 
                             id="v-new_libro">
                             <new-libro-component></new-libro-component>
+                        </div>
+                        <div 
+                            class="tab-pane fade" 
+                            id="v-entradas">
+                            <inventario-component></inventario-component>
                         </div>
                     </div>
                 </div>

@@ -30,11 +30,11 @@ class CreateRemisionesTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedInteger('remision_id')->nullable();
             $table->foreign('remision_id')->references('id')->on('remisiones');
-            $table->string('isbn_libro', 50);
-            $table->string('titulo');
+            $table->unsignedInteger('libro_id')->nullable();
+            $table->foreign('libro_id')->references('id')->on('libros');
             $table->integer('unidades')->default(0);
-            $table->float('costo_unitario', 8, 2)->default(0);
             $table->double('total', 8, 2)->default(0);
+            $table->enum('estado', ['Iniciado', 'Eliminado', 'Terminado'])->default('Iniciado');
             $table->timestamps();
         });
 
@@ -44,9 +44,8 @@ class CreateRemisionesTable extends Migration
             $table->foreign('remision_id')->references('id')->on('remisiones');
             $table->unsignedInteger('dato_id')->nullable();
             $table->foreign('dato_id')->references('id')->on('datos');
-            $table->string('clave_libro', 50);
-            $table->string('titulo');
-            $table->float('costo_unitario', 8, 2)->default(0);
+            $table->unsignedInteger('libro_id')->nullable();
+            $table->foreign('libro_id')->references('id')->on('libros');
             $table->integer('unidades')->default(0);
             $table->integer('unidades_resta')->default(0);
             $table->double('total', 8, 2)->default(0);

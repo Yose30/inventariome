@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Reporte</title>
+        <title>Entrada</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <!-- Styles -->
         <style>
@@ -69,6 +69,9 @@
                 text-align:center;
                 font-weight: bold;
             }
+            #tdizq{
+                text-align:left;
+            }
             #tdder{
                 text-align:right;
             }
@@ -125,47 +128,39 @@
                         <tr>
                             <td class="sinBorde"></td>
                             <td class="sinBorde" id="DFM">Distribuidor for Mexico</td>
-                            <td class="sinBorde" colspan="2"></td>
+                            <td class="sinBorde"></td>
+                            <td class="sinBorde" id="contacto">Numero</td>
                         </tr>
-                        @if($fecha_inicio != '0000-00-00' && $fecha_final != '0000-00-00')
-                            <tr>
-                                <td class="sinBorde" colspan="2"></td>
-                                <td class="sinBorde" colspan="2" id="tdcent">Reporte</td>
-                            </tr>
-                            <tr>
-                                <td class="sinBorde" colspan="2"></td>
-                                <td class="sinBorde">De: {{ $fecha_inicio }}</td>
-                                <td class="sinBorde">A: {{ $fecha_final }}</td>
-                            </tr>
-                        @endif
+                        <tr>
+                            <td class="sinBorde"></td>
+                            <td class="sinBorde"><br></td>
+                            <td class="sinBorde"></td>
+                            <td class="sinBorde" id="folio">{{$entrada->id}}</td>
+                        </tr>
                     </table>
                     <br>
                     <table style="width:100%">
                         <tr>
-                            <th>Folio</th>
-                            <th>Cliente</th> 
-                            <th>Total Salida</th>
-                            <th>Total Devolución</th>
-                            <th>Total a pagar</th>
-                            <th>Estado</th>
-                            <th>Fecha de entrega</th>
+                            <th>Numero</th>
+                            <th>Libro</th> 
+                            <th>Costo unitario</th>
+                            <th>Unidades</th>
+                            <th>Subtotal</th>
                         </tr>
-                        @foreach($remisiones as $remision)
+                        @foreach($registros as $registro)
                             <tr>
-                                <td class="bordesVer" style="width:5%" id="tdder">{{ $remision->id }}</td>
-                                <td class="bordesVer" style="width:25%" id="tdcent">{{ $remision->cliente->name }}</td> 
-                                <td class="bordesVer" style="width:15%" id="tdder">$ {{ $remision->total }}</td>
-                                <td class="bordesVer" style="width:15%" id="tdder">$ {{ $remision->total_devolucion }}</td>
-                                <td class="bordesVer" style="width:15%" id="tdder">$ {{ $remision->total_pagar }}</td>
-                                <td class="bordesVer" style="width:10%" id="tdcent">{{ $remision->estado }}</td>
-                                <td class="bordesVer" style="width:15%" id="tdcent">{{ $remision->fecha_entrega }}</td>
+                                <td class="bordesVer" style="width:5%" id="tdder">{{ $registro->id }}</td>
+                                <td class="bordesVer" style="width:25%" id="tdizq">{{ $registro->libro->titulo }}</td> 
+                                <td class="bordesVer" style="width:15%" id="tdder">$ {{ $registro->libro->costo_unitario }}</td>
+                                <td class="bordesVer" style="width:15%" id="tdder">{{ $registro->unidades }}</td>
+                                <td class="bordesVer" style="width:15%" id="tdder">$ {{ $registro->total }}</td>
                             </tr>
                         @endforeach  
                         <tr>
                             <td class="sinBorde"></td><td class="sinBorde"></td>
-                            <td class="sinBorde" id="tdder"><b>$ {{ $total_salida }}</b></td>
-                            <td class="sinBorde" id="tdder"><b>$ {{ $total_devolucion }}</b></td>
-                            <td class="sinBorde" id="tdder"><b>$ {{ $total_pagar }}</b></td>
+                            <td class="sinBorde"></td>
+                            <td class="sinBorde" id="tdder"><b>{{ $entrada->unidades }}</b></td>
+                            <td class="sinBorde" id="tdder"><b>$ {{ $entrada->total }}</b></td>
                         </tr>
                     </table>
                     <footer>

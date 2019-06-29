@@ -1,71 +1,63 @@
 <template>
     <div>
-        <h4>Crear remisión</h4>
-        <hr>
         <div class="row">
-            <div class="col-md-6">
-                <div class="row" v-if="mostrarBusqueda">
-                    <label class="col-md-6">Nombre del cliente</label>
-                    <div class="col-md-6">
-                        <b-input
-                        v-model="queryCliente"
-                        @keyup="mostrarClientes"
-                        ></b-input>
-                        <div class="list-group" v-if="resultsClientes.length">
-                            <a 
-                                href="#" 
-                                v-bind:key="i" 
-                                class="list-group-item list-group-item-action" 
-                                v-for="(result, i) in resultsClientes" 
-                                @click="datosCliente(result)">
-                                {{ result.name }}
-                            </a>
-                        </div>
-                    </div>
-                </div>
+            <h4 class="col-md-4">Crear remisión</h4>
+            <div class="col-md-1">
+                <b-button variant="success" @click="nuevaRemision" v-if="btnNuevo"><i class="fa fa-plus"></i></b-button>
             </div>
-            <div class="col-md-6" align="right">
+            <div class="col-md-3">
                 <b-button 
                     @click="onSubmit" 
                     variant="success"
                     v-if="mostrarGuardar && !editar && items.length > 0">
                     <i class="fa fa-check"></i> Guardar
                 </b-button>
-
                 <b-button 
                     @click="actRemision" 
                     variant="success"
-                    v-if="mostrarActualizar">
+                    v-if="mostrarActualizar && items.length > 0">
                     <i class="fa fa-check"></i> Guardar
                 </b-button>
-                
-                <div class="row" align=right>
-                    <b-button 
-                        variant="warning" 
-                        class="col-md-3"
-                        @click="editarRemision"
-                        v-if="mostrarOpciones">
-                        <i class="fa fa-pencil"></i>
-                    </b-button>
-                    <b-button 
-                        variant="primary" 
-                        class="col-md-3"
-                        @click="nuevaRemision"
-                        v-if="mostrarOpciones">
-                        <i class="fa fa-plus"></i>
-                    </b-button>
-                    <div class="col-md-1"></div>
+            </div>
+            <div class="col-md-1">
+                <b-button 
+                    variant="warning" 
+                    @click="editarRemision"
+                    v-if="mostrarOpciones">
+                    <i class="fa fa-pencil"></i>
+                </b-button>
+            </div>
+            <div class="col-md-1">
+                <a 
+                    class="btn btn-info"
+                    v-if="mostrarOpciones"
+                    :href="'/imprimirSalida/' + bdremision.id">
+                    <i class="fa fa-print"></i>
+                </a>
+            </div>
+        </div>
+        <hr>
+        <div class="row" v-if="mostrarBusqueda && !btnNuevo">
+            <label class="col-md-3">Nombre del cliente</label>
+            <div>
+                <b-input
+                v-model="queryCliente"
+                @keyup="mostrarClientes"
+                ></b-input>
+                <div class="list-group" v-if="resultsClientes.length">
                     <a 
-                        class="btn btn-info col-md-3"
-                        v-if="mostrarOpciones"
-                        :href="'/imprimirSalida/' + bdremision.id">
-                        <i class="fa fa-print"></i>
+                        href="#" 
+                        v-bind:key="i" 
+                        class="list-group-item list-group-item-action" 
+                        v-for="(result, i) in resultsClientes" 
+                        @click="datosCliente(result)">
+                        {{ result.name }}
                     </a>
                 </div>
             </div>
         </div>
         <hr>
-        <div>
+        <div v-if="!btnNuevo">
             <div class="row">
                 <h6 class="col-md-11">Datos del cliente</h6>
                 <b-button 
@@ -115,21 +107,28 @@
                 <thead>
                     <tr>
                         <th scope="col">ISBN</th>
-                        <th scope="col">Titulo</th>
-                        <th scope="col">Unidades</th>
+                        <th scope="col">Libro</th>
                         <th scope="col">Costo unitario</th>
-                        <th scope="col">Costo total</th>
+                        <th scope="col">Unidades</th>
+                        <th scope="col">Subtotal</th>
                         <th scope="col"></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(item, i) in items" v-bind:key="i">
-                        <td>{{ item.isbn_libro }}</td>
+                        <td>{{ item.ISBN }}</td>
                         <td>{{ item.titulo }}</td>
-                        <td>{{ item.unidades }}</td>
                         <td>$ {{ item.costo_unitario }}</td>
+                        <td>{{ item.unidades }}</td>
                         <td>$ {{ item.total }}</td>
-                        <td><button class="btn btn-danger" @click="eliminarRegistro(item, i)" v-if="botonEliminar"><i class="fa fa-minus-circle"></i></button></td>
+                        <td>
+                            <button 
+                                class="btn btn-danger" 
+                                @click="eliminarRegistro(item, i)" 
+                                v-if="botonEliminar">
+                                <i class="fa fa-minus-circle"></i>
+                            </button>
+                        </td>
                     </tr>
                     <tr>
                         <td>
@@ -159,6 +158,7 @@
                             </div>
                             <b v-if="!inputLibro">{{ temporal.titulo }}</b>
                         </td>
+                        <td v-if="inputUnidades">$ {{ temporal.costo_unitario }}</td>
                         <td>
                             <input 
                             type="number" 
@@ -168,8 +168,17 @@
                             max="9999"
                             @keyup.enter="guardarRegistro()"
                             ></input>
+                            <div class="text-danger">{{ respuestaUnidades }}</div>
                         </td>
-                        <td v-if="inputUnidades">$ {{ temporal.costo_unitario }}</td>
+                        <td></td>
+                        <td>
+                            <button 
+                                class="btn btn-secondary" 
+                                @click="eliminarTemporal" 
+                                v-if="inputUnidades">
+                                <i class="fa fa-minus-circle"></i>
+                            </button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -213,9 +222,36 @@
                 mostrarActualizar: false, //Indicar si se muestra el boton de actualizar remision 
                 mostrarDatos: false, //Indicar si se ocultan o muestran los datos del cliente
                 inputFecha: false, //Indicar si se deshabilita o no el input de Fecha
+                respuestaUnidades: '',
+                btnNuevo: true,
             }
         },
         methods: {
+            //Inicializar valores para crear una nueva remision
+            nuevaRemision(){
+                axios.get('/nueva_remision').then(response => {
+                    this.bdremision = {id: 0, cliente_id: 0, total: 0, fecha_entrega: ''};
+                    this.items = [];
+                    this.temporal = {};
+                    this.total_remision = 0;
+                    this.editar = false;
+                    this.fecha = '';
+                    this.unidades = 0;
+                    this.dato = {};
+                    this.inputLibro = true;
+                    this.inputISBN = true;
+                    this.fecha = '';
+                    this.inputFecha = false;
+                    this.inputUnidades = false;
+                    this.mostrarActualizar = false;
+                    this.mostrarBusqueda = true;
+                    this.mostrarForm = false;
+                    this.mostrarGuardar = true;
+                    this.mostrarOpciones = false;
+                    this.btnNuevo = false;
+                    this.mostrarTotal = false;
+                });
+            },
             //Se repite en Listado
             //Buscar el cliente y mostrar resultados
             mostrarClientes(){
@@ -233,6 +269,7 @@
                 this.resultsClientes = [];
                 this.mostrarForm = true;
             },
+
             //Buscar libro por ISBN
             buscarLibroISBN(){
                 axios.get('/buscarISBN', {params: {isbn: this.isbn}}).then(response => {
@@ -254,11 +291,13 @@
             datosLibro(libro){
                 this.inicializar();
                 this.temporal = {
+                    id: libro.id,
                     ISBN: libro.ISBN,
                     titulo: libro.titulo,
                     costo_unitario: libro.costo_unitario,
                     unidades: 0,
-                    total: 0
+                    total: 0,
+                    piezas: libro.piezas
                 };
             },
             //Inicializar los valores
@@ -277,31 +316,49 @@
             },
             //Guardar un registro de la remision
             guardarRegistro(){
-                this.mostrarDatos = false;
-                this.temporal.remision_id = 0;
-                this.temporal.unidades = this.unidades;
-                this.temporal.total = (this.unidades * this.temporal.costo_unitario) - (((this.unidades * this.temporal.costo_unitario) * this.dato.descuento) / 100);
-                
-                if(this.editar){
-                    this.temporal.remision_id = this.bdremision.id;
-                }
+                if(this.unidades > 0){
+                    if(this.temporal.piezas >= this.unidades){
+                        this.mostrarDatos = false;
+                        this.temporal.remision_id = 0;
+                        this.temporal.unidades = this.unidades;
+                        this.temporal.total = (this.unidades * this.temporal.costo_unitario) - (((this.unidades * this.temporal.costo_unitario) * this.dato.descuento) / 100);
+                        
+                        if(this.editar){
+                            this.temporal.remision_id = this.bdremision.id;
+                        }
 
-                axios.post('/registro_remision', this.temporal).then(response => {
-                    this.items.push(response.data);
-                    this.total_remision += response.data.total;
-                    this.unidades = 0;
-                    this.temporal = {};
-                    this.inputISBN = true;
-                    this.inputLibro = true;
-                    this.inputUnidades = false;
-                    this.botonEliminar = true;
-                    this.mostrarGuardar = true;
-                    this.mostrarTotal = true;
-                    this.mostrarBusqueda = false;
-                });
+                        axios.post('/registro_remision', this.temporal).then(response => {
+                            this.temporal = {
+                                id: response.data.dato.id,
+                                ISBN: response.data.libro.ISBN,
+                                titulo: response.data.libro.titulo,
+                                costo_unitario: response.data.libro.costo_unitario,
+                                unidades: response.data.dato.unidades,
+                                total: response.data.dato.total
+                            };
+                            this.items.push(this.temporal);
+                            this.total_remision += response.data.dato.total;
+                            this.unidades = 0;
+                            this.temporal = {};
+                            this.inputISBN = true;
+                            this.inputLibro = true;
+                            this.inputUnidades = false;
+                            this.botonEliminar = true;
+                            this.mostrarGuardar = true;
+                            this.mostrarTotal = true;
+                            this.mostrarBusqueda = false;
+                            this.respuestaUnidades = '';
+                        });
+                    }
+                    else{
+                        this.respuestaUnidades = '' + this.temporal.piezas + ' en existencia';
+                    }
+                    
+                }
             },
             //Eliminar registro de la remision
             eliminarRegistro(item, i){
+                console.log(item.id);
                 axios.delete('/eliminar_registro', {params: {id: item.id}}).then(response => {
                     this.items.splice(i, 1);
                     this.total_remision = this.total_remision - item.total;
@@ -334,9 +391,11 @@
                 this.inputFecha = false;
                 this.botonEliminar = true;
                 this.editar = true;
+                this.btnNuevo = false;
             },
             //Guardar cambios de la remision
             actRemision(){
+                this.bdremision.total = this.total_remision;
                 axios.put('/actualizar_remision', this.bdremision).then(response => {
                     this.mostrarActualizar = false;
                     this.inicializar_guardar();
@@ -353,34 +412,22 @@
                 this.inputUnidades = false;
                 this.mostrarOpciones = true;
                 this.botonEliminar = false;
-            },
-            //Inicializar valores para crear una nueva remision
-            nuevaRemision(){
-                this.bdremision = {id: 0, cliente_id: 0, total: 0, fecha_entrega: ''};
-                this.items = [];
-                this.temporal = {};
-                this.total_remision = 0;
-                this.editar = false;
-                this.fecha = '';
-                this.unidades = 0;
-                this.dato = {};
-                this.inputLibro = true;
-                this.inputISBN = true;
-                this.fecha = '';
-                this.inputFecha = false;
-                this.inputUnidades = false;
-                this.mostrarActualizar = false;
-                this.mostrarBusqueda = true;
-                this.mostrarForm = false;
-                this.mostrarGuardar = true;
-                this.mostrarOpciones = false;
-                this.mostrarTotal = false;
+                this.btnNuevo = true;
             },
             imprimir(){
                 axios.get('/imprimirSalida', {params: {remision_id: this.bdremision.id}}).then(response => {
                     console.log(response);
                 });
             }, 
+            eliminarTemporal(){
+                this.temporal = {};
+                this.inputISBN = true;
+                this.inputLibro = true;
+                this.inputUnidades = false;
+                this.queryTitulo = '';
+                this.respuestaUnidades = '';
+                this.unidades = 0;
+            },
         }
     }
 </script>

@@ -39,20 +39,7 @@ class ClienteController extends Controller
     public function show(){
         $queryCliente = Input::get('queryCliente');
         $clientes = Cliente::where('name','like','%'.$queryCliente.'%')->get();
-        
-        $remision = Remisione::all()->count() + 1;
-
-        try {
-            \DB::beginTransaction();
-
-            Dato::where('remision_id', $remision)->delete();
-
-            \DB::commit();
-
-        } catch (Exception $e) {
-            \DB::rollBack();
-		}
-
+    
         return response()->json($clientes);
     }
 }
