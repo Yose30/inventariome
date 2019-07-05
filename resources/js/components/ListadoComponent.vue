@@ -172,16 +172,6 @@
                                     v-model="queryTitulo"
                                     @keyup="mostrarLibros"
                                 ></b-input>
-                                <!-- <div class="list-group" v-if="resultslibros.length">
-                                    <a 
-                                        href="#" 
-                                        v-bind:key="i" 
-                                        class="list-group-item list-group-item-action" 
-                                        v-for="(libro, i) in resultslibros" 
-                                        @click="datosLibro(libro)">
-                                        {{ libro.titulo }}
-                                    </a>
-                                </div> -->
                             </b-col>
                         </b-row>
                     </div>
@@ -195,26 +185,9 @@
                                     v-model="queryEditorial"
                                     @keyup="mostrarPorEditorial"
                                 ></b-input>
-                                <!-- <div class="list-group" v-if="resultsEditoriales.length">
-                                    <a 
-                                        href="#" 
-                                        v-bind:key="i" 
-                                        class="list-group-item list-group-item-action" 
-                                        v-for="(editorial, i) in resultsEditoriales" 
-                                        @click="datosLibro(editorial)">
-                                        {{ libro.titulo }}
-                                    </a>
-                                </div> -->
                             </b-col>
                         </b-row>
                     </div>
-                    <!-- <div class="col-md-4">
-                        <b-form-select 
-                            v-model="selected2" 
-                            :options="options" 
-                            @change="porEstadoLibros">
-                        </b-form-select>
-                    </div> -->
                 </div>
                 <hr>
                 <b-table 

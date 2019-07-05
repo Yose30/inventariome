@@ -42,7 +42,7 @@ class ClienteController extends Controller
             $cliente->email = $request->email;
             $cliente->telefono = $request->telefono;
             $cliente->direccion = $request->direccion;
-            $cliente->descuento = $request->descuento;
+            // $cliente->descuento = $request->descuento;
             $cliente->condiciones_pago = $request->condiciones_pago;
             $cliente->save();
 
@@ -62,7 +62,7 @@ class ClienteController extends Controller
             'email' => 'min:8|max:50|required|email',
             'telefono' => 'required|numeric|max:9999999999|min:1000000',
             'direccion' => 'min:3|max:150|required|string',
-            'descuento' => 'numeric|required|min:0|max:99',
+            // 'descuento' => 'numeric|required|min:0|max:99',
             'condiciones_pago' => 'min:3|max:150|required|string'
         ]);
     }

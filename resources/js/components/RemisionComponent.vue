@@ -132,7 +132,7 @@
                                 <div v-if="errors && errors.direccion" class="text-danger">{{ errors.direccion[0] }}</div>
                             </div>
                         </b-row>
-                        <b-row class="my-1">
+                        <!-- <b-row class="my-1">
                             <label align="right" for="input-descuento" class="col-md-5">Descuento</label>
                             <div class="col-md-7">
                                 <b-form-input 
@@ -143,7 +143,7 @@
                                 </b-form-input>
                                 <div v-if="errors && errors.descuento" class="text-danger">{{ errors.descuento[0] }}</div>
                             </div>
-                        </b-row>
+                        </b-row> -->
                         <b-row class="my-1">
                             <label align="right" for="input-condiciones_pago" class="col-md-5">Condiciones de pago</label>
                             <div class="col-md-7">
@@ -167,7 +167,7 @@
                             <th scope="col">Nombre</th>
                             <th scope="col">Correo</th>
                             <th scope="col">Dirección</th>
-                            <th scope="col">Descuento</th>
+                            <!-- <th scope="col">Descuento</th> -->
                             <th scope="col"></th>
                         </tr>
                     </thead>
@@ -176,7 +176,7 @@
                             <td>{{ cliente.name }}</td>
                             <td>{{ cliente.email }}</td>
                             <td>{{ cliente.direccion }}</td>
-                            <td>{{ cliente.descuento }}%</td>
+                            <!-- <td>{{ cliente.descuento }}%</td> -->
                             <td>
                                 <button 
                                     class="btn btn-success">
@@ -209,13 +209,13 @@
                 <div class="row">
                     <b-list-group class="col-md-6">
                         <b-list-group-item><b>Nombre:</b> {{ dato.name }}</b-list-group-item>
-                        <b-list-group-item><b>Correo electrónico:</b> {{ dato.email }}</b-list-group-item>
-                        <b-list-group-item><b>Teléfono:</b></b> {{ dato.telefono }}</b-list-group-item>
+                        <b-list-group-item><b>Dirección:</b> {{dato.direccion  }}</b-list-group-item>
+                        <!-- <b-list-group-item><b>Descuento:</b> {{ dato.descuento }} %</b-list-group-item> -->
+                        <b-list-group-item><b>Condiciones de pago:</b> {{ dato.condiciones_pago }}</b-list-group-item>
                     </b-list-group>
                     <b-list-group class="col-md-6">
-                        <b-list-group-item><b>Dirección:</b> {{dato.direccion  }}</b-list-group-item>
-                        <b-list-group-item><b>Descuento:</b> {{ dato.descuento }} %</b-list-group-item>
-                        <b-list-group-item><b>Condiciones de pago:</b> {{ dato.condiciones_pago }}</b-list-group-item>
+                        <b-list-group-item><b>Correo electrónico:</b> {{ dato.email }}</b-list-group-item>
+                        <b-list-group-item><b>Teléfono:</b></b> {{ dato.telefono }}</b-list-group-item>
                     </b-list-group>
                 </div>
             </b-collapse>
@@ -235,9 +235,9 @@
             </div>
             <div class="col-md-6" align="right" v-if="mostrarTotal">
                 <label><b>Total:</b> ${{ total_remision }}</label>
-                <hr>
+                <!-- <hr>
                 <label><b>{{ dato.descuento }}% descuento:</b> ${{ descuento }}</label><br>
-                <label><b>Total:</b> ${{ pagar }}</label>
+                <label><b>Total:</b> ${{ pagar }}</label> -->
             </div>
         </div>
         <hr>
@@ -487,15 +487,15 @@
                     this.items.splice(i, 1);
                     this.total_remision = this.total_remision - item.total;
                     this.bdremision.total = this.total_remision;
-                    this.getDescuento();
+                    // this.getDescuento();
                 });
             },
             //Guardar toda la remision
             guardarRemision(){
-                this.getDescuento();
-                this.bdremision.total = this.pagar;
+                // this.getDescuento();
+                this.bdremision.total = this.total_remision;
                 this.bdremision.cliente_id = this.dato.id;
-                
+                console.log(this.bdremision);
                 if(this.bdremision.fecha_entrega != ''){
                     axios.post('/crear_remision', this.bdremision).then(response => {
                         this.bdremision.id = response.data.id;
@@ -518,8 +518,9 @@
             },
             //Guardar cambios de la remision
             actRemision(){
-                this.getDescuento();
-                this.bdremision.total = this.pagar;
+                // this.getDescuento();
+                this.bdremision.total = this.total_remision;
+                console.log(this.bdremision);
                 axios.put('/actualizar_remision', this.bdremision).then(response => {
                     this.mostrarActualizar = false;
                     this.inicializar_guardar();
@@ -584,8 +585,7 @@
                 this.btnEditarInf = true;
                 this.form = this.dato;
                 this.mostrarForm = false;
-            },
-            
+            }, 
             getDescuento(){
                 this.descuento = (this.total_remision * this.dato.descuento) / 100;
                 this.pagar = this.total_remision - this.descuento;

@@ -2427,6 +2427,128 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/LibrosComponent.vue?vue&type=script&lang=js&":
+/*!**************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/LibrosComponent.vue?vue&type=script&lang=js& ***!
+  \**************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+/* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {
+      libros: [],
+      perPage: 10,
+      currentPage: 1,
+      queryTitulo: '',
+      queryEditorial: '',
+      tabla_libros: false
+    };
+  },
+  created: function created() {
+    this.todosLibros();
+  },
+  methods: {
+    //Mostrar resultados de la busqueda por titulo del libro
+    mostrarLibros: function mostrarLibros() {
+      var _this = this;
+
+      if (this.queryTitulo.length > 0) {
+        axios.get('/mostrarLibros', {
+          params: {
+            queryTitulo: this.queryTitulo
+          }
+        }).then(function (response) {
+          // this.resultslibros = response.data;
+          _this.inicializar(response);
+        });
+      } else {
+        this.todosLibros();
+      }
+    },
+    //Mostrar libros por la editorial
+    mostrarPorEditorial: function mostrarPorEditorial() {
+      var _this2 = this;
+
+      if (this.queryEditorial.length > 0) {
+        axios.get('/mostrarPorEditorial', {
+          params: {
+            queryEditorial: this.queryEditorial
+          }
+        }).then(function (response) {
+          _this2.inicializar(response);
+        });
+      } else {
+        this.todosLibros();
+      }
+    },
+    inicializar: function inicializar(response) {
+      this.libros = [];
+      this.libros = response.data;
+      this.tabla_libros = true;
+    },
+    //Mostrar resultados de libros con estado
+    todosLibros: function todosLibros() {
+      var _this3 = this;
+
+      axios.get('/allLibros').then(function (response) {
+        _this3.inicializar(response);
+      });
+    }
+  }
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/ListaRemisionesComponent.vue?vue&type=script&lang=js&":
 /*!***********************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/ListaRemisionesComponent.vue?vue&type=script&lang=js& ***!
@@ -2440,6 +2562,156 @@ var _methods;
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -2926,13 +3198,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       mostrar: true,
       show: false,
       mostrarActualizar: true,
-      btnInformacion: false,
+      btnInformacion: true,
       mostrarDatos: false,
       dato: {},
       formularioEditar: false,
       errors: {},
       fecha: '',
-      inputFecha: false,
+      inputFecha: true,
       bdremision: {
         id: 0,
         cliente_id: 0,
@@ -2940,23 +3212,32 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         fecha_entrega: ''
       },
       items: [],
-      botonEliminar: true,
+      botonEliminar: false,
       total_remision: 0,
       descuento: 0,
       pagar: 0,
       isbn: '',
-      inputISBN: true,
+      inputISBN: false,
       respuestaISBN: '',
       temporal: {},
       buscarTitulo: '',
-      inputLibro: true,
+      inputLibro: false,
       resultadoslibros: [],
       costo_unitario: 0,
       inputCosto: false,
       respuestaCosto: '',
       unidades: 0,
       inputUnidades: false,
-      respuestaUnidades: ''
+      respuestaUnidades: '',
+      detalles: false,
+      mostrarSalida: true,
+      mostrarDevolucion: true,
+      mostrarFinal: true,
+      registros: [],
+      devoluciones: [],
+      d_total_salida: 0,
+      d_total_devolucion: 0,
+      d_total_pagar: 0
     };
   },
   created: function created() {
@@ -3139,7 +3420,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var _this10 = this;
 
       this.mostrar = false;
-      this.mostrarActualizar = true;
+      this.mostrarActualizar = false;
       axios.get('/nueva_edicion', {
         params: {
           id: remision.id
@@ -3163,11 +3444,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             fecha_entrega: remision.fecha_entrega,
             cliente_id: remision.cliente_id
           };
-          _this10.fecha = _this10.bdremision.fecha_entrega;
+          _this10.fecha = _this10.bdremision.fecha_entrega; // this.getDescuento();
 
-          _this10.getDescuento();
-
-          _this10.bdremision.total = _this10.pagar;
+          _this10.bdremision.total = _this10.total_remision;
         });
       });
     },
@@ -3206,7 +3485,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       var _this11 = this;
 
       this.getDescuento();
-      this.bdremision.total = this.pagar;
+      this.bdremision.total = this.total_remision;
       axios.put('/actualizar_remision', this.bdremision).then(function (response) {
         _this11.mostrarActualizar = false;
         _this11.botonEliminar = false;
@@ -3215,11 +3494,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         _this11.inputISBN = false;
         _this11.inputLibro = false;
+        _this11.btnInformacion = true;
+        _this11.inputFecha = true;
       });
     },
     editar: function editar() {
       this.mostrarActualizar = true;
       this.botonEliminar = true;
+      this.btnInformacion = false;
+      this.inputFecha = false;
       this.eliminarTemporal();
     },
     editarInformacion: function editarInformacion() {
@@ -3249,9 +3532,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         _this13.items.splice(i, 1);
 
         _this13.total_remision = _this13.total_remision - item.total;
-        _this13.bdremision.total = _this13.total_remision;
-
-        _this13.getDescuento();
+        _this13.bdremision.total = _this13.total_remision; // this.getDescuento();
       });
     },
     //Buscar libro por ISBN
@@ -3343,13 +3624,30 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         _this16.items.push(_this16.temporal);
 
-        _this16.total_remision += response.data.dato.total;
-
-        _this16.getDescuento();
+        _this16.total_remision += response.data.dato.total; // this.getDescuento();
 
         _this16.eliminarTemporal();
       });
     }
+  }), _defineProperty(_methods, "detallesRemision", function detallesRemision(remision) {
+    var _this17 = this;
+
+    this.detalles = true;
+    this.remision = remision;
+    axios.get('/lista_datos', {
+      params: {
+        numero: remision.id
+      }
+    }).then(function (response) {
+      _this17.registros = response.data.datos;
+      axios.get('/devoluciones_remision', {
+        params: {
+          remision_id: remision.id
+        }
+      }).then(function (response) {
+        _this17.devoluciones = response.data.devoluciones;
+      });
+    });
   }), _methods)
 });
 
@@ -3364,33 +3662,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 //
 //
 //
@@ -4686,18 +4957,17 @@ __webpack_require__.r(__webpack_exports__);
         _this6.items.splice(i, 1);
 
         _this6.total_remision = _this6.total_remision - item.total;
-        _this6.bdremision.total = _this6.total_remision;
-
-        _this6.getDescuento();
+        _this6.bdremision.total = _this6.total_remision; // this.getDescuento();
       });
     },
     //Guardar toda la remision
     guardarRemision: function guardarRemision() {
       var _this7 = this;
 
-      this.getDescuento();
-      this.bdremision.total = this.pagar;
+      // this.getDescuento();
+      this.bdremision.total = this.total_remision;
       this.bdremision.cliente_id = this.dato.id;
+      console.log(this.bdremision);
 
       if (this.bdremision.fecha_entrega != '') {
         axios.post('/crear_remision', this.bdremision).then(function (response) {
@@ -4723,8 +4993,9 @@ __webpack_require__.r(__webpack_exports__);
     actRemision: function actRemision() {
       var _this8 = this;
 
-      this.getDescuento();
-      this.bdremision.total = this.pagar;
+      // this.getDescuento();
+      this.bdremision.total = this.total_remision;
+      console.log(this.bdremision);
       axios.put('/actualizar_remision', this.bdremision).then(function (response) {
         _this8.mostrarActualizar = false;
 
@@ -71147,6 +71418,140 @@ render._withStripped = true
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/LibrosComponent.vue?vue&type=template&id=6940fd31&":
+/*!******************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/LibrosComponent.vue?vue&type=template&id=6940fd31& ***!
+  \******************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    [
+      _c("div", { staticClass: "row" }, [
+        _c(
+          "div",
+          { staticClass: "col-md-4" },
+          [
+            _c(
+              "b-row",
+              { staticClass: "my-1" },
+              [
+                _c("b-col", { attrs: { sm: "3" } }, [
+                  _c("label", { attrs: { for: "input-cliente" } }, [
+                    _vm._v("Libro")
+                  ])
+                ]),
+                _vm._v(" "),
+                _c(
+                  "b-col",
+                  { attrs: { sm: "9" } },
+                  [
+                    _c("b-input", {
+                      on: { keyup: _vm.mostrarLibros },
+                      model: {
+                        value: _vm.queryTitulo,
+                        callback: function($$v) {
+                          _vm.queryTitulo = $$v
+                        },
+                        expression: "queryTitulo"
+                      }
+                    })
+                  ],
+                  1
+                )
+              ],
+              1
+            )
+          ],
+          1
+        ),
+        _vm._v(" "),
+        _c(
+          "div",
+          { staticClass: "col-md-4" },
+          [
+            _c(
+              "b-row",
+              { staticClass: "my-1" },
+              [
+                _c("b-col", { attrs: { sm: "3" } }, [
+                  _c("label", { attrs: { for: "input-cliente" } }, [
+                    _vm._v("Editorial")
+                  ])
+                ]),
+                _vm._v(" "),
+                _c(
+                  "b-col",
+                  { attrs: { sm: "9" } },
+                  [
+                    _c("b-input", {
+                      on: { keyup: _vm.mostrarPorEditorial },
+                      model: {
+                        value: _vm.queryEditorial,
+                        callback: function($$v) {
+                          _vm.queryEditorial = $$v
+                        },
+                        expression: "queryEditorial"
+                      }
+                    })
+                  ],
+                  1
+                )
+              ],
+              1
+            )
+          ],
+          1
+        )
+      ]),
+      _vm._v(" "),
+      _c("hr"),
+      _vm._v(" "),
+      _vm.tabla_libros
+        ? _c("b-table", {
+            attrs: {
+              id: "my-table",
+              items: _vm.libros,
+              "per-page": _vm.perPage,
+              "current-page": _vm.currentPage
+            }
+          })
+        : _vm._e(),
+      _vm._v(" "),
+      _c("b-pagination", {
+        attrs: {
+          "total-rows": _vm.libros.length,
+          "per-page": _vm.perPage,
+          "aria-controls": "my-table"
+        },
+        model: {
+          value: _vm.currentPage,
+          callback: function($$v) {
+            _vm.currentPage = $$v
+          },
+          expression: "currentPage"
+        }
+      })
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/ListaRemisionesComponent.vue?vue&type=template&id=0d19da13&":
 /*!***************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/ListaRemisionesComponent.vue?vue&type=template&id=0d19da13& ***!
@@ -71163,7 +71568,7 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _vm.mostrar
+    _vm.mostrar && !_vm.detalles
       ? _c("div", [
           _c("h4", [_vm._v("Remisiones")]),
           _vm._v(" "),
@@ -71571,30 +71976,33 @@ var render = function() {
                           _c("td", [_vm._v(_vm._s(remision.fecha_entrega))]),
                           _vm._v(" "),
                           _c("td", [
+                            remision.estado != "Iniciado"
+                              ? _c(
+                                  "button",
+                                  {
+                                    staticClass: "btn btn-primary",
+                                    on: {
+                                      click: function($event) {
+                                        return _vm.detallesRemision(remision)
+                                      }
+                                    }
+                                  },
+                                  [_c("i", { staticClass: "fa fa-eye" })]
+                                )
+                              : _vm._e(),
+                            _vm._v(" "),
                             remision.estado == "Iniciado"
                               ? _c(
                                   "button",
                                   {
-                                    staticClass: "btn btn-warning",
+                                    staticClass: "btn btn-primary",
                                     on: {
                                       click: function($event) {
                                         return _vm.editarRemision(remision)
                                       }
                                     }
                                   },
-                                  [_c("i", { staticClass: "fa fa-pencil" })]
-                                )
-                              : _vm._e(),
-                            _vm._v(" "),
-                            remision.estado != "Iniciado"
-                              ? _c(
-                                  "button",
-                                  { staticClass: "btn btn-primary" },
-                                  [
-                                    _vm._v(
-                                      "\n                                Detalles\n                            "
-                                    )
-                                  ]
+                                  [_c("i", { staticClass: "fa fa-eye" })]
                                 )
                               : _vm._e()
                           ])
@@ -71629,7 +72037,9 @@ var render = function() {
     !_vm.mostrar
       ? _c("div", [
           _c("div", { staticClass: "row" }, [
-            _c("h4", { staticClass: "col-md-4" }, [_vm._v("Editar remisión")]),
+            _c("h4", { staticClass: "col-md-4" }, [
+              _vm._v("Remisión " + _vm._s(_vm.bdremision.id))
+            ]),
             _vm._v(" "),
             _c(
               "div",
@@ -71720,9 +72130,22 @@ var render = function() {
               1
             ),
             _vm._v(" "),
+            _c("div", { staticClass: "col-md-2" }, [
+              !_vm.mostrarActualizar
+                ? _c(
+                    "a",
+                    {
+                      staticClass: "btn btn-info",
+                      attrs: { href: "/imprimirSalida/" + _vm.bdremision.id }
+                    },
+                    [_c("i", { staticClass: "fa fa-print" })]
+                  )
+                : _vm._e()
+            ]),
+            _vm._v(" "),
             _c(
               "div",
-              { staticClass: "col-md-4", attrs: { align: "right" } },
+              { staticClass: "col-md-2", attrs: { align: "right" } },
               [
                 !_vm.mostrarActualizar
                   ? _c(
@@ -71819,13 +72242,13 @@ var render = function() {
                               ]),
                               _vm._v(" "),
                               _c("b-list-group-item", [
-                                _c("b", [_vm._v("Correo electrónico:")]),
-                                _vm._v(" " + _vm._s(_vm.dato.email))
+                                _c("b", [_vm._v("Dirección:")]),
+                                _vm._v(" " + _vm._s(_vm.dato.direccion))
                               ]),
                               _vm._v(" "),
                               _c("b-list-group-item", [
-                                _c("b", [_vm._v("Teléfono:")]),
-                                _vm._v(" " + _vm._s(_vm.dato.telefono))
+                                _c("b", [_vm._v("Condiciones de pago:")]),
+                                _vm._v(" " + _vm._s(_vm.dato.condiciones_pago))
                               ])
                             ],
                             1
@@ -71836,18 +72259,13 @@ var render = function() {
                             { staticClass: "col-md-6" },
                             [
                               _c("b-list-group-item", [
-                                _c("b", [_vm._v("Dirección:")]),
-                                _vm._v(" " + _vm._s(_vm.dato.direccion))
+                                _c("b", [_vm._v("Correo electrónico:")]),
+                                _vm._v(" " + _vm._s(_vm.dato.email))
                               ]),
                               _vm._v(" "),
                               _c("b-list-group-item", [
-                                _c("b", [_vm._v("Descuento:")]),
-                                _vm._v(" " + _vm._s(_vm.dato.descuento) + " %")
-                              ]),
-                              _vm._v(" "),
-                              _c("b-list-group-item", [
-                                _c("b", [_vm._v("Condiciones de pago:")]),
-                                _vm._v(" " + _vm._s(_vm.dato.condiciones_pago))
+                                _c("b", [_vm._v("Teléfono:")]),
+                                _vm._v(" " + _vm._s(_vm.dato.telefono))
                               ])
                             ],
                             1
@@ -72060,48 +72478,6 @@ var render = function() {
                                 staticClass: "col-md-5",
                                 attrs: {
                                   align: "right",
-                                  for: "input-descuento"
-                                }
-                              },
-                              [_vm._v("Descuento")]
-                            ),
-                            _vm._v(" "),
-                            _c(
-                              "div",
-                              { staticClass: "col-md-7" },
-                              [
-                                _c("b-form-input", {
-                                  attrs: {
-                                    id: "input-descuento",
-                                    type: "number",
-                                    required: ""
-                                  },
-                                  model: {
-                                    value: _vm.dato.descuento,
-                                    callback: function($$v) {
-                                      _vm.$set(_vm.dato, "descuento", $$v)
-                                    },
-                                    expression: "dato.descuento"
-                                  }
-                                }),
-                                _vm._v(" "),
-                                _vm.errors && _vm.errors.descuento
-                                  ? _c("div", { staticClass: "text-danger" }, [
-                                      _vm._v(_vm._s(_vm.errors.descuento[0]))
-                                    ])
-                                  : _vm._e()
-                              ],
-                              1
-                            )
-                          ]),
-                          _vm._v(" "),
-                          _c("b-row", { staticClass: "my-1" }, [
-                            _c(
-                              "label",
-                              {
-                                staticClass: "col-md-5",
-                                attrs: {
-                                  align: "right",
                                   for: "input-condiciones_pago"
                                 }
                               },
@@ -72204,20 +72580,7 @@ var render = function() {
                       _vm._v(" $" + _vm._s(_vm.total_remision))
                     ]),
                     _vm._v(" "),
-                    _c("hr"),
-                    _vm._v(" "),
-                    _c("label", [
-                      _c("b", [
-                        _vm._v(_vm._s(_vm.dato.descuento) + "% descuento:")
-                      ]),
-                      _vm._v(" $" + _vm._s(_vm.descuento))
-                    ]),
-                    _c("br"),
-                    _vm._v(" "),
-                    _c("label", [
-                      _c("b", [_vm._v("Total:")]),
-                      _vm._v(" $" + _vm._s(_vm.pagar))
-                    ])
+                    _c("hr")
                   ]
                 )
               : _vm._e()
@@ -72476,6 +72839,382 @@ var render = function() {
             ])
           ])
         ])
+      : _vm._e(),
+    _vm._v(" "),
+    _vm.detalles
+      ? _c(
+          "div",
+          [
+            _c("div", { staticClass: "row" }, [
+              _c("h4", { staticClass: "col-md-11" }, [
+                _vm._v("Detalles de remisión " + _vm._s(_vm.remision.id))
+              ]),
+              _vm._v(" "),
+              _c(
+                "button",
+                {
+                  staticClass: "btn btn-danger",
+                  attrs: { id: "btnCancelar" },
+                  on: {
+                    click: function($event) {
+                      _vm.detalles = false
+                    }
+                  }
+                },
+                [_c("i", { staticClass: "fa fa-close" })]
+              )
+            ]),
+            _vm._v(" "),
+            _c("hr"),
+            _vm._v(" "),
+            _c("div", { staticClass: "row" }, [
+              _c(
+                "div",
+                { staticClass: "col-md-11" },
+                [
+                  _vm.remision.estado == "Proceso"
+                    ? _c("b-badge", { attrs: { variant: "primary" } }, [
+                        _vm._v(_vm._s(_vm.remision.estado))
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.remision.estado == "Terminado"
+                    ? _c("b-badge", { attrs: { variant: "success" } }, [
+                        _vm._v(_vm._s(_vm.remision.estado))
+                      ])
+                    : _vm._e()
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _vm.remision.estado == "Terminado"
+                ? _c(
+                    "a",
+                    {
+                      staticClass: "btn btn-info",
+                      attrs: { href: "/imprimirSalida/" + _vm.remision.id }
+                    },
+                    [_c("i", { staticClass: "fa fa-print" })]
+                  )
+                : _vm._e()
+            ]),
+            _vm._v(" "),
+            _c("hr"),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: "row" },
+              [
+                _c("h4", { staticClass: "col-md-10" }, [_vm._v("Salida")]),
+                _vm._v(" "),
+                _c(
+                  "b-button",
+                  {
+                    class: _vm.mostrarSalida ? "collapsed" : null,
+                    attrs: {
+                      variant: "link",
+                      "aria-expanded": _vm.mostrarSalida ? "true" : "false",
+                      "aria-controls": "collapse-1"
+                    },
+                    on: {
+                      click: function($event) {
+                        _vm.mostrarSalida = !_vm.mostrarSalida
+                      }
+                    }
+                  },
+                  [_c("i", { staticClass: "fa fa-sort-asc" })]
+                )
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c(
+              "b-collapse",
+              {
+                staticClass: "mt-2",
+                attrs: { id: "collapse-1" },
+                model: {
+                  value: _vm.mostrarSalida,
+                  callback: function($$v) {
+                    _vm.mostrarSalida = $$v
+                  },
+                  expression: "mostrarSalida"
+                }
+              },
+              [
+                _c("table", { staticClass: "table" }, [
+                  _c("thead", [
+                    _c("tr", [
+                      _c("th", { attrs: { scope: "col" } }, [_vm._v("ISBN")]),
+                      _vm._v(" "),
+                      _c("th", { attrs: { scope: "col" } }, [_vm._v("Libro")]),
+                      _vm._v(" "),
+                      _c("th", { attrs: { scope: "col" } }, [
+                        _vm._v("Costo unitario")
+                      ]),
+                      _vm._v(" "),
+                      _c("th", { attrs: { scope: "col" } }, [
+                        _vm._v("Unidades")
+                      ]),
+                      _vm._v(" "),
+                      _c("th", { attrs: { scope: "col" } }, [
+                        _vm._v("Subtotal")
+                      ])
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "tbody",
+                    [
+                      _vm._l(_vm.registros, function(registro, i) {
+                        return _c("tr", { key: i }, [
+                          _c("td", [_vm._v(_vm._s(registro.libro.ISBN))]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(registro.libro.titulo))]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _vm._v("$ " + _vm._s(registro.costo_unitario))
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(registro.unidades))]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v("$ " + _vm._s(registro.total))])
+                        ])
+                      }),
+                      _vm._v(" "),
+                      _c("tr", [
+                        _c("td"),
+                        _c("td"),
+                        _vm._v(" "),
+                        _c("td"),
+                        _c("td"),
+                        _vm._v(" "),
+                        _c("td", [
+                          _c("h5", [_vm._v("$ " + _vm._s(_vm.remision.total))])
+                        ])
+                      ])
+                    ],
+                    2
+                  )
+                ])
+              ]
+            ),
+            _vm._v(" "),
+            _c("hr"),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: "row" },
+              [
+                _c("h4", { staticClass: "col-md-10" }, [_vm._v("Devolución")]),
+                _vm._v(" "),
+                _c(
+                  "b-button",
+                  {
+                    class: _vm.mostrarDevolucion ? "collapsed" : null,
+                    attrs: {
+                      variant: "link",
+                      "aria-expanded": _vm.mostrarDevolucion ? "true" : "false",
+                      "aria-controls": "collapse-2"
+                    },
+                    on: {
+                      click: function($event) {
+                        _vm.mostrarDevolucion = !_vm.mostrarDevolucion
+                      }
+                    }
+                  },
+                  [_c("i", { staticClass: "fa fa-sort-asc" })]
+                )
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c(
+              "b-collapse",
+              {
+                staticClass: "mt-2",
+                attrs: { id: "collapse-2" },
+                model: {
+                  value: _vm.mostrarDevolucion,
+                  callback: function($$v) {
+                    _vm.mostrarDevolucion = $$v
+                  },
+                  expression: "mostrarDevolucion"
+                }
+              },
+              [
+                _c("table", { staticClass: "table" }, [
+                  _c("thead", [
+                    _c("tr", [
+                      _c("th", { attrs: { scope: "col" } }, [_vm._v("ISBN")]),
+                      _vm._v(" "),
+                      _c("th", { attrs: { scope: "col" } }, [_vm._v("Libro")]),
+                      _vm._v(" "),
+                      _c("th", { attrs: { scope: "col" } }, [
+                        _vm._v("Costo unitario")
+                      ]),
+                      _vm._v(" "),
+                      _c("th", { attrs: { scope: "col" } }, [
+                        _vm._v("Unidades")
+                      ]),
+                      _vm._v(" "),
+                      _c("th", { attrs: { scope: "col" } }, [
+                        _vm._v("Subtotal")
+                      ])
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "tbody",
+                    [
+                      _vm._l(_vm.devoluciones, function(devolucion, i) {
+                        return _c("tr", { key: i }, [
+                          _c("td", [_vm._v(_vm._s(devolucion.libro.ISBN))]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(devolucion.libro.titulo))]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _vm._v(
+                              "$ " + _vm._s(devolucion.dato.costo_unitario)
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(devolucion.unidades))]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v("$ " + _vm._s(devolucion.total))])
+                        ])
+                      }),
+                      _vm._v(" "),
+                      _c("tr", [
+                        _c("td"),
+                        _c("td"),
+                        _vm._v(" "),
+                        _c("td"),
+                        _c("td"),
+                        _vm._v(" "),
+                        _c("td", [
+                          _c("h5", [
+                            _vm._v("$ " + _vm._s(_vm.remision.total_devolucion))
+                          ])
+                        ])
+                      ])
+                    ],
+                    2
+                  )
+                ])
+              ]
+            ),
+            _vm._v(" "),
+            _c("hr"),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: "row" },
+              [
+                _c("h4", { staticClass: "col-md-10" }, [
+                  _vm._v("Remisión final")
+                ]),
+                _vm._v(" "),
+                _c(
+                  "b-button",
+                  {
+                    class: _vm.mostrarFinal ? "collapsed" : null,
+                    attrs: {
+                      variant: "link",
+                      "aria-expanded": _vm.mostrarFinal ? "true" : "false",
+                      "aria-controls": "collapse-3"
+                    },
+                    on: {
+                      click: function($event) {
+                        _vm.mostrarFinal = !_vm.mostrarFinal
+                      }
+                    }
+                  },
+                  [_c("i", { staticClass: "fa fa-sort-asc" })]
+                )
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c(
+              "b-collapse",
+              {
+                staticClass: "mt-2",
+                attrs: { id: "collapse-3" },
+                model: {
+                  value: _vm.mostrarFinal,
+                  callback: function($$v) {
+                    _vm.mostrarFinal = $$v
+                  },
+                  expression: "mostrarFinal"
+                }
+              },
+              [
+                _c("table", { staticClass: "table" }, [
+                  _c("thead", [
+                    _c("tr", [
+                      _c("th", { attrs: { scope: "col" } }, [_vm._v("ISBN")]),
+                      _vm._v(" "),
+                      _c("th", { attrs: { scope: "col" } }, [_vm._v("Libro")]),
+                      _vm._v(" "),
+                      _c("th", { attrs: { scope: "col" } }, [
+                        _vm._v("Costo unitario")
+                      ]),
+                      _vm._v(" "),
+                      _c("th", { attrs: { scope: "col" } }, [
+                        _vm._v("Unidades")
+                      ]),
+                      _vm._v(" "),
+                      _c("th", { attrs: { scope: "col" } }, [
+                        _vm._v("Subtotal")
+                      ])
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "tbody",
+                    [
+                      _vm._l(_vm.devoluciones, function(devolucion, i) {
+                        return _c("tr", { key: i }, [
+                          _c("td", [_vm._v(_vm._s(devolucion.libro.ISBN))]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(devolucion.libro.titulo))]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _vm._v(
+                              "$ " + _vm._s(devolucion.dato.costo_unitario)
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [_vm._v(_vm._s(devolucion.unidades_resta))]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _vm._v("$ " + _vm._s(devolucion.total_resta))
+                          ])
+                        ])
+                      }),
+                      _vm._v(" "),
+                      _c("tr", [
+                        _c("td"),
+                        _c("td"),
+                        _c("td"),
+                        _c("td"),
+                        _vm._v(" "),
+                        _c("td", [
+                          _c("h5", [
+                            _vm._v("$ " + _vm._s(_vm.remision.total_pagar))
+                          ])
+                        ])
+                      ])
+                    ],
+                    2
+                  )
+                ])
+              ]
+            )
+          ],
+          1
+        )
       : _vm._e()
   ])
 }
@@ -72520,7 +73259,9 @@ var staticRenderFns = [
         _vm._v(" "),
         _c("th", { attrs: { scope: "col" } }, [_vm._v("Estado")]),
         _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Fecha de entrega")])
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Fecha de entrega")]),
+        _vm._v(" "),
+        _c("th", { attrs: { scope: "col" } })
       ])
     ])
   },
@@ -74139,45 +74880,6 @@ var render = function() {
                             "label",
                             {
                               staticClass: "col-md-5",
-                              attrs: { align: "right", for: "input-descuento" }
-                            },
-                            [_vm._v("Descuento")]
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "div",
-                            { staticClass: "col-md-7" },
-                            [
-                              _c("b-form-input", {
-                                attrs: {
-                                  id: "input-descuento",
-                                  type: "number",
-                                  required: ""
-                                },
-                                model: {
-                                  value: _vm.form.descuento,
-                                  callback: function($$v) {
-                                    _vm.$set(_vm.form, "descuento", $$v)
-                                  },
-                                  expression: "form.descuento"
-                                }
-                              }),
-                              _vm._v(" "),
-                              _vm.errors && _vm.errors.descuento
-                                ? _c("div", { staticClass: "text-danger" }, [
-                                    _vm._v(_vm._s(_vm.errors.descuento[0]))
-                                  ])
-                                : _vm._e()
-                            ],
-                            1
-                          )
-                        ]),
-                        _vm._v(" "),
-                        _c("b-row", { staticClass: "my-1" }, [
-                          _c(
-                            "label",
-                            {
-                              staticClass: "col-md-5",
                               attrs: {
                                 align: "right",
                                 for: "input-condiciones_pago"
@@ -74249,8 +74951,6 @@ var render = function() {
                         _c("td", [_vm._v(_vm._s(cliente.email))]),
                         _vm._v(" "),
                         _c("td", [_vm._v(_vm._s(cliente.direccion))]),
-                        _vm._v(" "),
-                        _c("td", [_vm._v(_vm._s(cliente.descuento) + "%")]),
                         _vm._v(" "),
                         _c("td", [
                           _c("button", { staticClass: "btn btn-success" }, [
@@ -74349,13 +75049,13 @@ var render = function() {
                         ]),
                         _vm._v(" "),
                         _c("b-list-group-item", [
-                          _c("b", [_vm._v("Correo electrónico:")]),
-                          _vm._v(" " + _vm._s(_vm.dato.email))
+                          _c("b", [_vm._v("Dirección:")]),
+                          _vm._v(" " + _vm._s(_vm.dato.direccion))
                         ]),
                         _vm._v(" "),
                         _c("b-list-group-item", [
-                          _c("b", [_vm._v("Teléfono:")]),
-                          _vm._v(" " + _vm._s(_vm.dato.telefono))
+                          _c("b", [_vm._v("Condiciones de pago:")]),
+                          _vm._v(" " + _vm._s(_vm.dato.condiciones_pago))
                         ])
                       ],
                       1
@@ -74366,18 +75066,13 @@ var render = function() {
                       { staticClass: "col-md-6" },
                       [
                         _c("b-list-group-item", [
-                          _c("b", [_vm._v("Dirección:")]),
-                          _vm._v(" " + _vm._s(_vm.dato.direccion))
+                          _c("b", [_vm._v("Correo electrónico:")]),
+                          _vm._v(" " + _vm._s(_vm.dato.email))
                         ]),
                         _vm._v(" "),
                         _c("b-list-group-item", [
-                          _c("b", [_vm._v("Descuento:")]),
-                          _vm._v(" " + _vm._s(_vm.dato.descuento) + " %")
-                        ]),
-                        _vm._v(" "),
-                        _c("b-list-group-item", [
-                          _c("b", [_vm._v("Condiciones de pago:")]),
-                          _vm._v(" " + _vm._s(_vm.dato.condiciones_pago))
+                          _c("b", [_vm._v("Teléfono:")]),
+                          _vm._v(" " + _vm._s(_vm.dato.telefono))
                         ])
                       ],
                       1
@@ -74433,19 +75128,6 @@ var render = function() {
             _c("label", [
               _c("b", [_vm._v("Total:")]),
               _vm._v(" $" + _vm._s(_vm.total_remision))
-            ]),
-            _vm._v(" "),
-            _c("hr"),
-            _vm._v(" "),
-            _c("label", [
-              _c("b", [_vm._v(_vm._s(_vm.dato.descuento) + "% descuento:")]),
-              _vm._v(" $" + _vm._s(_vm.descuento))
-            ]),
-            _c("br"),
-            _vm._v(" "),
-            _c("label", [
-              _c("b", [_vm._v("Total:")]),
-              _vm._v(" $" + _vm._s(_vm.pagar))
             ])
           ])
         : _vm._e()
@@ -74719,8 +75401,6 @@ var staticRenderFns = [
         _c("th", { attrs: { scope: "col" } }, [_vm._v("Correo")]),
         _vm._v(" "),
         _c("th", { attrs: { scope: "col" } }, [_vm._v("Dirección")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Descuento")]),
         _vm._v(" "),
         _c("th", { attrs: { scope: "col" } })
       ])
@@ -88514,6 +89194,7 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('remision-component', __web
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('devolucion-component', __webpack_require__(/*! ./components/DevolucionComponent.vue */ "./resources/js/components/DevolucionComponent.vue")["default"]);
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('listado-component', __webpack_require__(/*! ./components/ListadoComponent.vue */ "./resources/js/components/ListadoComponent.vue")["default"]);
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('lista-remisiones-component', __webpack_require__(/*! ./components/ListaRemisionesComponent.vue */ "./resources/js/components/ListaRemisionesComponent.vue")["default"]);
+vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('libros-component', __webpack_require__(/*! ./components/LibrosComponent.vue */ "./resources/js/components/LibrosComponent.vue")["default"]);
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('inventario-component', __webpack_require__(/*! ./components/InventarioComponent.vue */ "./resources/js/components/InventarioComponent.vue")["default"]);
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('new-client-component', __webpack_require__(/*! ./components/NewClientComponent.vue */ "./resources/js/components/NewClientComponent.vue")["default"]);
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('new-libro-component', __webpack_require__(/*! ./components/NewLibroComponent.vue */ "./resources/js/components/NewLibroComponent.vue")["default"]);
@@ -88720,6 +89401,75 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_InventarioComponent_vue_vue_type_template_id_d09bdf1e___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_InventarioComponent_vue_vue_type_template_id_d09bdf1e___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./resources/js/components/LibrosComponent.vue":
+/*!*****************************************************!*\
+  !*** ./resources/js/components/LibrosComponent.vue ***!
+  \*****************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _LibrosComponent_vue_vue_type_template_id_6940fd31___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./LibrosComponent.vue?vue&type=template&id=6940fd31& */ "./resources/js/components/LibrosComponent.vue?vue&type=template&id=6940fd31&");
+/* harmony import */ var _LibrosComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./LibrosComponent.vue?vue&type=script&lang=js& */ "./resources/js/components/LibrosComponent.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _LibrosComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _LibrosComponent_vue_vue_type_template_id_6940fd31___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _LibrosComponent_vue_vue_type_template_id_6940fd31___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/LibrosComponent.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/LibrosComponent.vue?vue&type=script&lang=js&":
+/*!******************************************************************************!*\
+  !*** ./resources/js/components/LibrosComponent.vue?vue&type=script&lang=js& ***!
+  \******************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_LibrosComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./LibrosComponent.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/LibrosComponent.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_LibrosComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/LibrosComponent.vue?vue&type=template&id=6940fd31&":
+/*!************************************************************************************!*\
+  !*** ./resources/js/components/LibrosComponent.vue?vue&type=template&id=6940fd31& ***!
+  \************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_LibrosComponent_vue_vue_type_template_id_6940fd31___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./LibrosComponent.vue?vue&type=template&id=6940fd31& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/LibrosComponent.vue?vue&type=template&id=6940fd31&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_LibrosComponent_vue_vue_type_template_id_6940fd31___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_LibrosComponent_vue_vue_type_template_id_6940fd31___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 
@@ -89124,8 +89874,8 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! C:\Users\Recepcion 2\Documents\GitHub\inventariomajestic\resources\js\app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! C:\Users\Recepcion 2\Documents\GitHub\inventariomajestic\resources\sass\app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! C:\Users\JULIETA CANALES\Documents\GitHub\inventariomajestic\resources\js\app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! C:\Users\JULIETA CANALES\Documents\GitHub\inventariomajestic\resources\sass\app.scss */"./resources/sass/app.scss");
 
 
 /***/ }),

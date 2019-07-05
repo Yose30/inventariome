@@ -38,6 +38,7 @@ Vue.component('remision-component', require('./components/RemisionComponent.vue'
 Vue.component('devolucion-component', require('./components/DevolucionComponent.vue').default);
 Vue.component('listado-component', require('./components/ListadoComponent.vue').default);
 Vue.component('lista-remisiones-component', require('./components/ListaRemisionesComponent.vue').default);
+Vue.component('libros-component', require('./components/LibrosComponent.vue').default);
 
 Vue.component('inventario-component', require('./components/InventarioComponent.vue').default);
 Vue.component('new-client-component', require('./components/NewClientComponent.vue').default);

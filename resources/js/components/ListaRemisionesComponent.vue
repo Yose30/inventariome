@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-if="mostrar">
+        <div v-if="mostrar && !detalles">
             <h4>Remisiones</h4>
             <div class="row">
                 <div class="col-md-3">
@@ -137,6 +137,7 @@
                             <th scope="col">Final</th>
                             <th scope="col">Estado</th>
                             <th scope="col">Fecha de entrega</th>
+                            <th scope="col"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -154,15 +155,16 @@
                             <td>{{ remision.fecha_entrega }}</td>
                             <td>
                                 <button 
-                                    class="btn btn-warning" 
-                                    v-if="remision.estado == 'Iniciado'"
-                                    @click="editarRemision(remision)">
-                                    <i class="fa fa-pencil"></i>
+                                    class="btn btn-primary" 
+                                    v-if="remision.estado != 'Iniciado'"
+                                    @click="detallesRemision(remision)">
+                                    <i class="fa fa-eye"></i>
                                 </button>
                                 <button 
                                     class="btn btn-primary" 
-                                    v-if="remision.estado != 'Iniciado'">
-                                    Detalles
+                                    v-if="remision.estado == 'Iniciado'"
+                                    @click="editarRemision(remision)">
+                                    <i class="fa fa-eye"></i>
                                 </button>
                             </td>
                         </tr>
@@ -178,7 +180,7 @@
         </div>
         <div v-if="!mostrar">
             <div class="row">
-                <h4 class="col-md-4">Editar remisión</h4>
+                <h4 class="col-md-4">Remisión {{ bdremision.id }}</h4>
                 <div class="col-md-2">
                     <b-button variant="danger" v-if="mostrarActualizar" @click="show=true"><i class="fa fa-close"></i></b-button>
                     <b-modal v-model="show" title="Cerrar remisión">
@@ -202,7 +204,15 @@
                         <i class="fa fa-pencil"></i>
                     </b-button>
                 </div>
-                <div class="col-md-4" align="right">
+                <div class="col-md-2">
+                    <a 
+                        class="btn btn-info"
+                        v-if="!mostrarActualizar"
+                        :href="'/imprimirSalida/' + bdremision.id">
+                        <i class="fa fa-print"></i>
+                    </a>
+                </div>
+                <div class="col-md-2" align="right">
                     <b-button 
                         variant="primary" 
                         @click="cancelarRemision"
@@ -232,13 +242,13 @@
                     <div class="row">
                         <b-list-group class="col-md-6">
                             <b-list-group-item><b>Nombre:</b> {{ dato.name }}</b-list-group-item>
-                            <b-list-group-item><b>Correo electrónico:</b> {{ dato.email }}</b-list-group-item>
-                            <b-list-group-item><b>Teléfono:</b></b> {{ dato.telefono }}</b-list-group-item>
+                            <b-list-group-item><b>Dirección:</b> {{dato.direccion  }}</b-list-group-item>
+                            <!-- <b-list-group-item><b>Descuento:</b> {{ dato.descuento }} %</b-list-group-item> -->
+                            <b-list-group-item><b>Condiciones de pago:</b> {{ dato.condiciones_pago }}</b-list-group-item>
                         </b-list-group>
                         <b-list-group class="col-md-6">
-                            <b-list-group-item><b>Dirección:</b> {{dato.direccion  }}</b-list-group-item>
-                            <b-list-group-item><b>Descuento:</b> {{ dato.descuento }} %</b-list-group-item>
-                            <b-list-group-item><b>Condiciones de pago:</b> {{ dato.condiciones_pago }}</b-list-group-item>
+                            <b-list-group-item><b>Correo electrónico:</b> {{ dato.email }}</b-list-group-item>
+                            <b-list-group-item><b>Teléfono:</b></b> {{ dato.telefono }}</b-list-group-item>
                         </b-list-group>
                     </div>
                 </b-collapse>
@@ -297,7 +307,7 @@
                                     <div v-if="errors && errors.direccion" class="text-danger">{{ errors.direccion[0] }}</div>
                                 </div>
                             </b-row>
-                            <b-row class="my-1">
+                            <!-- <b-row class="my-1">
                                 <label align="right" for="input-descuento" class="col-md-5">Descuento</label>
                                 <div class="col-md-7">
                                     <b-form-input 
@@ -308,7 +318,7 @@
                                     </b-form-input>
                                     <div v-if="errors && errors.descuento" class="text-danger">{{ errors.descuento[0] }}</div>
                                 </div>
-                            </b-row>
+                            </b-row> -->
                             <b-row class="my-1">
                                 <label align="right" for="input-condiciones_pago" class="col-md-5">Condiciones de pago</label>
                                 <div class="col-md-7">
@@ -340,8 +350,8 @@
                 <div class="col-md-6" align="right" v-if="!formularioEditar">
                     <label><b>Total:</b> ${{ total_remision }}</label>
                     <hr>
-                    <label><b>{{ dato.descuento }}% descuento:</b> ${{ descuento }}</label><br>
-                    <label><b>Total:</b> ${{ pagar }}</label>
+                    <!-- <label><b>{{ dato.descuento }}% descuento:</b> ${{ descuento }}</label><br>
+                    <label><b>Total:</b> ${{ pagar }}</label> -->
                 </div>
             </div>
             <hr>
@@ -438,6 +448,146 @@
                 </table>
             </div>
         </div>
+        <div v-if="detalles">
+            <div class="row">
+                <h4 class="col-md-11">Detalles de remisión {{ remision.id }}</h4>
+                <button 
+                    id="btnCancelar" 
+                    class="btn btn-danger"
+                    @click="detalles = false">
+                    <i class="fa fa-close"></i>
+                </button>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-11">
+                    <b-badge variant="primary" v-if="remision.estado == 'Proceso'">{{ remision.estado }}</b-badge>
+                    <b-badge variant="success" v-if="remision.estado == 'Terminado'">{{ remision.estado }}</b-badge>
+                </div>
+                <a 
+                    class="btn btn-info"
+                    v-if="remision.estado == 'Terminado'"
+                    :href="'/imprimirSalida/' + remision.id">
+                    <i class="fa fa-print"></i>
+                </a>
+            </div>
+            <hr>
+            <div class="row">
+                <h4 class="col-md-10">Salida</h4>
+                <b-button 
+                    variant="link" 
+                    :class="mostrarSalida ? 'collapsed' : null"
+                    :aria-expanded="mostrarSalida ? 'true' : 'false'"
+                    aria-controls="collapse-1"
+                    @click="mostrarSalida = !mostrarSalida">
+                    <i class="fa fa-sort-asc"></i>
+                </b-button>
+            </div>
+            <b-collapse id="collapse-1" v-model="mostrarSalida" class="mt-2">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">ISBN</th>
+                            <th scope="col">Libro</th>
+                            <th scope="col">Costo unitario</th>
+                            <th scope="col">Unidades</th>
+                            <th scope="col">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(registro, i) in registros" v-bind:key="i">
+                            <td>{{ registro.libro.ISBN }}</td>
+                            <td>{{ registro.libro.titulo }}</td>
+                            <td>$ {{ registro.costo_unitario }}</td>
+                            <td>{{ registro.unidades }}</td>
+                            <td>$ {{ registro.total }}</td>
+                        </tr>
+                        <tr>
+                            <td></td><td></td>
+                            <td></td><td></td>
+                            <td><h5>$ {{ remision.total }}</h5></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </b-collapse>
+            <hr>
+            <div class="row">
+                <h4 class="col-md-10">Devolución</h4>
+                <b-button 
+                    variant="link" 
+                    :class="mostrarDevolucion ? 'collapsed' : null"
+                    :aria-expanded="mostrarDevolucion ? 'true' : 'false'"
+                    aria-controls="collapse-2"
+                    @click="mostrarDevolucion = !mostrarDevolucion">
+                    <i class="fa fa-sort-asc"></i>
+                </b-button>
+            </div>
+            <b-collapse id="collapse-2" v-model="mostrarDevolucion" class="mt-2">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">ISBN</th>
+                            <th scope="col">Libro</th>
+                            <th scope="col">Costo unitario</th>
+                            <th scope="col">Unidades</th>
+                            <th scope="col">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(devolucion, i) in devoluciones" v-bind:key="i">
+                            <td>{{ devolucion.libro.ISBN }}</td>
+                            <td>{{ devolucion.libro.titulo }}</td>
+                            <td>$ {{ devolucion.dato.costo_unitario }}</td>
+                            <td>{{ devolucion.unidades }}</td>
+                            <td>$ {{ devolucion.total }}</td>
+                        </tr>
+                        <tr>
+                            <td></td><td></td>
+                            <td></td><td></td>
+                            <td><h5>$ {{ remision.total_devolucion }}</h5></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </b-collapse>
+            <hr>
+            <div class="row">
+                <h4 class="col-md-10">Remisión final</h4>
+                <b-button 
+                    variant="link" 
+                    :class="mostrarFinal ? 'collapsed' : null"
+                    :aria-expanded="mostrarFinal ? 'true' : 'false'"
+                    aria-controls="collapse-3"
+                    @click="mostrarFinal = !mostrarFinal">
+                    <i class="fa fa-sort-asc"></i>
+                </b-button>
+            </div>
+            <b-collapse id="collapse-3" v-model="mostrarFinal" class="mt-2">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">ISBN</th>
+                            <th scope="col">Libro</th>
+                            <th scope="col">Costo unitario</th>
+                            <th scope="col">Unidades</th>
+                            <th scope="col">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(devolucion, i) in devoluciones" v-bind:key="i">
+                            <td>{{ devolucion.libro.ISBN }}</td>
+                            <td>{{ devolucion.libro.titulo }}</td>
+                            <td>$ {{ devolucion.dato.costo_unitario }}</td>
+                            <td>{{ devolucion.unidades_resta }}</td>
+                            <td>$ {{ devolucion.total_resta }}</td>
+                        </tr>
+                        <tr>
+                            <td></td><td></td><td></td><td></td>
+                            <td><h5>$ {{ remision.total_pagar }}</h5></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </b-collapse>
+        </div>
     </div>
 </template>
 
@@ -476,18 +626,17 @@
                 resultslibros: [],
                 tabla_libros: false,
                 libros: [],
-
                 //ATRIBUTOS EDITAR REMISION
                 mostrar: true,
                 show: false,
                 mostrarActualizar: true,
-                btnInformacion: false,
+                btnInformacion: true,
                 mostrarDatos: false,
                 dato: {},
                 formularioEditar: false,
                 errors: {},
                 fecha: '',
-                inputFecha: false,
+                inputFecha: true,
                 bdremision: {
                     id: 0,
                     cliente_id: 0,
@@ -495,17 +644,16 @@
                     fecha_entrega: ''
                 },
                 items: [],
-                botonEliminar: true,
+                botonEliminar: false,
                 total_remision: 0,
                 descuento: 0,
                 pagar: 0,
-
                 isbn: '',
-                inputISBN: true,
+                inputISBN: false,
                 respuestaISBN: '',
                 temporal: {},
                 buscarTitulo: '',
-                inputLibro: true,
+                inputLibro: false,
                 resultadoslibros: [],
                 costo_unitario: 0,
                 inputCosto: false,
@@ -513,6 +661,15 @@
                 unidades: 0,
                 inputUnidades: false,
                 respuestaUnidades: '',
+                detalles: false,
+                mostrarSalida: true,
+                mostrarDevolucion: true,
+                mostrarFinal: true,
+                registros: [],
+                devoluciones: [],
+                d_total_salida: 0,
+                d_total_devolucion: 0,
+                d_total_pagar: 0,
             }
         },
         created: function(){
@@ -641,7 +798,7 @@
             //EDITAR REMISION
             editarRemision(remision){
                 this.mostrar = false;
-                this.mostrarActualizar = true;
+                this.mostrarActualizar = false;
                 axios.get('/nueva_edicion', {params: {id: remision.id}}).then(response => {
                     axios.get('/getCliente', {params: {id: remision.cliente_id, remision_id: remision.id}}).then(response => {
                         this.dato = response.data.cliente;
@@ -655,8 +812,8 @@
                             cliente_id: remision.cliente_id,
                         };
                         this.fecha = this.bdremision.fecha_entrega;
-                        this.getDescuento();
-                        this.bdremision.total = this.pagar;
+                        // this.getDescuento();
+                        this.bdremision.total = this.total_remision;
                     });
                 });
             },
@@ -689,7 +846,7 @@
             actRemision(){
                 this.getDescuento();
                 
-                this.bdremision.total = this.pagar;
+                this.bdremision.total = this.total_remision;
 
                 axios.put('/actualizar_remision', this.bdremision).then(response => {
                     this.mostrarActualizar = false;
@@ -697,11 +854,15 @@
                     this.eliminarTemporal();
                     this.inputISBN = false;
                     this.inputLibro = false;
+                    this.btnInformacion = true;
+                    this.inputFecha = true;
                 });
             },
             editar(){
                 this.mostrarActualizar = true;
                 this.botonEliminar = true;
+                this.btnInformacion = false;
+                this.inputFecha = false;
                 this.eliminarTemporal();
             },
             editarInformacion(){
@@ -724,7 +885,7 @@
                     this.items.splice(i, 1);
                     this.total_remision = this.total_remision - item.total;
                     this.bdremision.total = this.total_remision;
-                    this.getDescuento();
+                    // this.getDescuento();
                 });
             },
             //Buscar libro por ISBN
@@ -807,11 +968,21 @@
                         };
                         this.items.push(this.temporal);
                         this.total_remision += response.data.dato.total;
-                        this.getDescuento();
+                        // this.getDescuento();
                         this.eliminarTemporal();
                     }); 
                 }
             },
+            detallesRemision(remision){
+                this.detalles = true;
+                this.remision = remision;
+                axios.get('/lista_datos', {params: {numero: remision.id}}).then(response => {
+                    this.registros = response.data.datos;
+                    axios.get('/devoluciones_remision', {params: {remision_id: remision.id}}).then(response => {
+                        this.devoluciones = response.data.devoluciones;
+                    });
+                });
+            }
         }
     }
 </script>
