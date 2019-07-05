@@ -2873,6 +2873,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -4556,6 +4566,8 @@ __webpack_require__.r(__webpack_exports__);
       var _this = this;
 
       axios.get('/nueva_remision').then(function (response) {
+        _this.btnEditarInf = false;
+
         _this.ini_1(); //btnNuevo = false, para no mostrar el plus y mostrar asi el de cancelar
 
 
@@ -71558,9 +71570,9 @@ var render = function() {
                           _vm._v(" "),
                           _c("td", [_vm._v(_vm._s(remision.fecha_entrega))]),
                           _vm._v(" "),
-                          remision.estado == "Iniciado"
-                            ? _c("td", [
-                                _c(
+                          _c("td", [
+                            remision.estado == "Iniciado"
+                              ? _c(
                                   "button",
                                   {
                                     staticClass: "btn btn-warning",
@@ -71572,8 +71584,20 @@ var render = function() {
                                   },
                                   [_c("i", { staticClass: "fa fa-pencil" })]
                                 )
-                              ])
-                            : _vm._e()
+                              : _vm._e(),
+                            _vm._v(" "),
+                            remision.estado != "Iniciado"
+                              ? _c(
+                                  "button",
+                                  { staticClass: "btn btn-primary" },
+                                  [
+                                    _vm._v(
+                                      "\n                                Detalles\n                            "
+                                    )
+                                  ]
+                                )
+                              : _vm._e()
+                          ])
                         ])
                       }),
                       _vm._v(" "),
@@ -72466,11 +72490,11 @@ var staticRenderFns = [
         _vm._v(" "),
         _c("th", { attrs: { scope: "col" } }, [_vm._v("Cliente")]),
         _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Total Salida")]),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Salida")]),
         _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Total Devolución")]),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Devolución")]),
         _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Total a pagar")]),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Final")]),
         _vm._v(" "),
         _c("th", { attrs: { scope: "col" } }, [_vm._v("Estado")]),
         _vm._v(" "),
@@ -72939,15 +72963,15 @@ var render = function() {
                         ]),
                         _vm._v(" "),
                         _c("th", { attrs: { scope: "col" } }, [
-                          _vm._v("Total Salida")
+                          _vm._v("Salida")
                         ]),
                         _vm._v(" "),
                         _c("th", { attrs: { scope: "col" } }, [
-                          _vm._v("Total Devolución")
+                          _vm._v("Devolución")
                         ]),
                         _vm._v(" "),
                         _c("th", { attrs: { scope: "col" } }, [
-                          _vm._v("Total a pagar")
+                          _vm._v("Final")
                         ]),
                         _vm._v(" "),
                         _c("th", { attrs: { scope: "col" } }, [
@@ -89100,8 +89124,8 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! C:\Users\JULIETA CANALES\Documents\GitHub\inventariomajestic\resources\js\app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! C:\Users\JULIETA CANALES\Documents\GitHub\inventariomajestic\resources\sass\app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! C:\Users\Recepcion 2\Documents\GitHub\inventariomajestic\resources\js\app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! C:\Users\Recepcion 2\Documents\GitHub\inventariomajestic\resources\sass\app.scss */"./resources/sass/app.scss");
 
 
 /***/ }),

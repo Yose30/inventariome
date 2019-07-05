@@ -101,9 +101,9 @@
                         <tr>
                             <th scope="col">Folio</th>
                             <th scope="col">Cliente</th>
-                            <th scope="col">Total Salida</th>
-                            <th scope="col">Total Devolución</th>
-                            <th scope="col">Total a pagar</th>
+                            <th scope="col">Salida</th>
+                            <th scope="col">Devolución</th>
+                            <th scope="col">Final</th>
                             <th scope="col">Estado</th>
                             <th scope="col">Fecha de entrega</th>
                         </tr>
@@ -152,8 +152,18 @@
                                 <b-badge variant="success" v-if="remision.estado == 'Terminado'">{{ remision.estado }}</b-badge>
                             </td>
                             <td>{{ remision.fecha_entrega }}</td>
-                            <td v-if="remision.estado == 'Iniciado'">
-                                <button class="btn btn-warning" @click="editarRemision(remision)"><i class="fa fa-pencil"></i></button>
+                            <td>
+                                <button 
+                                    class="btn btn-warning" 
+                                    v-if="remision.estado == 'Iniciado'"
+                                    @click="editarRemision(remision)">
+                                    <i class="fa fa-pencil"></i>
+                                </button>
+                                <button 
+                                    class="btn btn-primary" 
+                                    v-if="remision.estado != 'Iniciado'">
+                                    Detalles
+                                </button>
                             </td>
                         </tr>
                         <tr>

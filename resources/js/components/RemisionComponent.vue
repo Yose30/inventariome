@@ -398,6 +398,7 @@
             //Inicializar valores para crear una nueva remision
             nuevaRemision(){
                 axios.get('/nueva_remision').then(response => {
+                    this.btnEditarInf = false;
                     this.ini_1(); //btnNuevo = false, para no mostrar el plus y mostrar asi el de cancelar
                     this.ini_2();
                     this.ini_4();
@@ -636,7 +637,7 @@
                 this.inputISBN = true;
                 this.btnNuevo = false;
                 this.btnInformacion = false;
-            },
+            }, 
             ini_2(){
                 this.temporal = {};
                 this.inputUnidades = false;
