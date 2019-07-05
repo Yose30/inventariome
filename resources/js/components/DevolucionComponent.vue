@@ -72,14 +72,14 @@
                     <tr v-for="(registro, i) in registros" v-bind:key="i">
                         <td>{{ registro.libro.ISBN }}</td>
                         <td>{{ registro.libro.titulo }}</td>
-                        <td>$ {{ registro.libro.costo_unitario }}</td>
+                        <td>$ {{ registro.costo_unitario }}</td>
                         <td>{{ registro.unidades }}</td>
                         <td>$ {{ registro.total }}</td>
                     </tr>
                     <tr>
                         <td></td><td></td>
                         <td></td><td></td>
-                        <td><h5>$ {{ remision.total }}</h5></td>
+                        <td><h5>$ {{ total_salida }}</h5></td>
                     </tr>
                 </tbody>
             </table>
@@ -111,7 +111,7 @@
                     <tr v-for="(devolucion, i) in devoluciones" v-bind:key="i">
                         <td>{{ devolucion.libro.ISBN }}</td>
                         <td>{{ devolucion.libro.titulo }}</td>
-                        <td>$ {{ devolucion.libro.costo_unitario }}</td>
+                        <td>$ {{ devolucion.dato.costo_unitario }}</td>
                         <td>
                             <input 
                             type="number" 
@@ -128,7 +128,7 @@
                     <tr>
                         <td></td><td></td>
                         <td></td><td></td>
-                        <td><h5>$ {{ remision.total_devolucion }}</h5></td>
+                        <td><h5>$ {{ total_devolucion }}</h5></td>
                     </tr>
                 </tbody>
             </table>
@@ -161,13 +161,13 @@
                     <tr v-for="(devolucion, i) in devoluciones" v-bind:key="i">
                         <td>{{ devolucion.libro.ISBN }}</td>
                         <td>{{ devolucion.libro.titulo }}</td>
-                        <td>$ {{ devolucion.libro.costo_unitario }}</td>
+                        <td>$ {{ devolucion.dato.costo_unitario }}</td>
                         <td>{{ devolucion.unidades_resta }}</td>
                         <td>$ {{ devolucion.total_resta }}</td>
                     </tr>
                     <tr>
                         <td></td><td></td><td></td><td></td>
-                        <td><h5>$ {{ remision.total_pagar }}</h5></td>
+                        <td><h5>$ {{ total_pagar }}</h5></td>
                     </tr>
                 </tbody>
             </table>
@@ -198,6 +198,9 @@
                 disabled: false, //Indica si esta hablitidado o no el boton de registrar
                 btnImprimir: false,
                 item: 0,
+                total_salida: 0,
+                total_devolucion: 0,
+                total_pagar: 0,
             }
         },
         methods: {
@@ -221,6 +224,7 @@
 
                         this.remision = response.data.remision;
                         this.registros = response.data.datos;
+                        this.acumularSalida();
                 
                         if(this.remision.estado == 'Iniciado'){
                             this.txtBoton = 'Registrar devolución';
@@ -253,6 +257,7 @@
                     this.remision.estado = response.data.remision.estado;
                     this.remision.total_devolucion = response.data.remision.total_devolucion;
                     this.remision.total_pagar = response.data.remision.total_pagar;
+                    this.acumularFinal();
 
                     if(this.remision.estado != 'Terminado'){
                         this.btnGuardar = true;
@@ -270,9 +275,11 @@
                 if(devolucion.unidades >= 0){
                     if(devolucion.unidades <= devolucion.dato.unidades){
                         axios.put('/actualizar_unidades', devolucion).then(response => {
+                            console.log(response);
                             this.devoluciones.splice(i, 1, response.data.devolucion);
                             this.remision.total_devolucion = response.data.total_devolucion;
                             this.remision.total_pagar = response.data.total_pagar;
+                            this.acumularFinal();
                         }).catch(error => {
                             console.log(error.response);
                         });
@@ -292,6 +299,21 @@
                     this.remision.estado = response.data.estado;
                 }).catch(error => {
                     console.log(error.response);
+                });
+            },
+            acumularSalida(){
+                this.total_salida = 0;
+                this.registros.forEach(registro => {
+                    this.total_salida += registro.total;
+                });
+                
+            },
+            acumularFinal(){
+                this.total_devolucion = 0;
+                this.total_pagar = 0;
+                this.devoluciones.forEach(devolucion => {
+                    this.total_devolucion += devolucion.total;
+                    this.total_pagar += devolucion.total_resta;
                 });
             }
         },

@@ -10,14 +10,12 @@ use App\Registro;
 class Libro extends Model
 {
     protected $fillable = [
-        'ISBN', 
-        'clave', 
+        'id', 
+        'ISBN',  
         'titulo', 
         'autor', 
         'editorial', 
         'edicion', 
-        'costo_unitario', 
-        'iva', 
         'piezas'
     ];
 

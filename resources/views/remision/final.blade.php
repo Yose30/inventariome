@@ -215,7 +215,7 @@
 
                         <td class="bordesVer" style="width:20%">{{ $devolucion->libro->ISBN }}</td>
                         <td class="bordesVer" style="width:25%">{{ $devolucion->libro->titulo }}</td> 
-                        <td class="bordesVer" style="width:20%"  id="tdder">$ {{ $devolucion->libro->costo_unitario }}</td>
+                        <td class="bordesVer" style="width:20%"  id="tdder">$ {{ $devolucion->dato->costo_unitario }}</td>
                         <td class="bordesVer" style="width:15%" id="tdcent">{{ $devolucion->unidades_resta }}</td>
                         <td class="bordesVer" style="width:20%"  id="tdder">$ {{ $devolucion->total_resta }}</td>
 

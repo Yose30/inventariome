@@ -215,7 +215,7 @@
 
                         <td class="bordesVer" style="width:20%">{{ $dato->libro->ISBN }}</td>
                         <td class="bordesVer" style="width:25%">{{ $dato->libro->titulo }}</td> 
-                        <td class="bordesVer" style="width:20%"  id="tdder">$ {{ $dato->libro->costo_unitario }}</td>
+                        <td class="bordesVer" style="width:20%"  id="tdder">$ {{ $dato->costo_unitario }}</td>
                         <td class="bordesVer" style="width:15%" id="tdcent">{{ $dato->unidades }}</td>
                         <td class="bordesVer" style="width:20%"  id="tdder">$ {{ $dato->total }}</td>
 

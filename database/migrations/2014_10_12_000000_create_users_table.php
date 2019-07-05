@@ -24,14 +24,12 @@ class CreateUsersTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedInteger('role_id');
             $table->foreign('role_id')->references('id')->on('roles');
-            $table->string('name');
-            $table->string('last_name');
-            $table->string('user_name');
+            $table->string('name', 80)->unique();
+            $table->string('user_name', 50)->unique();
             $table->string('email', 50)->unique();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
-            $table->timestamps();
+            $table->timestamps(); 
         });
     }
 

@@ -11,24 +11,37 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/home', 'HomeController@index')->name('home')->middleware('auth', 'role:1');
+
+Route::get('/inicio', function () {
+    return view('/inicio');
+})->middleware('auth', 'role:2');
+
+Route::get('/devolucion', function () {
+    return view('/devolucion');
+})->middleware('auth', 'role:3');
+
 
 //CLIENTES
 //Agregar cliente
 Route::post('new_client', 'ClienteController@store')->name('new_client');
 //Buscar cliente
 Route::get('/mostrarClientes', 'ClienteController@show')->name('mostrarClientes');
+//Editar informacion de cliente
+Route::put('editar_cliente', 'ClienteController@editar')->name('editar_cliente');
+//Obtener datos de un cliente
+Route::get('/getCliente', 'ClienteController@getCliente')->name('getCliente');
+//Obtener todos los cliente
+Route::get('/getTodo', 'ClienteController@getTodo')->name('getTodo');
 
 
 //REMISIONES
 //Borrar los valores si no se concluyo una remision
 Route::get('nueva_remision', 'RemisionController@nueva')->name('nueva_remision');
+//Borrar los valores si no se concluyo una remision que estaba siendo editada
+Route::get('nueva_edicion', 'RemisionController@nueva_edicion')->name('nueva_edicion');
 //Buscar remision
 Route::get('lista_datos', 'RemisionController@show')->name('lista_datos');
 ///Crear remision
@@ -69,8 +82,12 @@ Route::put('concluir_remision', 'DevolucioneController@concluir')->name('conclui
 Route::post('new_libro', 'LibroController@store')->name('new_libro');
 //Buscar libro
 Route::get('/mostrarLibros', 'LibroController@buscar')->name('mostrarLibros');
+//Buscar libro por editorial
+Route::get('/mostrarPorEditorial', 'LibroController@porEditorial')->name('mostrarPorEditorial');
 //Datos del libro
 Route::get('/buscarISBN', 'LibroController@show')->name('buscarISBN'); 
+//Obtener todos los libros
+Route::get('allLibros', 'LibroController@allLibros')->name('allLibros');
 
 //ENTRADAS
 //Borrar los valores si no se concluyo una remision

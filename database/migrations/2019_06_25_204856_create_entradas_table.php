@@ -18,7 +18,7 @@ class CreateEntradasTable extends Migration
             $table->integer('unidades')->default(0);
             $table->double('total', 12, 2)->default(0);
             $table->timestamps();
-        });
+        }); 
 
         Schema::create('registros', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -26,6 +26,7 @@ class CreateEntradasTable extends Migration
             $table->foreign('entrada_id')->references('id')->on('entradas');
             $table->unsignedInteger('libro_id')->nullable();
             $table->foreign('libro_id')->references('id')->on('libros');
+            $table->float('costo_unitario', 8, 2);
             $table->integer('unidades')->default(0);
             $table->double('total', 8, 2)->default(0);
             $table->enum('estado', ['Iniciado', 'Eliminado', 'Terminado'])->default('Iniciado');

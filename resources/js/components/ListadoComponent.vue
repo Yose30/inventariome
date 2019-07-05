@@ -1,6 +1,5 @@
 <template>
     <div>
-        <!-- <h4>Generar reporte</h4> -->
         <b-tabs content-class="mt-3">
             <b-tab title="Remisiones" active>
                 <div class="row">
@@ -20,7 +19,14 @@
                             </b-col>
                         </b-row>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
+                        <div class="row">
+                            <label class="col-md-3">Estado</label>
+                            <div class="col-md-9">
+                                <b-form-select v-model="selected" :options="options" @change="porEstado"></b-form-select>
+                            </div>
+                        </div>
+                        <hr>
                         <b-row class="my-1">
                             <b-col sm="3">
                                 <label for="input-cliente">Cliente</label>
@@ -42,7 +48,8 @@
                                 </div>
                             </b-col>
                         </b-row>
-                        <hr>
+                    </div>
+                    <div class="col-md-5">
                         <b-row class="my-1">
                             <b-col sm="3">
                                 <label for="input-inicio">Inicio</label>
@@ -70,9 +77,6 @@
                                 </input>
                             </b-col>
                         </b-row>
-                    </div>
-                    <div class="col-md-4">
-                        <b-form-select v-model="selected" :options="options" @change="porEstado"></b-form-select>
                     </div>
                 </div>
                 <hr>
@@ -168,7 +172,7 @@
                                     v-model="queryTitulo"
                                     @keyup="mostrarLibros"
                                 ></b-input>
-                                <div class="list-group" v-if="resultslibros.length">
+                                <!-- <div class="list-group" v-if="resultslibros.length">
                                     <a 
                                         href="#" 
                                         v-bind:key="i" 
@@ -177,46 +181,55 @@
                                         @click="datosLibro(libro)">
                                         {{ libro.titulo }}
                                     </a>
-                                </div>
+                                </div> -->
                             </b-col>
                         </b-row>
                     </div>
                     <div class="col-md-4">
+                        <b-row class="my-1">
+                            <b-col sm="3">
+                                <label for="input-cliente">Editorial</label>
+                            </b-col>
+                            <b-col sm="9">
+                                <b-input
+                                    v-model="queryEditorial"
+                                    @keyup="mostrarPorEditorial"
+                                ></b-input>
+                                <!-- <div class="list-group" v-if="resultsEditoriales.length">
+                                    <a 
+                                        href="#" 
+                                        v-bind:key="i" 
+                                        class="list-group-item list-group-item-action" 
+                                        v-for="(editorial, i) in resultsEditoriales" 
+                                        @click="datosLibro(editorial)">
+                                        {{ libro.titulo }}
+                                    </a>
+                                </div> -->
+                            </b-col>
+                        </b-row>
+                    </div>
+                    <!-- <div class="col-md-4">
                         <b-form-select 
                             v-model="selected2" 
                             :options="options" 
-                            @change="porEstadoLibros" 
-                            :disabled="disabled">
+                            @change="porEstadoLibros">
                         </b-form-select>
-                    </div>
-                    <div class="col-md-4">
-                    
-                    </div>
+                    </div> -->
                 </div>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">ISBN</th>
-                            <th scope="col">Libro</th>
-                            <th scope="col">Unidades vendidas</th>
-                            <th scope="col">Total</th>
-                            <th scope="col">Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(devolucion, i) in devoluciones" v-bind:key="i">
-                            <td>{{ devolucion.libro.ISBN }}</td>
-                            <td>{{ devolucion.libro.titulo }}</td>
-                            <td>{{ devolucion.unidades_resta}}</td>
-                            <td>$ {{ devolucion.total_resta}}</td>
-                            <td>
-                                <b-badge variant="secondary" v-if="devolucion.remision.estado == 'Iniciado'">{{ devolucion.remision.estado }}</b-badge>
-                                <b-badge variant="primary" v-if="devolucion.remision.estado == 'Proceso'">{{ devolucion.remision.estado }}</b-badge>
-                                <b-badge variant="success" v-if="devolucion.remision.estado == 'Terminado'">{{ devolucion.remision.estado }}</b-badge>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <hr>
+                <b-table 
+                    v-if="tabla_libros" 
+                    id="my-table" 
+                    :items="libros"
+                    :per-page="perPage"
+                    :current-page="currentPage">
+                </b-table>
+                <b-pagination
+                    v-model="currentPage"
+                    :total-rows="libros.length"
+                    :per-page="perPage"
+                    aria-controls="my-table"
+                ></b-pagination>
             </b-tab>
         </b-tabs>
     </div>
@@ -244,12 +257,11 @@
                 currentTime: null,
                 cliente_id: 0,
                 selected: null,
-                selected2: null,
+                selected2: 'Terminado',
                 options: [
-                    { value: null, text: 'Selecciona una opcion' },
-                    { value: 'Iniciado', text: 'Iniciado' },
+                    { value: 'Terminado', text: 'Terminado'},
                     { value: 'Proceso', text: 'Proceso' },
-                    { value: 'Terminado', text: 'Terminado'}
+                    { value: 'Iniciado', text: 'Iniciado' },
                 ],
                 imprimirCliente: false,
                 imprimirEstado:false,
@@ -257,11 +269,30 @@
                 queryTitulo: '',
                 resultslibros: [],
                 tabla_libros: false,
-                devoluciones: [],
-                disabled: true,
+                libros: [],
+
+                perPage: 10,
+                currentPage: 1,
+                queryEditorial: '',
             }
         },
+        created: function(){
+            this.getTodo();
+            this.todosLibros();
+		},
         methods: {
+            getTodo(){
+                axios.get('/todos_los_clientes').then(response => {
+                    this.imprimirCliente = true;
+                    this.imprimirEstado = false;
+                    this.cliente_id = 0;
+                    if(this.inicio == '' || this.final == ''){
+                        this.inicio = '0000-00-00';
+                        this.final = '0000-00-00';
+                    }
+                    this.valores(response);
+                });
+            },
             porNumero(){
                 if(this.num_remision > 0){
                     axios.get('/buscar_por_numero', {params: {num_remision: this.num_remision}}).then(response => {
@@ -285,16 +316,7 @@
                     }); 
                 }
                 else{
-                    axios.get('/todos_los_clientes').then(response => {
-                        this.imprimirCliente = true;
-                        this.imprimirEstado = false;
-                        this.cliente_id = 0;
-                        if(this.inicio == '' || this.final == ''){
-                            this.inicio = '0000-00-00';
-                            this.final = '0000-00-00';
-                        }
-                        this.valores(response);
-                    });
+                    this.getTodo();
                 }
             },
             porCliente(result){
@@ -351,24 +373,47 @@
             mostrarLibros(){
                 if(this.queryTitulo.length > 0){
                    axios.get('/mostrarLibros', {params: {queryTitulo: this.queryTitulo}}).then(response => {
-                        this.resultslibros = response.data;
+                        // this.resultslibros = response.data;
+                        this.inicializar(response);
                     });
                 }
                 else{
-                    axios.get('/todos_los_libros').then(response => {
-                        this.devoluciones = response.data;
-                        this.disabled = false;
+                    this.todosLibros();
+                } 
+            },
+            //Mostrar libros por la editorial
+            mostrarPorEditorial(){
+                if(this.queryEditorial.length > 0){
+                   axios.get('/mostrarPorEditorial', {params: {queryEditorial: this.queryEditorial}}).then(response => {
+                        this.inicializar(response);
                     });
+                }
+                else{
+                    this.todosLibros();
                 } 
             },
             //Mostrar datos del libro seleccionado 
             datosLibro(libro){
-                console.log(libro);
+                this.resultslibros = [];
+                this.queryTitulo = '';
+                this.tabla_libros = true;
+            },
+            inicializar(response){
+                this.libros = [];
+                this.libros = response.data;
+                this.tabla_libros = true;
             },
             //Mostrar resultados de libros con estado
             porEstadoLibros(){
                 axios.get('/buscar_por_estado_libros', {params: {estado: this.selected2}}).then(response => {
-                    console.log(response.data);
+                    this.inicializar(response);
+                });
+            },
+
+            //Mostrar resultados de libros con estado
+            todosLibros(){
+                axios.get('/allLibros').then(response => {
+                    this.inicializar(response);
                 });
             },
         }

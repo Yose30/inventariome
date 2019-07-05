@@ -8,6 +8,7 @@ use App\Dato;
 use App\Devolucione;
 use App\Entrada;
 use App\Registro;
+use App\Libro;
 
 class HomeController extends Controller
 {
@@ -26,18 +27,7 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
-    {
-        $remisiones = \DB::table('libros')
-            ->join('devoluciones', 'libros.id', '=', 'devoluciones.libro_id')
-            ->join('remisiones', 'devoluciones.remision_id', '=', 'remisiones.id')
-            ->select('ISBN', 'titulo', \DB::raw('SUM(devoluciones.unidades_resta) as unidades_resta'), \DB::raw('SUM(devoluciones.total_resta) as total_resta'))
-            ->groupBy('ISBN', 'titulo')
-            ->get();
-        
-        dd($remisiones);
+    public function index(){
         return view('/home');
-        
     }
-
 }

@@ -30,7 +30,9 @@ class DevolucioneController extends Controller
                     $total_pagar += $d->total;            
                 }
 
-                $remision->update(['total_pagar' => $total_pagar]);
+                $con_descuento = ($total_pagar) - (($total_pagar * $remision->cliente->descuento) / 100);
+
+                $remision->update(['total_pagar' => $con_descuento]);
 
                 foreach($datos as $dato){
                     $devolucion = Devolucione::create([
@@ -55,15 +57,16 @@ class DevolucioneController extends Controller
     }
 
     public function actualizar(Request $request){
-        $devolucion = Devolucione::whereId($request->id)->first();
+        $devolucion = Devolucione::whereId($request->id)->with('libro')->with('dato')->first();
         $remision = Remisione::whereId($devolucion->remision_id)->first();
 
         $unidades = $request->unidades;
         $unidades_resta = $devolucion->dato->unidades - $unidades;
-        $costo_unitario = $devolucion->libro->costo_unitario;
+        $costo_unitario = $devolucion->dato->costo_unitario;
         $descuento = $remision->cliente->descuento;
 
-        $total = ($unidades * $costo_unitario) - ((($unidades * $costo_unitario) * $descuento) / 100);
+        //$total = ($unidades * $costo_unitario) - ((($unidades * $costo_unitario) * $descuento) / 100);
+        $total = $unidades * $costo_unitario;
         $total_resta = $devolucion->dato->total - $total;
 
         try {
@@ -82,9 +85,9 @@ class DevolucioneController extends Controller
             foreach($devoluciones as $d){
                 $total_devolucion += $d->total;            
             }
-
-            $remision->total_devolucion = $total_devolucion;
-            $remision->total_pagar = $remision->total - $total_devolucion;
+            $con_descuento = ($total_devolucion) - (($total_devolucion * $descuento) / 100);
+            $remision->total_devolucion = $con_descuento;
+            $remision->total_pagar = $remision->total - $con_descuento;
             $remision->save();
 
             \DB::commit();

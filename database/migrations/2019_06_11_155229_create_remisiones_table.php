@@ -24,7 +24,7 @@ class CreateRemisionesTable extends Migration
             $table->enum('estado', ['Iniciado', 'Proceso', 'Terminado']);
             $table->date('fecha_creacion');
             $table->timestamps();
-        });
+        }); 
 
         Schema::create('datos', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -32,6 +32,7 @@ class CreateRemisionesTable extends Migration
             $table->foreign('remision_id')->references('id')->on('remisiones');
             $table->unsignedInteger('libro_id')->nullable();
             $table->foreign('libro_id')->references('id')->on('libros');
+            $table->float('costo_unitario', 8, 2);
             $table->integer('unidades')->default(0);
             $table->double('total', 8, 2)->default(0);
             $table->enum('estado', ['Iniciado', 'Eliminado', 'Terminado'])->default('Iniciado');

@@ -7,13 +7,13 @@
 require('./bootstrap');
 
 window.Vue = require('vue');
+Vue.use(require('vue-resource'));
 
 import Vue from 'vue'
 import BootstrapVue from 'bootstrap-vue'
 
 Vue.use(BootstrapVue)
-
-Vue.use(require('vue-moment'));
+Vue.component('pagination', require('laravel-vue-pagination'));
 
 
 // app.js
@@ -33,13 +33,15 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 // const files = require.context('./', true, /\.vue$/i);
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default));
 
-Vue.component('example-component', require('./components/ExampleComponent.vue').default);
-Vue.component('new-client-component', require('./components/NewClientComponent.vue').default);
-Vue.component('new-libro-component', require('./components/NewLibroComponent.vue').default);
+
 Vue.component('remision-component', require('./components/RemisionComponent.vue').default);
 Vue.component('devolucion-component', require('./components/DevolucionComponent.vue').default);
 Vue.component('listado-component', require('./components/ListadoComponent.vue').default);
+Vue.component('lista-remisiones-component', require('./components/ListaRemisionesComponent.vue').default);
+
 Vue.component('inventario-component', require('./components/InventarioComponent.vue').default);
+Vue.component('new-client-component', require('./components/NewClientComponent.vue').default);
+Vue.component('new-libro-component', require('./components/NewLibroComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

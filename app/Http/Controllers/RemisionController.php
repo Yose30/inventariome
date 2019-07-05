@@ -30,6 +30,7 @@ class RemisionController extends Controller
             $dato = Dato::create([
                 'remision_id' => $remision,
                 'libro_id'  => $request->id,
+                'costo_unitario' => $request->costo_unitario,
                 'unidades'  => $request->unidades,
                 'total'     => $request->total
             ]);
@@ -50,6 +51,7 @@ class RemisionController extends Controller
     public function store(Request $request){
         try {
             \DB::beginTransaction();
+            $cliente = Cliente::whereId($request->cliente_id)->update(['estado' => 'Terminado']);
 
             $remision = Remisione::create([
                 'cliente_id' => $request->cliente_id,
@@ -184,10 +186,10 @@ class RemisionController extends Controller
             $datos = Dato::where('remision_id', $remision->id)->with('libro')->get();
             $data['datos'] = $datos;
             $data['total_salida'] = NumerosEnLetras::convertir($remision->total);
-            $pdf = PDF::loadView('remision.nota', $data);   
+            $pdf = PDF::loadView('remision.nota', $data);    
         }         
         if($remision->estado == 'Terminado'){
-            $devoluciones = Devolucione::where('remision_id', $remision->id)->with('libro')->get();
+            $devoluciones = Devolucione::where('remision_id', $remision->id)->with('libro')->with('dato')->get();
             $data['devoluciones'] = $devoluciones;
             $data['total_final'] = NumerosEnLetras::convertir($remision->total_pagar);
             $pdf = PDF::loadView('remision.final', $data); 
@@ -251,20 +253,7 @@ class RemisionController extends Controller
 
         try {
             \DB::beginTransaction();
-            //En caso de que alguna remision estaba siendo editada y se elimino un dato pero no se guardo, 
-            //se cambia el estado de nuevo a Terminado
-            Dato::where('remision_id', $remision - 1)
-                ->where('estado', 'Eliminado')
-                ->update(['estado' => 'Terminado']);
-            //En caso de haber agregado uno nuevo, se recuperan las piezas
-            $noguardados = Dato::where('remision_id', $remision - 1)->where('estado', 'Iniciado')->get();
-            if($noguardados->count() > 0){
-                foreach($noguardados as $noguardado){
-                    $libro = Libro::whereId($noguardado->libro_id)->first();
-                    $libro->update(['piezas' => $libro->piezas + $noguardado->unidades]);
-                }
-            }
-            
+            $this->comprobar($remision - 1);
             //Si una remision estab siendo creada pero no se guardo se recuperan los datos en estado Eliminado e Iniciado
             //Se deshacen los cambios de disminucion de piezas
             $eliminados = Dato::where('remision_id', $remision)->where('estado', 'Eliminado')->get();
@@ -282,12 +271,10 @@ class RemisionController extends Controller
                     $libro->update(['piezas' => $libro->piezas + $dato->unidades]);
                 }
             }
-            
-            //Se eliminan dichos datos
-            Dato::where('remision_id', $remision - 1)->where('estado', 'Iniciado')->delete();
+
             Dato::where('remision_id', $remision)->where('estado', 'Eliminado')->delete();
             Dato::where('remision_id', $remision)->where('estado', 'Iniciado')->delete();
-
+            Cliente::where('estado', 'Iniciado')->delete();
             \DB::commit();
 
         } catch (Exception $e) {
@@ -297,13 +284,67 @@ class RemisionController extends Controller
         return response()->json(null, 200);
     }
 
+    public function nueva_edicion(){
+        $id = Input::get('id');
+        $this->comprobar($id);
+        return response()->json(null, 200);
+    }
+
+    public function comprobar($remision){
+        //En caso de que alguna remision estaba siendo editada y se elimino un dato pero no se guardo, 
+        //se cambia el estado de nuevo a Terminado
+        Dato::where('remision_id', $remision)
+            ->where('estado', 'Eliminado')
+            ->update(['estado' => 'Terminado']);
+        //En caso de haber agregado uno nuevo, se recuperan las piezas
+        $noguardados = Dato::where('remision_id', $remision)->where('estado', 'Iniciado')->get();
+        if($noguardados->count() > 0){
+            foreach($noguardados as $noguardado){
+                $libro = Libro::whereId($noguardado->libro_id)->first();
+                $libro->update(['piezas' => $libro->piezas + $noguardado->unidades]);
+            }
+        }
+        //Se eliminan dichos datos
+        Dato::where('remision_id', $remision)->where('estado', 'Iniciado')->delete();
+    }
+
     public function por_estado_libros(){
         $estado = Input::get('estado');
-        $remisiones = \DB::table('libros')
-            ->join('devoluciones', 'libros.id', '=', 'devoluciones.libro_id')
-            ->select('ISBN', 'titulo', \DB::raw('SUM(devoluciones.unidades_resta) as unidades_resta'), \DB::raw('SUM(devoluciones.total_resta) as total_resta'))
+        if($estado == 'Iniciado'){
+            $remisiones = \DB::table('libros')
+            ->join('datos', 'libros.id', '=', 'datos.libro_id')
+            ->select(
+                'ISBN', 
+                'titulo', 
+                \DB::raw('SUM(datos.unidades) as unidades'),
+                \DB::raw('SUM(datos.total) as total'))
             ->groupBy('ISBN', 'titulo')
             ->get();
+        }
+        if($estado == 'Proceso'){
+            $remisiones = \DB::table('libros')
+            ->join('devoluciones', 'libros.id', '=', 'devoluciones.libro_id')
+            ->select(
+                'ISBN', 
+                'titulo', 
+                \DB::raw('SUM(devoluciones.unidades) as unidades_devolucion'),
+                \DB::raw('SUM(devoluciones.total) as total_devolucion'),
+                \DB::raw('SUM(devoluciones.unidades_resta) as unidades_final'), 
+                \DB::raw('SUM(devoluciones.total_resta) as total_final'))
+            ->groupBy('ISBN', 'titulo')
+            ->get();
+        }
+        if($estado == 'Terminado'){
+            $remisiones = \DB::table('libros')
+            ->join('devoluciones', 'libros.id', '=', 'devoluciones.libro_id')
+            ->select(
+                'ISBN', 
+                'titulo', 
+                \DB::raw('SUM(devoluciones.unidades_resta) as unidades_final'), 
+                \DB::raw('SUM(devoluciones.total_resta) as total_final'))
+            ->groupBy('ISBN', 'titulo')
+            ->get();
+        }
         
         return response()->json($remisiones);
     }

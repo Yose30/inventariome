@@ -2,12 +2,33 @@
     <div>
         <div class="row">
             <h4 class="col-md-4">Crear remisión</h4>
-            <div class="col-md-1">
-                <b-button variant="success" @click="nuevaRemision" v-if="btnNuevo"><i class="fa fa-plus"></i></b-button>
-            </div>
-            <div class="col-md-3">
+            <!-- REVISADO -->
+            <div class="col-md-2"> 
                 <b-button 
-                    @click="onSubmit" 
+                    variant="success" 
+                    @click="nuevaRemision" 
+                    v-if="btnNuevo">
+                    <i class="fa fa-plus"></i>
+                </b-button>
+                <div>
+                    <b-button 
+                        variant="danger"
+                        @click="show=true" 
+                        v-if="!btnNuevo">
+                        <i class="fa fa-close"></i>
+                    </b-button>
+                    <b-modal v-model="show" title="Cerrar remisión">
+                        <p><b><i class="fa fa-exclamation-triangle"></i> No se guardara ningún cambio</b></p>
+                        <div slot="modal-footer">
+                            <b-button @click="cancelarRemision">OK</b-button>
+                        </div>
+                    </b-modal>
+                </div>
+            </div>
+            <!-- FIN REVISADO -->
+            <div class="col-md-2">
+                <b-button 
+                    @click="guardarRemision" 
                     variant="success"
                     v-if="mostrarGuardar && !editar && items.length > 0">
                     <i class="fa fa-check"></i> Guardar
@@ -19,7 +40,7 @@
                     <i class="fa fa-check"></i> Guardar
                 </b-button>
             </div>
-            <div class="col-md-1">
+            <div class="col-md-2">
                 <b-button 
                     variant="warning" 
                     @click="editarRemision"
@@ -27,7 +48,7 @@
                     <i class="fa fa-pencil"></i>
                 </b-button>
             </div>
-            <div class="col-md-1">
+            <div class="col-md-2">
                 <a 
                     class="btn btn-info"
                     v-if="mostrarOpciones"
@@ -37,29 +58,144 @@
             </div>
         </div>
         <hr>
-        <div class="row" v-if="mostrarBusqueda && !btnNuevo">
-            <label class="col-md-3">Nombre del cliente</label>
-            <div>
-                <b-input
-                v-model="queryCliente"
-                @keyup="mostrarClientes"
-                ></b-input>
-                <div class="list-group" v-if="resultsClientes.length">
-                    <a 
-                        href="#" 
-                        v-bind:key="i" 
-                        class="list-group-item list-group-item-action" 
-                        v-for="(result, i) in resultsClientes" 
-                        @click="datosCliente(result)">
-                        {{ result.name }}
-                    </a>
+        <!-- REVISADO -->
+        <div align="center" v-if="mostrarBusqueda && !btnNuevo">
+            <div align="left">
+                <button 
+                    class="btn btn-light" 
+                    v-if="clientes.length > 0 && !listaClientes" 
+                    @click="listaClientes = true;">
+                    <i class="fa fa-users"></i> Clientes
+                </button>
+                <button 
+                    class="btn btn-light" 
+                    v-if="listaClientes" 
+                    @click="listaClientes = false;">
+                    <i class="fa fa-pencil"></i> Datos
+                </button>
+            </div>
+            <div align="right">
+                <button 
+                    id="btnCancelar" 
+                    class="btn btn-danger" 
+                    v-if="btnEditarInf" 
+                    @click="mostrarBusqueda = false; mostrarDatos = true; mostrarForm = true;">
+                    <i class="fa fa-close"></i>
+                </button>
+            </div>
+            <div class="card col-md-8" v-if="!listaClientes">
+                <h6 class="card-title">Datos del cliente</h6>
+                <div class="card-body">
+                    <b-form @submit.prevent="onSubmit">
+                        <b-row class="my-1">
+                            <label align="right" for="input-name" class="col-md-5">Nombre</label>
+                            <div class="col-md-7">
+                                <b-form-input 
+                                    id="input-name"
+                                    v-model="form.name"
+                                    required>
+                                </b-form-input>
+                                <div v-if="errors && errors.name" class="text-danger">{{ errors.name[0] }}</div>
+                            </div>
+                        </b-row>
+                        <b-row class="my-1">
+                            <label align="right" for="input-email" class="col-md-5">Correo electrónico</label>
+                            <div class="col-md-7">
+                                <b-form-input 
+                                    id="input-email"
+                                    v-model="form.email"
+                                    type="email"
+                                    required>
+                                </b-form-input>
+                                <div v-if="errors && errors.email" class="text-danger">{{ errors.email[0] }}</div>
+                            </div>
+                        </b-row>
+                        <b-row class="my-1">
+                            <label align="right" for="input-telefono" class="col-md-5">Teléfono</label>
+                            <div class="col-md-7">
+                                <b-form-input 
+                                    id="input-telefono"
+                                    v-model="form.telefono" 
+                                    required>
+                                </b-form-input>
+                                <div v-if="errors && errors.telefono" class="text-danger">{{ errors.telefono[0] }}</div>
+                            </div>
+                        </b-row>
+                        <b-row class="my-1">
+                            <label align="right" for="input-direccion" class="col-md-5">Dirección</label>
+                            <div class="col-md-7">
+                                <b-form-input 
+                                    id="input-direccion"
+                                    v-model="form.direccion" 
+                                    required>
+                                </b-form-input>
+                                <div v-if="errors && errors.direccion" class="text-danger">{{ errors.direccion[0] }}</div>
+                            </div>
+                        </b-row>
+                        <b-row class="my-1">
+                            <label align="right" for="input-descuento" class="col-md-5">Descuento</label>
+                            <div class="col-md-7">
+                                <b-form-input 
+                                    id="input-descuento"
+                                    v-model="form.descuento" 
+                                    type="number"
+                                    required>
+                                </b-form-input>
+                                <div v-if="errors && errors.descuento" class="text-danger">{{ errors.descuento[0] }}</div>
+                            </div>
+                        </b-row>
+                        <b-row class="my-1">
+                            <label align="right" for="input-condiciones_pago" class="col-md-5">Condiciones de pago</label>
+                            <div class="col-md-7">
+                                <b-form-input 
+                                    id="input-condiciones_pago"
+                                    v-model="form.condiciones_pago" 
+                                    required>
+                                </b-form-input>
+                                <div v-if="errors && errors.condiciones_pago" class="text-danger">{{ errors.condiciones_pago[0] }}</div>
+                            </div>
+                        </b-row>
+                        <hr>
+                        <b-button type="submit" variant="success"><i class="fa fa-check"></i> Continuar</b-button>
+                    </b-form>
                 </div>
             </div>
+            <div v-if="listaClientes">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Correo</th>
+                            <th scope="col">Dirección</th>
+                            <th scope="col">Descuento</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(cliente, i) in clientes" v-bind:key="i">
+                            <td>{{ cliente.name }}</td>
+                            <td>{{ cliente.email }}</td>
+                            <td>{{ cliente.direccion }}</td>
+                            <td>{{ cliente.descuento }}%</td>
+                            <td>
+                                <button 
+                                    class="btn btn-success">
+                                    <i class="fa fa-check" @click="seleccionCliente(cliente)"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
+        <!-- FIN REVISADO -->
         <hr>
-        <div v-if="!btnNuevo">
+        <div v-if="!mostrarBusqueda">
             <div class="row">
-                <h6 class="col-md-11">Datos del cliente</h6>
+                <h6 class="col-md-10">Datos del cliente</h6>
+                <div class="col-md-1">
+                    <button id="btnEditar" class="btn btn-warning" :disabled="btnInformacion" @click="editarInformacion"><i class="fa fa-pencil"></i></button>
+                </div>
                 <b-button 
                     variant="link" 
                     :class="mostrarDatos ? 'collapsed' : null"
@@ -97,8 +233,11 @@
                 </input>
                 <div class="text-danger">{{ respuestaFecha }}</div>
             </div>
-            <div class="col-md-6" align="right">
-                <label v-if="mostrarTotal"><b>Total:</b> ${{ total_remision }}</label>
+            <div class="col-md-6" align="right" v-if="mostrarTotal">
+                <label><b>Total:</b> ${{ total_remision }}</label>
+                <hr>
+                <label><b>{{ dato.descuento }}% descuento:</b> ${{ descuento }}</label><br>
+                <label><b>Total:</b> ${{ pagar }}</label>
             </div>
         </div>
         <hr>
@@ -158,7 +297,18 @@
                             </div>
                             <b v-if="!inputLibro">{{ temporal.titulo }}</b>
                         </td>
-                        <td v-if="inputUnidades">$ {{ temporal.costo_unitario }}</td>
+                        <td>
+                            <input 
+                                type="number" 
+                                v-model="costo_unitario"
+                                v-if="inputCosto"
+                                min="1"
+                                max="9999"
+                                @keyup.enter="guardarCosto()">
+                            </input>
+                            <b v-if="!inputCosto">$ {{ temporal.costo_unitario }}</b>
+                            <div class="text-danger">{{ respuestaCosto }}</div>
+                        </td>
                         <td>
                             <input 
                             type="number" 
@@ -175,7 +325,7 @@
                             <button 
                                 class="btn btn-secondary" 
                                 @click="eliminarTemporal" 
-                                v-if="inputUnidades">
+                                v-if="inputCosto || inputUnidades">
                                 <i class="fa fa-minus-circle"></i>
                             </button>
                         </td>
@@ -190,6 +340,8 @@
     export default {
         data() {
             return {
+                btnNuevo: true, //Para determinar si se muestra el boton de nueva remisión
+                show: false, //Para determinar si se muestra el modal de cancelar
                 queryCliente: '', //Buscar cliente por nombre
                 resultsClientes: [], //Mostrar los resultados de la busqueda de cliente
                 dato: {}, //Guardar datos de cliente y mostrar
@@ -198,7 +350,8 @@
                 respuestaISBN: '', //Indicar si el ISBN es incorrecto
                 inputISBN: true, //Mostrar o no el input de ISBN
                 inputLibro: true, //Mostrar o no el input de busqueda por titulo
-                inputUnidades: false, //Mostrar o no el input de
+                inputUnidades: false, //Mostrar o no el input de unidades
+                inputCosto: false, //Mostrar el input de costo
                 queryTitulo: '', //Buscar libro por titulo
                 resultslibros: [], //Mostrar resultados de la busqueda de libro
                 temporal: {}, //Guardar temporalmente los datos de la busqueda del libro
@@ -213,6 +366,7 @@
                 items: [], //Registros guardados de la remision
                 total_remision: 0, //Mostrar el total de la remision
                 unidades: 0, //Asignar el numero de unidades
+                costo_unitario: 0, //Asignar el costo unitario
                 botonEliminar: false, //Boton para poder eliminar un registro
                 mostrarGuardar: false, //Para mostrar el boton de guardar
                 mostrarTotal: false, //Para mostrar el total de la remision
@@ -222,54 +376,48 @@
                 mostrarActualizar: false, //Indicar si se muestra el boton de actualizar remision 
                 mostrarDatos: false, //Indicar si se ocultan o muestran los datos del cliente
                 inputFecha: false, //Indicar si se deshabilita o no el input de Fecha
-                respuestaUnidades: '',
-                btnNuevo: true,
+                respuestaUnidades: '', //Indicar si el valor es correcto
+                respuestaCosto: '', //Indicar si el valor es correcto
+                
+                btnInformacion: false, //Habilitar o deshabilitar boton de editar informacion
+                //Formulario para agregar cliente
+                form: {},
+                errors: {},
+                btnEditarInf: false,
+                
+                descuento: 0,
+                pagar: 0,
+                clientes: [],
+                listaClientes: false,
             }
         },
+        created: function(){
+			this.getTodo();
+		},
         methods: {
             //Inicializar valores para crear una nueva remision
             nuevaRemision(){
                 axios.get('/nueva_remision').then(response => {
-                    this.bdremision = {id: 0, cliente_id: 0, total: 0, fecha_entrega: ''};
-                    this.items = [];
-                    this.temporal = {};
-                    this.total_remision = 0;
-                    this.editar = false;
-                    this.fecha = '';
-                    this.unidades = 0;
-                    this.dato = {};
-                    this.inputLibro = true;
-                    this.inputISBN = true;
-                    this.fecha = '';
-                    this.inputFecha = false;
-                    this.inputUnidades = false;
-                    this.mostrarActualizar = false;
-                    this.mostrarBusqueda = true;
-                    this.mostrarForm = false;
-                    this.mostrarGuardar = true;
-                    this.mostrarOpciones = false;
-                    this.btnNuevo = false;
-                    this.mostrarTotal = false;
+                    this.ini_1(); //btnNuevo = false, para no mostrar el plus y mostrar asi el de cancelar
+                    this.ini_2();
+                    this.ini_4();
                 });
             },
-            //Se repite en Listado
-            //Buscar el cliente y mostrar resultados
-            mostrarClientes(){
-               if(this.queryCliente.length > 0){
-                   axios.get('/mostrarClientes', {params: {queryCliente: this.queryCliente}}).then(response => {
-                        this.resultsClientes = response.data;
-                    });
-               } 
+            //Cerrar la remisión
+            cancelarRemision(){
+                this.ini_4();
+                this.show = false;
+                this.btnEditarInf = false;
+                this.listaClientes = false;
+                this.btnNuevo = true;
             },
-            //Mostrar los datos del cliente seleccionado
-            datosCliente(result){
-                this.mostrarDatos = true;
-                this.dato = result;
-                this.queryCliente = '';
-                this.resultsClientes = [];
-                this.mostrarForm = true;
+            //Obtener todos los clientes registrados
+            getTodo(){
+                axios.get('/getTodo').then(response => {
+                    this.clientes = response.data;
+                });
             },
-
+            
             //Buscar libro por ISBN
             buscarLibroISBN(){
                 axios.get('/buscarISBN', {params: {isbn: this.isbn}}).then(response => {
@@ -279,7 +427,7 @@
                     this.respuestaISBN = 'ISBN incorrecto';
                 });
             },
-            //Mostrar resultados de la busqueda por titulo del libro
+            //Buscar libro por titulo, Mostrar resultados de la busqueda
             mostrarLibros(){
                 if(this.queryTitulo.length > 0){
                    axios.get('/mostrarLibros', {params: {queryTitulo: this.queryTitulo}}).then(response => {
@@ -294,21 +442,11 @@
                     id: libro.id,
                     ISBN: libro.ISBN,
                     titulo: libro.titulo,
-                    costo_unitario: libro.costo_unitario,
+                    costo_unitario: 0,
                     unidades: 0,
                     total: 0,
                     piezas: libro.piezas
                 };
-            },
-            //Inicializar los valores
-            inicializar(){
-                this.isbn = '';
-                this.respuestaISBN = '';
-                this.inputISBN = false;
-                this.inputLibro = false;
-                this.queryTitulo = '';
-                this.resultslibros = [];
-                this.inputUnidades = true;
             },
             //Asignar la fecha seleccionada
             sel_fecha(){
@@ -317,58 +455,46 @@
             //Guardar un registro de la remision
             guardarRegistro(){
                 if(this.unidades > 0){
-                    if(this.temporal.piezas >= this.unidades){
-                        this.mostrarDatos = false;
-                        this.temporal.remision_id = 0;
-                        this.temporal.unidades = this.unidades;
-                        this.temporal.total = (this.unidades * this.temporal.costo_unitario) - (((this.unidades * this.temporal.costo_unitario) * this.dato.descuento) / 100);
-                        
-                        if(this.editar){
-                            this.temporal.remision_id = this.bdremision.id;
-                        }
+                    this.mostrarDatos = false;
+                    this.temporal.remision_id = 0;
+                    this.temporal.unidades = this.unidades;
+                    //this.temporal.total = (this.unidades * this.temporal.costo_unitario) - (((this.unidades * this.temporal.costo_unitario) * this.dato.descuento) / 100);
+                    this.temporal.total = this.unidades * this.temporal.costo_unitario;
+                    if(this.editar){
+                        this.temporal.remision_id = this.bdremision.id;
+                    }
 
-                        axios.post('/registro_remision', this.temporal).then(response => {
-                            this.temporal = {
-                                id: response.data.dato.id,
-                                ISBN: response.data.libro.ISBN,
-                                titulo: response.data.libro.titulo,
-                                costo_unitario: response.data.libro.costo_unitario,
-                                unidades: response.data.dato.unidades,
-                                total: response.data.dato.total
-                            };
-                            this.items.push(this.temporal);
-                            this.total_remision += response.data.dato.total;
-                            this.unidades = 0;
-                            this.temporal = {};
-                            this.inputISBN = true;
-                            this.inputLibro = true;
-                            this.inputUnidades = false;
-                            this.botonEliminar = true;
-                            this.mostrarGuardar = true;
-                            this.mostrarTotal = true;
-                            this.mostrarBusqueda = false;
-                            this.respuestaUnidades = '';
-                        });
-                    }
-                    else{
-                        this.respuestaUnidades = '' + this.temporal.piezas + ' en existencia';
-                    }
-                    
+                    axios.post('/registro_remision', this.temporal).then(response => {
+                        this.temporal = {
+                            id: response.data.dato.id,
+                            ISBN: response.data.libro.ISBN,
+                            titulo: response.data.libro.titulo,
+                            costo_unitario: response.data.dato.costo_unitario,
+                            unidades: response.data.dato.unidades,
+                            total: response.data.dato.total
+                        };
+                        this.items.push(this.temporal);
+                        this.total_remision += response.data.dato.total;
+                        this.getDescuento();
+                        this.inicializar_registro();
+                    }); 
                 }
             },
             //Eliminar registro de la remision
             eliminarRegistro(item, i){
-                console.log(item.id);
                 axios.delete('/eliminar_registro', {params: {id: item.id}}).then(response => {
                     this.items.splice(i, 1);
                     this.total_remision = this.total_remision - item.total;
                     this.bdremision.total = this.total_remision;
+                    this.getDescuento();
                 });
             },
             //Guardar toda la remision
-            onSubmit(){
-                this.bdremision.total = this.total_remision;
+            guardarRemision(){
+                this.getDescuento();
+                this.bdremision.total = this.pagar;
                 this.bdremision.cliente_id = this.dato.id;
+                
                 if(this.bdremision.fecha_entrega != ''){
                     axios.post('/crear_remision', this.bdremision).then(response => {
                         this.bdremision.id = response.data.id;
@@ -380,39 +506,23 @@
                 else{
                     this.respuestaFecha = 'Selecciona fecha de entrega';
                 }
-                
             },
             //Editar la remision
             editarRemision(){
-                this.mostrarOpciones = false;
+                this.ini_1();
                 this.mostrarActualizar = true;
-                this.inputLibro = true;
-                this.inputISBN = true;
                 this.inputFecha = false;
                 this.botonEliminar = true;
                 this.editar = true;
-                this.btnNuevo = false;
             },
             //Guardar cambios de la remision
             actRemision(){
-                this.bdremision.total = this.total_remision;
+                this.getDescuento();
+                this.bdremision.total = this.pagar;
                 axios.put('/actualizar_remision', this.bdremision).then(response => {
                     this.mostrarActualizar = false;
                     this.inicializar_guardar();
                 });
-            },
-            //Inicializar valores
-            inicializar_guardar(){
-                this.temporal = {};
-                this.isbn = '';
-                this.queryTitulo = '',
-                this.inputLibro = false;
-                this.inputISBN = false;
-                this.inputFecha = true;
-                this.inputUnidades = false;
-                this.mostrarOpciones = true;
-                this.botonEliminar = false;
-                this.btnNuevo = true;
             },
             imprimir(){
                 axios.get('/imprimirSalida', {params: {remision_id: this.bdremision.id}}).then(response => {
@@ -420,14 +530,154 @@
                 });
             }, 
             eliminarTemporal(){
-                this.temporal = {};
-                this.inputISBN = true;
-                this.inputLibro = true;
-                this.inputUnidades = false;
+                this.ini_1();
+                this.ini_2();
+                this.inputCosto = false;
                 this.queryTitulo = '';
                 this.respuestaUnidades = '';
+                this.respuestaCosto = '';
+                this.costo_unitario = 0;
+            },
+
+            guardarCosto(){
+                if(this.costo_unitario > 0){
+                    this.temporal.costo_unitario = this.costo_unitario;
+                    this.inputCosto = false;
+                    this.inputUnidades = true;
+                    this.respuestaCosto = '';
+                }
+                else{
+                    this.respuestaCosto = 'Costo invalido';
+                } 
+            },
+            //Función para guardar datos del cliente
+            onSubmit(evt) {
+                this.errors = {};
+                if(this.dato.id == undefined){
+                    axios.post('/new_client', this.form).then(response => {
+                        this.inicializar_editar(response.data);
+                    })
+                    .catch(error => {
+                        if (error.response.status === 422) {
+                            this.errors = error.response.data.errors || {};
+                        }
+                    });
+                }
+                else{
+                    this.form.id = this.dato.id;
+                    axios.put('/editar_cliente', this.form).then(response => {
+                        this.inicializar_editar(response.data);
+                        this.getDescuento();
+                    })
+                    .catch(error => {
+                        if (error.response.status === 422) {
+                            this.errors = error.response.data.errors || {};
+                        }
+                    });
+                }
+            },
+            //Editar información del cliente
+            editarInformacion(){
+                this.mostrarBusqueda = true;
+                this.mostrarDatos = false;
+                this.btnEditarInf = true;
+                this.form = this.dato;
+                this.mostrarForm = false;
+            },
+            
+            getDescuento(){
+                this.descuento = (this.total_remision * this.dato.descuento) / 100;
+                this.pagar = this.total_remision - this.descuento;
+            },
+            seleccionCliente(cliente){
+                this.inicializar_editar(cliente); 
+                this.listaClientes = false;
+            },
+            //Inicializar los valores
+            inicializar(){
+                this.ini_3();
+                this.respuestaISBN = '';
+                this.resultslibros = [];
+                this.costo_unitario = 0;
+                this.inputCosto = true;
+            },
+            //Inicializar los valores
+            inicializar_registro(){
+                this.ini_1();
+                this.ini_2();
+                this.respuestaUnidades = '';
+                this.botonEliminar = true;
+                this.mostrarTotal = true;
+                this.mostrarGuardar = true;
+                this.mostrarBusqueda = false;
+            },
+            //Inicializar cuando se edito la información del cliente
+            inicializar_editar(dato){
+                this.mostrarBusqueda = false;
+                this.mostrarDatos = true;
+                this.dato = dato;
+                this.mostrarForm = true;
+            },
+            //Inicializar valores
+            inicializar_guardar(){
+                this.ini_3();
+                this.temporal = {}; 
+                this.inputUnidades = false;
+                this.inputCosto = false;
+                this.inputFecha = true;
+                this.mostrarOpciones = true;
+                this.botonEliminar = false;
+                this.btnNuevo = true;
+                this.btnInformacion = true;
+            },
+            ini_1(){
+                this.mostrarOpciones = false;
+                this.inputLibro = true;
+                this.inputISBN = true;
+                this.btnNuevo = false;
+                this.btnInformacion = false;
+            },
+            ini_2(){
+                this.temporal = {};
+                this.inputUnidades = false;
                 this.unidades = 0;
             },
+            ini_3(){
+                this.isbn = '';
+                this.queryTitulo = '';
+                this.inputISBN = false;
+                this.inputLibro = false;
+            },
+            ini_4(){
+                this.bdremision = {id: 0, cliente_id: 0, total: 0, fecha_entrega: ''};
+                this.items = [];
+                this.dato = {};
+                this.form = {};
+                this.total_remision = 0;
+                this.fecha = '';
+                this.editar = false;
+                this.inputFecha = false;
+                this.mostrarActualizar = false;
+                this.mostrarForm = false;
+                this.mostrarGuardar = true;
+                this.mostrarTotal = false;
+                this.mostrarBusqueda = true;
+            }
         }
     }
 </script>
+
+<style>
+    #btnCancelar {
+        color: red;
+        background-color: transparent;
+        border: 0ch;
+        font-size: 25px;
+    }
+    #btnEditar {
+        color: #ffb300;
+        background-color: transparent;
+        border: 0ch;
+        font-size: 25px;
+    }
+</style>

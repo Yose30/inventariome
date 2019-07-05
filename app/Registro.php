@@ -12,6 +12,7 @@ class Registro extends Model
         'id', 
         'entrada_id', 
         'libro_id',
+        'costo_unitario', 
         'unidades', 
         'total',
         'estado'

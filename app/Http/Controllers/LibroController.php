@@ -40,7 +40,8 @@ class LibroController extends Controller
     //Mostrar libros
     public function buscar(){
         $queryTitulo = Input::get('queryTitulo');
-        $libros = Libro::where('titulo','like','%'.$queryTitulo.'%')->get();
+        //$libros = Libro::where('titulo','like','%'.$queryTitulo.'%')->get();
+        $libros = \DB::table('libros')->select('id', 'titulo', 'editorial')->where('titulo','like','%'.$queryTitulo.'%')->get();
         return response()->json($libros);
     }
     //Buscar libro
@@ -51,7 +52,7 @@ class LibroController extends Controller
             'id' => $libro->id,
             'ISBN' => $libro->ISBN,
             'titulo' => $libro->titulo,
-            'costo_unitario' => $libro->costo_unitario,
+            'costo_unitario' => 0,
             'unidades' => 0,
             'total' => 0,
             'piezas' => $libro->piezas
@@ -59,4 +60,15 @@ class LibroController extends Controller
         return response()->json($datos);
     }
 
+    //Obtener todos los libros
+    public function allLibros(){
+        $libros = \DB::table('libros')->select('id', 'titulo', 'editorial')->get();
+        return response()->json($libros);
+    }
+
+    public function porEditorial(){
+        $queryEditorial = Input::get('queryEditorial');
+        $libros = \DB::table('libros')->select('id', 'titulo', 'editorial')->where('editorial','like','%'.$queryEditorial.'%')->get();
+        return response()->json($libros);
+    }
 }

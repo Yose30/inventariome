@@ -14,12 +14,9 @@ class Devolucione extends Model
         'remision_id', 
         'dato_id', 
         'libro_id',
-        // 'clave_libro', 
-        // 'titulo', 
-        // 'costo_unitario', 
         'unidades', 
-        'total', 
         'unidades_resta',
+        'total', 
         'total_resta',
     ];
 
