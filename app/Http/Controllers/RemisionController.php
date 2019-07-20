@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
-use Carbon\Carbon;
-use App\Dato;
-use App\Remisione;
+use Illuminate\Http\Request;
+use NumerosEnLetras;
 use App\Devolucione;
+use Carbon\Carbon;
+use App\Remisione;
 use App\Cliente;
 use App\Libro;
+use App\Dato;
 use PDF;
-use NumerosEnLetras;
 
 class RemisionController extends Controller
 {
@@ -77,7 +77,8 @@ class RemisionController extends Controller
         $numero = Input::get('numero');
         $remision = Remisione::whereId($numero)->first();
         $datos = Dato::where('remision_id', $remision->id)->with('libro')->get();
-        return response()->json(['remision' => $remision, 'datos' => $datos]);
+        $devoluciones = Devolucione::where('remision_id', $remision->id)->with('libro', 'dato')->get();
+        return response()->json(['remision' => $remision, 'datos' => $datos, 'devoluciones' => $devoluciones]);
     }
 
     public function actualizar(Request $request){

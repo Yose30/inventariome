@@ -14,34 +14,25 @@ class LibroController extends Controller
     public function store(Request $request){
         $this->validate($request, [
             'titulo' => 'min:5|max:100|required|string',
-            // 'clave' => 'min:5|max:20|required|string',
             'ISBN' => 'min:5|max:100|required|string',
-            'autor' => 'min:5|max:100|required|string',
-            'editorial' => 'required|min:5|max:100|required|string',
-            'edicion' => 'min:3|max:100|required|string',
+            'editorial' => 'required|min:5|max:100|string',
             'costo_unitario' => 'required|min:3',
         ]);
-        
         try {
             \DB::beginTransaction();
-
-            $cliente = Libro::create($request->input());
-
+                $libro = Libro::create($request->input());
             \DB::commit();
-
-            return response()->json(null, 200);
-            
         } catch (Exception $e) {
             \DB::rollBack();
             return response()->json($exception->getMessage());
-		}
+        }
+        return response()->json($libro);
     }
 
     //Mostrar libros
     public function buscar(){
         $queryTitulo = Input::get('queryTitulo');
-        //$libros = Libro::where('titulo','like','%'.$queryTitulo.'%')->get();
-        $libros = \DB::table('libros')->select('id', 'titulo', 'editorial')->where('titulo','like','%'.$queryTitulo.'%')->get();
+        $libros = \DB::table('libros')->select('id', 'ISBN', 'titulo', 'editorial', 'piezas')->where('titulo','like','%'.$queryTitulo.'%')->get();
         return response()->json($libros);
     }
     //Buscar libro
@@ -62,13 +53,13 @@ class LibroController extends Controller
 
     //Obtener todos los libros
     public function allLibros(){
-        $libros = \DB::table('libros')->select('id', 'titulo', 'editorial')->get();
+        $libros = \DB::table('libros')->select('id', 'titulo', 'editorial', 'piezas')->get();
         return response()->json($libros);
     }
 
     public function porEditorial(){
         $queryEditorial = Input::get('queryEditorial');
-        $libros = \DB::table('libros')->select('id', 'titulo', 'editorial')->where('editorial','like','%'.$queryEditorial.'%')->get();
+        $libros = \DB::table('libros')->select('id', 'titulo', 'editorial', 'piezas')->where('editorial','like','%'.$queryEditorial.'%')->get();
         return response()->json($libros);
     }
 }

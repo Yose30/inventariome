@@ -1,8 +1,7 @@
 <template>
     <div>
         <div class="row">
-            <h4 class="col-md-4">Crear remisión</h4>
-            <!-- REVISADO -->
+            <h4 class="col-md-4">{{ !editar ? 'Crear remisión': `Editar remisión N. ${bdremision.id}` }}</h4>
             <div class="col-md-2"> 
                 <b-button 
                     variant="success" 
@@ -25,7 +24,6 @@
                     </b-modal>
                 </div>
             </div>
-            <!-- FIN REVISADO -->
             <div class="col-md-2">
                 <b-button 
                     @click="guardarRemision" 
@@ -58,7 +56,6 @@
             </div>
         </div>
         <hr>
-        <!-- REVISADO -->
         <div align="center" v-if="mostrarBusqueda && !btnNuevo">
             <div align="left">
                 <button 
@@ -132,18 +129,6 @@
                                 <div v-if="errors && errors.direccion" class="text-danger">{{ errors.direccion[0] }}</div>
                             </div>
                         </b-row>
-                        <!-- <b-row class="my-1">
-                            <label align="right" for="input-descuento" class="col-md-5">Descuento</label>
-                            <div class="col-md-7">
-                                <b-form-input 
-                                    id="input-descuento"
-                                    v-model="form.descuento" 
-                                    type="number"
-                                    required>
-                                </b-form-input>
-                                <div v-if="errors && errors.descuento" class="text-danger">{{ errors.descuento[0] }}</div>
-                            </div>
-                        </b-row> -->
                         <b-row class="my-1">
                             <label align="right" for="input-condiciones_pago" class="col-md-5">Condiciones de pago</label>
                             <div class="col-md-7">
@@ -167,7 +152,6 @@
                             <th scope="col">Nombre</th>
                             <th scope="col">Correo</th>
                             <th scope="col">Dirección</th>
-                            <!-- <th scope="col">Descuento</th> -->
                             <th scope="col"></th>
                         </tr>
                     </thead>
@@ -176,7 +160,6 @@
                             <td>{{ cliente.name }}</td>
                             <td>{{ cliente.email }}</td>
                             <td>{{ cliente.direccion }}</td>
-                            <!-- <td>{{ cliente.descuento }}%</td> -->
                             <td>
                                 <button 
                                     class="btn btn-success">
@@ -188,7 +171,6 @@
                 </table>
             </div>
         </div>
-        <!-- FIN REVISADO -->
         <hr>
         <div v-if="!mostrarBusqueda">
             <div class="row">
@@ -210,7 +192,6 @@
                     <b-list-group class="col-md-6">
                         <b-list-group-item><b>Nombre:</b> {{ dato.name }}</b-list-group-item>
                         <b-list-group-item><b>Dirección:</b> {{dato.direccion  }}</b-list-group-item>
-                        <!-- <b-list-group-item><b>Descuento:</b> {{ dato.descuento }} %</b-list-group-item> -->
                         <b-list-group-item><b>Condiciones de pago:</b> {{ dato.condiciones_pago }}</b-list-group-item>
                     </b-list-group>
                     <b-list-group class="col-md-6">
@@ -235,9 +216,6 @@
             </div>
             <div class="col-md-6" align="right" v-if="mostrarTotal">
                 <label><b>Total:</b> ${{ total_remision }}</label>
-                <!-- <hr>
-                <label><b>{{ dato.descuento }}% descuento:</b> ${{ descuento }}</label><br>
-                <label><b>Total:</b> ${{ pagar }}</label> -->
             </div>
         </div>
         <hr>
@@ -305,7 +283,7 @@
                                 min="1"
                                 max="9999"
                                 @keyup.enter="guardarCosto()">
-                            </input>
+                            </input> 
                             <b v-if="!inputCosto">$ {{ temporal.costo_unitario }}</b>
                             <div class="text-danger">{{ respuestaCosto }}</div>
                         </td>
@@ -378,13 +356,11 @@
                 inputFecha: false, //Indicar si se deshabilita o no el input de Fecha
                 respuestaUnidades: '', //Indicar si el valor es correcto
                 respuestaCosto: '', //Indicar si el valor es correcto
-                
                 btnInformacion: false, //Habilitar o deshabilitar boton de editar informacion
                 //Formulario para agregar cliente
                 form: {},
                 errors: {},
                 btnEditarInf: false,
-                
                 descuento: 0,
                 pagar: 0,
                 clientes: [],
@@ -399,7 +375,7 @@
             nuevaRemision(){
                 axios.get('/nueva_remision').then(response => {
                     this.btnEditarInf = false;
-                    this.ini_1(); //btnNuevo = false, para no mostrar el plus y mostrar asi el de cancelar
+                    this.ini_1();
                     this.ini_2();
                     this.ini_4();
                 });
@@ -425,7 +401,7 @@
                     this.inicializar();
                     this.temporal = response.data;
                 }).catch(error => {
-                    this.respuestaISBN = 'ISBN incorrecto';
+                   this.makeToast('danger', 'ISBN incorrecto');
                 });
             },
             //Buscar libro por titulo, Mostrar resultados de la busqueda
@@ -456,29 +432,36 @@
             //Guardar un registro de la remision
             guardarRegistro(){
                 if(this.unidades > 0){
-                    this.mostrarDatos = false;
-                    this.temporal.remision_id = 0;
-                    this.temporal.unidades = this.unidades;
-                    //this.temporal.total = (this.unidades * this.temporal.costo_unitario) - (((this.unidades * this.temporal.costo_unitario) * this.dato.descuento) / 100);
-                    this.temporal.total = this.unidades * this.temporal.costo_unitario;
-                    if(this.editar){
-                        this.temporal.remision_id = this.bdremision.id;
-                    }
+                    if(this.unidades <= this.temporal.piezas){
+                        this.mostrarDatos = false;
+                        this.temporal.remision_id = 0;
+                        this.temporal.unidades = this.unidades;
+                        this.temporal.total = this.unidades * this.temporal.costo_unitario;
+                        if(this.editar){
+                            this.temporal.remision_id = this.bdremision.id;
+                        }
 
-                    axios.post('/registro_remision', this.temporal).then(response => {
-                        this.temporal = {
-                            id: response.data.dato.id,
-                            ISBN: response.data.libro.ISBN,
-                            titulo: response.data.libro.titulo,
-                            costo_unitario: response.data.dato.costo_unitario,
-                            unidades: response.data.dato.unidades,
-                            total: response.data.dato.total
-                        };
-                        this.items.push(this.temporal);
-                        this.total_remision += response.data.dato.total;
-                        this.getDescuento();
-                        this.inicializar_registro();
-                    }); 
+                        axios.post('/registro_remision', this.temporal).then(response => {
+                            this.temporal = {
+                                id: response.data.dato.id,
+                                ISBN: response.data.libro.ISBN,
+                                titulo: response.data.libro.titulo,
+                                costo_unitario: response.data.dato.costo_unitario,
+                                unidades: response.data.dato.unidades,
+                                total: response.data.dato.total
+                            };
+                            this.items.push(this.temporal);
+                            this.total_remision += response.data.dato.total;
+                            this.getDescuento();
+                            this.inicializar_registro();
+                        }); 
+                    }
+                    else{
+                        this.makeToast('danger', `${this.temporal.piezas} piezas en existencia`);
+                    }
+                }
+                else{
+                    this.makeToast('danger', 'Unidades invalidas');
                 }
             },
             //Eliminar registro de la remision
@@ -487,15 +470,12 @@
                     this.items.splice(i, 1);
                     this.total_remision = this.total_remision - item.total;
                     this.bdremision.total = this.total_remision;
-                    // this.getDescuento();
                 });
             },
             //Guardar toda la remision
             guardarRemision(){
-                // this.getDescuento();
                 this.bdremision.total = this.total_remision;
                 this.bdremision.cliente_id = this.dato.id;
-                console.log(this.bdremision);
                 if(this.bdremision.fecha_entrega != ''){
                     axios.post('/crear_remision', this.bdremision).then(response => {
                         this.bdremision.id = response.data.id;
@@ -505,7 +485,7 @@
                     });
                 }
                 else{
-                    this.respuestaFecha = 'Selecciona fecha de entrega';
+                    this.makeToast('danger', 'Selecciona fecha de entrega');
                 }
             },
             //Editar la remision
@@ -518,9 +498,7 @@
             },
             //Guardar cambios de la remision
             actRemision(){
-                // this.getDescuento();
                 this.bdremision.total = this.total_remision;
-                console.log(this.bdremision);
                 axios.put('/actualizar_remision', this.bdremision).then(response => {
                     this.mostrarActualizar = false;
                     this.inicializar_guardar();
@@ -549,7 +527,8 @@
                     this.respuestaCosto = '';
                 }
                 else{
-                    this.respuestaCosto = 'Costo invalido';
+                    this.makeToast('danger', 'Costo invalido');
+                    
                 } 
             },
             //Función para guardar datos del cliente
@@ -663,6 +642,13 @@
                 this.mostrarGuardar = true;
                 this.mostrarTotal = false;
                 this.mostrarBusqueda = true;
+            },
+            makeToast(variant = null, descripcion) {
+                this.$bvToast.toast(descripcion, {
+                    title: 'Error',
+                    variant: variant,
+                    solid: true
+                })
             }
         }
     }

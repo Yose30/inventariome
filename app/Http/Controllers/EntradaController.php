@@ -77,6 +77,7 @@ class EntradaController extends Controller
             $registro = Registro::create([
                 'entrada_id' => $entrada,
                 'libro_id'  => $request->id,
+                'costo_unitario' => $request->costo_unitario,
                 'unidades'  => $request->unidades,
                 'total'     => $request->total
             ]);

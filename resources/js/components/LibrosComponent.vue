@@ -95,6 +95,9 @@
                     this.inicializar(response);
                 });
             },
+            newLibro(libro){
+                console.log(libro);
+            }
         }
     }
 </script>

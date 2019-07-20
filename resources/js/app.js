@@ -7,6 +7,7 @@
 require('./bootstrap');
 
 window.Vue = require('vue');
+window.moment = require('moment');
 Vue.use(require('vue-resource'));
 
 import Vue from 'vue'
@@ -39,7 +40,7 @@ Vue.component('devolucion-component', require('./components/DevolucionComponent.
 Vue.component('listado-component', require('./components/ListadoComponent.vue').default);
 Vue.component('lista-remisiones-component', require('./components/ListaRemisionesComponent.vue').default);
 Vue.component('libros-component', require('./components/LibrosComponent.vue').default);
-
+Vue.component('editar-r-component', require('./components/EditarRComponent.vue').default);
 Vue.component('inventario-component', require('./components/InventarioComponent.vue').default);
 Vue.component('new-client-component', require('./components/NewClientComponent.vue').default);
 Vue.component('new-libro-component', require('./components/NewLibroComponent.vue').default);
@@ -52,5 +53,14 @@ Vue.component('new-libro-component', require('./components/NewLibroComponent.vue
 
 const app = new Vue({
     el: '#app',
-
+    // data() {
+    //     return {
+    //         libros: [],
+    //     }
+    // },
+    // methods: {
+    //     newLibro(libro){
+    //         console.log(libro);
+    //     }
+    // }
 });

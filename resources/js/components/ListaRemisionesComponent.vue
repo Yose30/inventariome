@@ -20,13 +20,13 @@
                     </b-row>
                 </div>
                 <div class="col-md-4">
-                    <div class="row">
+                    <!-- <div class="row">
                         <label class="col-md-3">Estado</label>
                         <div class="col-md-9">
                             <b-form-select v-model="selected" :options="options" @change="porEstado"></b-form-select>
                         </div>
                     </div>
-                    <hr>
+                    <hr> -->
                     <b-row class="my-1">
                         <b-col sm="3">
                             <label for="input-cliente">Cliente</label>
@@ -49,7 +49,7 @@
                         </b-col>
                     </b-row>
                 </div>
-                <div class="col-md-5">
+                <!-- <div class="col-md-5">
                     <b-row class="my-1">
                         <b-col sm="3">
                             <label for="input-inicio">Inicio</label>
@@ -77,7 +77,7 @@
                             </input>
                         </b-col>
                     </b-row>
-                </div>
+                </div> -->
             </div>
             <hr>
             <div align="right">
@@ -100,29 +100,44 @@
                     <thead>
                         <tr>
                             <th scope="col">Folio</th>
+                            <th scope="col">Fecha de creación</th>
                             <th scope="col">Cliente</th>
-                            <th scope="col">Salida</th>
-                            <th scope="col">Devolución</th>
-                            <th scope="col">Final</th>
+                            <th scope="col">Total</th>
+                            <!-- <th scope="col">Devolución</th>
+                            <th scope="col">Final</th> -->
                             <th scope="col">Estado</th>
                             <th scope="col">Fecha de entrega</th>
+                            <th scope="col"></th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>{{ remision.id }}</td>
+                            <td>{{ remision.fecha_creacion }}</td>
                             <td>{{ cliente_nombre }}</td>
                             <td>$ {{ remision.total }}</td>
-                            <td>$ {{ remision.total_devolucion }}</td>
-                            <td>$ {{ remision.total_pagar }}</td>
+                            <!-- <td>$ {{ remision.total_devolucion }}</td>
+                            <td>$ {{ remision.total_pagar }}</td> -->
                             <td>
                                 <b-badge variant="secondary" v-if="remision.estado == 'Iniciado'">{{ remision.estado }}</b-badge>
                                 <b-badge variant="primary" v-if="remision.estado == 'Proceso'">{{ remision.estado }}</b-badge>
                                 <b-badge variant="success" v-if="remision.estado == 'Terminado'">{{ remision.estado }}</b-badge>
                             </td>
                             <td>{{ remision.fecha_entrega }}</td>
-                            <td v-if="remision.estado == 'Iniciado'">
-                                <button class="btn btn-warning" @click="editarRemision(remision)"><i class="fa fa-pencil"></i></button>
+                            <td>
+                                <!-- <button class="btn btn-warning" @click="editarRemision(remision)"><i class="fa fa-pencil"></i></button> -->
+                                <button 
+                                    class="btn btn-primary" 
+                                    v-if="remision.estado != 'Iniciado'"
+                                    @click="detallesRemision(remision)">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                                <button 
+                                    class="btn btn-primary" 
+                                    v-if="remision.estado == 'Iniciado'"
+                                    @click="editarRemision(remision)">
+                                    <i class="fa fa-eye"></i>
+                                </button>
                             </td>
                         </tr>
                     </tbody>
@@ -131,10 +146,11 @@
                     <thead>
                         <tr>
                             <th scope="col">Folio</th>
+                            <th scope="col">Fecha de creación</th>
                             <th scope="col">Cliente</th>
-                            <th scope="col">Salida</th>
-                            <th scope="col">Devolución</th>
-                            <th scope="col">Final</th>
+                            <th scope="col">Total</th>
+                            <!-- <th scope="col">Devolución</th>
+                            <th scope="col">Final</th> -->
                             <th scope="col">Estado</th>
                             <th scope="col">Fecha de entrega</th>
                             <th scope="col"></th>
@@ -143,10 +159,11 @@
                     <tbody>
                         <tr v-for="(remision, i) in remisiones" v-bind:key="i">
                             <td>{{ remision.id }}</td>
+                            <td>{{ remision.fecha_creacion }}</td>
                             <td>{{ remision.cliente.name }}</td>
                             <td>$ {{ remision.total }}</td>
-                            <td>$ {{ remision.total_devolucion }}</td>
-                            <td>$ {{ remision.total_pagar }}</td>
+                            <!-- <td>$ {{ remision.total_devolucion }}</td>
+                            <td>$ {{ remision.total_pagar }}</td> -->
                             <td>
                                 <b-badge variant="secondary" v-if="remision.estado == 'Iniciado'">{{ remision.estado }}</b-badge>
                                 <b-badge variant="primary" v-if="remision.estado == 'Proceso'">{{ remision.estado }}</b-badge>
@@ -169,10 +186,10 @@
                             </td>
                         </tr>
                         <tr>
-                            <td></td><td></td>
+                            <td></td><td></td><td></td>
                             <td><b>$ {{ total_salida }}</b></td>
-                            <td><b>$ {{ total_devolucion }}</b></td>
-                            <td><b>$ {{ total_pagar }}</b></td>
+                            <!-- <td><b>$ {{ total_devolucion }}</b></td>
+                            <td><b>$ {{ total_pagar }}</b></td> -->
                         </tr>
                     </tbody>
                 </table>
@@ -180,7 +197,7 @@
         </div>
         <div v-if="!mostrar">
             <div class="row">
-                <h4 class="col-md-4">Remisión {{ bdremision.id }}</h4>
+                <h4 class="col-md-4">Remisión N. {{ bdremision.id }}</h4>
                 <div class="col-md-2">
                     <b-button variant="danger" v-if="mostrarActualizar" @click="show=true"><i class="fa fa-close"></i></b-button>
                     <b-modal v-model="show" title="Cerrar remisión">
@@ -450,7 +467,7 @@
         </div>
         <div v-if="detalles">
             <div class="row">
-                <h4 class="col-md-11">Detalles de remisión {{ remision.id }}</h4>
+                <h4 class="col-md-11">Remisión N. {{ remision.id }}</h4>
                 <button 
                     id="btnCancelar" 
                     class="btn btn-danger"
@@ -510,8 +527,8 @@
                     </tbody>
                 </table>
             </b-collapse>
-            <hr>
-            <div class="row">
+            <!-- <hr> -->
+            <!-- <div class="row">
                 <h4 class="col-md-10">Devolución</h4>
                 <b-button 
                     variant="link" 
@@ -586,12 +603,13 @@
                         </tr>
                     </tbody>
                 </table>
-            </b-collapse>
+            </b-collapse> -->
         </div>
     </div>
 </template>
 
 <script>
+    moment.locale('es');
     export default {
         data() {
             return {
@@ -978,9 +996,7 @@
                 this.remision = remision;
                 axios.get('/lista_datos', {params: {numero: remision.id}}).then(response => {
                     this.registros = response.data.datos;
-                    axios.get('/devoluciones_remision', {params: {remision_id: remision.id}}).then(response => {
-                        this.devoluciones = response.data.devoluciones;
-                    });
+                    this.devoluciones = response.data.devoluciones;
                 });
             }
         }

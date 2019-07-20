@@ -73,7 +73,6 @@
                                 @keyup.enter="buscarLibroISBN()"
                                 v-if="inputISBN"
                                 ></b-input>
-                                <div class="text-danger">{{ respuestaISBN }}</div>
                                 <b v-if="!inputISBN">{{ temporal.ISBN }}</b>
                             </td>
                             <td>
@@ -94,16 +93,24 @@
                                 </div>
                                 <b v-if="!inputLibro">{{ temporal.titulo }}</b>
                             </td>
-                            <td v-if="inputUnidades">$ {{ temporal.costo_unitario }}</td>
                             <td>
-                                <input 
-                                type="number" 
-                                v-model="unidades"
-                                v-if="inputUnidades"
-                                min="1"
-                                max="9999"
-                                @keyup.enter="guardarRegistro()"
-                                ></input>
+                                <b-form-input 
+                                    @keyup.enter="guardarCosto()"
+                                    v-model="costo_unitario" 
+                                    v-if="inputCosto"
+                                    type="number"
+                                    required>
+                                </b-form-input>
+                                <b v-if="!inputCosto">$ {{ temporal.costo_unitario }}</b>
+                            </td>
+                            <td>
+                                <b-form-input 
+                                    @keyup.enter="guardarRegistro()"
+                                    v-if="inputUnidades"
+                                    v-model="unidades" 
+                                    type="number"
+                                    required>
+                                </b-form-input>
                             </td>
                             <td></td>
                             <td>
@@ -150,6 +157,10 @@
                     unidades: 0,
                     total: 0,
                 }, //Para guardar todos los datos de la remision
+                costo_unitario: 0,
+                inputCosto: false,
+                respuestaCosto: '',
+                respuestaUnidades: ''
             }
         },
         methods: {
@@ -180,9 +191,9 @@
                     this.inicializar();
                     this.temporal = response.data;
                 }).catch(error => {
-                    this.respuestaISBN = 'ISBN incorrecto';
+                    this.makeToast('danger', 'ISBN incorrecto');
                 });
-            },
+            }, 
             //Mostrar resultados de la busqueda por titulo del libro
             mostrarLibros(){
                 if(this.queryTitulo.length > 0){
@@ -198,7 +209,7 @@
                     id: libro.id,
                     ISBN: libro.ISBN,
                     titulo: libro.titulo,
-                    costo_unitario: libro.costo_unitario,
+                    costo_unitario: 0,
                     unidades: 0,
                     total: 0
                 };
@@ -211,14 +222,26 @@
                 this.inputLibro = false;
                 this.queryTitulo = '';
                 this.resultslibros = [];
-                this.inputUnidades = true;
+                this.inputCosto = true;
             },
             //SE REPITEN FIN
+            guardarCosto(){
+                if(this.costo_unitario > 0){
+                    this.temporal.costo_unitario = this.costo_unitario;
+                    this.inputCosto = false;
+                    this.inputUnidades = true;
+                    this.respuestaCosto = '';
+                }
+                else{
+                    this.makeToast('danger', 'Costo invalido');
+                } 
+            },
             //Guardar un registro de la entrada
             guardarRegistro(){
                 if(this.unidades > 0){
                     this.temporal.entrada_id = 0;
                     this.temporal.unidades = this.unidades;
+                    this.temporal.costo_unitario = this.costo_unitario;
                     this.temporal.total = this.unidades * this.temporal.costo_unitario;
                     if(this.editar){
                         this.temporal.entrada_id = this.bdentrada.id;
@@ -229,7 +252,7 @@
                             id: response.data.registro.id,
                             ISBN: response.data.libro.ISBN,
                             titulo: response.data.libro.titulo,
-                            costo_unitario: response.data.libro.costo_unitario,
+                            costo_unitario: response.data.registro.costo_unitario,
                             unidades: response.data.registro.unidades,
                             total: response.data.registro.total
                         };
@@ -237,13 +260,20 @@
                         this.total_entrada += response.data.registro.total;
                         this.total_unidades += parseInt(response.data.registro.unidades);
                         this.unidades = 0;
+                        this.costo_unitario = 0;
                         this.temporal = {};
                         this.inputISBN = true;
                         this.inputLibro = true;
                         this.inputUnidades = false;
                         this.botonEliminar = true;
                         this.mostrarGuardar = true;
+                    })
+                    .catch(error => {
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentarlo');
                     });
+                }
+                else{
+                    this.makeToast('danger', 'Unidades no validas');
                 }
             },
             //Eliminar registro de la remision
@@ -307,7 +337,13 @@
                 this.queryTitulo = '';
                 this.unidades = 0;
             },
-
+            makeToast(variant = null, descripcion) {
+                this.$bvToast.toast(descripcion, {
+                    title: 'Error',
+                    variant: variant,
+                    solid: true
+                })
+            }
         }
     }
 </script>

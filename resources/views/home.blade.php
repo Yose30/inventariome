@@ -21,6 +21,16 @@
                     {{ __("Remisiones") }}
                 </a>
             </li>
+            <!-- <li class="nav-item">
+                <a 
+                    class="nav-link" 
+                    id="devoluciones-tab" 
+                    data-toggle="tab" 
+                    href="#v-devoluciones" 
+                    aria-controls="v-devoluciones">
+                    {{ __("Devoluciones") }}
+                </a>
+            </li> -->
             <li class="nav-item">
                 <a 
                     class="nav-link" 
@@ -35,7 +45,11 @@
         <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade show active" id="v-remisiones">
                 <br>
-                <lista-remisiones-component></lista-remisiones-component>
+                <listado-component></listado-component>
+            </div>
+            <div class="tab-pane fade" id="v-devoluciones">
+                <br>
+                
             </div>
             <div class="tab-pane fade" id="v-libros">
                 <br>
