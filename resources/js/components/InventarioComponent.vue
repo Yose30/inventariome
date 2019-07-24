@@ -39,7 +39,7 @@
         <hr>
         <div v-if="mostrarTabla">
             <div align="right">
-                <label><b>Total:</b> ${{ total_entrada }}</label>
+                <!-- <label><b>Total:</b> ${{ total_entrada }}</label> -->
             </div>
             <div align="left">
                 <label><b>Unidades:</b> {{ total_unidades }}</label>
@@ -51,9 +51,9 @@
                         <tr>
                             <th scope="col">ISBN</th>
                             <th scope="col">Libro</th>
-                            <th scope="col">Costo unitario</th>
+                            <!-- <th scope="col">Costo unitario</th> -->
                             <th scope="col">Unidades</th>
-                            <th scope="col">Subtotal</th>
+                            <!-- <th scope="col">Subtotal</th> -->
                             <th scope="col"></th>
                         </tr>
                     </thead>
@@ -61,9 +61,9 @@
                         <tr v-for="(item, i) in items" v-bind:key="i">
                             <td>{{ item.ISBN }}</td>
                             <td>{{ item.titulo }}</td>
-                            <td>$ {{ item.costo_unitario }}</td>
+                            <!-- <td>$ {{ item.costo_unitario }}</td> -->
                             <td>{{ item.unidades }}</td>
-                            <td>$ {{ item.total }}</td>
+                            <!-- <td>$ {{ item.total }}</td> -->
                             <td><button class="btn btn-danger" @click="eliminarRegistro(item, i)" v-if="botonEliminar"><i class="fa fa-minus-circle"></i></button></td>
                         </tr>
                         <tr>
@@ -93,7 +93,7 @@
                                 </div>
                                 <b v-if="!inputLibro">{{ temporal.titulo }}</b>
                             </td>
-                            <td>
+                            <!-- <td>
                                 <b-form-input 
                                     @keyup.enter="guardarCosto()"
                                     v-model="costo_unitario" 
@@ -102,7 +102,7 @@
                                     required>
                                 </b-form-input>
                                 <b v-if="!inputCosto">$ {{ temporal.costo_unitario }}</b>
-                            </td>
+                            </td> -->
                             <td>
                                 <b-form-input 
                                     @keyup.enter="guardarRegistro()"
@@ -112,7 +112,7 @@
                                     required>
                                 </b-form-input>
                             </td>
-                            <td></td>
+                            <!-- <td></td> -->
                             <td>
                                 <button 
                                     class="btn btn-secondary" 
@@ -222,7 +222,7 @@
                 this.inputLibro = false;
                 this.queryTitulo = '';
                 this.resultslibros = [];
-                this.inputCosto = true;
+                this.inputUnidades = true;
             },
             //SE REPITEN FIN
             guardarCosto(){

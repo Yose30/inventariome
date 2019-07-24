@@ -129,7 +129,7 @@
                             <td class="sinBorde"></td>
                             <td class="sinBorde" id="DFM">Distribuidor for Mexico</td>
                             <td class="sinBorde"></td>
-                            <td class="sinBorde" id="contacto">Numero</td>
+                            <td class="sinBorde" id="contacto">Entrada número</td>
                         </tr>
                         <tr>
                             <td class="sinBorde"></td>
@@ -143,24 +143,24 @@
                         <tr>
                             <th>Numero</th>
                             <th>Libro</th> 
-                            <th>Costo unitario</th>
+                            <!-- <th>Costo unitario</th> -->
                             <th>Unidades</th>
-                            <th>Subtotal</th>
+                            <!-- <th>Subtotal</th> -->
                         </tr>
                         @foreach($registros as $registro)
                             <tr>
                                 <td class="bordesVer" style="width:5%" id="tdder">{{ $registro->id }}</td>
                                 <td class="bordesVer" style="width:25%" id="tdizq">{{ $registro->libro->titulo }}</td> 
-                                <td class="bordesVer" style="width:15%" id="tdder">$ {{ $registro->libro->costo_unitario }}</td>
+                                <!-- <td class="bordesVer" style="width:15%" id="tdder">$ {{ $registro->libro->costo_unitario }}</td> -->
                                 <td class="bordesVer" style="width:15%" id="tdder">{{ $registro->unidades }}</td>
-                                <td class="bordesVer" style="width:15%" id="tdder">$ {{ $registro->total }}</td>
+                                <!-- <td class="bordesVer" style="width:15%" id="tdder">$ {{ $registro->total }}</td> -->
                             </tr>
                         @endforeach  
                         <tr>
                             <td class="sinBorde"></td><td class="sinBorde"></td>
-                            <td class="sinBorde"></td>
+                            <!-- <td class="sinBorde"></td> -->
                             <td class="sinBorde" id="tdder"><b>{{ $entrada->unidades }}</b></td>
-                            <td class="sinBorde" id="tdder"><b>$ {{ $entrada->total }}</b></td>
+                            <!-- <td class="sinBorde" id="tdder"><b>$ {{ $entrada->total }}</b></td> -->
                         </tr>
                     </table>
                     <footer>

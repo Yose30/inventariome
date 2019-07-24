@@ -48,7 +48,7 @@
                             <div v-if="errors && errors.editorial" class="text-danger">{{ errors.editorial[0] }}</div>
                         </div>
                     </b-row>
-                    <b-row class="my-1">
+                    <!-- <b-row class="my-1">
                         <label align="right" class="col-md-5">Edición</label>
                         <div class="col-md-7">
                             <b-form-input 
@@ -57,8 +57,8 @@
                             </b-form-input>
                             <div v-if="errors && errors.edicion" class="text-danger">{{ errors.edicion[0] }}</div>
                         </div>
-                    </b-row>
-                    <b-row class="my-1">
+                    </b-row> -->
+                    <!-- <b-row class="my-1">
                         <label align="right" class="col-md-5">Costo unitario</label>
                         <div class="col-md-7">
                             <b-form-input 
@@ -69,7 +69,7 @@
                             </b-form-input>
                             <div v-if="errors && errors.costo_unitario" class="text-danger">{{ errors.costo_unitario[0] }}</div>
                         </div>
-                    </b-row>
+                    </b-row> -->
                     <hr>
                     <b-button type="submit" :disabled="loaded" variant="success">
                         <i class="fa fa-check"></i> {{ !loaded ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="loaded"></b-spinner>
@@ -79,7 +79,6 @@
                 <b-alert v-if="success" show dismissible>
                     <i class="fa fa-check"></i>Libro guardado
                 </b-alert>
-
             </div>
         </div>
     </div>

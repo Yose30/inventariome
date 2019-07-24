@@ -160,7 +160,11 @@
                     <tr>
                         <td class="sinBorde"></td>
                         <td class="sinBorde"></td>
-                        <td class="sinBorde" style="text-align:right"> <p>Fecha </p> </td>
+                        <td class="sinBorde" style="text-align:right"> <p>Fecha</p> </td>
+                        <td class="sinBorde" id="tdder">
+                            <p align="center">{{ $remision->fecha_creacion }}</p>
+                        </td>
+                        <td class="sinBorde" style="text-align:right"> <p>Fecha de entrega</p> </td>
                         <td class="sinBorde" id="tdder">
                             <p align="center">{{ $remision->fecha_entrega }}</p>
                         </td>

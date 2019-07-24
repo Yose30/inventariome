@@ -35,6 +35,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default));
 
 
+Vue.component('editar-libro-component', require('./components/EditarLibroComponent.vue').default);
 Vue.component('remision-component', require('./components/RemisionComponent.vue').default);
 Vue.component('devolucion-component', require('./components/DevolucionComponent.vue').default);
 Vue.component('listado-component', require('./components/ListadoComponent.vue').default);
@@ -44,6 +45,9 @@ Vue.component('editar-r-component', require('./components/EditarRComponent.vue')
 Vue.component('inventario-component', require('./components/InventarioComponent.vue').default);
 Vue.component('new-client-component', require('./components/NewClientComponent.vue').default);
 Vue.component('new-libro-component', require('./components/NewLibroComponent.vue').default);
+Vue.component('devoluciones-component', require('./components/DevolucionesComponent.vue').default);
+Vue.component('entradas-component', require('./components/EntradasComponent.vue').default);
+Vue.component('clientes-component', require('./components/ClientesComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

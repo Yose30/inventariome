@@ -39,12 +39,12 @@
                 </b-button>
             </div>
             <div class="col-md-2">
-                <b-button 
+                <!-- <b-button 
                     variant="warning" 
                     @click="editarRemision"
                     v-if="mostrarOpciones">
                     <i class="fa fa-pencil"></i>
-                </b-button>
+                </b-button> -->
             </div>
             <div class="col-md-2">
                 <a 

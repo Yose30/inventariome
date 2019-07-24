@@ -81,18 +81,22 @@
             </div>
             <hr>
             <div align="right">
-                <a 
-                    class="btn btn-info col-md-1"
-                    v-if="imprimirCliente && remisiones.length"
-                    :href="'/imprimirCliente/' + cliente_id + '/' + inicio + '/' + final">
-                    <i class="fa fa-print"></i>
-                </a>
-                <a 
-                    class="btn btn-info col-md-1"
-                    v-if="imprimirEstado && remisiones.length"
-                    :href="'/imprimirEstado/' + estadoRemision">
-                    <i class="fa fa-print"></i>
-                </a>
+                <div class="col-md-1" v-if="imprimirCliente && remisiones.length">
+                    <a 
+                        class="btn btn-info"
+                        
+                        :href="'/imprimirCliente/' + cliente_id + '/' + inicio + '/' + final">
+                        <i class="fa fa-print"></i>
+                    </a>
+                </div>
+                <div class="col-md-1" v-if="imprimirEstado && remisiones.length">
+                    <a 
+                        class="btn btn-info"
+                        
+                        :href="'/imprimirEstado/' + estadoRemision">
+                        <i class="fa fa-print"></i>
+                    </a>
+                </div>
             </div>
             <hr>
             <div>
@@ -102,9 +106,9 @@
                             <th scope="col">Folio</th>
                             <th scope="col">Fecha de creación</th>
                             <th scope="col">Cliente</th>
-                            <th scope="col">Total</th>
-                            <!-- <th scope="col">Devolución</th>
-                            <th scope="col">Final</th> -->
+                            <th scope="col">Salida</th>
+                            <th scope="col">Devolución</th>
+                            <th scope="col">Final</th>
                             <th scope="col">Estado</th>
                             <th scope="col">Fecha de entrega</th>
                             <th scope="col"></th>
@@ -116,8 +120,8 @@
                             <td>{{ remision.fecha_creacion }}</td>
                             <td>{{ cliente_nombre }}</td>
                             <td>$ {{ remision.total }}</td>
-                            <!-- <td>$ {{ remision.total_devolucion }}</td>
-                            <td>$ {{ remision.total_pagar }}</td> -->
+                            <td>$ {{ remision.total_devolucion }}</td>
+                            <td>$ {{ remision.total_pagar }}</td>
                             <td>
                                 <b-badge variant="secondary" v-if="remision.estado == 'Iniciado'">{{ remision.estado }}</b-badge>
                                 <b-badge variant="primary" v-if="remision.estado == 'Proceso'">{{ remision.estado }}</b-badge>
@@ -126,18 +130,19 @@
                             <td>{{ remision.fecha_entrega }}</td>
                             <td>
                                 <!-- <button class="btn btn-warning" @click="editarRemision(remision)"><i class="fa fa-pencil"></i></button> -->
+                                <!-- v-if="remision.estado != 'Iniciado'" -->
                                 <button 
                                     class="btn btn-primary" 
-                                    v-if="remision.estado != 'Iniciado'"
+                                    
                                     @click="detallesRemision(remision)">
                                     <i class="fa fa-eye"></i>
                                 </button>
-                                <button 
+                                <!-- <button 
                                     class="btn btn-primary" 
                                     v-if="remision.estado == 'Iniciado'"
                                     @click="editarRemision(remision)">
                                     <i class="fa fa-eye"></i>
-                                </button>
+                                </button> -->
                             </td>
                         </tr>
                     </tbody>
@@ -148,9 +153,9 @@
                             <th scope="col">Folio</th>
                             <th scope="col">Fecha de creación</th>
                             <th scope="col">Cliente</th>
-                            <th scope="col">Total</th>
-                            <!-- <th scope="col">Devolución</th>
-                            <th scope="col">Final</th> -->
+                            <th scope="col">Salida</th>
+                            <th scope="col">Devolución</th>
+                            <th scope="col">Final</th>
                             <th scope="col">Estado</th>
                             <th scope="col">Fecha de entrega</th>
                             <th scope="col"></th>
@@ -162,8 +167,8 @@
                             <td>{{ remision.fecha_creacion }}</td>
                             <td>{{ remision.cliente.name }}</td>
                             <td>$ {{ remision.total }}</td>
-                            <!-- <td>$ {{ remision.total_devolucion }}</td>
-                            <td>$ {{ remision.total_pagar }}</td> -->
+                            <td>$ {{ remision.total_devolucion }}</td>
+                            <td>$ {{ remision.total_pagar }}</td>
                             <td>
                                 <b-badge variant="secondary" v-if="remision.estado == 'Iniciado'">{{ remision.estado }}</b-badge>
                                 <b-badge variant="primary" v-if="remision.estado == 'Proceso'">{{ remision.estado }}</b-badge>
@@ -171,25 +176,25 @@
                             </td>
                             <td>{{ remision.fecha_entrega }}</td>
                             <td>
+                                <!-- v-if="remision.estado != 'Iniciado'" -->
                                 <button 
                                     class="btn btn-primary" 
-                                    v-if="remision.estado != 'Iniciado'"
                                     @click="detallesRemision(remision)">
                                     <i class="fa fa-eye"></i>
                                 </button>
-                                <button 
+                                <!-- <button 
                                     class="btn btn-primary" 
                                     v-if="remision.estado == 'Iniciado'"
                                     @click="editarRemision(remision)">
                                     <i class="fa fa-eye"></i>
-                                </button>
+                                </button> -->
                             </td>
                         </tr>
                         <tr>
                             <td></td><td></td><td></td>
                             <td><b>$ {{ total_salida }}</b></td>
-                            <!-- <td><b>$ {{ total_devolucion }}</b></td>
-                            <td><b>$ {{ total_pagar }}</b></td> -->
+                            <td><b>$ {{ total_devolucion }}</b></td>
+                            <td><b>$ {{ total_pagar }}</b></td>
                         </tr>
                     </tbody>
                 </table>
@@ -467,7 +472,7 @@
         </div>
         <div v-if="detalles">
             <div class="row">
-                <h4 class="col-md-11">Remisión N. {{ remision.id }}</h4>
+                <h4 class="col-md-11">Remisión n. {{ remision.id }}</h4>
                 <button 
                     id="btnCancelar" 
                     class="btn btn-danger"
@@ -478,14 +483,16 @@
             <hr>
             <div class="row">
                 <div class="col-md-11">
+                    <b-badge variant="primary" v-if="remision.estado == 'Iniciado'">{{ remision.estado }}</b-badge>
                     <b-badge variant="primary" v-if="remision.estado == 'Proceso'">{{ remision.estado }}</b-badge>
                     <b-badge variant="success" v-if="remision.estado == 'Terminado'">{{ remision.estado }}</b-badge>
                 </div>
+                <!-- v-if="remision.estado == 'Terminado'" -->
                 <a 
                     class="btn btn-info"
-                    v-if="remision.estado == 'Terminado'"
+                    v-if="remision.estado != 'Proceso'"
                     :href="'/imprimirSalida/' + remision.id">
-                    <i class="fa fa-print"></i>
+                    <i class="fa fa-print"></i> 
                 </a>
             </div>
             <hr>
@@ -527,83 +534,85 @@
                     </tbody>
                 </table>
             </b-collapse>
-            <!-- <hr> -->
-            <!-- <div class="row">
-                <h4 class="col-md-10">Devolución</h4>
-                <b-button 
-                    variant="link" 
-                    :class="mostrarDevolucion ? 'collapsed' : null"
-                    :aria-expanded="mostrarDevolucion ? 'true' : 'false'"
-                    aria-controls="collapse-2"
-                    @click="mostrarDevolucion = !mostrarDevolucion">
-                    <i class="fa fa-sort-asc"></i>
-                </b-button>
-            </div>
-            <b-collapse id="collapse-2" v-model="mostrarDevolucion" class="mt-2">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">ISBN</th>
-                            <th scope="col">Libro</th>
-                            <th scope="col">Costo unitario</th>
-                            <th scope="col">Unidades</th>
-                            <th scope="col">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(devolucion, i) in devoluciones" v-bind:key="i">
-                            <td>{{ devolucion.libro.ISBN }}</td>
-                            <td>{{ devolucion.libro.titulo }}</td>
-                            <td>$ {{ devolucion.dato.costo_unitario }}</td>
-                            <td>{{ devolucion.unidades }}</td>
-                            <td>$ {{ devolucion.total }}</td>
-                        </tr>
-                        <tr>
-                            <td></td><td></td>
-                            <td></td><td></td>
-                            <td><h5>$ {{ remision.total_devolucion }}</h5></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </b-collapse>
             <hr>
-            <div class="row">
-                <h4 class="col-md-10">Remisión final</h4>
-                <b-button 
-                    variant="link" 
-                    :class="mostrarFinal ? 'collapsed' : null"
-                    :aria-expanded="mostrarFinal ? 'true' : 'false'"
-                    aria-controls="collapse-3"
-                    @click="mostrarFinal = !mostrarFinal">
-                    <i class="fa fa-sort-asc"></i>
-                </b-button>
+            <div v-if="remision.estado != 'Iniciado'">
+                <div class="row">
+                    <h4 class="col-md-10">Devolución</h4>
+                    <b-button 
+                        variant="link" 
+                        :class="mostrarDevolucion ? 'collapsed' : null"
+                        :aria-expanded="mostrarDevolucion ? 'true' : 'false'"
+                        aria-controls="collapse-2"
+                        @click="mostrarDevolucion = !mostrarDevolucion">
+                        <i class="fa fa-sort-asc"></i>
+                    </b-button>
+                </div>
+                <b-collapse id="collapse-2" v-model="mostrarDevolucion" class="mt-2">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">ISBN</th>
+                                <th scope="col">Libro</th>
+                                <th scope="col">Costo unitario</th>
+                                <th scope="col">Unidades</th>
+                                <th scope="col">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(devolucion, i) in devoluciones" v-bind:key="i">
+                                <td>{{ devolucion.libro.ISBN }}</td>
+                                <td>{{ devolucion.libro.titulo }}</td>
+                                <td>$ {{ devolucion.dato.costo_unitario }}</td>
+                                <td>{{ devolucion.unidades }}</td>
+                                <td>$ {{ devolucion.total }}</td>
+                            </tr>
+                            <tr>
+                                <td></td><td></td>
+                                <td></td><td></td>
+                                <td><h5>$ {{ remision.total_devolucion }}</h5></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </b-collapse>
+                <hr>
+                <div class="row">
+                    <h4 class="col-md-10">Remisión final</h4>
+                    <b-button 
+                        variant="link" 
+                        :class="mostrarFinal ? 'collapsed' : null"
+                        :aria-expanded="mostrarFinal ? 'true' : 'false'"
+                        aria-controls="collapse-3"
+                        @click="mostrarFinal = !mostrarFinal">
+                        <i class="fa fa-sort-asc"></i>
+                    </b-button>
+                </div>
+                <b-collapse id="collapse-3" v-model="mostrarFinal" class="mt-2">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">ISBN</th>
+                                <th scope="col">Libro</th>
+                                <th scope="col">Costo unitario</th>
+                                <th scope="col">Unidades</th>
+                                <th scope="col">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(devolucion, i) in devoluciones" v-bind:key="i">
+                                <td>{{ devolucion.libro.ISBN }}</td>
+                                <td>{{ devolucion.libro.titulo }}</td>
+                                <td>$ {{ devolucion.dato.costo_unitario }}</td>
+                                <td>{{ devolucion.unidades_resta }}</td>
+                                <td>$ {{ devolucion.total_resta }}</td>
+                            </tr>
+                            <tr>
+                                <td></td><td></td><td></td><td></td>
+                                <td><h5>$ {{ remision.total_pagar }}</h5></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </b-collapse>
             </div>
-            <b-collapse id="collapse-3" v-model="mostrarFinal" class="mt-2">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">ISBN</th>
-                            <th scope="col">Libro</th>
-                            <th scope="col">Costo unitario</th>
-                            <th scope="col">Unidades</th>
-                            <th scope="col">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(devolucion, i) in devoluciones" v-bind:key="i">
-                            <td>{{ devolucion.libro.ISBN }}</td>
-                            <td>{{ devolucion.libro.titulo }}</td>
-                            <td>$ {{ devolucion.dato.costo_unitario }}</td>
-                            <td>{{ devolucion.unidades_resta }}</td>
-                            <td>$ {{ devolucion.total_resta }}</td>
-                        </tr>
-                        <tr>
-                            <td></td><td></td><td></td><td></td>
-                            <td><h5>$ {{ remision.total_pagar }}</h5></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </b-collapse> -->
         </div>
     </div>
 </template>

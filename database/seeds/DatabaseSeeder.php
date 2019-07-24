@@ -20,16 +20,16 @@ class DatabaseSeeder extends Seeder
             ],
             1 => [
                 'id'        => 2,
-                'rol'      => 'Almacen',
+                'rol'      => 'Oficina',
                 'created_at' => '2019-06-10 00:00:00',
                 'updated_at' => '2019-06-10 00:00:00',
             ],
             2 => [
                 'id'        => 3,
-                'rol'      => 'Oficina',
+                'rol'      => 'Almacen',
                 'created_at' => '2019-06-10 00:00:00',
                 'updated_at' => '2019-06-10 00:00:00',
-            ]
+            ],
         ]);
 
         \DB::table('users')->insert([
@@ -39,7 +39,7 @@ class DatabaseSeeder extends Seeder
                 'name'      => 'Genaro Pérez', 
                 'user_name' => 'genaro-perez',
                 'email'     => 'genaromajestice@gmail.com',
-                'password'  => bcrypt('genaro'),
+                'password'  => bcrypt('4Dm1N-#G'),
                 'created_at' => '2019-06-10 00:00:00',
                 'updated_at' => '2019-06-10 00:00:00'
             ],
@@ -49,7 +49,7 @@ class DatabaseSeeder extends Seeder
                 'name'      => 'Teresa Pérez', 
                 'user_name' => 'teresa-perez',
                 'email'     => 'teresamajestice@gmail.com',
-                'password'  => bcrypt('teresa'),
+                'password'  => bcrypt('t3r3s4'),
                 'created_at' => '2019-06-10 00:00:00',
                 'updated_at' => '2019-06-10 00:00:00'
             ],
@@ -59,7 +59,7 @@ class DatabaseSeeder extends Seeder
                 'name'      => 'Almacén', 
                 'user_name' => 'captura-almacen',
                 'email'     => 'almacen@gmail.com',
-                'password'  => bcrypt('1234'),
+                'password'  => bcrypt('4lM4c3N-#4'),
                 'created_at' => '2019-06-10 00:00:00',
                 'updated_at' => '2019-06-10 00:00:00'
             ],

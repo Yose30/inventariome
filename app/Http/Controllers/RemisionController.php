@@ -58,7 +58,8 @@ class RemisionController extends Controller
                 'total' => $request->total,
                 'fecha_entrega' => $request->fecha_entrega,
                 'estado' => 1,
-                'fecha_creacion' => Carbon::now()->format('Y-m-d')
+                'fecha_creacion' => Carbon::now()->format('Y-m-d'),
+                'fecha_devolucion' => Carbon::now()->format('Y-m-d')
             ]);
 
             $this->concluir_remision($remision->id);

@@ -134,7 +134,6 @@
             </table>
         </b-collapse>
         <hr>
-
         <div v-if="mostrarColumnas" class="row">
             <h4 class="col-md-10">Remisión final</h4>
             <b-button 

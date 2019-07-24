@@ -2,16 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
-use App\Dato;
+use Illuminate\Http\Request;
 use App\Devolucione;
+use Carbon\Carbon;
 use App\Remisione;
 use App\Cliente;
 use App\Libro;
+use App\Dato;
 
 class DevolucioneController extends Controller
 {
+    public function all_devoluciones(){
+        $remisiones = Remisione::where('estado', '!=', 'Iniciado')->with('cliente')->get();
+        return response()->json($remisiones);
+    }
+
+    public function datos_devolucion(){
+        $remision_id = Input::get('remision_id');
+        $datos = Dato::where('remision_id', $remision_id)->with('libro')->get();
+        $devoluciones = Devolucione::where('remision_id', $remision_id)->with('libro')->with('dato')->get();
+        return response()->json(['datos' => $datos, 'devoluciones' => $devoluciones]);
+    }
+
     public function show(){
         $remision_id = Input::get('remision_id');
         $remision = Remisione::whereId($remision_id)->first();
@@ -23,7 +36,9 @@ class DevolucioneController extends Controller
                 
                 \DB::beginTransaction();
 
-                $remision->update(['estado' => 'Proceso']);
+                $remision->update(
+                    ['estado' => 'Proceso', 'fecha_devolucion' => Carbon::now()->format('Y-m-d')]
+                );
 
                 $total_pagar = 0;
                 foreach($datos as $d){

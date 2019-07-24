@@ -31,10 +31,19 @@
         <hr>
         <b-table 
             v-if="tabla_libros" 
-            id="my-table" 
+            id="my-table"
+            :fields="fields"
             :items="libros"
             :per-page="perPage"
             :current-page="currentPage">
+            <template v-if="role_id == 3" slot="accion" slot-scope="data">
+                <b-button variant="outline-warning" v-b-modal.modal-editar @click="editarLibro(data.item, data.index)">
+                    <i class="fa fa-pencil"></i>
+                </b-button>
+                <b-button variant="outline-danger" v-b-modal.modal-eliminar @click="editarLibro(data.item, data.index)">
+                    <i class="fa fa-trash"></i>
+                </b-button>
+            </template>
         </b-table>
         <b-pagination
             v-model="currentPage"
@@ -42,19 +51,44 @@
             :per-page="perPage"
             aria-controls="my-table"
         ></b-pagination>
+
+        <b-modal id="modal-editar" title="Editar libro">
+            <editar-libro-component :formlibro="formlibro" @actualizarLista="actLista"></editar-libro-component>
+            <div slot="modal-footer"></div>
+        </b-modal>
+
+        <b-modal id="modal-eliminar" title="">
+            <label>¿Seguro que deseas eliminar el libro?</label>
+            <div slot="modal-footer" class="text-right">
+                <b-button variant="danger" @click="eliminarLibro"><i class="fa fa-trash"></i> Eliminar</b-button>
+            </div>
+        </b-modal>
     </div>
 </template>
 
 <script>
     export default {
+        props: ['role_id'],
         data() {
             return {
+                formlibro: {},
                 libros: [],
-                perPage: 10,
+                errors: {},
+                posicion: 0,
+                perPage: 15,
+                loaded: false,
+                success: false,
                 currentPage: 1,
                 queryTitulo: '',
                 queryEditorial: '',
                 tabla_libros: false,
+                fields: [
+                    {key:'id', label:'N.'}, 
+                    'ISBN', 
+                    'titulo', 
+                    'editorial', 
+                    'piezas', 
+                    {key:'accion', label:''}]
             }
         },
         created: function(){
@@ -95,8 +129,26 @@
                     this.inicializar(response);
                 });
             },
-            newLibro(libro){
-                console.log(libro);
+
+            editarLibro(libro, i){
+                this.formlibro = libro;
+                this.posicion = i;
+            },
+            actLista(libro){
+                this.libros[this.posicion] = libro;
+            },
+            eliminarLibro(){
+                axios.delete('/eliminar_libro', {params: {id: this.formlibro.id}}).then(response => {
+                    this.$bvModal.hide('modal-eliminar');
+                })
+                .catch(error => {
+                    this.loaded = false;
+                    this.$bvToast.toast('Ocurrio un error, vuelve a intentar', {
+                        title: 'Error',
+                        variant: 'danger',
+                        solid: true
+                    });
+                });
             }
         }
     }

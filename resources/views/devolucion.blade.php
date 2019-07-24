@@ -26,21 +26,41 @@
             <li class="nav-item">
                 <a 
                     class="nav-link" 
-                    id="libros-tab" 
+                    id="newlibro-tab" 
                     data-toggle="tab" 
-                    href="#v-libros" 
-                    aria-controls="v-libros">
-                    {{ __("Libros") }}
+                    href="#v-newlibro" 
+                    aria-controls="v-newlibro">
+                    {{ __("Agregar libro") }}
                 </a>
             </li>
             <li class="nav-item">
                 <a 
                     class="nav-link" 
-                    id="newlibro-tab" 
+                    id="devoluciones-tab" 
                     data-toggle="tab" 
-                    href="#v-newlibro" 
-                    aria-controls="v-newlibro">
-                    {{ __("Nuevo libro") }}
+                    href="#v-devoluciones" 
+                    aria-controls="v-devoluciones">
+                    {{ __("Devoluciones") }}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a 
+                    class="nav-link" 
+                    id="entradas-tab" 
+                    data-toggle="tab" 
+                    href="#v-entradas" 
+                    aria-controls="v-entradas">
+                    {{ __("Entradas") }}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a 
+                    class="nav-link" 
+                    id="libros-tab" 
+                    data-toggle="tab" 
+                    href="#v-libros" 
+                    aria-controls="v-libros">
+                    {{ __("Libros") }}
                 </a>
             </li>
         </ul>
@@ -49,13 +69,21 @@
                 <br>
                 <devolucion-component></devolucion-component>
             </div>
+            <div class="tab-pane fade" id="v-devoluciones">
+                <br>
+                <devoluciones-component></devoluciones-component>
+            </div>
             <div class="tab-pane fade" id="v-entrada">
                 <br>
                 <inventario-component></inventario-component>
             </div>
+            <div class="tab-pane fade" id="v-entradas">
+                <br>
+                <entradas-component></entradas-component>
+            </div>
             <div class="tab-pane fade" id="v-libros">
                 <br>
-                <libros-component></libros-component>
+                <libros-component :role_id="{{ auth()->user()->role_id }}"></libros-component>
             </div>
             <div class="tab-pane fade" id="v-newlibro">
                 <br>

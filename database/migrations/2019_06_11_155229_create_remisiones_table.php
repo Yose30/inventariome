@@ -23,6 +23,7 @@ class CreateRemisionesTable extends Migration
             $table->date('fecha_entrega');
             $table->enum('estado', ['Iniciado', 'Proceso', 'Terminado']);
             $table->date('fecha_creacion');
+            $table->date('fecha_devolucion');
             $table->timestamps();
         }); 
 

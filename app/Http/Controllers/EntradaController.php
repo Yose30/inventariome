@@ -12,6 +12,19 @@ use Illuminate\Support\Facades\DB;
 
 class EntradaController extends Controller
 {
+    //Mostrar todas las entradas
+    public function show(){
+        $entradas = Entrada::with('registros')->get();
+        return response()->json($entradas);
+    }
+
+    //Mostrar detalles de una entrada
+    public function detalles_entrada(){
+        $entrada_id = Input::get('entrada_id');
+        $registros = Registro::where('entrada_id', $entrada_id)->with('libro')->get();
+        return response()->json($registros);
+    }
+
     public function nueva(){
         $entrada = Entrada::all()->count() + 1;
 

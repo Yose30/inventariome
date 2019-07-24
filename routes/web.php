@@ -23,7 +23,7 @@ Route::get('/devolucion', function () {
     return view('/devolucion');
 })->middleware('auth', 'role:3');
 
-
+ 
 //CLIENTES
 //Agregar cliente
 Route::post('new_client', 'ClienteController@store')->name('new_client');
@@ -68,6 +68,10 @@ Route::get('/imprimirCliente/{cliente_id}/{inicio}/{final}', 'RemisionController
 Route::get('/imprimirEstado/{estado}', 'RemisionController@imprimirEstado')->name('imprimirEstado');
 
 //DEVOLUCIONES
+//Mostrar todos los registros de devoluciones
+Route::get('all_devoluciones', 'DevolucioneController@all_devoluciones')->name('all_devoluciones');
+//Mostrar los datos de una devolución
+Route::get('datos_devolucion', 'DevolucioneController@datos_devolucion')->name('datos_devolucion');
 //Mostrar todos las devoluciones con los libros
 Route::get('todos_los_libros', 'DevolucioneController@todos')->name('todos_los_libros');
 //Mostrar devoluciones
@@ -80,6 +84,10 @@ Route::put('concluir_remision', 'DevolucioneController@concluir')->name('conclui
 //LIBROS
 //Agregar libro
 Route::post('new_libro', 'LibroController@store')->name('new_libro');
+//Actualizar libro
+Route::put('actualizar_libro', 'LibroController@update')->name('actualizar_libro');
+//Eliminar libro
+Route::delete('eliminar_libro', 'LibroController@delete')->name('eliminar_libro');
 //Buscar libro
 Route::get('/mostrarLibros', 'LibroController@buscar')->name('mostrarLibros');
 //Buscar libro por editorial
@@ -90,6 +98,10 @@ Route::get('/buscarISBN', 'LibroController@show')->name('buscarISBN');
 Route::get('allLibros', 'LibroController@allLibros')->name('allLibros');
 
 //ENTRADAS
+//Mostrar todas las entradas
+Route::get('all_entradas', 'EntradaController@show')->name('all_entradas');
+//Mostrar todas las entradas
+Route::get('detalles_entrada', 'EntradaController@detalles_entrada')->name('detalles_entrada');
 //Borrar los valores si no se concluyo una remision
 Route::get('nueva_entrada', 'EntradaController@nueva')->name('nueva_entrada');
 ///Crear remision

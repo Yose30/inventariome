@@ -12,12 +12,7 @@ class LibroController extends Controller
 {
     //Nuevo libro
     public function store(Request $request){
-        $this->validate($request, [
-            'titulo' => 'min:5|max:100|required|string',
-            'ISBN' => 'min:5|max:100|required|string',
-            'editorial' => 'required|min:5|max:100|string',
-            'costo_unitario' => 'required|min:3',
-        ]);
+        $this->func_validar($request);
         try {
             \DB::beginTransaction();
                 $libro = Libro::create($request->input());
@@ -27,6 +22,16 @@ class LibroController extends Controller
             return response()->json($exception->getMessage());
         }
         return response()->json($libro);
+    }
+
+    //Función para validar los libros
+    public function func_validar($request){
+        $this->validate($request, [
+            'titulo' => 'min:5|max:100|required|string',
+            'ISBN' => 'min:5|max:100|required|string',
+            'editorial' => 'required|min:5|max:100|string',
+            // 'costo_unitario' => 'required|min:3',
+        ]);
     }
 
     //Mostrar libros
@@ -53,13 +58,50 @@ class LibroController extends Controller
 
     //Obtener todos los libros
     public function allLibros(){
-        $libros = \DB::table('libros')->select('id', 'titulo', 'editorial', 'piezas')->get();
+        // $libros = \DB::table('libros')->select('id', 'ISBN', 'titulo', 'editorial', 'piezas')->get();
+        $libros = Libro::all();
         return response()->json($libros);
     }
 
+    //Buscar libros por editorial
     public function porEditorial(){
         $queryEditorial = Input::get('queryEditorial');
-        $libros = \DB::table('libros')->select('id', 'titulo', 'editorial', 'piezas')->where('editorial','like','%'.$queryEditorial.'%')->get();
+        $libros = Libro::where('editorial','like','%'.$queryEditorial.'%')->get();
         return response()->json($libros);
+    }
+
+    //Actualizar libro
+    public function update(Request $request){
+        $this->func_validar($request);
+
+        $libro = Libro::whereId($request->id)->first();
+        try {
+            \DB::beginTransaction();
+                $libro->ISBN = $request->ISBN;
+                $libro->titulo = $request->titulo;
+                $libro->autor = $request->autor;
+                $libro->editorial = $request->editorial;
+                $libro->save();
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
+        return response()->json($libro);
+    }
+
+    //Eliminar libro
+    public function delete(){
+        $id = Input::get('id');
+        
+        try {
+            \DB::beginTransaction();
+            $libro = Libro::whereId($id)->delete();
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
+        return response()->json(null, 200);
     }
 }

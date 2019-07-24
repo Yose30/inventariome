@@ -18,7 +18,8 @@ class Remisione extends Model
         'total_pagar', 
         'fecha_entrega', 
         'estado', 
-        'fecha_creacion'
+        'fecha_creacion',
+        'fecha_devolucion'
     ];
 
     //Uno a muchos (Inversa)

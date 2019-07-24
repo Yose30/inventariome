@@ -144,9 +144,9 @@
                         <tr>
                             <th>Folio</th>
                             <th>Cliente</th> 
-                            <th>Total Salida</th>
-                            <th>Total Devolución</th>
-                            <th>Total a pagar</th>
+                            <th>Salida</th>
+                            <th>Devolución</th>
+                            <th>Final</th>
                             <th>Estado</th>
                             <th>Fecha de entrega</th>
                         </tr>
