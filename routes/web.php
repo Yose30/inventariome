@@ -17,12 +17,15 @@ Route::get('/home', 'HomeController@index')->name('home')->middleware('auth', 'r
 
 Route::get('/inicio', function () {
     return view('/inicio');
-})->middleware('auth', 'role:2');
+})->name('inicio')->middleware('auth', 'role:2');
 
 Route::get('/devolucion', function () {
     return view('/devolucion');
-})->middleware('auth', 'role:3');
+})->name('devolucion')->middleware('auth', 'role:3');
 
+Route::get('/reset_password', function () {
+    return view('/reset_password');
+})->name('reset_password');
  
 //CLIENTES
 //Agregar cliente

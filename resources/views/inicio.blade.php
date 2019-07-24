@@ -33,6 +33,16 @@
                     {{ __("Clientes") }}
                 </a>
             </li>
+            <li class="nav-item">
+                <a 
+                    class="nav-link" 
+                    id="libros-tab" 
+                    data-toggle="tab" 
+                    href="#v-libros" 
+                    aria-controls="v-libros">
+                    {{ __("Libros") }}
+                </a>
+            </li>
         </ul>
         <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade show active" id="v-movimientos">
@@ -42,6 +52,10 @@
             <div class="tab-pane fade" id="v-remisiones">
                 <br>
                 <lista-remisiones-component></lista-remisiones-component>
+            </div>
+            <div class="tab-pane fade" id="v-libros">
+                <br>
+                <libros-component :role_id="{{ auth()->user()->role_id }}"></libros-component>
             </div>
             <div class="tab-pane fade" id="v-clientes">
                 <br>

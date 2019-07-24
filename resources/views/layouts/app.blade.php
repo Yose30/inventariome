@@ -20,7 +20,15 @@
         @auth
             <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
                 <div class="container">
-                    <a class="navbar-brand" href="#">Inventario ME</a>
+                    @if(Auth::user()->role_id == 1)
+                        <a class="navbar-brand" href="{{ route('home') }}">Inventario ME</a>
+                    @endif
+                    @if(Auth::user()->role_id == 2)
+                        <a class="navbar-brand" href="{{ route('inicio') }}">Inventario ME</a>
+                    @endif
+                    @if(Auth::user()->role_id == 3)
+                        <a class="navbar-brand" href="{{ route('devolucion') }}">Inventario ME</a>
+                    @endif
                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                         <span class="navbar-toggler-icon"></span>
                     </button>
@@ -43,6 +51,9 @@
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                         @csrf
                                     </form>
+                                    <!-- <a class="dropdown-item" href="{{ route('reset_password') }}">
+                                        {{ __('Cambiar contraseña') }}
+                                    </a> -->
                                 </div>
                             </li>
                         </ul>

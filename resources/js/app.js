@@ -7,6 +7,7 @@
 require('./bootstrap');
 
 window.Vue = require('vue');
+// Vue.use(require('vue-moment'));
 window.moment = require('moment');
 Vue.use(require('vue-resource'));
 
@@ -48,6 +49,7 @@ Vue.component('new-libro-component', require('./components/NewLibroComponent.vue
 Vue.component('devoluciones-component', require('./components/DevolucionesComponent.vue').default);
 Vue.component('entradas-component', require('./components/EntradasComponent.vue').default);
 Vue.component('clientes-component', require('./components/ClientesComponent.vue').default);
+Vue.component('reset-pass-component', require('./components/ResetPassComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

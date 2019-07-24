@@ -1,12 +1,5 @@
 @extends('layouts.app')
 
-<style>
-    #scroll-c{
-        overflow:auto; 
-        height:550px;
-    }
-</style>
-
 @section('content')
 <div class="container">
     <div class="container">
@@ -21,7 +14,7 @@
                     {{ __("Remisiones") }}
                 </a>
             </li>
-            <!-- <li class="nav-item">
+            <li class="nav-item">
                 <a 
                     class="nav-link" 
                     id="devoluciones-tab" 
@@ -30,7 +23,17 @@
                     aria-controls="v-devoluciones">
                     {{ __("Devoluciones") }}
                 </a>
-            </li> -->
+            </li>
+            <li class="nav-item">
+                <a 
+                    class="nav-link" 
+                    id="entradas-tab" 
+                    data-toggle="tab" 
+                    href="#v-entradas" 
+                    aria-controls="v-entradas">
+                    {{ __("Entradas") }}
+                </a>
+            </li>
             <li class="nav-item">
                 <a 
                     class="nav-link" 
@@ -57,9 +60,13 @@
                 <br>
                 <listado-component></listado-component>
             </div>
+            <div class="tab-pane fade" id="v-entradas">
+                <br>
+                <entradas-component></entradas-component>
+            </div>
             <div class="tab-pane fade" id="v-devoluciones">
                 <br>
-                
+                <devoluciones-component></devoluciones-component>
             </div>
             <div class="tab-pane fade" id="v-libros">
                 <br>
