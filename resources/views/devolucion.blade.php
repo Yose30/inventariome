@@ -6,6 +6,26 @@
             <li class="nav-item">
                 <a 
                     class="nav-link active" 
+                    id="entrega-tab" 
+                    data-toggle="tab" 
+                    href="#v-entrega" 
+                    aria-controls="v-entrega">
+                    {{ __("Entrega de libros") }}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a 
+                    class="nav-link" 
+                    id="devoluciones-tab" 
+                    data-toggle="tab" 
+                    href="#v-devoluciones" 
+                    aria-controls="v-devoluciones">
+                    {{ __("Registrar pagos") }}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a 
+                    class="nav-link" 
                     id="devolucion-tab" 
                     data-toggle="tab" 
                     href="#v-devolucion" 
@@ -36,16 +56,6 @@
             <li class="nav-item">
                 <a 
                     class="nav-link" 
-                    id="devoluciones-tab" 
-                    data-toggle="tab" 
-                    href="#v-devoluciones" 
-                    aria-controls="v-devoluciones">
-                    {{ __("Devoluciones") }}
-                </a>
-            </li>
-            <li class="nav-item">
-                <a 
-                    class="nav-link" 
                     id="entradas-tab" 
                     data-toggle="tab" 
                     href="#v-entradas" 
@@ -65,7 +75,11 @@
             </li>
         </ul>
         <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade show active" id="v-devolucion">
+            <div class="tab-pane fade show active" id="v-entrega">
+                <br>
+                <remisiones-component></remisiones-component>
+            </div>
+            <div class="tab-pane fade" id="v-devolucion">
                 <br>
                 <devolucion-component></devolucion-component>
             </div>

@@ -37,6 +37,16 @@
             </div>
         </div>
         <hr>
+        <div v-if="mostrarCampo">
+            <b-row class="col-md-5">
+                <b-col sm="6">
+                    <label>Folio</label>
+                </b-col>
+                <b-col sm="6">
+                    <b-form-input :disabled="mostrarTabla" v-model="numnota" @keyup.enter="guardarNum"></b-form-input>
+                </b-col>
+            </b-row>
+        </div>
         <div v-if="mostrarTabla">
             <div align="right">
                 <!-- <label><b>Total:</b> ${{ total_entrada }}</label> -->
@@ -156,18 +166,21 @@
                     id: 0,
                     unidades: 0,
                     total: 0,
+                    folio: ''
                 }, //Para guardar todos los datos de la remision
                 costo_unitario: 0,
                 inputCosto: false,
                 respuestaCosto: '',
-                respuestaUnidades: ''
+                respuestaUnidades: '',
+                mostrarCampo: false,
+                numnota: ''
             }
         },
         methods: {
             //Nueva entrada
             nuevaEntrada(){
                 axios.get('/nueva_entrada').then(response => {
-                    this.bdentrada = {id: 0, unidades: 0, total: 0,};
+                    this.bdentrada = {id: 0, unidades: 0, total: 0, folio: ''};
                     this.items = [];
                     this.temporal = {};
                     this.total_entrada = 0;
@@ -181,8 +194,30 @@
                     this.mostrarGuardar = false;
                     this.mostrarEditar = false;
                     this.btnNuevo = false;
-                    this.mostrarTabla = true;
+                    // this.mostrarTabla = true;
+                    this.numnota = '';
+                    this.mostrarTabla = false;
+                    this.mostrarCampo = true;
                 });
+            },
+            //Guardar numero de nota
+            guardarNum(){
+                if(this.numnota.length > 0){
+                    axios.get('/buscarFolio', {params: {folio: this.numnota}}).then(response => {
+                        console.log(response.data.id);
+                        if(response.data.id != undefined){
+                            this.makeToast('danger', 'El folio ya existe');
+                        }
+                        else{
+                            this.mostrarTabla = true;
+                        }
+                    }).catch(error => {
+                        this.makeToast('danger', 'Ocurrio un error, vuelve a intentar');
+                    });
+                }
+                else{
+                    this.makeToast('danger', 'Definir folio');
+                }
             },
             //SE REPITEN
            //Buscar libro por ISBN
@@ -290,6 +325,7 @@
             onSubmit(){
                 this.bdentrada.total = this.total_entrada;
                 this.bdentrada.unidades = this.total_unidades;
+                this.bdentrada.folio = this.numnota;
                 axios.post('/crear_entrada', this.bdentrada).then(response => {
                     this.bdentrada.id = response.data.id;
                     this.mostrarGuardar = false;

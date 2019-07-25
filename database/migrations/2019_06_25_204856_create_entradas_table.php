@@ -15,6 +15,7 @@ class CreateEntradasTable extends Migration
     {
         Schema::create('entradas', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->string('folio', 50)->unique();
             $table->integer('unidades')->default(0);
             $table->double('total', 12, 2)->default(0);
             $table->timestamps();

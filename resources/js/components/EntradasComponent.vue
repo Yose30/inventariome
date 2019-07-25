@@ -1,31 +1,115 @@
 <template>
     <div>
-        <b-row>
-            <b-col sm="5">
-                <b-table :items="entradas" :fields="fields">
-                    <template slot="detalles" slot-scope="row">
-                        <b-button variant="outline-info" @click="detallesEntrada(row.item)"><i class="fa fa-eye"></i></b-button>
-                    </template>
-                    <template slot="descargar" slot-scope="row">
-                        <b-button 
-                            variant="info"
-                            :href="'/imprimirEntrada/' + row.item.id">
-                            <i class="fa fa-download"></i>
-                        </b-button>
-                    </template>
-                    <template slot="created_at" slot-scope="row">
-                        {{ row.item.created_at | moment }}
-                    </template>
-                </b-table>
-            </b-col>
-            <b-col sm="1"></b-col>
-            <b-col sm="6">
-                <b-table v-if="registros.length > 0" :items="registros" :fields="fieldsR">
-                    <!-- <template slot="index" slot-scope="row">{{ row.index + 1 }}</template> -->
-                    <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                </b-table>
-            </b-col>
-        </b-row>
+        <b-alert v-if="entradas.length == 0" show variant="secondary">
+            <i class="fa fa-exclamation-triangle"></i> No hay entradas
+        </b-alert>
+        <b-table v-if="!mostrarDetalles && !mostrarEditar && entradas.length > 0" :items="entradas" :fields="fields">
+            <template slot="detalles" slot-scope="row">
+                <b-button variant="outline-info" @click="detallesEntrada(row.item)"><i class="fa fa-eye"></i></b-button>
+            </template>
+            <template slot="descargar" slot-scope="row">
+                <b-button 
+                    variant="info"
+                    :href="'/imprimirEntrada/' + row.item.id">
+                    <i class="fa fa-download"></i>
+                </b-button>
+            </template>
+            <template slot="created_at" slot-scope="row">
+                {{ row.item.created_at | moment }}
+            </template>
+            <template slot="editar" slot-scope="row">
+                <b-button 
+                    @click="editarEntrada(row.item)"
+                    variant="outline-warning" 
+                    v-if="fechaFinal.diff(row.item.created_at, 'days') < 5">
+                    <i class="fa fa-pencil"></i>
+                </b-button>
+            </template>
+        </b-table>
+        <div v-if="mostrarDetalles">
+            <div class="text-right">
+                <b-button variant="secondary" @click="mostrarDetalles = false"><i class="fa fa-mail-reply"></i> Entradas</b-button>
+            </div>
+            <hr>
+            <b-table v-if="registros.length > 0" :items="registros" :fields="fieldsR">
+                <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
+                <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
+            </b-table>
+        </div>
+        <div v-if="mostrarEditar">
+            <div class="text-right">
+                <b-button variant="secondary" @click="mostrarEditar = false"><i class="fa fa-mail-reply"></i> Entradas</b-button>
+            </div>
+            <hr>
+            <b-row>
+                <b-col><h6>Folio: <b>{{ entrada.folio }}</b></h6></b-col>
+                <b-col><label><b>Unidades:</b> {{ total_unidades }}</label></b-col>
+                <b-col class="text-right">
+                    <b-button 
+                        @click="actRemision" 
+                        variant="success"
+                        v-if="registros.length > 0">
+                        <i class="fa fa-check"></i> Guardar
+                    </b-button>
+                </b-col>
+            </b-row>
+            <hr>
+            <b-table :items="registros" :fields="fieldsRE">
+                <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
+                <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
+                <template slot="eliminar" slot-scope="row">
+                    <b-button variant="danger" @click="eliminarRegistro(row.item, row.index)">
+                        <i class="fa fa-minus-circle"></i>
+                    </b-button>
+                </template>
+            </b-table>
+            <b-row>
+                <b-col sm="1"></b-col>
+                <b-col sm="3">
+                    <b-input
+                        v-model="isbn"
+                        @keyup.enter="buscarLibroISBN()"
+                        v-if="inputISBN"
+                    ></b-input>
+                    <b v-if="!inputISBN">{{ temporal.ISBN }}</b>
+                </b-col>
+                <b-col sm="5">
+                    <b-input
+                        v-model="queryTitulo"
+                        @keyup="mostrarLibros"
+                        v-if="inputLibro">
+                    </b-input>
+                    <div class="list-group" v-if="resultslibros.length">
+                        <a 
+                            href="#" 
+                            v-bind:key="i" 
+                            class="list-group-item list-group-item-action" 
+                            v-for="(libro, i) in resultslibros" 
+                            @click="datosLibro(libro)">
+                            {{ libro.titulo }}
+                        </a>
+                    </div>
+                    <b v-if="!inputLibro">{{ temporal.titulo }}</b>
+                </b-col>
+                <b-col sm="2">
+                    <b-form-input 
+                        @keyup.enter="guardarRegistro()"
+                        v-if="inputUnidades"
+                        v-model="unidades" 
+                        type="number"
+                        required>
+                    </b-form-input>
+                </b-col>
+                <b-col sm="1">
+                    <b-button 
+                        variant="secondary"
+                        @click="eliminarTemporal" 
+                        v-if="inputUnidades">
+                        <i class="fa fa-minus-circle"></i>
+                    </b-button>
+                </b-col>
+            </b-row>
+        </div>
     </div>
 </template>
 
@@ -36,29 +120,162 @@
             return {
                 entradas: [],
                 registros: [],
-                fields: [{key: 'id', label: 'N.'}, {key: 'created_at', label: 'Fecha de creación'}, 'unidades', 'detalles', 'descargar'],
-                fieldsR: [{key: 'id', label: 'N.'}, 'libro', 'unidades'],
+                fields: [
+                    {key: 'id', label: 'N.'}, 
+                    'folio',
+                    {key: 'created_at', label: 'Fecha de creación'},  
+                    'detalles', 
+                    'descargar',
+                    {key: 'editar', label: ''}
+                ],
+                fieldsR: [{key: 'id', label: 'N.'}, {key: 'isbn', label: 'ISBN'}, {key: 'titulo', label: 'Libro'}, 'unidades'],
+                fieldsRE: [{key: 'id', label: 'N.'}, {key: 'ISBN', label: 'ISBN'}, {key: 'titulo', label: 'Libro'}, 'unidades', 'eliminar'],
+                mostrarDetalles: false,
+                fechaFinal: '',
+                entrada: {},
+                mostrarEditar: false,
+                
+                isbn: '',
+                inputISBN: true,
+                temporal: {},
+                queryTitulo: '',
+                inputLibro: true,
+                resultslibros: [],
+                inputUnidades: false,
+                unidades: 0,
+                total_unidades: 0,
             }
         },
         created: function(){
-			this.getTodo();
+            this.getTodo();
         },
         filters: {
             moment: function (date) {
-                return moment(date).format('MM-DD-YYYY');
+                return moment(date).format('DD-MM-YYYY');
             }
         },
         methods: {
-            
             getTodo(){
+                var ffinal = moment();
+                this.fechaFinal = ffinal;
                 axios.get('/all_entradas').then(response => {
                     this.entradas = response.data;
                 });
             },
             detallesEntrada(entrada){
                 axios.get('/detalles_entrada', {params: {entrada_id: entrada.id}}).then(response => {
-                    this.registros = response.data;
+                    this.mostrarDetalles = true;
+                    this.registros = response.data.registros;
                 });
+            },
+            editarEntrada(entrada){
+                axios.get('/detalles_entrada', {params: {entrada_id: entrada.id}}).then(response => {
+                    this.mostrarEditar = true;
+                    this.entrada = response.data.entrada;
+                    this.total_unidades = this.entrada.unidades;
+                    this.registros = response.data.registros;
+                });
+            },
+            //Eliminar registro de la entrada
+            eliminarRegistro(item, i){
+                axios.delete('/eliminar_registro_entrada', {params: {id: item.id}}).then(response => {
+                    this.registros.splice(i, 1);
+                    this.total_unidades = this.total_unidades - item.unidades;
+                    this.entrada.unidades = this.total_unidades;
+                });
+            },
+            //Buscar libro por ISBN
+            buscarLibroISBN(){
+                axios.get('/buscarISBN', {params: {isbn: this.isbn}}).then(response => {
+                    this.temporal = response.data;
+                    this.inputISBN = false;
+                }).catch(error => {
+                    this.makeToast('danger', 'ISBN incorrecto');
+                });
+            }, 
+            mostrarLibros(){
+                if(this.queryTitulo.length > 0){
+                   axios.get('/mostrarLibros', {params: {queryTitulo: this.queryTitulo}}).then(response => {
+                        this.resultslibros = response.data;
+                    });
+               } 
+            },
+            //Mostrar datos del libro seleccionado 
+            datosLibro(libro){
+                // this.inicializar();
+                this.inputLibro = false;
+                this.inputISBN = false;
+                this.inputUnidades = true;
+                this.resultslibros = [];
+                
+                this.temporal = {
+                    id: libro.id,
+                    ISBN: libro.ISBN,
+                    titulo: libro.titulo,
+                    costo_unitario: 0,
+                    unidades: 0,
+                    total: 0
+                };
+            },
+
+            //Guardar un registro de la entrada
+            guardarRegistro(){
+                if(this.unidades > 0){
+                    this.temporal.entrada_id = this.entrada.id;
+                    this.temporal.unidades = this.unidades;
+                    
+
+                    axios.post('/registro_entrada', this.temporal).then(response => {
+                        this.temporal = {
+                            id: response.data.registro.id,
+                            libro: {
+                                ISBN: response.data.libro.ISBN,
+                                titulo: response.data.libro.titulo,
+                            },
+                            unidades: response.data.registro.unidades,
+                        };
+                        this.registros.push(this.temporal);
+                        this.total_unidades += parseInt(response.data.registro.unidades);
+                        this.unidades = 0;
+                        this.temporal = {};
+                        this.isbn = '';
+                        this.queryTitulo = '',
+                        this.inputISBN = true;
+                        this.inputLibro = true;
+                        this.inputUnidades = false;
+                        // this.botonEliminar = true;
+                    })
+                    .catch(error => {
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentarlo');
+                    });
+                }
+                else{
+                    this.makeToast('danger', 'Unidades no validas');
+                }
+            },
+            actRemision(){
+                // this.bdentrada.total = this.total_entrada;
+                this.entrada.unidades = this.total_unidades;
+                axios.put('/actualizar_entrada', this.entrada).then(response => {
+                    this.makeToast('success', 'La entrada se ha actualizado');
+                    this.mostrarEditar = false;
+                });
+            },
+            eliminarTemporal(){
+                this.temporal = {};
+                this.inputISBN = true;
+                this.inputLibro = true;
+                this.inputUnidades = false;
+                this.queryTitulo = '';
+                this.unidades = 0;
+            },
+
+            makeToast(variant = null, descripcion) {
+                this.$bvToast.toast(descripcion, {
+                    title: 'Error',
+                    variant: variant,
+                    solid: true
+                })
             }
         }
     }

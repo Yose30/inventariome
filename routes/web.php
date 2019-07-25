@@ -103,6 +103,8 @@ Route::get('allLibros', 'LibroController@allLibros')->name('allLibros');
 //ENTRADAS
 //Mostrar todas las entradas
 Route::get('all_entradas', 'EntradaController@show')->name('all_entradas');
+//Buscar folio
+Route::get('/buscarFolio', 'EntradaController@buscarFolio')->name('buscarFolio');
 //Mostrar todas las entradas
 Route::get('detalles_entrada', 'EntradaController@detalles_entrada')->name('detalles_entrada');
 //Borrar los valores si no se concluyo una remision
@@ -117,3 +119,6 @@ Route::delete('eliminar_registro_entrada', 'EntradaController@eliminar')->name('
 Route::put('actualizar_entrada', 'EntradaController@actualizar')->name('actualizar_entrada');
 //Imprimir entrada
 Route::get('/imprimirEntrada/{id}', 'EntradaController@imprimirEntrada')->name('imprimirEntrada');
+
+//PAGOS
+Route::post('registrar_pago', 'PagoController@store')->name('registrar_pago');

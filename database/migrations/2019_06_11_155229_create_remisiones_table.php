@@ -20,6 +20,7 @@ class CreateRemisionesTable extends Migration
             $table->double('total', 8, 2)->default(0);
             $table->double('total_devolucion', 8, 2)->default(0);
             $table->double('total_pagar', 8, 2)->default(0);
+            $table->double('pagos', 8, 2)->default(0);
             $table->date('fecha_entrega');
             $table->enum('estado', ['Iniciado', 'Proceso', 'Terminado']);
             $table->date('fecha_creacion');
