@@ -19,7 +19,7 @@
             </div>
             <div class="col-md-2">
                 <b-badge variant="secondary" v-if="remision.estado == 'Iniciado'">{{ remision.estado }}</b-badge>
-                <b-badge variant="primary" v-if="remision.estado == 'Proceso'">{{ remision.estado }}</b-badge>
+                <b-badge variant="primary" v-if="remision.estado == 'Proceso'">Entregado</b-badge>
                 <b-badge variant="success" v-if="remision.estado == 'Terminado'">{{ remision.estado }}</b-badge>
             </div>
             <div class="col-md-1"></div>
@@ -39,9 +39,10 @@
             </div>
         </div>
         <hr>
+        <!-- v-if="mostrarDatos"  -->
         <b-button 
             variant="primary" 
-            v-if="mostrarDatos" 
+            v-if="mostrarDatos && remision.estado != 'Iniciado'" 
             :disabled="disabled" 
             v-on:click="registrarDevolucion">{{ txtBoton }}
         </b-button>
@@ -229,7 +230,7 @@
                             this.txtBoton = 'Registrar devolución';
                         }
                         if(this.remision.estado == 'Proceso'){
-                            this.txtBoton = 'Continuar registro';
+                            this.txtBoton = 'Registrar devolución';
                         }
                         if(this.remision.estado == 'Terminado'){
                             this.txtBoton = 'Devolución registrada';

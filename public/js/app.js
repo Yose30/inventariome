@@ -1935,6 +1935,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     var _ref;
@@ -2004,7 +2005,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           }
 
           if (_this.remision.estado == 'Proceso') {
-            _this.txtBoton = 'Continuar registro';
+            _this.txtBoton = 'Registrar devolución';
           }
 
           if (_this.remision.estado == 'Terminado') {
@@ -2213,6 +2214,35 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2220,7 +2250,7 @@ __webpack_require__.r(__webpack_exports__);
       fields: [{
         key: 'index',
         label: 'N.'
-      }, 'fecha_devolucion', 'cliente', {
+      }, 'estado', 'fecha_devolucion', 'cliente', {
         key: 'total',
         label: 'Salida'
       }, {
@@ -2229,7 +2259,10 @@ __webpack_require__.r(__webpack_exports__);
       }, {
         key: 'total_pagar',
         label: 'Final'
-      }, 'estado', 'detalles'],
+      }, 'pagos', {
+        key: 'pagar',
+        label: 'Registrar pago'
+      }, 'detalles'],
       fieldsSD: [{
         key: 'isbn',
         label: 'ISBN'
@@ -2248,7 +2281,10 @@ __webpack_require__.r(__webpack_exports__);
       },
       mostrarSalida: true,
       mostrarDevolucion: true,
-      mostrarFinal: true
+      mostrarFinal: true,
+      informacion: {},
+      pago: 0,
+      posicion: 0
     };
   },
   created: function created() {
@@ -2261,6 +2297,12 @@ __webpack_require__.r(__webpack_exports__);
       axios.get('/all_devoluciones').then(function (response) {
         _this.devoluciones = response.data;
       });
+    },
+    verPago: function verPago(remision, i) {
+      this.informacion.id = remision.id;
+      this.informacion.total_pagar = remision.total_pagar;
+      this.informacion.pagos = remision.pagos;
+      this.posicion = i;
     },
     detallesRemision: function detallesRemision(remision) {
       var _this2 = this;
@@ -2285,6 +2327,31 @@ __webpack_require__.r(__webpack_exports__);
       }).then(function (response) {
         _this2.remision.datos = response.data.datos;
         _this2.remision.devoluciones = response.data.devoluciones;
+      });
+    },
+    onPay: function onPay() {
+      var _this3 = this;
+
+      if (this.pago > this.informacion.total_pagar - this.informacion.pagos) {
+        this.makeToast('warning', 'El pago es mayor a lo restante');
+      } else {
+        this.informacion.pago = this.pago;
+        axios.post('/registrar_pago', this.informacion).then(function (response) {
+          _this3.devoluciones[_this3.posicion].pagos = response.data.pagos;
+
+          _this3.$bvModal.hide('modal-pago');
+        })["catch"](function (error) {
+          _this3.makeToast('danger', 'Ocurrio un error, vuelve a intentarlo');
+        });
+      }
+    },
+    makeToast: function makeToast() {
+      var variant = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var descripcion = arguments.length > 1 ? arguments[1] : undefined;
+      this.$bvToast.toast(descripcion, {
+        title: 'Mensaje',
+        variant: variant,
+        solid: true
       });
     }
   }
@@ -3234,6 +3301,90 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 // moment.locale('es');
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -3243,14 +3394,46 @@ __webpack_require__.r(__webpack_exports__);
       fields: [{
         key: 'id',
         label: 'N.'
-      }, {
+      }, 'folio', {
         key: 'created_at',
         label: 'Fecha de creación'
-      }, 'unidades', 'detalles', 'descargar'],
+      }, 'detalles', 'descargar', {
+        key: 'editar',
+        label: ''
+      }],
       fieldsR: [{
         key: 'id',
         label: 'N.'
-      }, 'libro', 'unidades']
+      }, {
+        key: 'isbn',
+        label: 'ISBN'
+      }, {
+        key: 'titulo',
+        label: 'Libro'
+      }, 'unidades'],
+      fieldsRE: [{
+        key: 'id',
+        label: 'N.'
+      }, {
+        key: 'ISBN',
+        label: 'ISBN'
+      }, {
+        key: 'titulo',
+        label: 'Libro'
+      }, 'unidades', 'eliminar'],
+      mostrarDetalles: false,
+      fechaFinal: '',
+      entrada: {},
+      mostrarEditar: false,
+      isbn: '',
+      inputISBN: true,
+      temporal: {},
+      queryTitulo: '',
+      inputLibro: true,
+      resultslibros: [],
+      inputUnidades: false,
+      unidades: 0,
+      total_unidades: 0
     };
   },
   created: function created() {
@@ -3268,13 +3451,15 @@ __webpack_require__.r(__webpack_exports__);
 
       return moment;
     }(function (date) {
-      return moment(date).format('MM-DD-YYYY');
+      return moment(date).format('DD-MM-YYYY');
     })
   },
   methods: {
     getTodo: function getTodo() {
       var _this = this;
 
+      var ffinal = moment();
+      this.fechaFinal = ffinal;
       axios.get('/all_entradas').then(function (response) {
         _this.entradas = response.data;
       });
@@ -3287,7 +3472,142 @@ __webpack_require__.r(__webpack_exports__);
           entrada_id: entrada.id
         }
       }).then(function (response) {
-        _this2.registros = response.data;
+        _this2.mostrarDetalles = true;
+        _this2.registros = response.data.registros;
+      });
+    },
+    editarEntrada: function editarEntrada(entrada) {
+      var _this3 = this;
+
+      axios.get('/detalles_entrada', {
+        params: {
+          entrada_id: entrada.id
+        }
+      }).then(function (response) {
+        _this3.mostrarEditar = true;
+        _this3.entrada = response.data.entrada;
+        _this3.total_unidades = _this3.entrada.unidades;
+        _this3.registros = response.data.registros;
+      });
+    },
+    //Eliminar registro de la entrada
+    eliminarRegistro: function eliminarRegistro(item, i) {
+      var _this4 = this;
+
+      axios["delete"]('/eliminar_registro_entrada', {
+        params: {
+          id: item.id
+        }
+      }).then(function (response) {
+        _this4.registros.splice(i, 1);
+
+        _this4.total_unidades = _this4.total_unidades - item.unidades;
+        _this4.entrada.unidades = _this4.total_unidades;
+      });
+    },
+    //Buscar libro por ISBN
+    buscarLibroISBN: function buscarLibroISBN() {
+      var _this5 = this;
+
+      axios.get('/buscarISBN', {
+        params: {
+          isbn: this.isbn
+        }
+      }).then(function (response) {
+        _this5.temporal = response.data;
+        _this5.inputISBN = false;
+      })["catch"](function (error) {
+        _this5.makeToast('danger', 'ISBN incorrecto');
+      });
+    },
+    mostrarLibros: function mostrarLibros() {
+      var _this6 = this;
+
+      if (this.queryTitulo.length > 0) {
+        axios.get('/mostrarLibros', {
+          params: {
+            queryTitulo: this.queryTitulo
+          }
+        }).then(function (response) {
+          _this6.resultslibros = response.data;
+        });
+      }
+    },
+    //Mostrar datos del libro seleccionado 
+    datosLibro: function datosLibro(libro) {
+      // this.inicializar();
+      this.inputLibro = false;
+      this.inputISBN = false;
+      this.inputUnidades = true;
+      this.resultslibros = [];
+      this.temporal = {
+        id: libro.id,
+        ISBN: libro.ISBN,
+        titulo: libro.titulo,
+        costo_unitario: 0,
+        unidades: 0,
+        total: 0
+      };
+    },
+    //Guardar un registro de la entrada
+    guardarRegistro: function guardarRegistro() {
+      var _this7 = this;
+
+      if (this.unidades > 0) {
+        this.temporal.entrada_id = this.entrada.id;
+        this.temporal.unidades = this.unidades;
+        axios.post('/registro_entrada', this.temporal).then(function (response) {
+          _this7.temporal = {
+            id: response.data.registro.id,
+            libro: {
+              ISBN: response.data.libro.ISBN,
+              titulo: response.data.libro.titulo
+            },
+            unidades: response.data.registro.unidades
+          };
+
+          _this7.registros.push(_this7.temporal);
+
+          _this7.total_unidades += parseInt(response.data.registro.unidades);
+          _this7.unidades = 0;
+          _this7.temporal = {};
+          _this7.isbn = '';
+          _this7.queryTitulo = '', _this7.inputISBN = true;
+          _this7.inputLibro = true;
+          _this7.inputUnidades = false; // this.botonEliminar = true;
+        })["catch"](function (error) {
+          _this7.makeToast('danger', 'Ocurrio un problema, vuelve a intentarlo');
+        });
+      } else {
+        this.makeToast('danger', 'Unidades no validas');
+      }
+    },
+    actRemision: function actRemision() {
+      var _this8 = this;
+
+      // this.bdentrada.total = this.total_entrada;
+      this.entrada.unidades = this.total_unidades;
+      axios.put('/actualizar_entrada', this.entrada).then(function (response) {
+        _this8.makeToast('success', 'La entrada se ha actualizado');
+
+        _this8.mostrarEditar = false;
+      });
+    },
+    eliminarTemporal: function eliminarTemporal() {
+      this.temporal = {};
+      this.inputISBN = true;
+      this.inputLibro = true;
+      this.inputUnidades = false;
+      this.queryTitulo = '';
+      this.unidades = 0;
+    },
+    makeToast: function makeToast() {
+      var variant = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var descripcion = arguments.length > 1 ? arguments[1] : undefined;
+      this.$bvToast.toast(descripcion, {
+        title: 'Error',
+        variant: variant,
+        solid: true
       });
     }
   }
@@ -3304,6 +3624,16 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -3476,13 +3806,16 @@ __webpack_require__.r(__webpack_exports__);
       bdentrada: {
         id: 0,
         unidades: 0,
-        total: 0
+        total: 0,
+        folio: ''
       },
       //Para guardar todos los datos de la remision
       costo_unitario: 0,
       inputCosto: false,
       respuestaCosto: '',
-      respuestaUnidades: ''
+      respuestaUnidades: '',
+      mostrarCampo: false,
+      numnota: ''
     };
   },
   methods: {
@@ -3494,7 +3827,8 @@ __webpack_require__.r(__webpack_exports__);
         _this.bdentrada = {
           id: 0,
           unidades: 0,
-          total: 0
+          total: 0,
+          folio: ''
         };
         _this.items = [];
         _this.temporal = {};
@@ -3508,30 +3842,57 @@ __webpack_require__.r(__webpack_exports__);
         _this.mostrarActualizar = false;
         _this.mostrarGuardar = false;
         _this.mostrarEditar = false;
-        _this.btnNuevo = false;
-        _this.mostrarTabla = true;
+        _this.btnNuevo = false; // this.mostrarTabla = true;
+
+        _this.numnota = '';
+        _this.mostrarTabla = false;
+        _this.mostrarCampo = true;
       });
+    },
+    //Guardar numero de nota
+    guardarNum: function guardarNum() {
+      var _this2 = this;
+
+      if (this.numnota.length > 0) {
+        axios.get('/buscarFolio', {
+          params: {
+            folio: this.numnota
+          }
+        }).then(function (response) {
+          console.log(response.data.id);
+
+          if (response.data.id != undefined) {
+            _this2.makeToast('danger', 'El folio ya existe');
+          } else {
+            _this2.mostrarTabla = true;
+          }
+        })["catch"](function (error) {
+          _this2.makeToast('danger', 'Ocurrio un error, vuelve a intentar');
+        });
+      } else {
+        this.makeToast('danger', 'Definir folio');
+      }
     },
     //SE REPITEN
     //Buscar libro por ISBN
     buscarLibroISBN: function buscarLibroISBN() {
-      var _this2 = this;
+      var _this3 = this;
 
       axios.get('/buscarISBN', {
         params: {
           isbn: this.isbn
         }
       }).then(function (response) {
-        _this2.inicializar();
+        _this3.inicializar();
 
-        _this2.temporal = response.data;
+        _this3.temporal = response.data;
       })["catch"](function (error) {
-        _this2.makeToast('danger', 'ISBN incorrecto');
+        _this3.makeToast('danger', 'ISBN incorrecto');
       });
     },
     //Mostrar resultados de la busqueda por titulo del libro
     mostrarLibros: function mostrarLibros() {
-      var _this3 = this;
+      var _this4 = this;
 
       if (this.queryTitulo.length > 0) {
         axios.get('/mostrarLibros', {
@@ -3539,7 +3900,7 @@ __webpack_require__.r(__webpack_exports__);
             queryTitulo: this.queryTitulo
           }
         }).then(function (response) {
-          _this3.resultslibros = response.data;
+          _this4.resultslibros = response.data;
         });
       }
     },
@@ -3578,7 +3939,7 @@ __webpack_require__.r(__webpack_exports__);
     },
     //Guardar un registro de la entrada
     guardarRegistro: function guardarRegistro() {
-      var _this4 = this;
+      var _this5 = this;
 
       if (this.unidades > 0) {
         this.temporal.entrada_id = 0;
@@ -3591,7 +3952,7 @@ __webpack_require__.r(__webpack_exports__);
         }
 
         axios.post('/registro_entrada', this.temporal).then(function (response) {
-          _this4.temporal = {
+          _this5.temporal = {
             id: response.data.registro.id,
             ISBN: response.data.libro.ISBN,
             titulo: response.data.libro.titulo,
@@ -3600,20 +3961,20 @@ __webpack_require__.r(__webpack_exports__);
             total: response.data.registro.total
           };
 
-          _this4.items.push(_this4.temporal);
+          _this5.items.push(_this5.temporal);
 
-          _this4.total_entrada += response.data.registro.total;
-          _this4.total_unidades += parseInt(response.data.registro.unidades);
-          _this4.unidades = 0;
-          _this4.costo_unitario = 0;
-          _this4.temporal = {};
-          _this4.inputISBN = true;
-          _this4.inputLibro = true;
-          _this4.inputUnidades = false;
-          _this4.botonEliminar = true;
-          _this4.mostrarGuardar = true;
+          _this5.total_entrada += response.data.registro.total;
+          _this5.total_unidades += parseInt(response.data.registro.unidades);
+          _this5.unidades = 0;
+          _this5.costo_unitario = 0;
+          _this5.temporal = {};
+          _this5.inputISBN = true;
+          _this5.inputLibro = true;
+          _this5.inputUnidades = false;
+          _this5.botonEliminar = true;
+          _this5.mostrarGuardar = true;
         })["catch"](function (error) {
-          _this4.makeToast('danger', 'Ocurrio un problema, vuelve a intentarlo');
+          _this5.makeToast('danger', 'Ocurrio un problema, vuelve a intentarlo');
         });
       } else {
         this.makeToast('danger', 'Unidades no validas');
@@ -3621,34 +3982,35 @@ __webpack_require__.r(__webpack_exports__);
     },
     //Eliminar registro de la remision
     eliminarRegistro: function eliminarRegistro(item, i) {
-      var _this5 = this;
+      var _this6 = this;
 
       axios["delete"]('/eliminar_registro_entrada', {
         params: {
           id: item.id
         }
       }).then(function (response) {
-        _this5.items.splice(i, 1);
+        _this6.items.splice(i, 1);
 
-        _this5.total_entrada = _this5.total_entrada - item.total;
-        _this5.total_unidades = _this5.total_unidades - item.unidades;
-        _this5.bdentrada.total = _this5.total_entrada;
-        _this5.bdentrada.unidades = _this5.total_unidades;
+        _this6.total_entrada = _this6.total_entrada - item.total;
+        _this6.total_unidades = _this6.total_unidades - item.unidades;
+        _this6.bdentrada.total = _this6.total_entrada;
+        _this6.bdentrada.unidades = _this6.total_unidades;
       });
     },
     //Guardar toda la remision
     onSubmit: function onSubmit() {
-      var _this6 = this;
+      var _this7 = this;
 
       this.bdentrada.total = this.total_entrada;
       this.bdentrada.unidades = this.total_unidades;
+      this.bdentrada.folio = this.numnota;
       axios.post('/crear_entrada', this.bdentrada).then(function (response) {
-        _this6.bdentrada.id = response.data.id;
-        _this6.mostrarGuardar = false;
-        _this6.mostrarEditar = true;
-        _this6.btnNuevo = true;
+        _this7.bdentrada.id = response.data.id;
+        _this7.mostrarGuardar = false;
+        _this7.mostrarEditar = true;
+        _this7.btnNuevo = true;
 
-        _this6.inicializar_guardar();
+        _this7.inicializar_guardar();
       });
     },
     //Editar la remision
@@ -3663,15 +4025,15 @@ __webpack_require__.r(__webpack_exports__);
     },
     //Guardar cambios de la remision
     actRemision: function actRemision() {
-      var _this7 = this;
+      var _this8 = this;
 
       this.bdentrada.total = this.total_entrada;
       this.bdentrada.unidades = this.total_unidades;
       axios.put('/actualizar_entrada', this.bdentrada).then(function (response) {
-        _this7.mostrarActualizar = false;
-        _this7.btnNuevo = true;
+        _this8.mostrarActualizar = false;
+        _this8.btnNuevo = true;
 
-        _this7.inicializar_guardar();
+        _this8.inicializar_guardar();
       });
     },
     //Inicializar valores
@@ -6851,10 +7213,10 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/ResetPassComponent.vue?vue&type=script&lang=js&":
-/*!*****************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/ResetPassComponent.vue?vue&type=script&lang=js& ***!
-  \*****************************************************************************************************************************************************************************/
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/RemisionesComponent.vue?vue&type=script&lang=js&":
+/*!******************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/RemisionesComponent.vue?vue&type=script&lang=js& ***!
+  \******************************************************************************************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -6883,12 +7245,62 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
-    return {};
+    return {
+      remisiones: [],
+      fields: [{
+        key: 'id',
+        label: 'Folio'
+      }, {
+        key: 'fecha_creacion',
+        label: 'Fecha de creación'
+      }, 'cliente', {
+        key: 'total',
+        label: 'Salida'
+      }, 'estado', {
+        key: 'fecha_entrega',
+        label: 'Fecha de entrega'
+      }, {
+        key: 'registrar_entrega',
+        label: 'Marcar entrega'
+      }]
+    };
+  },
+  created: function created() {
+    this.getTodo();
   },
   methods: {
-    update: function update() {}
+    getTodo: function getTodo() {
+      var _this = this;
+
+      axios.get('/todos_los_clientes').then(function (response) {
+        _this.remisiones = response.data;
+      });
+    },
+    entregaLibros: function entregaLibros(remision, i) {
+      var _this2 = this;
+
+      axios.get('/devoluciones_remision', {
+        params: {
+          remision_id: remision.id
+        }
+      }).then(function (response) {
+        _this2.remisiones[i].estado = response.data.remision.estado;
+      })["catch"](function (error) {
+        _this2.$bvToast.toast('Ocurrio un error, vuelve a intentar', {
+          title: 'Error',
+          variant: 'danger',
+          solid: true
+        });
+      });
+    }
   }
 });
 
@@ -90073,7 +90485,7 @@ var render = function() {
             _vm._v(" "),
             _vm.remision.estado == "Proceso"
               ? _c("b-badge", { attrs: { variant: "primary" } }, [
-                  _vm._v(_vm._s(_vm.remision.estado))
+                  _vm._v("Entregado")
                 ])
               : _vm._e(),
             _vm._v(" "),
@@ -90120,7 +90532,7 @@ var render = function() {
       _vm._v(" "),
       _c("hr"),
       _vm._v(" "),
-      _vm.mostrarDatos
+      _vm.mostrarDatos && _vm.remision.estado != "Iniciado"
         ? _c(
             "b-button",
             {
@@ -90504,7 +90916,14 @@ var render = function() {
   return _c(
     "div",
     [
-      !_vm.mostrarDetalles
+      _vm.devoluciones.length == 0
+        ? _c("b-alert", { attrs: { show: "", variant: "secondary" } }, [
+            _c("i", { staticClass: "fa fa-exclamation-triangle" }),
+            _vm._v(" No hay remisones\n    ")
+          ])
+        : _vm._e(),
+      _vm._v(" "),
+      !_vm.mostrarDetalles && _vm.devoluciones.length > 0
         ? _c("b-table", {
             attrs: { items: _vm.devoluciones, fields: _vm.fields },
             scopedSlots: _vm._u(
@@ -90540,12 +90959,18 @@ var render = function() {
                   }
                 },
                 {
+                  key: "pagos",
+                  fn: function(row) {
+                    return [_vm._v("$" + _vm._s(row.item.pagos))]
+                  }
+                },
+                {
                   key: "estado",
                   fn: function(row) {
                     return [
                       row.item.estado == "Proceso"
                         ? _c("b-badge", { attrs: { variant: "primary" } }, [
-                            _vm._v(_vm._s(row.item.estado))
+                            _vm._v("Entregado")
                           ])
                         : _vm._e(),
                       _vm._v(" "),
@@ -90554,6 +90979,36 @@ var render = function() {
                             _vm._v(_vm._s(row.item.estado))
                           ])
                         : _vm._e()
+                    ]
+                  }
+                },
+                {
+                  key: "pagar",
+                  fn: function(row) {
+                    return [
+                      row.item.pagos < row.item.total_pagar
+                        ? _c(
+                            "b-button",
+                            {
+                              directives: [
+                                {
+                                  name: "b-modal",
+                                  rawName: "v-b-modal.modal-pago",
+                                  modifiers: { "modal-pago": true }
+                                }
+                              ],
+                              attrs: { variant: "secondary" },
+                              on: {
+                                click: function($event) {
+                                  return _vm.verPago(row.item, row.index)
+                                }
+                              }
+                            },
+                            [_vm._v("\n                Pago\n            ")]
+                          )
+                        : _c("b-badge", { attrs: { variant: "success" } }, [
+                            _vm._v("Pagado")
+                          ])
                     ]
                   }
                 },
@@ -90579,7 +91034,7 @@ var render = function() {
               ],
               null,
               false,
-              82679135
+              3087694142
             )
           })
         : _vm._e(),
@@ -90903,7 +91358,71 @@ var render = function() {
             ],
             1
           )
-        : _vm._e()
+        : _vm._e(),
+      _vm._v(" "),
+      _c(
+        "b-modal",
+        { attrs: { id: "modal-pago", title: "Registrar abono" } },
+        [
+          _c(
+            "b-form",
+            {
+              on: {
+                submit: function($event) {
+                  $event.preventDefault()
+                  return _vm.onPay($event)
+                }
+              }
+            },
+            [
+              _c(
+                "b-form-group",
+                {
+                  attrs: {
+                    "label-cols": "4",
+                    "label-cols-lg": "2",
+                    label: "Pago",
+                    "label-for": "input-pago"
+                  }
+                },
+                [
+                  _c("b-form-input", {
+                    attrs: { id: "input-pago", type: "number" },
+                    model: {
+                      value: _vm.pago,
+                      callback: function($$v) {
+                        _vm.pago = $$v
+                      },
+                      expression: "pago"
+                    }
+                  })
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "text-right" },
+                [
+                  _c(
+                    "b-button",
+                    { attrs: { type: "submit", variant: "success" } },
+                    [
+                      _c("i", { staticClass: "fa fa-check" }),
+                      _vm._v(" Guardar\n                ")
+                    ]
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c("div", { attrs: { slot: "modal-footer" }, slot: "modal-footer" })
+        ],
+        1
+      )
     ],
     1
   )
@@ -91970,83 +92489,137 @@ var render = function() {
   return _c(
     "div",
     [
-      _c(
-        "b-row",
-        [
-          _c(
-            "b-col",
-            { attrs: { sm: "5" } },
-            [
-              _c("b-table", {
-                attrs: { items: _vm.entradas, fields: _vm.fields },
-                scopedSlots: _vm._u([
-                  {
-                    key: "detalles",
-                    fn: function(row) {
-                      return [
-                        _c(
-                          "b-button",
-                          {
-                            attrs: { variant: "outline-info" },
-                            on: {
-                              click: function($event) {
-                                return _vm.detallesEntrada(row.item)
-                              }
+      _vm.entradas.length == 0
+        ? _c("b-alert", { attrs: { show: "", variant: "secondary" } }, [
+            _c("i", { staticClass: "fa fa-exclamation-triangle" }),
+            _vm._v(" No hay entradas\n    ")
+          ])
+        : _vm._e(),
+      _vm._v(" "),
+      !_vm.mostrarDetalles && !_vm.mostrarEditar && _vm.entradas.length > 0
+        ? _c("b-table", {
+            attrs: { items: _vm.entradas, fields: _vm.fields },
+            scopedSlots: _vm._u(
+              [
+                {
+                  key: "detalles",
+                  fn: function(row) {
+                    return [
+                      _c(
+                        "b-button",
+                        {
+                          attrs: { variant: "outline-info" },
+                          on: {
+                            click: function($event) {
+                              return _vm.detallesEntrada(row.item)
                             }
-                          },
-                          [_c("i", { staticClass: "fa fa-eye" })]
-                        )
-                      ]
-                    }
-                  },
-                  {
-                    key: "descargar",
-                    fn: function(row) {
-                      return [
-                        _c(
-                          "b-button",
-                          {
-                            attrs: {
-                              variant: "info",
-                              href: "/imprimirEntrada/" + row.item.id
-                            }
-                          },
-                          [_c("i", { staticClass: "fa fa-download" })]
-                        )
-                      ]
-                    }
-                  },
-                  {
-                    key: "created_at",
-                    fn: function(row) {
-                      return [
-                        _vm._v(
-                          "\n                    " +
-                            _vm._s(_vm._f("moment")(row.item.created_at)) +
-                            "\n                "
-                        )
-                      ]
-                    }
+                          }
+                        },
+                        [_c("i", { staticClass: "fa fa-eye" })]
+                      )
+                    ]
                   }
-                ])
-              })
-            ],
-            1
-          ),
-          _vm._v(" "),
-          _c("b-col", { attrs: { sm: "1" } }),
-          _vm._v(" "),
-          _c(
-            "b-col",
-            { attrs: { sm: "6" } },
+                },
+                {
+                  key: "descargar",
+                  fn: function(row) {
+                    return [
+                      _c(
+                        "b-button",
+                        {
+                          attrs: {
+                            variant: "info",
+                            href: "/imprimirEntrada/" + row.item.id
+                          }
+                        },
+                        [_c("i", { staticClass: "fa fa-download" })]
+                      )
+                    ]
+                  }
+                },
+                {
+                  key: "created_at",
+                  fn: function(row) {
+                    return [
+                      _vm._v(
+                        "\n            " +
+                          _vm._s(_vm._f("moment")(row.item.created_at)) +
+                          "\n        "
+                      )
+                    ]
+                  }
+                },
+                {
+                  key: "editar",
+                  fn: function(row) {
+                    return [
+                      _vm.fechaFinal.diff(row.item.created_at, "days") < 5
+                        ? _c(
+                            "b-button",
+                            {
+                              attrs: { variant: "outline-warning" },
+                              on: {
+                                click: function($event) {
+                                  return _vm.editarEntrada(row.item)
+                                }
+                              }
+                            },
+                            [_c("i", { staticClass: "fa fa-pencil" })]
+                          )
+                        : _vm._e()
+                    ]
+                  }
+                }
+              ],
+              null,
+              false,
+              2204134045
+            )
+          })
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.mostrarDetalles
+        ? _c(
+            "div",
             [
+              _c(
+                "div",
+                { staticClass: "text-right" },
+                [
+                  _c(
+                    "b-button",
+                    {
+                      attrs: { variant: "secondary" },
+                      on: {
+                        click: function($event) {
+                          _vm.mostrarDetalles = false
+                        }
+                      }
+                    },
+                    [
+                      _c("i", { staticClass: "fa fa-mail-reply" }),
+                      _vm._v(" Entradas")
+                    ]
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c("hr"),
+              _vm._v(" "),
               _vm.registros.length > 0
                 ? _c("b-table", {
                     attrs: { items: _vm.registros, fields: _vm.fieldsR },
                     scopedSlots: _vm._u(
                       [
                         {
-                          key: "libro",
+                          key: "isbn",
+                          fn: function(row) {
+                            return [_vm._v(_vm._s(row.item.libro.ISBN))]
+                          }
+                        },
+                        {
+                          key: "titulo",
                           fn: function(row) {
                             return [_vm._v(_vm._s(row.item.libro.titulo))]
                           }
@@ -92054,16 +92627,293 @@ var render = function() {
                       ],
                       null,
                       false,
-                      1301144792
+                      2102252105
                     )
                   })
                 : _vm._e()
             ],
             1
           )
-        ],
-        1
-      )
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.mostrarEditar
+        ? _c(
+            "div",
+            [
+              _c(
+                "div",
+                { staticClass: "text-right" },
+                [
+                  _c(
+                    "b-button",
+                    {
+                      attrs: { variant: "secondary" },
+                      on: {
+                        click: function($event) {
+                          _vm.mostrarEditar = false
+                        }
+                      }
+                    },
+                    [
+                      _c("i", { staticClass: "fa fa-mail-reply" }),
+                      _vm._v(" Entradas")
+                    ]
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c("hr"),
+              _vm._v(" "),
+              _c(
+                "b-row",
+                [
+                  _c("b-col", [
+                    _c("h6", [
+                      _vm._v("Folio: "),
+                      _c("b", [_vm._v(_vm._s(_vm.entrada.folio))])
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c("b-col", [
+                    _c("label", [
+                      _c("b", [_vm._v("Unidades:")]),
+                      _vm._v(" " + _vm._s(_vm.total_unidades))
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { staticClass: "text-right" },
+                    [
+                      _vm.registros.length > 0
+                        ? _c(
+                            "b-button",
+                            {
+                              attrs: { variant: "success" },
+                              on: { click: _vm.actRemision }
+                            },
+                            [
+                              _c("i", { staticClass: "fa fa-check" }),
+                              _vm._v(" Guardar\n                ")
+                            ]
+                          )
+                        : _vm._e()
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c("hr"),
+              _vm._v(" "),
+              _c("b-table", {
+                attrs: { items: _vm.registros, fields: _vm.fieldsRE },
+                scopedSlots: _vm._u(
+                  [
+                    {
+                      key: "ISBN",
+                      fn: function(row) {
+                        return [_vm._v(_vm._s(row.item.libro.ISBN))]
+                      }
+                    },
+                    {
+                      key: "titulo",
+                      fn: function(row) {
+                        return [_vm._v(_vm._s(row.item.libro.titulo))]
+                      }
+                    },
+                    {
+                      key: "eliminar",
+                      fn: function(row) {
+                        return [
+                          _c(
+                            "b-button",
+                            {
+                              attrs: { variant: "danger" },
+                              on: {
+                                click: function($event) {
+                                  return _vm.eliminarRegistro(
+                                    row.item,
+                                    row.index
+                                  )
+                                }
+                              }
+                            },
+                            [_c("i", { staticClass: "fa fa-minus-circle" })]
+                          )
+                        ]
+                      }
+                    }
+                  ],
+                  null,
+                  false,
+                  1399380534
+                )
+              }),
+              _vm._v(" "),
+              _c(
+                "b-row",
+                [
+                  _c("b-col", { attrs: { sm: "1" } }),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { attrs: { sm: "3" } },
+                    [
+                      _vm.inputISBN
+                        ? _c("b-input", {
+                            on: {
+                              keyup: function($event) {
+                                if (
+                                  !$event.type.indexOf("key") &&
+                                  _vm._k(
+                                    $event.keyCode,
+                                    "enter",
+                                    13,
+                                    $event.key,
+                                    "Enter"
+                                  )
+                                ) {
+                                  return null
+                                }
+                                return _vm.buscarLibroISBN()
+                              }
+                            },
+                            model: {
+                              value: _vm.isbn,
+                              callback: function($$v) {
+                                _vm.isbn = $$v
+                              },
+                              expression: "isbn"
+                            }
+                          })
+                        : _vm._e(),
+                      _vm._v(" "),
+                      !_vm.inputISBN
+                        ? _c("b", [_vm._v(_vm._s(_vm.temporal.ISBN))])
+                        : _vm._e()
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { attrs: { sm: "5" } },
+                    [
+                      _vm.inputLibro
+                        ? _c("b-input", {
+                            on: { keyup: _vm.mostrarLibros },
+                            model: {
+                              value: _vm.queryTitulo,
+                              callback: function($$v) {
+                                _vm.queryTitulo = $$v
+                              },
+                              expression: "queryTitulo"
+                            }
+                          })
+                        : _vm._e(),
+                      _vm._v(" "),
+                      _vm.resultslibros.length
+                        ? _c(
+                            "div",
+                            { staticClass: "list-group" },
+                            _vm._l(_vm.resultslibros, function(libro, i) {
+                              return _c(
+                                "a",
+                                {
+                                  key: i,
+                                  staticClass:
+                                    "list-group-item list-group-item-action",
+                                  attrs: { href: "#" },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.datosLibro(libro)
+                                    }
+                                  }
+                                },
+                                [
+                                  _vm._v(
+                                    "\n                        " +
+                                      _vm._s(libro.titulo) +
+                                      "\n                    "
+                                  )
+                                ]
+                              )
+                            }),
+                            0
+                          )
+                        : _vm._e(),
+                      _vm._v(" "),
+                      !_vm.inputLibro
+                        ? _c("b", [_vm._v(_vm._s(_vm.temporal.titulo))])
+                        : _vm._e()
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { attrs: { sm: "2" } },
+                    [
+                      _vm.inputUnidades
+                        ? _c("b-form-input", {
+                            attrs: { type: "number", required: "" },
+                            on: {
+                              keyup: function($event) {
+                                if (
+                                  !$event.type.indexOf("key") &&
+                                  _vm._k(
+                                    $event.keyCode,
+                                    "enter",
+                                    13,
+                                    $event.key,
+                                    "Enter"
+                                  )
+                                ) {
+                                  return null
+                                }
+                                return _vm.guardarRegistro()
+                              }
+                            },
+                            model: {
+                              value: _vm.unidades,
+                              callback: function($$v) {
+                                _vm.unidades = $$v
+                              },
+                              expression: "unidades"
+                            }
+                          })
+                        : _vm._e()
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { attrs: { sm: "1" } },
+                    [
+                      _vm.inputUnidades
+                        ? _c(
+                            "b-button",
+                            {
+                              attrs: { variant: "secondary" },
+                              on: { click: _vm.eliminarTemporal }
+                            },
+                            [_c("i", { staticClass: "fa fa-minus-circle" })]
+                          )
+                        : _vm._e()
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          )
+        : _vm._e()
     ],
     1
   )
@@ -92177,6 +93027,60 @@ var render = function() {
     ]),
     _vm._v(" "),
     _c("hr"),
+    _vm._v(" "),
+    _vm.mostrarCampo
+      ? _c(
+          "div",
+          [
+            _c(
+              "b-row",
+              { staticClass: "col-md-5" },
+              [
+                _c("b-col", { attrs: { sm: "6" } }, [
+                  _c("label", [_vm._v("Folio")])
+                ]),
+                _vm._v(" "),
+                _c(
+                  "b-col",
+                  { attrs: { sm: "6" } },
+                  [
+                    _c("b-form-input", {
+                      attrs: { disabled: _vm.mostrarTabla },
+                      on: {
+                        keyup: function($event) {
+                          if (
+                            !$event.type.indexOf("key") &&
+                            _vm._k(
+                              $event.keyCode,
+                              "enter",
+                              13,
+                              $event.key,
+                              "Enter"
+                            )
+                          ) {
+                            return null
+                          }
+                          return _vm.guardarNum($event)
+                        }
+                      },
+                      model: {
+                        value: _vm.numnota,
+                        callback: function($$v) {
+                          _vm.numnota = $$v
+                        },
+                        expression: "numnota"
+                      }
+                    })
+                  ],
+                  1
+                )
+              ],
+              1
+            )
+          ],
+          1
+        )
+      : _vm._e(),
     _vm._v(" "),
     _vm.mostrarTabla
       ? _c("div", [
@@ -96680,10 +97584,10 @@ render._withStripped = true
 
 /***/ }),
 
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/ResetPassComponent.vue?vue&type=template&id=6c2b0bf0&":
-/*!*********************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/ResetPassComponent.vue?vue&type=template&id=6c2b0bf0& ***!
-  \*********************************************************************************************************************************************************************************************************************/
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/RemisionesComponent.vue?vue&type=template&id=3afef790&":
+/*!**********************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/RemisionesComponent.vue?vue&type=template&id=3afef790& ***!
+  \**********************************************************************************************************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -96698,55 +97602,94 @@ var render = function() {
   return _c(
     "div",
     [
-      _c(
-        "b-form",
-        {
-          on: {
-            submit: function($event) {
-              $event.preventDefault()
-              return _vm.onUpdate($event)
-            }
-          }
-        },
-        [
-          _c(
-            "b-row",
-            { staticClass: "my-1" },
-            [
-              _c("b-col", { attrs: { sm: "3" } }, [
-                _c("label", [_vm._v("Contraseña")])
-              ]),
-              _vm._v(" "),
-              _c(
-                "b-col",
-                { attrs: { sm: "9" } },
-                [_c("b-form-input", { attrs: { type: "password" } })],
-                1
-              )
-            ],
-            1
-          ),
-          _vm._v(" "),
-          _c(
-            "b-row",
-            { staticClass: "my-1" },
-            [
-              _c("b-col", { attrs: { sm: "3" } }, [
-                _c("label", [_vm._v("Confirmar contraseña")])
-              ]),
-              _vm._v(" "),
-              _c(
-                "b-col",
-                { attrs: { sm: "9" } },
-                [_c("b-form-input", { attrs: { type: "password" } })],
-                1
-              )
-            ],
-            1
-          )
-        ],
-        1
-      )
+      _vm.remisiones.length == 0
+        ? _c("b-alert", { attrs: { show: "", variant: "secondary" } }, [
+            _c("i", { staticClass: "fa fa-exclamation-triangle" }),
+            _vm._v(" No hay remisones\n    ")
+          ])
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.remisiones.length > 0
+        ? _c("b-table", {
+            attrs: { items: _vm.remisiones, fields: _vm.fields },
+            scopedSlots: _vm._u(
+              [
+                {
+                  key: "cliente",
+                  fn: function(row) {
+                    return [
+                      _vm._v(
+                        "\n            " +
+                          _vm._s(row.item.cliente.name) +
+                          "\n        "
+                      )
+                    ]
+                  }
+                },
+                {
+                  key: "total",
+                  fn: function(row) {
+                    return [
+                      _vm._v(
+                        "\n            $" +
+                          _vm._s(row.item.total) +
+                          "\n        "
+                      )
+                    ]
+                  }
+                },
+                {
+                  key: "estado",
+                  fn: function(row) {
+                    return [
+                      row.item.estado == "Iniciado"
+                        ? _c("b-badge", { attrs: { variant: "secondary" } }, [
+                            _vm._v(_vm._s(row.item.estado))
+                          ])
+                        : _vm._e(),
+                      _vm._v(" "),
+                      row.item.estado == "Proceso"
+                        ? _c("b-badge", { attrs: { variant: "primary" } }, [
+                            _vm._v("Entregado")
+                          ])
+                        : _vm._e(),
+                      _vm._v(" "),
+                      row.item.estado == "Terminado"
+                        ? _c("b-badge", { attrs: { variant: "success" } }, [
+                            _vm._v(_vm._s(row.item.estado))
+                          ])
+                        : _vm._e()
+                    ]
+                  }
+                },
+                {
+                  key: "registrar_entrega",
+                  fn: function(row) {
+                    return [
+                      row.item.estado == "Iniciado"
+                        ? _c(
+                            "b-button",
+                            {
+                              attrs: { variant: "success" },
+                              on: {
+                                click: function($event) {
+                                  return _vm.entregaLibros(row.item, row.index)
+                                }
+                              }
+                            },
+                            [_c("i", { staticClass: "fa fa-check" })]
+                          )
+                        : _vm._e()
+                    ]
+                  }
+                }
+              ],
+              null,
+              false,
+              2288163876
+            )
+          })
+        : _vm._e()
     ],
     1
   )
@@ -110513,6 +111456,7 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('pagination', __webpack_req
 
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('editar-libro-component', __webpack_require__(/*! ./components/EditarLibroComponent.vue */ "./resources/js/components/EditarLibroComponent.vue")["default"]);
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('remision-component', __webpack_require__(/*! ./components/RemisionComponent.vue */ "./resources/js/components/RemisionComponent.vue")["default"]);
+vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('remisiones-component', __webpack_require__(/*! ./components/RemisionesComponent.vue */ "./resources/js/components/RemisionesComponent.vue")["default"]);
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('devolucion-component', __webpack_require__(/*! ./components/DevolucionComponent.vue */ "./resources/js/components/DevolucionComponent.vue")["default"]);
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('listado-component', __webpack_require__(/*! ./components/ListadoComponent.vue */ "./resources/js/components/ListadoComponent.vue")["default"]);
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('lista-remisiones-component', __webpack_require__(/*! ./components/ListaRemisionesComponent.vue */ "./resources/js/components/ListaRemisionesComponent.vue")["default"]);
@@ -110524,7 +111468,6 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('new-libro-component', __we
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('devoluciones-component', __webpack_require__(/*! ./components/DevolucionesComponent.vue */ "./resources/js/components/DevolucionesComponent.vue")["default"]);
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('entradas-component', __webpack_require__(/*! ./components/EntradasComponent.vue */ "./resources/js/components/EntradasComponent.vue")["default"]);
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('clientes-component', __webpack_require__(/*! ./components/ClientesComponent.vue */ "./resources/js/components/ClientesComponent.vue")["default"]);
-vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('reset-pass-component', __webpack_require__(/*! ./components/ResetPassComponent.vue */ "./resources/js/components/ResetPassComponent.vue")["default"]);
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
@@ -111556,17 +112499,17 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/js/components/ResetPassComponent.vue":
-/*!********************************************************!*\
-  !*** ./resources/js/components/ResetPassComponent.vue ***!
-  \********************************************************/
+/***/ "./resources/js/components/RemisionesComponent.vue":
+/*!*********************************************************!*\
+  !*** ./resources/js/components/RemisionesComponent.vue ***!
+  \*********************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _ResetPassComponent_vue_vue_type_template_id_6c2b0bf0___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ResetPassComponent.vue?vue&type=template&id=6c2b0bf0& */ "./resources/js/components/ResetPassComponent.vue?vue&type=template&id=6c2b0bf0&");
-/* harmony import */ var _ResetPassComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ResetPassComponent.vue?vue&type=script&lang=js& */ "./resources/js/components/ResetPassComponent.vue?vue&type=script&lang=js&");
+/* harmony import */ var _RemisionesComponent_vue_vue_type_template_id_3afef790___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./RemisionesComponent.vue?vue&type=template&id=3afef790& */ "./resources/js/components/RemisionesComponent.vue?vue&type=template&id=3afef790&");
+/* harmony import */ var _RemisionesComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./RemisionesComponent.vue?vue&type=script&lang=js& */ "./resources/js/components/RemisionesComponent.vue?vue&type=script&lang=js&");
 /* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
@@ -111576,9 +112519,9 @@ __webpack_require__.r(__webpack_exports__);
 /* normalize component */
 
 var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
-  _ResetPassComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _ResetPassComponent_vue_vue_type_template_id_6c2b0bf0___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _ResetPassComponent_vue_vue_type_template_id_6c2b0bf0___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  _RemisionesComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _RemisionesComponent_vue_vue_type_template_id_3afef790___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _RemisionesComponent_vue_vue_type_template_id_3afef790___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
   false,
   null,
   null,
@@ -111588,38 +112531,38 @@ var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_
 
 /* hot reload */
 if (false) { var api; }
-component.options.__file = "resources/js/components/ResetPassComponent.vue"
+component.options.__file = "resources/js/components/RemisionesComponent.vue"
 /* harmony default export */ __webpack_exports__["default"] = (component.exports);
 
 /***/ }),
 
-/***/ "./resources/js/components/ResetPassComponent.vue?vue&type=script&lang=js&":
-/*!*********************************************************************************!*\
-  !*** ./resources/js/components/ResetPassComponent.vue?vue&type=script&lang=js& ***!
-  \*********************************************************************************/
+/***/ "./resources/js/components/RemisionesComponent.vue?vue&type=script&lang=js&":
+/*!**********************************************************************************!*\
+  !*** ./resources/js/components/RemisionesComponent.vue?vue&type=script&lang=js& ***!
+  \**********************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ResetPassComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./ResetPassComponent.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/ResetPassComponent.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ResetPassComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_RemisionesComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./RemisionesComponent.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/RemisionesComponent.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_RemisionesComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
 
 /***/ }),
 
-/***/ "./resources/js/components/ResetPassComponent.vue?vue&type=template&id=6c2b0bf0&":
-/*!***************************************************************************************!*\
-  !*** ./resources/js/components/ResetPassComponent.vue?vue&type=template&id=6c2b0bf0& ***!
-  \***************************************************************************************/
+/***/ "./resources/js/components/RemisionesComponent.vue?vue&type=template&id=3afef790&":
+/*!****************************************************************************************!*\
+  !*** ./resources/js/components/RemisionesComponent.vue?vue&type=template&id=3afef790& ***!
+  \****************************************************************************************/
 /*! exports provided: render, staticRenderFns */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ResetPassComponent_vue_vue_type_template_id_6c2b0bf0___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./ResetPassComponent.vue?vue&type=template&id=6c2b0bf0& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/ResetPassComponent.vue?vue&type=template&id=6c2b0bf0&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ResetPassComponent_vue_vue_type_template_id_6c2b0bf0___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_RemisionesComponent_vue_vue_type_template_id_3afef790___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./RemisionesComponent.vue?vue&type=template&id=3afef790& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/RemisionesComponent.vue?vue&type=template&id=3afef790&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_RemisionesComponent_vue_vue_type_template_id_3afef790___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ResetPassComponent_vue_vue_type_template_id_6c2b0bf0___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_RemisionesComponent_vue_vue_type_template_id_3afef790___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 

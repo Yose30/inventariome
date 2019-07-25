@@ -6,6 +6,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Role;
+use App\Pago;
 
 class User extends Authenticatable
 {
@@ -42,5 +43,11 @@ class User extends Authenticatable
     //Un usuario solo puede tener un rol
     public function role(){
         return $this->belongsTo(Role::class);
+    }
+
+    //Uno a muchos
+    //Una usuario puede tener muchos pagos
+    public function pagos(){
+        return $this->hasMany(Pago::class);
     }
 }

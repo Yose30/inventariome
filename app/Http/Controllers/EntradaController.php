@@ -18,11 +18,21 @@ class EntradaController extends Controller
         return response()->json($entradas);
     }
 
+    //Buscar folio
+    public function buscarFolio(){
+        $folio = Input::get('folio');
+        $entrada = Entrada::where('folio', $folio)->first();
+        return response()->json($entrada);
+    }
+
     //Mostrar detalles de una entrada
     public function detalles_entrada(){
         $entrada_id = Input::get('entrada_id');
-        $registros = Registro::where('entrada_id', $entrada_id)->with('libro')->get();
-        return response()->json($registros);
+        $this->func_inicializar_editar($entrada_id);
+        Registro::where('entrada_id', $entrada_id)->where('estado', 'Iniciado')->delete();
+        $entrada = Entrada::whereId($entrada_id)->first();
+        $registros = Registro::where('entrada_id', $entrada->id)->where('estado', '!=', 'Eliminado')->with('libro')->get();
+        return response()->json(['entrada' => $entrada, 'registros' => $registros]);
     }
 
     public function nueva(){
@@ -32,18 +42,7 @@ class EntradaController extends Controller
             \DB::beginTransaction();
 
             //En caso de edicion
-            Registro::where('entrada_id', $entrada - 1)
-                    ->where('estado', 'Eliminado')
-                    ->update(['estado' => 'Terminado']);
-
-            //En caso de haber agregado uno nuevo, se recuperan las piezas
-            $noguardados = Registro::where('entrada_id', $entrada - 1)->where('estado', 'Iniciado')->get();
-            if($noguardados->count() > 0){
-                foreach($noguardados as $noguardado){
-                    $libro = Libro::whereId($noguardado->libro_id)->first();
-                    $libro->update(['piezas' => $libro->piezas - $noguardado->unidades]);
-                }
-            }
+            $this->func_inicializar_editar($entrada - 1);
 
             //En caso de creacion
             $eliminados = Registro::where('entrada_id', $entrada)->where('estado', 'Eliminado')->get();
@@ -74,6 +73,22 @@ class EntradaController extends Controller
             return response()->json($e->getMessage());
         }
         return response()->json(null, 200);
+    }
+
+    public function func_inicializar_editar($entrada){
+        //En caso de edicion
+        Registro::where('entrada_id', $entrada)
+        ->where('estado', 'Eliminado')
+        ->update(['estado' => 'Terminado']);
+
+        //En caso de haber agregado uno nuevo, se recuperan las piezas
+        $noguardados = Registro::where('entrada_id', $entrada)->where('estado', 'Iniciado')->get();
+        if($noguardados->count() > 0){
+            foreach($noguardados as $noguardado){
+                $libro = Libro::whereId($noguardado->libro_id)->first();
+                $libro->update(['piezas' => $libro->piezas - $noguardado->unidades]);
+            }
+        }
     }
 
     public function registro(Request $request){
@@ -129,6 +144,7 @@ class EntradaController extends Controller
             \DB::beginTransaction();
 
             $entrada = Entrada::create([
+                'folio' => $request->folio,
                 'unidades' => $request->unidades,
                 'total' => $request->total,
             ]);
