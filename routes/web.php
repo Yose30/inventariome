@@ -122,3 +122,19 @@ Route::get('/imprimirEntrada/{id}', 'EntradaController@imprimirEntrada')->name('
 
 //PAGOS
 Route::post('registrar_pago', 'PagoController@store')->name('registrar_pago');
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');

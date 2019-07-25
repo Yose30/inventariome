@@ -3,12 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Remisione;
-use App\Dato;
-use App\Devolucione;
-use App\Entrada;
-use App\Registro;
-use App\Libro;
 
 class HomeController extends Controller
 {
@@ -27,7 +21,8 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index(){
-        return view('/home');
+    public function index()
+    {
+        return view('home');
     }
 }
