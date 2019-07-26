@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Remisione;
 use App\Devolucione;
 use App\Libro;
+use App\Vendido;
 
 class Dato extends Model
 {
@@ -35,5 +36,11 @@ class Dato extends Model
     //Un dato solo puede tener un libro
     public function libro(){
         return $this->belongsTo(Libro::class);
+    }
+
+    //Uno a uno
+    //Un dato solo puede pertenecer a una vendido
+    public function vendido(){
+        return $this->hasOne(Vendido::class);
     }
 }

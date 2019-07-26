@@ -55,6 +55,8 @@ Route::post('registro_remision', 'RemisionController@registro')->name('registro_
 Route::delete('eliminar_registro', 'RemisionController@eliminar')->name('eliminar_registro');
 //Actualizar remision y registros
 Route::put('actualizar_remision', 'RemisionController@actualizar')->name('actualizar_remision');
+//Llenar tabla de vendidos
+Route::put('vendidos_remision', 'RemisionController@registrar_vendidos')->name('vendidos_remision');
 
 //REMISIONES -Listado
 Route::get('todos_los_clientes', 'RemisionController@todos')->name('todos_los_clientes');
@@ -78,7 +80,7 @@ Route::get('datos_devolucion', 'DevolucioneController@datos_devolucion')->name('
 //Mostrar todos las devoluciones con los libros
 Route::get('todos_los_libros', 'DevolucioneController@todos')->name('todos_los_libros');
 //Mostrar devoluciones
-Route::get('devoluciones_remision', 'DevolucioneController@show')->name('devoluciones_remision');
+Route::get('devoluciones_remision', 'DevolucioneController@registrar_datos')->name('devoluciones_remision');
 //Actualizar devolcuion
 Route::put('actualizar_unidades', 'DevolucioneController@actualizar')->name('actualizar_unidades');
 //Concluir remision
@@ -122,3 +124,6 @@ Route::get('/imprimirEntrada/{id}', 'EntradaController@imprimirEntrada')->name('
 
 //PAGOS
 Route::post('registrar_pago', 'PagoController@store')->name('registrar_pago');
+//Obtener registros de vendidos
+Route::get('datos_vendidos', 'PagoController@datos_vendidos')->name('datos_vendidos');
+

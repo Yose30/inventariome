@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Cliente;
 use App\Dato;
 use App\Devolucione;
+use App\Vendido;
 
 class Remisione extends Model
 {
@@ -39,5 +40,11 @@ class Remisione extends Model
     //UNa remision puede tener muchas devoluciones
     public function devoluciones(){
         return $this->hasMany(Devolucione::class);
+    }
+
+    //Uno a muchos
+    //Una remision puede tener muchas vendidos
+    public function vendidos(){
+        return $this->hasMany(Vendido::class);
     }
 }

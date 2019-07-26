@@ -8,6 +8,7 @@ use NumerosEnLetras;
 use App\Devolucione;
 use Carbon\Carbon;
 use App\Remisione;
+use App\Vendido;
 use App\Cliente;
 use App\Libro;
 use App\Dato;
@@ -87,17 +88,12 @@ class RemisionController extends Controller
         
         try {
             \DB::beginTransaction();
-
             $remision->fecha_entrega = $request->fecha_entrega;
             $remision->total = $request->total;
             $remision->save();
-
             \DB::commit();
-
             $this->concluir_remision($remision->id);
-
             return response()->json($remision);
-
         } catch (Exception $e) {
             \DB::rollBack();
             return response()->json($exception->getMessage());
@@ -349,5 +345,48 @@ class RemisionController extends Controller
         }
         
         return response()->json($remisiones);
+    }
+
+    //Registrar vendidos
+    public function registrar_vendidos(Request $request){
+        $remision = Remisione::whereId($request->id)->first();
+        $datos = Dato::where('remision_id', $remision->id)->with('libro')->get();
+        try {
+            if(Vendido::where('remision_id', $remision->id)->count() == 0){  
+                \DB::beginTransaction();
+                $remision->update(['estado' => 'Proceso']);
+                $total_pagar = 0;
+                foreach($datos as $d){
+                    $total_pagar += $d->total;            
+                }
+
+                $remision->update(['total_pagar' => $total_pagar]);
+
+                foreach($datos as $dato){
+                    $vendido = Vendido::create([
+                        'remision_id' => $dato->remision_id,
+                        'dato_id'   => $dato->id,
+                        'libro_id' => $dato->libro_id, 
+                        'unidades_resta' => $dato->unidades,
+                        'total_resta' => $dato->total,
+                    ]);
+
+                    $devolucion = Devolucione::create([
+                        'remision_id' => $dato->remision_id,
+                        'dato_id'   => $dato->id,
+                        'libro_id' => $dato->libro_id,
+                        'unidades_resta' => $dato->unidades,
+                        'total_resta' => $dato->total,
+                    ]);
+                }
+                \DB::commit();
+            }
+        
+            $vendidos = Vendido::where('remision_id', $remision->id)->with('libro')->with('dato')->get();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+		}
+        return response()->json(['vendidos' => $vendidos, 'remision' => $remision]);
     }
 }

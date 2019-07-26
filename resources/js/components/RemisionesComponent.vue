@@ -53,8 +53,9 @@
                 });
             },
             entregaLibros(remision, i){
-                axios.get('/devoluciones_remision', {params: {remision_id: remision.id}}).then(response => {
+                axios.put('/vendidos_remision', remision).then(response => {
                     this.remisiones[i].estado = response.data.remision.estado;
+                    console.log(response.data);
                 }).catch(error => {
                     this.$bvToast.toast('Ocurrio un error, vuelve a intentar', {
                         title: 'Error',
@@ -62,6 +63,15 @@
                         solid: true
                     });
                 });
+                // axios.get('/devoluciones_remision', {params: {remision_id: remision.id}}).then(response => {
+                //     this.remisiones[i].estado = response.data.remision.estado;
+                // }).catch(error => {
+                //     this.$bvToast.toast('Ocurrio un error, vuelve a intentar', {
+                //         title: 'Error',
+                //         variant: 'danger',
+                //         solid: true
+                //     });
+                // });
             }
         }
     }

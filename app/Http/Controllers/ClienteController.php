@@ -29,6 +29,7 @@ class ClienteController extends Controller
 		}
     }
 
+    //Editar cliente
     public function editar(Request $request){
         $cliente = Cliente::whereId($request->id)->first();
         $cliente->name = 'prueba';
@@ -70,7 +71,6 @@ class ClienteController extends Controller
     public function show(){
         $queryCliente = Input::get('queryCliente');
         $clientes = Cliente::where('name','like','%'.$queryCliente.'%')->get();
-    
         return response()->json($clientes);
     }
 
@@ -78,7 +78,6 @@ class ClienteController extends Controller
         $id = Input::get('id');
         $remision_id = Input::get('remision_id');
         $cliente = Cliente::whereId($id)->first();
-        
         $datos = Dato::where('remision_id', $remision_id)->with('libro')->get();
         return response()->json(['cliente' => $cliente, 'datos' => $datos]);
     }
