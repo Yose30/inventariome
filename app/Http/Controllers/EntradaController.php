@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
-use App\Entrada;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use App\Registro;
+use App\Entrada;
 use App\Libro;
 use PDF;
-use Illuminate\Support\Facades\DB;
 
 class EntradaController extends Controller
 {
@@ -28,10 +28,19 @@ class EntradaController extends Controller
     //Mostrar detalles de una entrada
     public function detalles_entrada(){
         $entrada_id = Input::get('entrada_id');
-        $this->func_inicializar_editar($entrada_id);
-        Registro::where('entrada_id', $entrada_id)->where('estado', 'Iniciado')->delete();
+        try {
+            \DB::beginTransaction();
+                $this->func_inicializar_editar($entrada_id);
+                Registro::where('entrada_id', $entrada_id)->where('estado', 'Iniciado')->delete();
+            \DB::commit();
+        
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($e->getMessage());
+        }
         $entrada = Entrada::whereId($entrada_id)->first();
         $registros = Registro::where('entrada_id', $entrada->id)->where('estado', '!=', 'Eliminado')->with('libro')->get();
+        
         return response()->json(['entrada' => $entrada, 'registros' => $registros]);
     }
 
@@ -68,7 +77,7 @@ class EntradaController extends Controller
         
             \DB::commit();
             
-        } catch (Exception $e) {
+        }catch (Exception $e) {
             \DB::rollBack();
             return response()->json($e->getMessage());
         }
@@ -76,7 +85,6 @@ class EntradaController extends Controller
     }
 
     public function func_inicializar_editar($entrada){
-        //En caso de edicion
         Registro::where('entrada_id', $entrada)
         ->where('estado', 'Eliminado')
         ->update(['estado' => 'Terminado']);
@@ -192,7 +200,6 @@ class EntradaController extends Controller
         }
 
         Registro::where('entrada_id', $id)->where('estado', 'Eliminado')->delete();
-
         Registro::where('entrada_id', $id)->update(['estado' => 'Terminado']);
     }
 

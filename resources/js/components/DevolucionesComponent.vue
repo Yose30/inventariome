@@ -6,117 +6,56 @@
         <b-table v-if="!mostrarDetalles && devoluciones.length > 0" :items="devoluciones" :fields="fields">
             <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
             <template slot="cliente" slot-scope="row">{{ row.item.cliente.name }}</template>
-            <template slot="total" slot-scope="row">${{ row.item.total }}</template>
-            <template slot="total_devolucion" slot-scope="row">${{ row.item.total_devolucion }}</template>
-            <template slot="total_pagar" slot-scope="row">${{ row.item.total_pagar }}</template>
+            <template slot="total_pagar" slot-scope="row">${{ row.item.total }}</template>
             <template slot="pagos" slot-scope="row">${{ row.item.pagos }}</template>
             <template slot="estado" slot-scope="row">
                 <b-badge variant="primary" v-if="row.item.estado == 'Proceso'">Entregado</b-badge>
                 <b-badge variant="success" v-if="row.item.estado == 'Terminado'">{{ row.item.estado }}</b-badge>
             </template>
             <template slot="pagar" slot-scope="row">
-                <b-button 
-                    v-if="row.item.pagos < row.item.total_pagar" 
-                    variant="secondary" 
-                    v-b-modal.modal-pago 
-                    @click="verPago(row.item, row.index)">
-                    Pago
-                </b-button>
-                <b-badge v-else variant="success">Pagado</b-badge>
+                <b-button v-if="row.item.estado != 'Terminado' && row.item.pagos < row.item.total" variant="outline-primary" @click="registrarPago(row.item, row.index)">Registrar pago</b-button>
             </template>
-            <template slot="detalles" slot-scope="row">
-                <b-button variant="outline-info" @click="detallesRemision(row.item)"><i class="fa fa-eye"></i></b-button>
+            <template slot="ver_pagos" slot-scope="row">
+                <b-button variant="outline-info">Ver pagos</b-button>
             </template>
         </b-table>
         <div v-if="mostrarDetalles">
             <b-row>
-                <b-col><h4>Remisión n. {{ remision.id }}</h4></b-col>
+                <b-col>
+                    <h4>Remisión n. {{ remision.id }}</h4>
+                    <label>Cliente: {{ remision.cliente.name }}</label>
+                </b-col>
                 <b-col>
                     <div class="text-right">
-                        <b-button variant="outline-secondary" @click="mostrarDetalles = false"><i class="fa fa-mail-reply"></i> Devoluciones</b-button>
+                        <b-button v-if="btnGuardar" variant="success" @click="guardarUnidades">
+                            <i class="fa fa-check"></i> Guardar
+                        </b-button>
+                    </div>
+                </b-col>
+                <b-col>
+                    <div class="text-right">
+                        <b-button variant="outline-secondary" @click="mostrarDetalles = false">
+                            <i class="fa fa-mail-reply"></i> Regresar
+                        </b-button>
                     </div>
                 </b-col>
             </b-row>
             <hr>
-            <b-row>
-                <b-col sm="10"><h4>Salida</h4></b-col>
-                <b-button 
-                    variant="link" 
-                    :class="mostrarSalida ? 'collapsed' : null"
-                    :aria-expanded="mostrarSalida ? 'true' : 'false'"
-                    aria-controls="collapse-1"
-                    @click="mostrarSalida = !mostrarSalida">
-                    <i class="fa fa-sort-asc"></i>
-                </b-button>
-            </b-row>
-            <b-collapse id="collapse-1" v-model="mostrarSalida" class="mt-2">
-                <b-table :items="remision.datos" :fields="fieldsSD">
-                    <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
-                    <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                    <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario }}</template>
-                    <template slot="subtotal" slot-scope="row">${{ row.item.total }}</template>
-                </b-table>
-                <h5 class="text-right">${{ remision.total }}</h5>
-            </b-collapse>
-            <hr>
-            <b-row>
-                <b-col sm="10"><h4>Devolución</h4></b-col>
-                <b-button 
-                    variant="link" 
-                    :class="mostrarDevolucion ? 'collapsed' : null"
-                    :aria-expanded="mostrarDevolucion ? 'true' : 'false'"
-                    aria-controls="collapse-1"
-                    @click="mostrarDevolucion = !mostrarDevolucion">
-                    <i class="fa fa-sort-asc"></i>
-                </b-button>
-            </b-row>
-            <b-collapse id="collapse-1" v-model="mostrarDevolucion" class="mt-2">
-                <b-table :items="remision.devoluciones" :fields="fieldsSD">
-                    <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
-                    <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                    <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario }}</template>
-                    <template slot="subtotal" slot-scope="row">${{ row.item.total }}</template>
-                </b-table>
-                <h5 class="text-right">${{ remision.total_devolucion }}</h5>
-            </b-collapse>
-            <hr>
-            <b-row>
-                <b-col sm="10"><h4>Remisión final</h4></b-col>
-                <b-button 
-                    variant="link" 
-                    :class="mostrarFinal ? 'collapsed' : null"
-                    :aria-expanded="mostrarFinal ? 'true' : 'false'"
-                    aria-controls="collapse-1"
-                    @click="mostrarFinal = !mostrarFinal">
-                    <i class="fa fa-sort-asc"></i>
-                </b-button>
-            </b-row>
-            <b-collapse id="collapse-1" v-model="mostrarFinal" class="mt-2">
-                <b-table :items="remision.devoluciones" :fields="fieldsSD">
-                    <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
-                    <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                    <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario }}</template>
-                    <template slot="unidades" slot-scope="row">{{ row.item.unidades_resta }}</template>
-                    <template slot="subtotal" slot-scope="row">${{ row.item.total_resta }}</template>
-                </b-table>
-                <h5 class="text-right">${{ remision.total_pagar }}</h5>
-            </b-collapse>
+            <b-table :items="remision.vendidos" :fields="fieldsSD">
+                <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
+                <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
+                <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario }}</template>
+                <template slot="unidades_base" slot-scope="row">
+                    <b-input 
+                        type="number" 
+                        @change="verificarUnidades(row.item.unidades_base, row.item.unidades_resta, row.item.dato.costo_unitario, row.index)" 
+                        v-model="row.item.unidades_base">
+                    </b-input>
+                </template>
+                <template slot="subtotal" slot-scope="row">${{ row.item.total_base }}</template>
+            </b-table>
+            <h5 class="text-right">${{ total_vendido }}</h5>
         </div>
-
-        <b-modal id="modal-pago" title="Registrar abono">
-            <b-form @submit.prevent="onPay">
-                <b-form-group label-cols="4" label-cols-lg="2" label="Pago" label-for="input-pago">
-                    <b-form-input id="input-pago" type="number" v-model="pago"></b-form-input>
-                </b-form-group>
-                <div class="text-right">
-                    <b-button type="submit" variant="success">
-                        <i class="fa fa-check"></i> Guardar
-                    </b-button>
-                </div>
-            </b-form>
-            <div slot="modal-footer"></div>
-        </b-modal>
-
     </div>
 </template>
 
@@ -128,29 +67,25 @@
                 fields: [
                     {key: 'index', label: 'N.'}, 
                     'estado',
-                    'fecha_devolucion', 
                     'cliente', 
-                    {key: 'total', label: 'Salida'}, 
-                    {key: 'total_devolucion', label: 'Devolución'},
-                    {key: 'total_pagar', label: 'Final'},
-                    'pagos',
-                    {key: 'pagar', label: 'Registrar pago'},
-                    'detalles'
+                    {key: 'total_pagar', label: 'Total'}, 
+                    {key: 'pagos', label: 'Pagado'},
+                    {key: 'pagar', label: ''},
+                    {key: 'ver_pagos', label: ''},
                 ],
                 fieldsSD: [
                     {key: 'isbn', label: 'ISBN'}, 
                     'libro', 
                     {key: 'costo_unitario', label: 'Costo unitario'}, 
-                    'unidades', 
+                    {key: 'unidades_resta', label: 'Unidades pendientes'},
+                    {key: 'unidades_base', label: 'Unidades'}, 
                     'subtotal'],
                 mostrarDetalles: false,
                 remision: {
                     id: 0,
-                    total: 0,
-                    total_devolucion: 0,
-                    total_pagar: 0,
+                    cliente: {},
                     datos: [],
-                    devoluciones: []
+                    vendidos: []
                 },
                 mostrarSalida: true,
                 mostrarDevolucion: true,
@@ -158,6 +93,9 @@
                 informacion: {},
                 pago: 0,
                 posicion: 0,
+                btnGuardar: false,
+                total_vendido: 0,
+                pos_remision: 0,
             }
         },
         created: function(){
@@ -169,39 +107,40 @@
                     this.devoluciones = response.data;
                 });
             },
-            verPago(remision, i){
-                this.informacion.id = remision.id;
-                this.informacion.total_pagar = remision.total_pagar;
-                this.informacion.pagos = remision.pagos;
-                this.posicion = i;
-            },
-            detallesRemision(remision){
-                this.remision = { id: 0, total: 0, total_devolucion: 0, total_pagar: 0, datos: [], devoluciones: [] };
-                this.mostrarDetalles = true;
+            registrarPago(remision, index){
                 this.remision.id = remision.id;
-                this.remision.total = remision.total;
-                this.remision.total_devolucion = remision.total_devolucion;
-                this.remision.total_pagar = remision.total_pagar;
-                axios.get('/datos_devolucion', {params: {remision_id: remision.id}}).then(response => {
-                    this.remision.datos = response.data.datos;
-                    this.remision.devoluciones = response.data.devoluciones
+                this.pos_remision = index;
+                axios.get('/datos_vendidos', {params: {remision_id: remision.id}}).then(response => {
+                    this.remision.vendidos = response.data;
+                    this.remision.cliente = remision.cliente;
+                    this.mostrarDetalles = true;
                 });
             },
-            onPay(){
-                if(this.pago > this.informacion.total_pagar - this.informacion.pagos){
-                    this.makeToast('warning', 'El pago es mayor a lo restante');
+            guardarUnidades(){
+                axios.post('/registrar_pago', this.remision).then(response => {
+                    this.mostrarDetalles = false;
+                    this.makeToast('success', 'El pago se guardo correctamente');
+                    this.devoluciones[this.pos_remision].pagos = response.data.pagos;
+                })
+                .catch(error => {
+                    this.makeToast('danger', 'Ocurrio un error, vuelve a intentarlo');
+                });
+            },
+            verificarUnidades(base, resta, costo, i){
+                if(base > resta){
+                    this.makeToast('warning', 'Las unidades son mayor a lo pendiente');
                 }
-                else{
-                    this.informacion.pago = this.pago;
-                    axios.post('/registrar_pago', this.informacion).then(response => {
-                        this.devoluciones[this.posicion].pagos = response.data.pagos;
-                        this.$bvModal.hide('modal-pago');
-                    })
-                    .catch(error => {
-                        this.makeToast('danger', 'Ocurrio un error, vuelve a intentarlo');
+                if(base == 0){
+                    this.makeToast('warning', 'Las unidades no pueden ser 0');
+                }
+                if(base <= resta && base != 0){
+                    this.total_vendido = 0;
+                    this.remision.vendidos[i].total_base = base * costo;
+                    this.btnGuardar = true;
+                    this.remision.vendidos.forEach(vendido => {
+                        this.total_vendido += vendido.total_base;
                     });
                 }
-                
             },
             makeToast(variant = null, descripcion) {
                 this.$bvToast.toast(descripcion, {

@@ -3,7 +3,7 @@
 @section('content')
     <div class="container">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a 
                     class="nav-link active" 
                     id="entrega-tab" 
@@ -20,7 +20,7 @@
                     data-toggle="tab" 
                     href="#v-devoluciones" 
                     aria-controls="v-devoluciones">
-                    {{ __("Registrar pagos") }}
+                    {{ __("Pagos") }}
                 </a>
             </li>
             <li class="nav-item">
@@ -30,9 +30,9 @@
                     data-toggle="tab" 
                     href="#v-devolucion" 
                     aria-controls="v-devolucion">
-                    {{ __("Registrar devolución") }}
+                    {{ __("Devoluciones") }}
                 </a>
-            </li>
+            </li> -->
             <li class="nav-item">
                 <a 
                     class="nav-link" 
