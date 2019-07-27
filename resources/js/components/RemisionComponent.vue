@@ -64,12 +64,12 @@
                     @click="listaClientes = true;">
                     <i class="fa fa-users"></i> Clientes
                 </button>
-                <button 
+                <!-- <button 
                     class="btn btn-light" 
                     v-if="listaClientes" 
                     @click="listaClientes = false;">
                     <i class="fa fa-pencil"></i> Datos
-                </button>
+                </button> -->
             </div>
             <div align="right">
                 <button 
@@ -80,72 +80,15 @@
                     <i class="fa fa-close"></i>
                 </button>
             </div>
-            <div class="card col-md-8" v-if="!listaClientes">
+            <!-- <div class="card col-md-8" v-if="!listaClientes">
                 <h6 class="card-title">Datos del cliente</h6>
                 <div class="card-body">
-                    <b-form @submit.prevent="onSubmit">
-                        <b-row class="my-1">
-                            <label align="right" for="input-name" class="col-md-5">Nombre</label>
-                            <div class="col-md-7">
-                                <b-form-input 
-                                    id="input-name"
-                                    v-model="form.name"
-                                    required>
-                                </b-form-input>
-                                <div v-if="errors && errors.name" class="text-danger">{{ errors.name[0] }}</div>
-                            </div>
-                        </b-row>
-                        <b-row class="my-1">
-                            <label align="right" for="input-email" class="col-md-5">Correo electrónico</label>
-                            <div class="col-md-7">
-                                <b-form-input 
-                                    id="input-email"
-                                    v-model="form.email"
-                                    type="email"
-                                    required>
-                                </b-form-input>
-                                <div v-if="errors && errors.email" class="text-danger">{{ errors.email[0] }}</div>
-                            </div>
-                        </b-row>
-                        <b-row class="my-1">
-                            <label align="right" for="input-telefono" class="col-md-5">Teléfono</label>
-                            <div class="col-md-7">
-                                <b-form-input 
-                                    id="input-telefono"
-                                    v-model="form.telefono" 
-                                    required>
-                                </b-form-input>
-                                <div v-if="errors && errors.telefono" class="text-danger">{{ errors.telefono[0] }}</div>
-                            </div>
-                        </b-row>
-                        <b-row class="my-1">
-                            <label align="right" for="input-direccion" class="col-md-5">Dirección</label>
-                            <div class="col-md-7">
-                                <b-form-input 
-                                    id="input-direccion"
-                                    v-model="form.direccion" 
-                                    required>
-                                </b-form-input>
-                                <div v-if="errors && errors.direccion" class="text-danger">{{ errors.direccion[0] }}</div>
-                            </div>
-                        </b-row>
-                        <b-row class="my-1">
-                            <label align="right" for="input-condiciones_pago" class="col-md-5">Condiciones de pago</label>
-                            <div class="col-md-7">
-                                <b-form-input 
-                                    id="input-condiciones_pago"
-                                    v-model="form.condiciones_pago" 
-                                    required>
-                                </b-form-input>
-                                <div v-if="errors && errors.condiciones_pago" class="text-danger">{{ errors.condiciones_pago[0] }}</div>
-                            </div>
-                        </b-row>
-                        <hr>
-                        <b-button type="submit" variant="success"><i class="fa fa-check"></i> Continuar</b-button>
-                    </b-form>
+                    
                 </div>
-            </div>
+            </div> -->
             <div v-if="listaClientes">
+                <h6 align="left">Seleccionar cliente</h6>
+                <hr>
                 <table class="table">
                     <thead>
                         <tr>
@@ -375,6 +318,7 @@
             nuevaRemision(){
                 axios.get('/nueva_remision').then(response => {
                     this.btnEditarInf = false;
+                    this.listaClientes = true;
                     this.ini_1();
                     this.ini_2();
                     this.ini_4();
@@ -559,6 +503,7 @@
             },
             //Editar información del cliente
             editarInformacion(){
+                this.listaClientes = true;
                 this.mostrarBusqueda = true;
                 this.mostrarDatos = false;
                 this.btnEditarInf = true;

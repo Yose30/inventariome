@@ -16,6 +16,26 @@
             <li class="nav-item">
                 <a 
                     class="nav-link" 
+                    id="new-cliente-tab" 
+                    data-toggle="tab" 
+                    href="#v-new-cliente" 
+                    aria-controls="v-new-cliente">
+                    {{ __("Agregar cliente") }}
+                </a>
+            </li>
+            <!-- <li class="nav-item">
+                <a 
+                    class="nav-link" 
+                    id="pagos-tab" 
+                    data-toggle="tab" 
+                    href="#v-pagos" 
+                    aria-controls="v-pagos">
+                    {{ __("Pagos") }}
+                </a>
+            </li> -->
+            <li class="nav-item">
+                <a 
+                    class="nav-link" 
                     id="remisiones-tab" 
                     data-toggle="tab" 
                     href="#v-remisiones" 
@@ -52,6 +72,14 @@
             <div class="tab-pane fade" id="v-remisiones">
                 <br>
                 <lista-remisiones-component></lista-remisiones-component>
+            </div>
+            <div class="tab-pane fade" id="v-pagos">
+                <br>
+                <pagos-component></pagos-component>
+            </div>
+            <div class="tab-pane fade" id="v-new-cliente">
+                <br>
+                <new-client-component></new-client-component>
             </div>
             <div class="tab-pane fade" id="v-libros">
                 <br>

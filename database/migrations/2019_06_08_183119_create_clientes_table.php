@@ -21,7 +21,7 @@ class CreateClientesTable extends Migration
             $table->text('direccion');
             $table->integer('descuento')->default(0);
             $table->string('condiciones_pago');
-            $table->enum('estado', ['Iniciado', 'Eliminado', 'Terminado'])->default('Iniciado');
+            $table->enum('estado', ['Iniciado', 'Eliminado', 'Terminado'])->default('Terminado');
             $table->timestamps();
         }); 
     }
