@@ -47,7 +47,7 @@ Vue.component('editar-r-component', require('./components/EditarRComponent.vue')
 Vue.component('inventario-component', require('./components/InventarioComponent.vue').default);
 Vue.component('new-client-component', require('./components/NewClientComponent.vue').default);
 Vue.component('new-libro-component', require('./components/NewLibroComponent.vue').default);
-Vue.component('devoluciones-component', require('./components/DevolucionesComponent.vue').default);
+Vue.component('pagos-component', require('./components/PagosComponent.vue').default);
 Vue.component('entradas-component', require('./components/EntradasComponent.vue').default);
 Vue.component('clientes-component', require('./components/ClientesComponent.vue').default);
 

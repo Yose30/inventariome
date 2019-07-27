@@ -126,4 +126,6 @@ Route::get('/imprimirEntrada/{id}', 'EntradaController@imprimirEntrada')->name('
 Route::post('registrar_pago', 'PagoController@store')->name('registrar_pago');
 //Obtener registros de vendidos
 Route::get('datos_vendidos', 'PagoController@datos_vendidos')->name('datos_vendidos');
+//Obtener los pagos de una remision
+// Route::get('obtener_pagos', 'PagoController@obtener_pagos')->name('obtener_pagos');
 
