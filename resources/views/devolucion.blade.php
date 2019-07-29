@@ -3,7 +3,7 @@
 @section('content')
     <div class="container">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <!-- <li class="nav-item">
+            <li class="nav-item">
                 <a 
                     class="nav-link active" 
                     id="entrega-tab" 
@@ -32,7 +32,7 @@
                     aria-controls="v-devolucion">
                     {{ __("Devoluciones") }}
                 </a>
-            </li> -->
+            </li>
             <li class="nav-item">
                 <a 
                     class="nav-link" 

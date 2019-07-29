@@ -21,18 +21,22 @@ class PagoController extends Controller
                 $costo_unitario = $vendido['dato']['costo_unitario'];
                 $pago_total = $unidades * $costo_unitario;
                 
-                Pago::create([
-                    'user_id' => auth()->user()->id,
-                    'vendido_id' => $vendido['id'],
-                    'unidades' => $unidades,
-                    'pago' => $pago_total
-                ]);
-                
-                $total = $unidades * $costo_unitario;
-                $unidades_resta = $vendido['dato']['unidades'] - $unidades;
+                if($unidades != 0){
+                    Pago::create([
+                        'user_id' => auth()->user()->id,
+                        'vendido_id' => $vendido['id'],
+                        'unidades' => $unidades,
+                        'pago' => $pago_total
+                    ]);
+                }
+
+                $d_vendido = Vendido::whereId($vendido['id'])->first();
+                $v_unidades = $d_vendido->unidades + $unidades;
+                $unidades_resta = $d_vendido->unidades_resta - $unidades;
+                $total = $v_unidades * $costo_unitario;
                 $total_resta = $unidades_resta * $costo_unitario;
-                Vendido::whereId($vendido['id'])->update([
-                    'unidades' => $unidades, 
+                $d_vendido->update([
+                    'unidades' => $v_unidades, 
                     'unidades_resta' => $unidades_resta,
                     'total' => $total,
                     'total_resta' => $total_resta
@@ -42,7 +46,7 @@ class PagoController extends Controller
                 $pagos += $total;
             }
             $remision = Remisione::whereId($request->id)->first();
-            $total_pagar = $remision->total - ($remision->pagos + $remision->total_devolucion);
+            $total_pagar = $remision->total - ($pagos + $remision->total_devolucion);
             $remision->update([
                 'pagos' => $pagos,
                 'total_pagar'   => $total_pagar

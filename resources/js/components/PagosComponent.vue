@@ -4,14 +4,13 @@
             <i class="fa fa-exclamation-triangle"></i> No hay remisones
         </b-alert>
         <b-table v-if="!mostrarDetalles && !mostrarPagos && remisiones.length > 0" :items="remisiones" :fields="fields">
-            <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
             <template slot="cliente" slot-scope="row">{{ row.item.cliente.name }}</template>
             <template slot="total" slot-scope="row">${{ row.item.total }}</template>
             <template slot="total_devolucion" slot-scope="row">${{ row.item.total_devolucion }}</template>
             <template slot="total_pagar" slot-scope="row">${{ row.item.total_pagar }}</template>
             <template slot="pagos" slot-scope="row">${{ row.item.pagos }}</template>
             <template slot="pagar" slot-scope="row">
-                <b-button v-if="row.item.pagos < row.item.total_pagar" variant="outline-primary" @click="registrarPago(row.item, row.index)">Registrar pago</b-button>
+                <b-button v-if="row.item.total_pagar > 0" variant="outline-primary" @click="registrarPago(row.item, row.index)">Registrar pago</b-button>
             </template>
             <template slot="ver_pagos" slot-scope="row">
                 <b-button variant="outline-info" @click="verPagos(row.item)">Ver pagos</b-button>
@@ -88,6 +87,7 @@
                                 <label v-if="row.item.user_id == 2">Teresa Pérez</label>
                                 <label v-if="row.item.user_id == 3">Almacén</label>
                             </template>
+                            <template slot="unidades" slot-scope="row">{{ row.item.unidades }}</template>
                             <template slot="pago" slot-scope="row">$ {{ row.item.pago }}</template>
                             <template slot="created_at" slot-scope="row">{{ row.created_at | moment }}</template>
                         </b-table>
@@ -105,19 +105,20 @@
             return {
                 remisiones: [],
                 fields: [
-                    {key: 'index', label: 'N.'}, 
+                    {key: 'id', label: 'Folio'}, 
                     // 'estado',
                     'cliente', 
                     {key: 'total', label: 'Salida'}, 
                     {key: 'total_devolucion', label: 'Devolución'}, 
-                    {key: 'total_pagar', label: 'Pagar'}, 
                     {key: 'pagos', label: 'Pagado'},
+                    {key: 'total_pagar', label: 'Pagar'}, 
                     {key: 'pagar', label: ''},
                     {key: 'ver_pagos', label: ''},
                 ],
                 fieldsD: [
                     {key: 'index', label: 'N.'},
                     {key: 'user_id', label: 'Usuario'}, 
+                    'unidades',
                     'pago', 
                     {key: 'created_at', label: 'Fecha'}, 
                 ],
@@ -180,6 +181,7 @@
                     this.mostrarDetalles = false;
                     this.makeToast('success', 'El pago se guardo correctamente');
                     this.remisiones[this.pos_remision].pagos = response.data.pagos;
+                    this.remisiones[this.pos_remision].total_pagar = response.data.total_pagar;
                 })
                 .catch(error => {
                     this.makeToast('danger', 'Ocurrio un error, vuelve a intentarlo');

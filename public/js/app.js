@@ -6389,8 +6389,8 @@ __webpack_require__.r(__webpack_exports__);
     return {
       remisiones: [],
       fields: [{
-        key: 'index',
-        label: 'N.'
+        key: 'id',
+        label: 'Folio'
       }, // 'estado',
       'cliente', {
         key: 'total',
@@ -6399,11 +6399,11 @@ __webpack_require__.r(__webpack_exports__);
         key: 'total_devolucion',
         label: 'Devolución'
       }, {
-        key: 'total_pagar',
-        label: 'Pagar'
-      }, {
         key: 'pagos',
         label: 'Pagado'
+      }, {
+        key: 'total_pagar',
+        label: 'Pagar'
       }, {
         key: 'pagar',
         label: ''
@@ -6417,7 +6417,7 @@ __webpack_require__.r(__webpack_exports__);
       }, {
         key: 'user_id',
         label: 'Usuario'
-      }, 'pago', {
+      }, 'unidades', 'pago', {
         key: 'created_at',
         label: 'Fecha'
       }],
@@ -6511,6 +6511,7 @@ __webpack_require__.r(__webpack_exports__);
         _this3.makeToast('success', 'El pago se guardo correctamente');
 
         _this3.remisiones[_this3.pos_remision].pagos = response.data.pagos;
+        _this3.remisiones[_this3.pos_remision].total_pagar = response.data.total_pagar;
       })["catch"](function (error) {
         _this3.makeToast('danger', 'Ocurrio un error, vuelve a intentarlo');
       });
@@ -95982,12 +95983,6 @@ var render = function() {
             scopedSlots: _vm._u(
               [
                 {
-                  key: "index",
-                  fn: function(row) {
-                    return [_vm._v(_vm._s(row.index + 1))]
-                  }
-                },
-                {
                   key: "cliente",
                   fn: function(row) {
                     return [_vm._v(_vm._s(row.item.cliente.name))]
@@ -96021,7 +96016,7 @@ var render = function() {
                   key: "pagar",
                   fn: function(row) {
                     return [
-                      row.item.pagos < row.item.total_pagar
+                      row.item.total_pagar > 0
                         ? _c(
                             "b-button",
                             {
@@ -96060,7 +96055,7 @@ var render = function() {
               ],
               null,
               false,
-              3892377301
+              3029913075
             )
           })
         : _vm._e(),
@@ -96348,6 +96343,14 @@ var render = function() {
                                       }
                                     },
                                     {
+                                      key: "unidades",
+                                      fn: function(row) {
+                                        return [
+                                          _vm._v(_vm._s(row.item.unidades))
+                                        ]
+                                      }
+                                    },
+                                    {
                                       key: "pago",
                                       fn: function(row) {
                                         return [
@@ -96381,7 +96384,7 @@ var render = function() {
                   ],
                   null,
                   false,
-                  914599239
+                  3110865479
                 )
               })
             ],
