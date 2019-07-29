@@ -113,8 +113,8 @@ class DevolucioneController extends Controller
             }
             
             $remision = Remisione::whereId($request->id)->first();
-            $total_pagar = $remision->total - ($remision->pagos + $remision->total_devolucion);
-
+            $total_pagar = $remision->total - ($remision->pagos + $total_devolucion);
+            return response()->json($total_pagar);
             $remision->update([
                 'estado' => 'Terminado', 
                 'fecha_devolucion' => Carbon::now()->format('Y-m-d'),

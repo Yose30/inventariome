@@ -87,31 +87,36 @@
                 </div>
             </div> -->
             <div v-if="listaClientes">
-                <h6 align="left">Seleccionar cliente</h6>
-                <hr>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Nombre</th>
-                            <th scope="col">Correo</th>
-                            <th scope="col">Dirección</th>
-                            <th scope="col"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(cliente, i) in clientes" v-bind:key="i">
-                            <td>{{ cliente.name }}</td>
-                            <td>{{ cliente.email }}</td>
-                            <td>{{ cliente.direccion }}</td>
-                            <td>
-                                <button 
-                                    class="btn btn-success">
-                                    <i class="fa fa-check" @click="seleccionCliente(cliente)"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <b-alert v-if="clientes.length == 0" show variant="secondary">
+                    <i class="fa fa-exclamation-triangle"></i> No hay clientes registrados, ir al apartado de <b>Agregar cliente</b> para poder continuar.
+                </b-alert>
+                <div v-if="clientes.length > 0">
+                    <h6 align="left">Seleccionar cliente</h6>
+                    <hr>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Nombre</th>
+                                <th scope="col">Correo</th>
+                                <th scope="col">Dirección</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(cliente, i) in clientes" v-bind:key="i">
+                                <td>{{ cliente.name }}</td>
+                                <td>{{ cliente.email }}</td>
+                                <td>{{ cliente.direccion }}</td>
+                                <td>
+                                    <button 
+                                        class="btn btn-success">
+                                        <i class="fa fa-check" @click="seleccionCliente(cliente)"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         <hr>
