@@ -85,7 +85,7 @@
             </div>
             <div class="tab-pane fade" id="v-devoluciones">
                 <br>
-                <devoluciones-component></devoluciones-component>
+                <pagos-component></pagos-component>
             </div>
             <div class="tab-pane fade" id="v-entrada">
                 <br>

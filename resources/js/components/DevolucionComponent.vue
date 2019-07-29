@@ -356,6 +356,7 @@
                     this.remisiones[this.posicion].estado = response.data.estado;
                     this.remisiones[this.posicion].total_devolucion = response.data.total_devolucion;
                     this.mostrarDevolucion = false;
+                    console.log(response.data);
                 }).catch(error => {
                     console.log(error.response);
                 });

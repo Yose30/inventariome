@@ -2137,6 +2137,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         _this4.remisiones[_this4.posicion].estado = response.data.estado;
         _this4.remisiones[_this4.posicion].total_devolucion = response.data.total_devolucion;
         _this4.mostrarDevolucion = false;
+        console.log(response.data);
       })["catch"](function (error) {
         console.log(error.response);
       });
@@ -6361,6 +6362,28 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -6368,9 +6391,16 @@ __webpack_require__.r(__webpack_exports__);
       fields: [{
         key: 'index',
         label: 'N.'
-      }, 'estado', 'cliente', {
+      }, // 'estado',
+      'cliente', {
+        key: 'total',
+        label: 'Salida'
+      }, {
+        key: 'total_devolucion',
+        label: 'Devolución'
+      }, {
         key: 'total_pagar',
-        label: 'Total'
+        label: 'Pagar'
       }, {
         key: 'pagos',
         label: 'Pagado'
@@ -6380,6 +6410,16 @@ __webpack_require__.r(__webpack_exports__);
       }, {
         key: 'ver_pagos',
         label: ''
+      }],
+      fieldsD: [{
+        key: 'index',
+        label: 'N.'
+      }, {
+        key: 'user_id',
+        label: 'Usuario'
+      }, 'pago', {
+        key: 'created_at',
+        label: 'Fecha'
       }],
       fieldsSD: [{
         key: 'isbn',
@@ -6404,7 +6444,7 @@ __webpack_require__.r(__webpack_exports__);
       {
         key: 'unidades',
         label: 'Unidades'
-      }, 'subtotal'],
+      }, 'subtotal', 'detalles'],
       mostrarDetalles: false,
       remision: {
         id: 0,
@@ -6423,6 +6463,21 @@ __webpack_require__.r(__webpack_exports__);
   },
   created: function created() {
     this.getTodo();
+  },
+  filters: {
+    moment: function (_moment) {
+      function moment(_x) {
+        return _moment.apply(this, arguments);
+      }
+
+      moment.toString = function () {
+        return _moment.toString();
+      };
+
+      return moment;
+    }(function (date) {
+      return moment(date).format('DD-MM-YYYY');
+    })
   },
   methods: {
     getTodo: function getTodo() {
@@ -6465,11 +6520,10 @@ __webpack_require__.r(__webpack_exports__);
 
       if (base > resta) {
         this.makeToast('warning', 'Las unidades son mayor a lo pendiente');
-      }
+      } // if(base == 0){
+      //     this.makeToast('warning', 'Las unidades no pueden ser 0');
+      // }
 
-      if (base == 0) {
-        this.makeToast('warning', 'Las unidades no pueden ser 0');
-      }
 
       if (base <= resta && base != 0) {
         this.total_vendido = 0;
@@ -6483,6 +6537,7 @@ __webpack_require__.r(__webpack_exports__);
     verPagos: function verPagos(remision) {
       var _this5 = this;
 
+      this.remision.id = remision.id;
       axios.get('/datos_vendidos', {
         params: {
           remision_id: remision.id
@@ -6516,6 +6571,11 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
 //
 //
 //
@@ -95934,9 +95994,21 @@ var render = function() {
                   }
                 },
                 {
-                  key: "total_pagar",
+                  key: "total",
                   fn: function(row) {
                     return [_vm._v("$" + _vm._s(row.item.total))]
+                  }
+                },
+                {
+                  key: "total_devolucion",
+                  fn: function(row) {
+                    return [_vm._v("$" + _vm._s(row.item.total_devolucion))]
+                  }
+                },
+                {
+                  key: "total_pagar",
+                  fn: function(row) {
+                    return [_vm._v("$" + _vm._s(row.item.total_pagar))]
                   }
                 },
                 {
@@ -95988,7 +96060,7 @@ var render = function() {
               ],
               null,
               false,
-              442762639
+              3892377301
             )
           })
         : _vm._e(),
@@ -96211,11 +96283,105 @@ var render = function() {
                       fn: function(row) {
                         return [_vm._v("$" + _vm._s(row.item.total))]
                       }
+                    },
+                    {
+                      key: "detalles",
+                      fn: function(row) {
+                        return [
+                          row.item.pagos.length > 0
+                            ? _c(
+                                "b-button",
+                                {
+                                  attrs: { variant: "outline-info" },
+                                  on: { click: row.toggleDetails }
+                                },
+                                [
+                                  _vm._v(
+                                    "\n                    " +
+                                      _vm._s(
+                                        row.detailsShowing
+                                          ? "Ocultar"
+                                          : "Mostrar"
+                                      ) +
+                                      "\n                "
+                                  )
+                                ]
+                              )
+                            : _vm._e()
+                        ]
+                      }
+                    },
+                    {
+                      key: "row-details",
+                      fn: function(row) {
+                        return [
+                          _c(
+                            "b-card",
+                            [
+                              _c("b-table", {
+                                attrs: {
+                                  items: row.item.pagos,
+                                  fields: _vm.fieldsD
+                                },
+                                scopedSlots: _vm._u(
+                                  [
+                                    {
+                                      key: "index",
+                                      fn: function(row) {
+                                        return [_vm._v(_vm._s(row.index + 1))]
+                                      }
+                                    },
+                                    {
+                                      key: "user_id",
+                                      fn: function(row) {
+                                        return [
+                                          row.item.user_id == 2
+                                            ? _c("label", [
+                                                _vm._v("Teresa Pérez")
+                                              ])
+                                            : _vm._e(),
+                                          _vm._v(" "),
+                                          row.item.user_id == 3
+                                            ? _c("label", [_vm._v("Almacén")])
+                                            : _vm._e()
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      key: "pago",
+                                      fn: function(row) {
+                                        return [
+                                          _vm._v("$ " + _vm._s(row.item.pago))
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      key: "created_at",
+                                      fn: function(row) {
+                                        return [
+                                          _vm._v(
+                                            _vm._s(
+                                              _vm._f("moment")(row.created_at)
+                                            )
+                                          )
+                                        ]
+                                      }
+                                    }
+                                  ],
+                                  null,
+                                  true
+                                )
+                              })
+                            ],
+                            1
+                          )
+                        ]
+                      }
                     }
                   ],
                   null,
                   false,
-                  415095928
+                  914599239
                 )
               })
             ],
@@ -96428,44 +96594,73 @@ var render = function() {
           ]),
           _vm._v(" "),
           _vm.listaClientes
-            ? _c("div", [
-                _c("h6", { attrs: { align: "left" } }, [
-                  _vm._v("Seleccionar cliente")
-                ]),
-                _vm._v(" "),
-                _c("hr"),
-                _vm._v(" "),
-                _c("table", { staticClass: "table" }, [
-                  _vm._m(0),
+            ? _c(
+                "div",
+                [
+                  _vm.clientes.length == 0
+                    ? _c(
+                        "b-alert",
+                        { attrs: { show: "", variant: "secondary" } },
+                        [
+                          _c("i", {
+                            staticClass: "fa fa-exclamation-triangle"
+                          }),
+                          _vm._v(
+                            " No hay clientes registrados, ir al apartado de "
+                          ),
+                          _c("b", [_vm._v("Agregar cliente")]),
+                          _vm._v(" para poder continuar.\n            ")
+                        ]
+                      )
+                    : _vm._e(),
                   _vm._v(" "),
-                  _c(
-                    "tbody",
-                    _vm._l(_vm.clientes, function(cliente, i) {
-                      return _c("tr", { key: i }, [
-                        _c("td", [_vm._v(_vm._s(cliente.name))]),
+                  _vm.clientes.length > 0
+                    ? _c("div", [
+                        _c("h6", { attrs: { align: "left" } }, [
+                          _vm._v("Seleccionar cliente")
+                        ]),
                         _vm._v(" "),
-                        _c("td", [_vm._v(_vm._s(cliente.email))]),
+                        _c("hr"),
                         _vm._v(" "),
-                        _c("td", [_vm._v(_vm._s(cliente.direccion))]),
-                        _vm._v(" "),
-                        _c("td", [
-                          _c("button", { staticClass: "btn btn-success" }, [
-                            _c("i", {
-                              staticClass: "fa fa-check",
-                              on: {
-                                click: function($event) {
-                                  return _vm.seleccionCliente(cliente)
-                                }
-                              }
-                            })
-                          ])
+                        _c("table", { staticClass: "table" }, [
+                          _vm._m(0),
+                          _vm._v(" "),
+                          _c(
+                            "tbody",
+                            _vm._l(_vm.clientes, function(cliente, i) {
+                              return _c("tr", { key: i }, [
+                                _c("td", [_vm._v(_vm._s(cliente.name))]),
+                                _vm._v(" "),
+                                _c("td", [_vm._v(_vm._s(cliente.email))]),
+                                _vm._v(" "),
+                                _c("td", [_vm._v(_vm._s(cliente.direccion))]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _c(
+                                    "button",
+                                    { staticClass: "btn btn-success" },
+                                    [
+                                      _c("i", {
+                                        staticClass: "fa fa-check",
+                                        on: {
+                                          click: function($event) {
+                                            return _vm.seleccionCliente(cliente)
+                                          }
+                                        }
+                                      })
+                                    ]
+                                  )
+                                ])
+                              ])
+                            }),
+                            0
+                          )
                         ])
                       ])
-                    }),
-                    0
-                  )
-                ])
-              ])
+                    : _vm._e()
+                ],
+                1
+              )
             : _vm._e()
         ])
       : _vm._e(),
