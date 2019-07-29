@@ -23,7 +23,7 @@
                     {{ __("Agregar cliente") }}
                 </a>
             </li>
-            <!-- <li class="nav-item">
+            <li class="nav-item">
                 <a 
                     class="nav-link" 
                     id="pagos-tab" 
@@ -32,7 +32,7 @@
                     aria-controls="v-pagos">
                     {{ __("Pagos") }}
                 </a>
-            </li> -->
+            </li>
             <li class="nav-item">
                 <a 
                     class="nav-link" 
