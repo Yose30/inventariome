@@ -14,16 +14,16 @@
                     {{ __("Remisiones") }}
                 </a>
             </li>
-            <!-- <li class="nav-item">
+            <li class="nav-item">
                 <a 
                     class="nav-link" 
-                    id="devoluciones-tab" 
+                    id="notas-tab" 
                     data-toggle="tab" 
-                    href="#v-devoluciones" 
-                    aria-controls="v-devoluciones">
-                    {{ __("Devoluciones") }}
+                    href="#v-notas" 
+                    aria-controls="v-notas">
+                    {{ __("Notas") }}
                 </a>
-            </li> -->
+            </li>
             <li class="nav-item">
                 <a 
                     class="nav-link" 
@@ -64,10 +64,10 @@
                 <br>
                 <entradas-component :role_id="{{ auth()->user()->role_id }}"></entradas-component>
             </div>
-            <!-- <div class="tab-pane fade" id="v-devoluciones">
+            <div class="tab-pane fade" id="v-notas">
                 <br>
-                <devoluciones-component></devoluciones-component>
-            </div> -->
+                <new-nota-component :role_id="{{ auth()->user()->role_id }}"></new-nota-component>
+            </div>
             <div class="tab-pane fade" id="v-libros">
                 <br>
                 <libros-component :role_id="{{ auth()->user()->role_id }}"></libros-component>

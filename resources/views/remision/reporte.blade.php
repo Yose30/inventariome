@@ -143,28 +143,31 @@
                     <table style="width:100%">
                         <tr>
                             <th>Folio</th>
-                            <th>Cliente</th> 
+                            <th>Fecha de creación</th>
+                            <th>Cliente</th>
                             <th>Salida</th>
                             <th>Devolución</th>
-                            <th>Final</th>
-                            <th>Estado</th>
-                            <th>Fecha de entrega</th>
+                            <th>Pagos</th>
+                            <th>Pagar</th>
                         </tr>
                         @foreach($remisiones as $remision)
                             <tr>
                                 <td class="bordesVer" style="width:5%" id="tdder">{{ $remision->id }}</td>
-                                <td class="bordesVer" style="width:25%" id="tdcent">{{ $remision->cliente->name }}</td> 
-                                <td class="bordesVer" style="width:15%" id="tdder">$ {{ $remision->total }}</td>
-                                <td class="bordesVer" style="width:15%" id="tdder">$ {{ $remision->total_devolucion }}</td>
-                                <td class="bordesVer" style="width:15%" id="tdder">$ {{ $remision->total_pagar }}</td>
-                                <td class="bordesVer" style="width:10%" id="tdcent">{{ $remision->estado }}</td>
-                                <td class="bordesVer" style="width:15%" id="tdcent">{{ $remision->fecha_entrega }}</td>
+                                <td class="bordesVer" style="width:13%" id="tdder">{{ $remision->created_at->format('d-m-Y') }}</td>
+                                <td class="bordesVer" style="width:50%">{{ $remision->cliente->name }}</td> 
+                                <td class="bordesVer" style="width:13%" id="tdder">$ {{ $remision->total }}</td>
+                                <td class="bordesVer" style="width:13%" id="tdder">$ {{ $remision->total_devolucion }}</td>
+                                <td class="bordesVer" style="width:13%" id="tdder">$ {{ $remision->pagos }}</td>
+                                <td class="bordesVer" style="width:13%" id="tdder">$ {{ $remision->total_pagar }}</td>
+                                <!-- <td class="bordesVer" style="width:10%" id="tdcent">{{ $remision->estado }}</td>
+                                <td class="bordesVer" style="width:15%" id="tdcent">{{ $remision->fecha_entrega }}</td> -->
                             </tr>
                         @endforeach  
                         <tr>
-                            <td class="sinBorde"></td><td class="sinBorde"></td>
+                            <td class="sinBorde"></td><td class="sinBorde"></td><td class="sinBorde"></td>
                             <td class="sinBorde" id="tdder"><b>$ {{ $total_salida }}</b></td>
                             <td class="sinBorde" id="tdder"><b>$ {{ $total_devolucion }}</b></td>
+                            <td class="sinBorde" id="tdder"><b>$ {{ $total_pagos }}</b></td>
                             <td class="sinBorde" id="tdder"><b>$ {{ $total_pagar }}</b></td>
                         </tr>
                     </table>

@@ -194,10 +194,7 @@
                 if(base > resta){
                     this.makeToast('warning', 'Las unidades son mayor a lo pendiente');
                 }
-                // if(base == 0){
-                //     this.makeToast('warning', 'Las unidades no pueden ser 0');
-                // }
-                if(base <= resta && base != 0){
+                if(base <= resta){
                     this.total_vendido = 0;
                     this.remision.vendidos[i].total_base = base * costo;
                     this.btnGuardar = true;

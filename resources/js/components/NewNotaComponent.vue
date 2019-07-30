@@ -1,22 +1,65 @@
 <template>
     <div>
-        <div align="right" v-if="!mostrarDetalles && !mostrarCrearNota">
+        <div align="right" v-if="role_id == 3 && !mostrarDetalles && !mostrarCrearNota && !mostrarNewPago">
             <b-button variant="success" @click="func_crearNota"><i class="fa fa-plus"></i> Crear nota</b-button>
         </div>
-        <b-alert v-if="notes.length == 0" show variant="secondary">
+        <b-alert v-if="!mostrarDetalles && !mostrarCrearNota && !mostrarNewPago && notes.length == 0" show variant="secondary">
             <i class="fa fa-exclamation-triangle"></i> No hay notas
         </b-alert>
-        <b-table v-if="!mostrarDetalles && !mostrarCrearNota && notes.length > 0" :items="notes" :fields="fieldsN">
+        <b-table v-if="!mostrarDetalles && !mostrarCrearNota && !mostrarNewPago && notes.length > 0" :items="notes" :fields="fieldsN">
             <template slot="created_at" slot-scope="row">
                 {{ row.item.created_at | moment }}
             </template>
             <template slot="total_salida" slot-scope="row">
                 ${{ row.item.total_salida }}
             </template>
+            <template slot="pagos" slot-scope="row">
+                ${{ row.item.pagos }}
+            </template>
+            <template slot="total_pagar" slot-scope="row">
+                ${{ row.item.total_pagar }}
+            </template>
             <template slot="detalles" slot-scope="row">
                <b-button variant="outline-info" @click="detallesNota(row.item)">Detalles</b-button>
             </template>
+            <template slot="pagar" slot-scope="row">
+               <b-button v-if="role_id == 3 && row.item.total_pagar > 0" variant="outline-primary" @click="registrarPago(row.item, row.index)">Registrar pago</b-button>
+            </template>
         </b-table>
+        <div v-if="mostrarNewPago">
+            <b-row>
+                <b-col>
+                    <h4>Nota n. {{ nota.id }}</h4>
+                    <label>Cliente: {{ nota.cliente }}</label>
+                </b-col>
+                <b-col>
+                    <div class="text-right">
+                        <b-button v-if="btnGuardar" variant="success" @click="guardarPagosNota">
+                            <i class="fa fa-check"></i> Guardar
+                        </b-button>
+                    </div>
+                </b-col>
+                <b-col align="right">
+                    <b-button variant="outline-secondary" @click="mostrarNewPago = false"><i class="fa fa-mail-reply"></i> Regresar</b-button>
+                </b-col>
+            </b-row>
+            <hr>
+            <b-table :items="nota.registers" :fields="fieldsNP">
+                <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
+                <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
+                <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
+                <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario }}</template>
+                <template slot="unidades" slot-scope="row">
+                    <b-input 
+                        type="number" 
+                        @change="verificarUnidades(row.item.unidades_base, row.item.unidades_pendiente, row.item.costo_unitario, row.index)" 
+                        v-model="row.item.unidades_base">
+                    </b-input>
+                </template>
+                <template slot="total" slot-scope="row">${{ row.item.total_base }}</template>
+            </b-table>
+            <h5 class="text-right">${{ total_vendido }}</h5>
+        </div>
         <div v-if="mostrarDetalles">
             <b-row>
                 <b-col>
@@ -42,6 +85,21 @@
                 <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
                 <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario }}</template>
                 <template slot="total" slot-scope="row">${{ row.item.total }}</template>
+                <template slot="pagos" slot-scope="row">
+                    <b-button v-if="row.item.payments.length > 0" variant="outline-info" @click="row.toggleDetails">
+                        {{ row.detailsShowing ? 'Ocultar' : 'Mostrar'}}
+                    </b-button>
+                </template>
+                <template slot="row-details" slot-scope="row">
+                    <b-card>
+                        <b-table :items="row.item.payments" :fields="fieldsP">
+                            <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
+                            <template slot="unidades" slot-scope="row">{{ row.item.unidades }}</template>
+                            <template slot="pago" slot-scope="row">$ {{ row.item.pago }}</template>
+                            <template slot="created_at" slot-scope="row">{{ row.created_at | moment }}</template>
+                        </b-table>
+                    </b-card>
+                </template>
             </b-table>
         </div>
         <div v-if="mostrarCrearNota">
@@ -155,6 +213,7 @@
 
 <script>
     export default {
+        props: ['role_id'],
         data() {
             return {
                 cliente: '',
@@ -169,17 +228,37 @@
                     {key: 'total', label: 'Subtotal'},
                     'eliminar'
                 ],
+                fieldsP: [
+                    {key: 'index', label: 'N.'}, 
+                    'unidades',
+                    'pago', 
+                    {key: 'created_at', label: 'Fecha'}, 
+                ],
                 fieldsN: [
                     'cliente',
                     {key: 'created_at', label: 'Fecha de creación'},
                     {key: 'total_salida', label: 'Salida'},
+                    'pagos',
+                    {key: 'total_pagar', label: 'Pagar'},
                     {key: 'detalles', label: ''},
+                    {key: 'pagar', label: ''},
                 ],
                 fieldsD: [
                     {key: 'index', label: 'N.'},
                     'ISBN', 'libro',
                     {key: 'costo_unitario', label: 'Costo unitario'},
                     'unidades',
+                    {key: 'total', label: 'Subtotal'},
+                    {key: 'unidades_pagado', label: 'Unidades vendidas'},
+                    {key: 'unidades_pendiente', label: 'Unidades pendientes'},
+                    'pagos'
+                ],
+                fieldsNP: [
+                    {key: 'index', label: 'N.'},
+                    'ISBN', 'libro',
+                    {key: 'costo_unitario', label: 'Costo unitario'},
+                    'unidades',
+                    {key: 'unidades_pendiente', label: 'Unidades pendientes'},
                     {key: 'total', label: 'Subtotal'},
                 ],
                 state: null,
@@ -198,8 +277,11 @@
                 notes: [],
                 mostrarDetalles: false,
                 total_unidades: 0,
-                mostrarCrearNota: false
-                
+                mostrarCrearNota: false,
+                mostrarNewPago: false,
+                total_vendido: 0,
+                btnGuardar: false,
+                posicion: 0
             }
         },
         created: function(){
@@ -337,6 +419,40 @@
                         this.total_unidades += register.unidades;
                     });
                     this.mostrarDetalles = true;
+                });
+            },
+            registrarPago(nota, i){
+                this.nota = {};
+                this.posicion = i;
+                axios.get('/detalles_nota', {params: {note_id: nota.id}}).then(response => {
+                    this.nota.id = nota.id;
+                    this.nota.cliente = nota.cliente;
+                    this.nota.total_salida = nota.total_salida;
+                    this.nota.registers = response.data;
+                    this.mostrarNewPago = true;
+                });
+            },
+            verificarUnidades(unidades, pendiente, costo_unitario, i){
+                if(unidades > pendiente){
+                    this.makeToast('warning', 'Las unidades son mayor a lo pendiente');
+                }
+                if(unidades <= pendiente){
+                    this.total_vendido = 0;
+                    this.nota.registers[i].total_base = unidades * costo_unitario;
+                    this.btnGuardar = true;
+                    this.nota.registers.forEach(register => {
+                        this.total_vendido += register.total_base;
+                    });
+                }
+            },
+            guardarPagosNota(){
+                axios.post('/guardar_pago', this.nota).then(response => {
+                    this.notes[this.posicion] = response.data;
+                    this.makeToast('success', 'El pago se guardo correctamente');
+                    this.mostrarNewPago = false;
+                })
+                .catch(error => {
+                    this.makeToast('danger', 'Ocurrio un error, vuelve a intentarlo');
                 });
             },
             makeToast(variant = null, descripcion) {

@@ -99,7 +99,7 @@
             </div>
             <div class="tab-pane fade" id="v-notas">
                 <br>
-                <new-nota-component></new-nota-component>
+                <new-nota-component :role_id="{{ auth()->user()->role_id }}"></new-nota-component>
             </div>
             <div class="tab-pane fade" id="v-entrada">
                 <br>

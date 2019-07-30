@@ -6547,7 +6547,66 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['role_id'],
   data: function data() {
     return {
       cliente: '',
@@ -6566,14 +6625,27 @@ __webpack_require__.r(__webpack_exports__);
         key: 'total',
         label: 'Subtotal'
       }, 'eliminar'],
+      fieldsP: [{
+        key: 'index',
+        label: 'N.'
+      }, 'unidades', 'pago', {
+        key: 'created_at',
+        label: 'Fecha'
+      }],
       fieldsN: ['cliente', {
         key: 'created_at',
         label: 'Fecha de creación'
       }, {
         key: 'total_salida',
         label: 'Salida'
+      }, 'pagos', {
+        key: 'total_pagar',
+        label: 'Pagar'
       }, {
         key: 'detalles',
+        label: ''
+      }, {
+        key: 'pagar',
         label: ''
       }],
       fieldsD: [{
@@ -6583,6 +6655,25 @@ __webpack_require__.r(__webpack_exports__);
         key: 'costo_unitario',
         label: 'Costo unitario'
       }, 'unidades', {
+        key: 'total',
+        label: 'Subtotal'
+      }, {
+        key: 'unidades_pagado',
+        label: 'Unidades vendidas'
+      }, {
+        key: 'unidades_pendiente',
+        label: 'Unidades pendientes'
+      }, 'pagos'],
+      fieldsNP: [{
+        key: 'index',
+        label: 'N.'
+      }, 'ISBN', 'libro', {
+        key: 'costo_unitario',
+        label: 'Costo unitario'
+      }, 'unidades', {
+        key: 'unidades_pendiente',
+        label: 'Unidades pendientes'
+      }, {
         key: 'total',
         label: 'Subtotal'
       }],
@@ -6602,7 +6693,11 @@ __webpack_require__.r(__webpack_exports__);
       notes: [],
       mostrarDetalles: false,
       total_unidades: 0,
-      mostrarCrearNota: false
+      mostrarCrearNota: false,
+      mostrarNewPago: false,
+      total_vendido: 0,
+      btnGuardar: false,
+      posicion: 0
     };
   },
   created: function created() {
@@ -6772,6 +6867,52 @@ __webpack_require__.r(__webpack_exports__);
         });
 
         _this5.mostrarDetalles = true;
+      });
+    },
+    registrarPago: function registrarPago(nota, i) {
+      var _this6 = this;
+
+      this.nota = {};
+      this.posicion = i;
+      axios.get('/detalles_nota', {
+        params: {
+          note_id: nota.id
+        }
+      }).then(function (response) {
+        _this6.nota.id = nota.id;
+        _this6.nota.cliente = nota.cliente;
+        _this6.nota.total_salida = nota.total_salida;
+        _this6.nota.registers = response.data;
+        _this6.mostrarNewPago = true;
+      });
+    },
+    verificarUnidades: function verificarUnidades(unidades, pendiente, costo_unitario, i) {
+      var _this7 = this;
+
+      if (unidades > pendiente) {
+        this.makeToast('warning', 'Las unidades son mayor a lo pendiente');
+      }
+
+      if (unidades <= pendiente) {
+        this.total_vendido = 0;
+        this.nota.registers[i].total_base = unidades * costo_unitario;
+        this.btnGuardar = true;
+        this.nota.registers.forEach(function (register) {
+          _this7.total_vendido += register.total_base;
+        });
+      }
+    },
+    guardarPagosNota: function guardarPagosNota() {
+      var _this8 = this;
+
+      axios.post('/guardar_pago', this.nota).then(function (response) {
+        _this8.notes[_this8.posicion] = response.data;
+
+        _this8.makeToast('success', 'El pago se guardo correctamente');
+
+        _this8.mostrarNewPago = false;
+      })["catch"](function (error) {
+        _this8.makeToast('danger', 'Ocurrio un error, vuelve a intentarlo');
       });
     },
     makeToast: function makeToast() {
@@ -7038,12 +7179,9 @@ __webpack_require__.r(__webpack_exports__);
 
       if (base > resta) {
         this.makeToast('warning', 'Las unidades son mayor a lo pendiente');
-      } // if(base == 0){
-      //     this.makeToast('warning', 'Las unidades no pueden ser 0');
-      // }
+      }
 
-
-      if (base <= resta && base != 0) {
+      if (base <= resta) {
         this.total_vendido = 0;
         this.remision.vendidos[i].total_base = base * costo;
         this.btnGuardar = true;
@@ -96675,7 +96813,10 @@ var render = function() {
   return _c(
     "div",
     [
-      !_vm.mostrarDetalles && !_vm.mostrarCrearNota
+      _vm.role_id == 3 &&
+      !_vm.mostrarDetalles &&
+      !_vm.mostrarCrearNota &&
+      !_vm.mostrarNewPago
         ? _c(
             "div",
             { attrs: { align: "right" } },
@@ -96693,6 +96834,9 @@ var render = function() {
           )
         : _vm._e(),
       _vm._v(" "),
+      !_vm.mostrarDetalles &&
+      !_vm.mostrarCrearNota &&
+      !_vm.mostrarNewPago &&
       _vm.notes.length == 0
         ? _c("b-alert", { attrs: { show: "", variant: "secondary" } }, [
             _c("i", { staticClass: "fa fa-exclamation-triangle" }),
@@ -96700,7 +96844,10 @@ var render = function() {
           ])
         : _vm._e(),
       _vm._v(" "),
-      !_vm.mostrarDetalles && !_vm.mostrarCrearNota && _vm.notes.length > 0
+      !_vm.mostrarDetalles &&
+      !_vm.mostrarCrearNota &&
+      !_vm.mostrarNewPago &&
+      _vm.notes.length > 0
         ? _c("b-table", {
             attrs: { items: _vm.notes, fields: _vm.fieldsN },
             scopedSlots: _vm._u(
@@ -96730,6 +96877,30 @@ var render = function() {
                   }
                 },
                 {
+                  key: "pagos",
+                  fn: function(row) {
+                    return [
+                      _vm._v(
+                        "\n            $" +
+                          _vm._s(row.item.pagos) +
+                          "\n        "
+                      )
+                    ]
+                  }
+                },
+                {
+                  key: "total_pagar",
+                  fn: function(row) {
+                    return [
+                      _vm._v(
+                        "\n            $" +
+                          _vm._s(row.item.total_pagar) +
+                          "\n        "
+                      )
+                    ]
+                  }
+                },
+                {
                   key: "detalles",
                   fn: function(row) {
                     return [
@@ -96747,13 +96918,176 @@ var render = function() {
                       )
                     ]
                   }
+                },
+                {
+                  key: "pagar",
+                  fn: function(row) {
+                    return [
+                      _vm.role_id == 3 && row.item.total_pagar > 0
+                        ? _c(
+                            "b-button",
+                            {
+                              attrs: { variant: "outline-primary" },
+                              on: {
+                                click: function($event) {
+                                  return _vm.registrarPago(row.item, row.index)
+                                }
+                              }
+                            },
+                            [_vm._v("Registrar pago")]
+                          )
+                        : _vm._e()
+                    ]
+                  }
                 }
               ],
               null,
               false,
-              566016036
+              569542848
             )
           })
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.mostrarNewPago
+        ? _c(
+            "div",
+            [
+              _c(
+                "b-row",
+                [
+                  _c("b-col", [
+                    _c("h4", [_vm._v("Nota n. " + _vm._s(_vm.nota.id))]),
+                    _vm._v(" "),
+                    _c("label", [
+                      _vm._v("Cliente: " + _vm._s(_vm.nota.cliente))
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c("b-col", [
+                    _c(
+                      "div",
+                      { staticClass: "text-right" },
+                      [
+                        _vm.btnGuardar
+                          ? _c(
+                              "b-button",
+                              {
+                                attrs: { variant: "success" },
+                                on: { click: _vm.guardarPagosNota }
+                              },
+                              [
+                                _c("i", { staticClass: "fa fa-check" }),
+                                _vm._v(" Guardar\n                    ")
+                              ]
+                            )
+                          : _vm._e()
+                      ],
+                      1
+                    )
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { attrs: { align: "right" } },
+                    [
+                      _c(
+                        "b-button",
+                        {
+                          attrs: { variant: "outline-secondary" },
+                          on: {
+                            click: function($event) {
+                              _vm.mostrarNewPago = false
+                            }
+                          }
+                        },
+                        [
+                          _c("i", { staticClass: "fa fa-mail-reply" }),
+                          _vm._v(" Regresar")
+                        ]
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c("hr"),
+              _vm._v(" "),
+              _c("b-table", {
+                attrs: { items: _vm.nota.registers, fields: _vm.fieldsNP },
+                scopedSlots: _vm._u(
+                  [
+                    {
+                      key: "index",
+                      fn: function(row) {
+                        return [_vm._v(_vm._s(row.index + 1))]
+                      }
+                    },
+                    {
+                      key: "ISBN",
+                      fn: function(row) {
+                        return [_vm._v(_vm._s(row.item.libro.ISBN))]
+                      }
+                    },
+                    {
+                      key: "libro",
+                      fn: function(row) {
+                        return [_vm._v(_vm._s(row.item.libro.titulo))]
+                      }
+                    },
+                    {
+                      key: "costo_unitario",
+                      fn: function(row) {
+                        return [_vm._v("$" + _vm._s(row.item.costo_unitario))]
+                      }
+                    },
+                    {
+                      key: "unidades",
+                      fn: function(row) {
+                        return [
+                          _c("b-input", {
+                            attrs: { type: "number" },
+                            on: {
+                              change: function($event) {
+                                return _vm.verificarUnidades(
+                                  row.item.unidades_base,
+                                  row.item.unidades_pendiente,
+                                  row.item.costo_unitario,
+                                  row.index
+                                )
+                              }
+                            },
+                            model: {
+                              value: row.item.unidades_base,
+                              callback: function($$v) {
+                                _vm.$set(row.item, "unidades_base", $$v)
+                              },
+                              expression: "row.item.unidades_base"
+                            }
+                          })
+                        ]
+                      }
+                    },
+                    {
+                      key: "total",
+                      fn: function(row) {
+                        return [_vm._v("$" + _vm._s(row.item.total_base))]
+                      }
+                    }
+                  ],
+                  null,
+                  false,
+                  3418315106
+                )
+              }),
+              _vm._v(" "),
+              _c("h5", { staticClass: "text-right" }, [
+                _vm._v("$" + _vm._s(_vm.total_vendido))
+              ])
+            ],
+            1
+          )
         : _vm._e(),
       _vm._v(" "),
       _vm.mostrarDetalles
@@ -96851,11 +97185,97 @@ var render = function() {
                       fn: function(row) {
                         return [_vm._v("$" + _vm._s(row.item.total))]
                       }
+                    },
+                    {
+                      key: "pagos",
+                      fn: function(row) {
+                        return [
+                          row.item.payments.length > 0
+                            ? _c(
+                                "b-button",
+                                {
+                                  attrs: { variant: "outline-info" },
+                                  on: { click: row.toggleDetails }
+                                },
+                                [
+                                  _vm._v(
+                                    "\n                    " +
+                                      _vm._s(
+                                        row.detailsShowing
+                                          ? "Ocultar"
+                                          : "Mostrar"
+                                      ) +
+                                      "\n                "
+                                  )
+                                ]
+                              )
+                            : _vm._e()
+                        ]
+                      }
+                    },
+                    {
+                      key: "row-details",
+                      fn: function(row) {
+                        return [
+                          _c(
+                            "b-card",
+                            [
+                              _c("b-table", {
+                                attrs: {
+                                  items: row.item.payments,
+                                  fields: _vm.fieldsP
+                                },
+                                scopedSlots: _vm._u(
+                                  [
+                                    {
+                                      key: "index",
+                                      fn: function(row) {
+                                        return [_vm._v(_vm._s(row.index + 1))]
+                                      }
+                                    },
+                                    {
+                                      key: "unidades",
+                                      fn: function(row) {
+                                        return [
+                                          _vm._v(_vm._s(row.item.unidades))
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      key: "pago",
+                                      fn: function(row) {
+                                        return [
+                                          _vm._v("$ " + _vm._s(row.item.pago))
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      key: "created_at",
+                                      fn: function(row) {
+                                        return [
+                                          _vm._v(
+                                            _vm._s(
+                                              _vm._f("moment")(row.created_at)
+                                            )
+                                          )
+                                        ]
+                                      }
+                                    }
+                                  ],
+                                  null,
+                                  true
+                                )
+                              })
+                            ],
+                            1
+                          )
+                        ]
+                      }
                     }
                   ],
                   null,
                   false,
-                  2910147053
+                  1049745147
                 )
               })
             ],

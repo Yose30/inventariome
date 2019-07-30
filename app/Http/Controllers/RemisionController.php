@@ -234,17 +234,20 @@ class RemisionController extends Controller
     public function valores($remisiones, $inicio, $final){
         $total_salida = 0;
         $total_devolucion = 0;
+        $total_pagos = 0;
         $total_pagar = 0;
 
         foreach($remisiones as $r){
             $total_salida += $r->total;
             $total_devolucion += $r->total_devolucion;
+            $total_pagos += $r->pagos;
             $total_pagar += $r->total_pagar;            
         }
 
         $data['remisiones'] = $remisiones;
         $data['total_salida'] = $total_salida;
         $data['total_devolucion'] = $total_devolucion;
+        $data['total_pagos'] = $total_pagos;
         $data['total_pagar'] = $total_pagar;
         $data['fecha_inicio'] = $inicio;
         $data['fecha_final'] = $final;

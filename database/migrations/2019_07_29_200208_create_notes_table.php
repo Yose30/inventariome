@@ -37,6 +37,8 @@ class CreateNotesTable extends Migration
             $table->double('total_pagado', 8, 2)->default(0);
             $table->integer('unidades_pendiente')->default(0);
             $table->double('total_pendiente', 8, 2)->default(0);
+            $table->integer('unidades_base')->default(0);
+            $table->double('total_base', 8, 2)->default(0);
             $table->timestamps();
         });
 

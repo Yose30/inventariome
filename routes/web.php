@@ -134,4 +134,6 @@ Route::get('all_notas', 'NoteController@show')->name('all_notas');
 Route::post('guardar_nota', 'NoteController@store')->name('guardar_nota');
 //Mostrar detalles de nota
 Route::get('detalles_nota', 'NoteController@detalles_nota')->name('detalles_nota');
+//Guardar pago de la nota
+Route::post('guardar_pago', 'NoteController@guardar_pago')->name('guardar_pago');
 
