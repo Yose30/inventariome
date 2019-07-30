@@ -5,13 +5,13 @@
         </b-alert>
         <b-table v-if="!mostrarDetalles && !mostrarEditar && entradas.length > 0" :items="entradas" :fields="fields">
             <template slot="detalles" slot-scope="row">
-                <b-button variant="outline-info" @click="detallesEntrada(row.item)"><i class="fa fa-eye"></i></b-button>
+                <b-button variant="info" @click="detallesEntrada(row.item)">Ver detalles</b-button>
             </template>
             <template slot="descargar" slot-scope="row">
                 <b-button 
-                    variant="info"
+                    variant="primary"
                     :href="'/imprimirEntrada/' + row.item.id">
-                    <i class="fa fa-download"></i>
+                    Descargar
                 </b-button>
             </template>
             <template slot="created_at" slot-scope="row">
@@ -20,9 +20,9 @@
             <template slot="editar" slot-scope="row">
                 <b-button 
                     @click="editarEntrada(row.item)"
-                    variant="outline-warning" 
-                    v-if="fechaFinal.diff(row.item.created_at, 'days') < 5">
-                    <i class="fa fa-pencil"></i>
+                    variant="warning" 
+                    v-if="role_id == 3 && fechaFinal.diff(row.item.created_at, 'days') < 5">
+                    <i class="fa fa-pencil"></i> Editar
                 </b-button>
             </template>
         </b-table>
@@ -116,6 +116,7 @@
 <script>
     // moment.locale('es');
     export default {
+        props: ['role_id'],
         data() {
             return {
                 entradas: [],
@@ -123,9 +124,9 @@
                 fields: [
                     {key: 'id', label: 'N.'}, 
                     'folio',
-                    {key: 'created_at', label: 'Fecha de creación'},  
-                    'detalles', 
-                    'descargar',
+                    {key: 'created_at', label: 'Fecha de creación'},
+                    {key: 'detalles', label: ''},  
+                    {key: 'descargar', label: ''}, 
                     {key: 'editar', label: ''}
                 ],
                 fieldsR: [{key: 'id', label: 'N.'}, {key: 'isbn', label: 'ISBN'}, {key: 'titulo', label: 'Libro'}, 'unidades'],
@@ -153,7 +154,7 @@
             moment: function (date) {
                 return moment(date).format('DD-MM-YYYY');
             }
-        },
+        }, 
         methods: {
             getTodo(){
                 var ffinal = moment();
@@ -188,7 +189,7 @@
             buscarLibroISBN(){
                 axios.get('/buscarISBN', {params: {isbn: this.isbn}}).then(response => {
                     this.temporal = response.data;
-                    this.inputISBN = false;
+                    this.ini_1();
                 }).catch(error => {
                     this.makeToast('danger', 'ISBN incorrecto');
                 });
@@ -202,12 +203,7 @@
             },
             //Mostrar datos del libro seleccionado 
             datosLibro(libro){
-                // this.inicializar();
-                this.inputLibro = false;
-                this.inputISBN = false;
-                this.inputUnidades = true;
-                this.resultslibros = [];
-                
+                this.ini_1();
                 this.temporal = {
                     id: libro.id,
                     ISBN: libro.ISBN,
@@ -217,7 +213,12 @@
                     total: 0
                 };
             },
-
+            ini_1(){
+                this.inputLibro = false;
+                this.inputISBN = false;
+                this.inputUnidades = true;
+                this.resultslibros = [];
+            },
             //Guardar un registro de la entrada
             guardarRegistro(){
                 if(this.unidades > 0){

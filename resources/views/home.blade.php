@@ -14,7 +14,7 @@
                     {{ __("Remisiones") }}
                 </a>
             </li>
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a 
                     class="nav-link" 
                     id="devoluciones-tab" 
@@ -23,7 +23,7 @@
                     aria-controls="v-devoluciones">
                     {{ __("Devoluciones") }}
                 </a>
-            </li>
+            </li> -->
             <li class="nav-item">
                 <a 
                     class="nav-link" 
@@ -62,12 +62,12 @@
             </div>
             <div class="tab-pane fade" id="v-entradas">
                 <br>
-                <entradas-component></entradas-component>
+                <entradas-component :role_id="{{ auth()->user()->role_id }}"></entradas-component>
             </div>
-            <div class="tab-pane fade" id="v-devoluciones">
+            <!-- <div class="tab-pane fade" id="v-devoluciones">
                 <br>
                 <devoluciones-component></devoluciones-component>
-            </div>
+            </div> -->
             <div class="tab-pane fade" id="v-libros">
                 <br>
                 <libros-component :role_id="{{ auth()->user()->role_id }}"></libros-component>

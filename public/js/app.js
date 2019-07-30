@@ -3202,6 +3202,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 // moment.locale('es');
 /* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['role_id'],
   data: function data() {
     return {
       entradas: [],
@@ -3212,7 +3213,13 @@ __webpack_require__.r(__webpack_exports__);
       }, 'folio', {
         key: 'created_at',
         label: 'Fecha de creación'
-      }, 'detalles', 'descargar', {
+      }, {
+        key: 'detalles',
+        label: ''
+      }, {
+        key: 'descargar',
+        label: ''
+      }, {
         key: 'editar',
         label: ''
       }],
@@ -3330,7 +3337,8 @@ __webpack_require__.r(__webpack_exports__);
         }
       }).then(function (response) {
         _this5.temporal = response.data;
-        _this5.inputISBN = false;
+
+        _this5.ini_1();
       })["catch"](function (error) {
         _this5.makeToast('danger', 'ISBN incorrecto');
       });
@@ -3350,11 +3358,7 @@ __webpack_require__.r(__webpack_exports__);
     },
     //Mostrar datos del libro seleccionado 
     datosLibro: function datosLibro(libro) {
-      // this.inicializar();
-      this.inputLibro = false;
-      this.inputISBN = false;
-      this.inputUnidades = true;
-      this.resultslibros = [];
+      this.ini_1();
       this.temporal = {
         id: libro.id,
         ISBN: libro.ISBN,
@@ -3363,6 +3367,12 @@ __webpack_require__.r(__webpack_exports__);
         unidades: 0,
         total: 0
       };
+    },
+    ini_1: function ini_1() {
+      this.inputLibro = false;
+      this.inputISBN = false;
+      this.inputUnidades = true;
+      this.resultslibros = [];
     },
     //Guardar un registro de la entrada
     guardarRegistro: function guardarRegistro() {
@@ -5528,6 +5538,49 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 moment.locale('es');
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -5604,18 +5657,60 @@ moment.locale('es');
       inputUnidades: false,
       respuestaUnidades: '',
       detalles: false,
-      mostrarSalida: true,
-      mostrarDevolucion: true,
-      mostrarFinal: true,
+      mostrarSalida: false,
+      mostrarDevolucion: false,
+      mostrarPagos: false,
+      mostrarFinal: false,
       registros: [],
       devoluciones: [],
       d_total_salida: 0,
       d_total_devolucion: 0,
-      d_total_pagar: 0
+      d_total_pagar: 0,
+      total_pagos: 0,
+      vendidos: [],
+      fieldsP: [{
+        key: 'isbn',
+        label: 'ISBN'
+      }, 'libro', {
+        key: 'costo_unitario',
+        label: 'Costo unitario'
+      }, // {key: 'unidades_resta', label: 'Unidades pendientes'},
+      {
+        key: 'unidades',
+        label: 'Unidades'
+      }, 'subtotal', {
+        key: 'detalles',
+        label: ''
+      }],
+      fieldsD: [{
+        key: 'index',
+        label: 'N.'
+      }, {
+        key: 'user_id',
+        label: 'Usuario'
+      }, 'unidades', 'pago', {
+        key: 'created_at',
+        label: 'Fecha'
+      }]
     };
   },
   created: function created() {
     this.getTodo();
+  },
+  filters: {
+    moment: function (_moment) {
+      function moment(_x) {
+        return _moment.apply(this, arguments);
+      }
+
+      moment.toString = function () {
+        return _moment.toString();
+      };
+
+      return moment;
+    }(function (date) {
+      return moment(date).format('DD-MM-YYYY');
+    })
   },
   methods: (_methods = {
     porNumero: function porNumero() {
@@ -5635,8 +5730,7 @@ moment.locale('es');
           _this.imprimirCliente = false;
           _this.imprimirEstado = false;
         })["catch"](function (error) {
-          console.log(error.response);
-          _this.respuesta_numero = 'No existe';
+          _this.makeToast('danger', 'No existe la remisión');
         });
       }
     },
@@ -5720,10 +5814,12 @@ moment.locale('es');
 
       this.total_salida = 0;
       this.total_devolucion = 0;
+      this.total_pagos = 0;
       this.total_pagar = 0;
       this.remisiones.forEach(function (remision) {
         _this6.total_salida += remision.total;
         _this6.total_devolucion += remision.total_devolucion;
+        _this6.total_pagos += remision.pagos;
         _this6.total_pagar += remision.total_pagar;
       });
     },
@@ -5963,7 +6059,8 @@ moment.locale('es');
       this.inputUnidades = true;
       this.respuestaCosto = '';
     } else {
-      this.respuestaCosto = 'Costo invalido';
+      // this.respuestaCosto = 'Costo invalido';
+      this.makeToast('warning', 'Costo invalido');
     }
   }), _defineProperty(_methods, "eliminarTemporal", function eliminarTemporal() {
     this.temporal = {};
@@ -6008,7 +6105,10 @@ moment.locale('es');
 
     this.detalles = true;
     this.remision = remision;
-    console.log(this.remision);
+    this.mostrarSalida = false;
+    this.mostrarDevolucion = false;
+    this.mostrarPagos = false;
+    this.mostrarFinal = false;
     axios.get('/lista_datos', {
       params: {
         numero: remision.id
@@ -6016,6 +6116,15 @@ moment.locale('es');
     }).then(function (response) {
       _this17.registros = response.data.datos;
       _this17.devoluciones = response.data.devoluciones;
+      _this17.vendidos = response.data.vendidos;
+    });
+  }), _defineProperty(_methods, "makeToast", function makeToast() {
+    var variant = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    var descripcion = arguments.length > 1 ? arguments[1] : undefined;
+    this.$bvToast.toast(descripcion, {
+      title: 'Mensaje',
+      variant: variant,
+      solid: true
     });
   }), _methods)
 });
@@ -6274,6 +6383,411 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/NewNotaComponent.vue?vue&type=script&lang=js&":
+/*!***************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/NewNotaComponent.vue?vue&type=script&lang=js& ***!
+  \***************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+/* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {
+      cliente: '',
+      viewForm: false,
+      registers: [],
+      fields: [{
+        key: 'index',
+        label: 'N.'
+      }, 'ISBN', {
+        key: 'titulo',
+        label: 'Libro'
+      }, {
+        key: 'costo_unitario',
+        label: 'Costo unitario'
+      }, 'unidades', {
+        key: 'total',
+        label: 'Subtotal'
+      }, 'eliminar'],
+      fieldsN: ['cliente', {
+        key: 'created_at',
+        label: 'Fecha de creación'
+      }, {
+        key: 'total_salida',
+        label: 'Salida'
+      }, {
+        key: 'detalles',
+        label: ''
+      }],
+      fieldsD: [{
+        key: 'index',
+        label: 'N.'
+      }, 'ISBN', 'libro', {
+        key: 'costo_unitario',
+        label: 'Costo unitario'
+      }, 'unidades', {
+        key: 'total',
+        label: 'Subtotal'
+      }],
+      state: null,
+      isbn: '',
+      inputISBN: true,
+      temporal: {},
+      queryTitulo: '',
+      inputLibro: true,
+      resultslibros: [],
+      inputUnidades: false,
+      unidades: '',
+      costo_unitario: '',
+      inputCosto: false,
+      load: false,
+      nota: {},
+      notes: [],
+      mostrarDetalles: false,
+      total_unidades: 0,
+      mostrarCrearNota: false
+    };
+  },
+  created: function created() {
+    this.getTodo();
+  },
+  filters: {
+    moment: function (_moment) {
+      function moment(_x) {
+        return _moment.apply(this, arguments);
+      }
+
+      moment.toString = function () {
+        return _moment.toString();
+      };
+
+      return moment;
+    }(function (date) {
+      return moment(date).format('DD-MM-YYYY');
+    })
+  },
+  methods: {
+    getTodo: function getTodo() {
+      var _this = this;
+
+      axios.get('/all_notas').then(function (response) {
+        _this.notes = response.data;
+      });
+    },
+    func_crearNota: function func_crearNota() {
+      this.mostrarCrearNota = true;
+      this.nota = {};
+      this.cliente = '';
+      this.registers = [];
+    },
+    func_viewForm: function func_viewForm() {
+      if (this.cliente.length > 4) {
+        this.viewForm = true;
+        this.state = null;
+      } else {
+        this.state = false;
+        this.makeToast('warning', 'Campo obligatorio, mayor a 5 caracteres');
+      }
+    },
+    buscarLibroISBN: function buscarLibroISBN() {
+      var _this2 = this;
+
+      axios.get('/buscarISBN', {
+        params: {
+          isbn: this.isbn
+        }
+      }).then(function (response) {
+        _this2.temporal = response.data;
+
+        _this2.ini_1();
+      })["catch"](function (error) {
+        _this2.makeToast('danger', 'ISBN incorrecto');
+      });
+    },
+    mostrarLibros: function mostrarLibros() {
+      var _this3 = this;
+
+      if (this.queryTitulo.length > 0) {
+        axios.get('/mostrarLibros', {
+          params: {
+            queryTitulo: this.queryTitulo
+          }
+        }).then(function (response) {
+          _this3.resultslibros = response.data;
+        });
+      }
+    },
+    datosLibro: function datosLibro(libro) {
+      this.temporal = {
+        id: libro.id,
+        ISBN: libro.ISBN,
+        titulo: libro.titulo,
+        piezas: libro.piezas,
+        costo_unitario: 0,
+        unidades: 0,
+        total: 0
+      };
+      this.ini_1();
+    },
+    ini_1: function ini_1() {
+      this.inputLibro = false;
+      this.inputISBN = false;
+      this.inputCosto = true;
+      this.resultslibros = [];
+    },
+    guardarCosto: function guardarCosto() {
+      if (this.costo_unitario > 0) {
+        this.inputUnidades = true;
+        this.temporal.costo_unitario = this.costo_unitario;
+      } else {
+        this.makeToast('warning', 'Costo invalido');
+      }
+    },
+    guardarRegistro: function guardarRegistro() {
+      if (this.unidades > 0) {
+        if (this.unidades <= this.temporal.piezas) {
+          this.temporal.unidades = this.unidades;
+          this.temporal.total = this.temporal.unidades * this.temporal.costo_unitario;
+          this.registers.push(this.temporal);
+          this.eliminarTemporal();
+        } else {
+          this.makeToast('warning', "".concat(this.temporal.piezas, " unidades en existencia"));
+        }
+      } else {
+        this.makeToast('warning', 'Unidades invalidas');
+      }
+    },
+    eliminarTemporal: function eliminarTemporal() {
+      this.inputUnidades = false;
+      this.inputLibro = true;
+      this.inputISBN = true;
+      this.queryTitulo = '';
+      this.temporal = {};
+      this.unidades = '';
+      this.costo_unitario = '';
+      this.inputCosto = false;
+    },
+    eliminarRegistro: function eliminarRegistro(i) {
+      this.registers.splice(i, 1);
+    },
+    guardarNota: function guardarNota() {
+      var _this4 = this;
+
+      this.load = true;
+
+      if (this.cliente.length > 4) {
+        this.state = null;
+        this.nota.cliente = this.cliente;
+        this.nota.registers = this.registers;
+        axios.post('/guardar_nota', this.nota).then(function (response) {
+          _this4.load = false;
+
+          _this4.notes.push(response.data);
+
+          _this4.mostrarCrearNota = false;
+        })["catch"](function (error) {
+          _this4.load = false;
+
+          _this4.makeToast('danger', 'Ocurrio un problema, vuelve a intentar');
+        });
+      } else {
+        this.state = false;
+        this.load = false;
+        this.makeToast('warning', 'Campo obligatorio, mayor a 5 caracteres');
+      }
+    },
+    detallesNota: function detallesNota(nota) {
+      var _this5 = this;
+
+      this.nota = {};
+      axios.get('/detalles_nota', {
+        params: {
+          note_id: nota.id
+        }
+      }).then(function (response) {
+        _this5.nota.id = nota.id;
+        _this5.nota.cliente = nota.cliente;
+        _this5.nota.total_salida = nota.total_salida;
+        _this5.nota.registers = response.data;
+
+        _this5.nota.registers.forEach(function (register) {
+          _this5.total_unidades += register.unidades;
+        });
+
+        _this5.mostrarDetalles = true;
+      });
+    },
+    makeToast: function makeToast() {
+      var variant = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var descripcion = arguments.length > 1 ? arguments[1] : undefined;
+      this.$bvToast.toast(descripcion, {
+        title: 'Mensaje',
+        variant: variant,
+        solid: true
+      });
+    }
+  }
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/PagosComponent.vue?vue&type=script&lang=js&":
 /*!*************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/PagosComponent.vue?vue&type=script&lang=js& ***!
@@ -6283,6 +6797,8 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+//
+//
 //
 //
 //
@@ -6404,12 +6920,13 @@ __webpack_require__.r(__webpack_exports__);
       }, {
         key: 'total_pagar',
         label: 'Pagar'
-      }, {
+      }, // {key: 'registrar_devolucion', label: 'Devolución'},
+      {
         key: 'pagar',
-        label: ''
+        label: 'Pago'
       }, {
         key: 'ver_pagos',
-        label: ''
+        label: 'Pagos'
       }],
       fieldsD: [{
         key: 'index',
@@ -7296,6 +7813,44 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -7309,13 +7864,28 @@ __webpack_require__.r(__webpack_exports__);
       }, 'cliente', {
         key: 'total',
         label: 'Salida'
-      }, 'estado', {
-        key: 'fecha_entrega',
-        label: 'Fecha de entrega'
+      }, // 'estado',
+      // {key: 'fecha_entrega', label: 'Fecha de entrega'},
+      {
+        key: 'detalles',
+        label: ''
       }, {
         key: 'registrar_entrega',
-        label: 'Marcar entrega'
-      }]
+        label: ''
+      }],
+      fieldsD: [{
+        key: 'isbn',
+        label: 'ISBN'
+      }, 'libro', {
+        key: 'costo_unitario',
+        label: 'Costo unitario'
+      }, {
+        key: 'unidades',
+        label: 'Unidades'
+      }, 'subtotal'],
+      mostrarDetalles: false,
+      remision: {},
+      total_unidades: 0
     };
   },
   created: function created() {
@@ -7334,22 +7904,32 @@ __webpack_require__.r(__webpack_exports__);
 
       axios.put('/vendidos_remision', remision).then(function (response) {
         _this2.remisiones[i].estado = response.data.remision.estado;
-        console.log(response.data);
       })["catch"](function (error) {
-        _this2.$bvToast.toast('Ocurrio un error, vuelve a intentar', {
-          title: 'Error',
+        _this2.$bvToast.toast('Ocurrio un problema, vuelve a intentar', {
+          title: 'Mensaje',
           variant: 'danger',
           solid: true
         });
-      }); // axios.get('/devoluciones_remision', {params: {remision_id: remision.id}}).then(response => {
-      //     this.remisiones[i].estado = response.data.remision.estado;
-      // }).catch(error => {
-      //     this.$bvToast.toast('Ocurrio un error, vuelve a intentar', {
-      //         title: 'Error',
-      //         variant: 'danger',
-      //         solid: true
-      //     });
-      // });
+      });
+    },
+    viewDetalles: function viewDetalles(remision) {
+      var _this3 = this;
+
+      this.remision.id = remision.id;
+      this.remision.cliente = remision.cliente;
+      this.remision.total = remision.total;
+      axios.get('/lista_datos', {
+        params: {
+          numero: remision.id
+        }
+      }).then(function (response) {
+        _this3.mostrarDetalles = true;
+        _this3.remision.datos = response.data.datos;
+
+        _this3.remision.datos.forEach(function (dato) {
+          _this3.total_unidades += dato.unidades;
+        });
+      });
     }
   }
 });
@@ -91818,14 +92398,14 @@ var render = function() {
                       _c(
                         "b-button",
                         {
-                          attrs: { variant: "outline-info" },
+                          attrs: { variant: "info" },
                           on: {
                             click: function($event) {
                               return _vm.detallesEntrada(row.item)
                             }
                           }
                         },
-                        [_c("i", { staticClass: "fa fa-eye" })]
+                        [_vm._v("Ver detalles")]
                       )
                     ]
                   }
@@ -91838,11 +92418,11 @@ var render = function() {
                         "b-button",
                         {
                           attrs: {
-                            variant: "info",
+                            variant: "primary",
                             href: "/imprimirEntrada/" + row.item.id
                           }
                         },
-                        [_c("i", { staticClass: "fa fa-download" })]
+                        [_vm._v("\n                Descargar\n            ")]
                       )
                     ]
                   }
@@ -91863,18 +92443,22 @@ var render = function() {
                   key: "editar",
                   fn: function(row) {
                     return [
+                      _vm.role_id == 3 &&
                       _vm.fechaFinal.diff(row.item.created_at, "days") < 5
                         ? _c(
                             "b-button",
                             {
-                              attrs: { variant: "outline-warning" },
+                              attrs: { variant: "warning" },
                               on: {
                                 click: function($event) {
                                   return _vm.editarEntrada(row.item)
                                 }
                               }
                             },
-                            [_c("i", { staticClass: "fa fa-pencil" })]
+                            [
+                              _c("i", { staticClass: "fa fa-pencil" }),
+                              _vm._v(" Editar\n            ")
+                            ]
                           )
                         : _vm._e()
                     ]
@@ -91883,7 +92467,7 @@ var render = function() {
               ],
               null,
               false,
-              2204134045
+              1250339499
             )
           })
         : _vm._e(),
@@ -94607,31 +95191,6 @@ var render = function() {
               "div",
               { staticClass: "col-md-4" },
               [
-                _c("div", { staticClass: "row" }, [
-                  _c("label", { staticClass: "col-md-3" }, [_vm._v("Estado")]),
-                  _vm._v(" "),
-                  _c(
-                    "div",
-                    { staticClass: "col-md-9" },
-                    [
-                      _c("b-form-select", {
-                        attrs: { options: _vm.options },
-                        on: { change: _vm.porEstado },
-                        model: {
-                          value: _vm.selected,
-                          callback: function($$v) {
-                            _vm.selected = $$v
-                          },
-                          expression: "selected"
-                        }
-                      })
-                    ],
-                    1
-                  )
-                ]),
-                _vm._v(" "),
-                _c("hr"),
-                _vm._v(" "),
                 _c(
                   "b-row",
                   { staticClass: "my-1" },
@@ -94792,7 +95351,7 @@ var render = function() {
               ? _c(
                   "a",
                   {
-                    staticClass: "btn btn-info col-md-1",
+                    staticClass: "btn btn-info",
                     attrs: {
                       href:
                         "/imprimirCliente/" +
@@ -94803,7 +95362,10 @@ var render = function() {
                         _vm.final
                     }
                   },
-                  [_c("i", { staticClass: "fa fa-print" })]
+                  [
+                    _c("i", { staticClass: "fa fa-download" }),
+                    _vm._v(" Descargar\n            ")
+                  ]
                 )
               : _vm._e(),
             _vm._v(" "),
@@ -94811,10 +95373,13 @@ var render = function() {
               ? _c(
                   "a",
                   {
-                    staticClass: "btn btn-info col-md-1",
+                    staticClass: "btn btn-info",
                     attrs: { href: "/imprimirEstado/" + _vm.estadoRemision }
                   },
-                  [_c("i", { staticClass: "fa fa-print" })]
+                  [
+                    _c("i", { staticClass: "fa fa-download" }),
+                    _vm._v(" Descargar\n            ")
+                  ]
                 )
               : _vm._e()
           ]),
@@ -94840,37 +95405,11 @@ var render = function() {
                         _vm._v("$ " + _vm._s(_vm.remision.total_devolucion))
                       ]),
                       _vm._v(" "),
+                      _c("td", [_vm._v("$ " + _vm._s(_vm.remision.pagos))]),
+                      _vm._v(" "),
                       _c("td", [
                         _vm._v("$ " + _vm._s(_vm.remision.total_pagar))
                       ]),
-                      _vm._v(" "),
-                      _c(
-                        "td",
-                        [
-                          _vm.remision.estado == "Iniciado"
-                            ? _c(
-                                "b-badge",
-                                { attrs: { variant: "secondary" } },
-                                [_vm._v(_vm._s(_vm.remision.estado))]
-                              )
-                            : _vm._e(),
-                          _vm._v(" "),
-                          _vm.remision.estado == "Proceso"
-                            ? _c("b-badge", { attrs: { variant: "primary" } }, [
-                                _vm._v(_vm._s(_vm.remision.estado))
-                              ])
-                            : _vm._e(),
-                          _vm._v(" "),
-                          _vm.remision.estado == "Terminado"
-                            ? _c("b-badge", { attrs: { variant: "success" } }, [
-                                _vm._v(_vm._s(_vm.remision.estado))
-                              ])
-                            : _vm._e()
-                        ],
-                        1
-                      ),
-                      _vm._v(" "),
-                      _c("td", [_vm._v(_vm._s(_vm.remision.fecha_entrega))]),
                       _vm._v(" "),
                       _c("td", [
                         _c(
@@ -94883,7 +95422,11 @@ var render = function() {
                               }
                             }
                           },
-                          [_c("i", { staticClass: "fa fa-eye" })]
+                          [
+                            _vm._v(
+                              "\n                                Detalles\n                            "
+                            )
+                          ]
                         )
                       ])
                     ])
@@ -94912,41 +95455,11 @@ var render = function() {
                             _vm._v("$ " + _vm._s(remision.total_devolucion))
                           ]),
                           _vm._v(" "),
+                          _c("td", [_vm._v("$ " + _vm._s(remision.pagos))]),
+                          _vm._v(" "),
                           _c("td", [
                             _vm._v("$ " + _vm._s(remision.total_pagar))
                           ]),
-                          _vm._v(" "),
-                          _c(
-                            "td",
-                            [
-                              remision.estado == "Iniciado"
-                                ? _c(
-                                    "b-badge",
-                                    { attrs: { variant: "secondary" } },
-                                    [_vm._v(_vm._s(remision.estado))]
-                                  )
-                                : _vm._e(),
-                              _vm._v(" "),
-                              remision.estado == "Proceso"
-                                ? _c(
-                                    "b-badge",
-                                    { attrs: { variant: "primary" } },
-                                    [_vm._v(_vm._s(remision.estado))]
-                                  )
-                                : _vm._e(),
-                              _vm._v(" "),
-                              remision.estado == "Terminado"
-                                ? _c(
-                                    "b-badge",
-                                    { attrs: { variant: "success" } },
-                                    [_vm._v(_vm._s(remision.estado))]
-                                  )
-                                : _vm._e()
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c("td", [_vm._v(_vm._s(remision.fecha_entrega))]),
                           _vm._v(" "),
                           _c("td", [
                             _c(
@@ -94959,7 +95472,11 @@ var render = function() {
                                   }
                                 }
                               },
-                              [_c("i", { staticClass: "fa fa-eye" })]
+                              [
+                                _vm._v(
+                                  "\n                                Detalles\n                            "
+                                )
+                              ]
                             )
                           ])
                         ])
@@ -94979,6 +95496,10 @@ var render = function() {
                         ]),
                         _vm._v(" "),
                         _c("td", [
+                          _c("b", [_vm._v("$ " + _vm._s(_vm.total_pagos))])
+                        ]),
+                        _vm._v(" "),
+                        _c("td", [
                           _c("b", [_vm._v("$ " + _vm._s(_vm.total_pagar))])
                         ])
                       ])
@@ -94995,59 +95516,61 @@ var render = function() {
       ? _c(
           "div",
           [
-            _c("div", { staticClass: "row" }, [
-              _c("h4", { staticClass: "col-md-11" }, [
-                _vm._v("Remisión N. " + _vm._s(_vm.remision.id))
-              ]),
-              _vm._v(" "),
-              _c(
-                "button",
-                {
-                  staticClass: "btn btn-danger",
-                  attrs: { id: "btnCancelar" },
-                  on: {
-                    click: function($event) {
-                      _vm.detalles = false
-                    }
-                  }
-                },
-                [_c("i", { staticClass: "fa fa-close" })]
-              )
-            ]),
-            _vm._v(" "),
-            _c("hr"),
-            _vm._v(" "),
-            _c("div", { staticClass: "row" }, [
-              _c(
-                "div",
-                { staticClass: "col-md-11" },
-                [
-                  _vm.remision.estado == "Proceso"
-                    ? _c("b-badge", { attrs: { variant: "primary" } }, [
-                        _vm._v(_vm._s(_vm.remision.estado))
-                      ])
-                    : _vm._e(),
+            _c(
+              "b-row",
+              [
+                _c("b-col", { attrs: { sm: "8" } }, [
+                  _c("h4", [_vm._v("Remisión N. " + _vm._s(_vm.remision.id))]),
                   _vm._v(" "),
-                  _vm.remision.estado == "Terminado"
-                    ? _c("b-badge", { attrs: { variant: "success" } }, [
-                        _vm._v(_vm._s(_vm.remision.estado))
-                      ])
-                    : _vm._e()
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _vm.remision.estado == "Terminado"
-                ? _c(
-                    "a",
-                    {
-                      staticClass: "btn btn-info",
-                      attrs: { href: "/imprimirSalida/" + _vm.remision.id }
-                    },
-                    [_c("i", { staticClass: "fa fa-print" })]
-                  )
-                : _vm._e()
-            ]),
+                  _c("label", [
+                    _vm._v("Cliente: " + _vm._s(_vm.remision.cliente.name))
+                  ])
+                ]),
+                _vm._v(" "),
+                _c(
+                  "b-col",
+                  { attrs: { sm: "2", align: "right" } },
+                  [
+                    _vm.remision.estado == "Iniciado"
+                      ? _c("b-badge", { attrs: { variant: "info" } }, [
+                          _vm._v(_vm._s(_vm.remision.estado))
+                        ])
+                      : _vm._e(),
+                    _vm._v(" "),
+                    _vm.remision.estado == "Proceso"
+                      ? _c("b-badge", { attrs: { variant: "primary" } }, [
+                          _vm._v("Entregado")
+                        ])
+                      : _vm._e()
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "b-col",
+                  { attrs: { sm: "2", align: "right" } },
+                  [
+                    _c(
+                      "b-button",
+                      {
+                        attrs: { variant: "secondary" },
+                        on: {
+                          click: function($event) {
+                            _vm.detalles = false
+                          }
+                        }
+                      },
+                      [
+                        _c("i", { staticClass: "fa fa-mail-reply" }),
+                        _vm._v(" Regresar\n                ")
+                      ]
+                    )
+                  ],
+                  1
+                )
+              ],
+              1
+            ),
             _vm._v(" "),
             _c("hr"),
             _vm._v(" "),
@@ -95283,9 +95806,195 @@ var render = function() {
                   "div",
                   { staticClass: "row" },
                   [
-                    _c("h4", { staticClass: "col-md-10" }, [
-                      _vm._v("Remisión final")
-                    ]),
+                    _c("h4", { staticClass: "col-md-10" }, [_vm._v("Pagos")]),
+                    _vm._v(" "),
+                    _c(
+                      "b-button",
+                      {
+                        class: _vm.mostrarPagos ? "collapsed" : null,
+                        attrs: {
+                          variant: "link",
+                          "aria-expanded": _vm.mostrarPagos ? "true" : "false",
+                          "aria-controls": "collapse-3"
+                        },
+                        on: {
+                          click: function($event) {
+                            _vm.mostrarPagos = !_vm.mostrarPagos
+                          }
+                        }
+                      },
+                      [_c("i", { staticClass: "fa fa-sort-asc" })]
+                    )
+                  ],
+                  1
+                )
+              : _vm._e(),
+            _vm._v(" "),
+            _c(
+              "b-collapse",
+              {
+                staticClass: "mt-2",
+                attrs: { id: "collapse-3" },
+                model: {
+                  value: _vm.mostrarPagos,
+                  callback: function($$v) {
+                    _vm.mostrarPagos = $$v
+                  },
+                  expression: "mostrarPagos"
+                }
+              },
+              [
+                _c("b-table", {
+                  attrs: { items: _vm.vendidos, fields: _vm.fieldsP },
+                  scopedSlots: _vm._u(
+                    [
+                      {
+                        key: "isbn",
+                        fn: function(row) {
+                          return [_vm._v(_vm._s(row.item.libro.ISBN))]
+                        }
+                      },
+                      {
+                        key: "libro",
+                        fn: function(row) {
+                          return [_vm._v(_vm._s(row.item.libro.titulo))]
+                        }
+                      },
+                      {
+                        key: "costo_unitario",
+                        fn: function(row) {
+                          return [
+                            _vm._v("$" + _vm._s(row.item.dato.costo_unitario))
+                          ]
+                        }
+                      },
+                      {
+                        key: "subtotal",
+                        fn: function(row) {
+                          return [_vm._v("$" + _vm._s(row.item.total))]
+                        }
+                      },
+                      {
+                        key: "detalles",
+                        fn: function(row) {
+                          return [
+                            row.item.pagos.length > 0
+                              ? _c(
+                                  "b-button",
+                                  {
+                                    attrs: { variant: "outline-info" },
+                                    on: { click: row.toggleDetails }
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n                        " +
+                                        _vm._s(
+                                          row.detailsShowing
+                                            ? "Ocultar"
+                                            : "Mostrar"
+                                        ) +
+                                        " detalles\n                    "
+                                    )
+                                  ]
+                                )
+                              : _vm._e()
+                          ]
+                        }
+                      },
+                      {
+                        key: "row-details",
+                        fn: function(row) {
+                          return [
+                            _c(
+                              "b-card",
+                              [
+                                _c("b-table", {
+                                  attrs: {
+                                    items: row.item.pagos,
+                                    fields: _vm.fieldsD
+                                  },
+                                  scopedSlots: _vm._u(
+                                    [
+                                      {
+                                        key: "index",
+                                        fn: function(row) {
+                                          return [_vm._v(_vm._s(row.index + 1))]
+                                        }
+                                      },
+                                      {
+                                        key: "user_id",
+                                        fn: function(row) {
+                                          return [
+                                            row.item.user_id == 2
+                                              ? _c("label", [
+                                                  _vm._v("Teresa Pérez")
+                                                ])
+                                              : _vm._e(),
+                                            _vm._v(" "),
+                                            row.item.user_id == 3
+                                              ? _c("label", [_vm._v("Almacén")])
+                                              : _vm._e()
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        key: "unidades",
+                                        fn: function(row) {
+                                          return [
+                                            _vm._v(_vm._s(row.item.unidades))
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        key: "pago",
+                                        fn: function(row) {
+                                          return [
+                                            _vm._v("$ " + _vm._s(row.item.pago))
+                                          ]
+                                        }
+                                      },
+                                      {
+                                        key: "created_at",
+                                        fn: function(row) {
+                                          return [
+                                            _vm._v(
+                                              _vm._s(
+                                                _vm._f("moment")(row.created_at)
+                                              )
+                                            )
+                                          ]
+                                        }
+                                      }
+                                    ],
+                                    null,
+                                    true
+                                  )
+                                })
+                              ],
+                              1
+                            )
+                          ]
+                        }
+                      }
+                    ],
+                    null,
+                    false,
+                    3568398885
+                  )
+                })
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c("hr"),
+            _vm._v(" "),
+            _vm.remision.estado == "Proceso" ||
+            _vm.remision.estado == "Terminado"
+              ? _c(
+                  "div",
+                  { staticClass: "row" },
+                  [
+                    _c("h4", { staticClass: "col-md-10" }, [_vm._v("Pagar")]),
                     _vm._v(" "),
                     _c(
                       "b-button",
@@ -95419,11 +96128,9 @@ var staticRenderFns = [
         _vm._v(" "),
         _c("th", { attrs: { scope: "col" } }, [_vm._v("Devolución")]),
         _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Final")]),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Pagos")]),
         _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Estado")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Fecha de entrega")]),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Pagar")]),
         _vm._v(" "),
         _c("th", { attrs: { scope: "col" } })
       ])
@@ -95445,11 +96152,9 @@ var staticRenderFns = [
         _vm._v(" "),
         _c("th", { attrs: { scope: "col" } }, [_vm._v("Devolución")]),
         _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Final")]),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Pagos")]),
         _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Estado")]),
-        _vm._v(" "),
-        _c("th", { attrs: { scope: "col" } }, [_vm._v("Fecha de entrega")]),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Pagar")]),
         _vm._v(" "),
         _c("th", { attrs: { scope: "col" } })
       ])
@@ -95952,6 +96657,640 @@ render._withStripped = true
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/NewNotaComponent.vue?vue&type=template&id=df19744c&":
+/*!*******************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/NewNotaComponent.vue?vue&type=template&id=df19744c& ***!
+  \*******************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    [
+      !_vm.mostrarDetalles && !_vm.mostrarCrearNota
+        ? _c(
+            "div",
+            { attrs: { align: "right" } },
+            [
+              _c(
+                "b-button",
+                {
+                  attrs: { variant: "success" },
+                  on: { click: _vm.func_crearNota }
+                },
+                [_c("i", { staticClass: "fa fa-plus" }), _vm._v(" Crear nota")]
+              )
+            ],
+            1
+          )
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.notes.length == 0
+        ? _c("b-alert", { attrs: { show: "", variant: "secondary" } }, [
+            _c("i", { staticClass: "fa fa-exclamation-triangle" }),
+            _vm._v(" No hay notas\n    ")
+          ])
+        : _vm._e(),
+      _vm._v(" "),
+      !_vm.mostrarDetalles && !_vm.mostrarCrearNota && _vm.notes.length > 0
+        ? _c("b-table", {
+            attrs: { items: _vm.notes, fields: _vm.fieldsN },
+            scopedSlots: _vm._u(
+              [
+                {
+                  key: "created_at",
+                  fn: function(row) {
+                    return [
+                      _vm._v(
+                        "\n            " +
+                          _vm._s(_vm._f("moment")(row.item.created_at)) +
+                          "\n        "
+                      )
+                    ]
+                  }
+                },
+                {
+                  key: "total_salida",
+                  fn: function(row) {
+                    return [
+                      _vm._v(
+                        "\n            $" +
+                          _vm._s(row.item.total_salida) +
+                          "\n        "
+                      )
+                    ]
+                  }
+                },
+                {
+                  key: "detalles",
+                  fn: function(row) {
+                    return [
+                      _c(
+                        "b-button",
+                        {
+                          attrs: { variant: "outline-info" },
+                          on: {
+                            click: function($event) {
+                              return _vm.detallesNota(row.item)
+                            }
+                          }
+                        },
+                        [_vm._v("Detalles")]
+                      )
+                    ]
+                  }
+                }
+              ],
+              null,
+              false,
+              566016036
+            )
+          })
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.mostrarDetalles
+        ? _c(
+            "div",
+            [
+              _c(
+                "b-row",
+                [
+                  _c("b-col", [
+                    _c("h4", [_vm._v("Nota n. " + _vm._s(_vm.nota.id))]),
+                    _vm._v(" "),
+                    _c("label", [
+                      _vm._v("Cliente: " + _vm._s(_vm.nota.cliente))
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c("b-col", [
+                    _c("br"),
+                    _vm._v(" "),
+                    _c("label", [
+                      _c("b", [_vm._v("Unidades")]),
+                      _vm._v(": " + _vm._s(_vm.total_unidades))
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c("b-col", [
+                    _c("br"),
+                    _vm._v(" "),
+                    _c("label", [
+                      _c("b", [_vm._v("Total")]),
+                      _vm._v(": $" + _vm._s(_vm.nota.total_salida))
+                    ]),
+                    _c("br")
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { attrs: { align: "right" } },
+                    [
+                      _c(
+                        "b-button",
+                        {
+                          attrs: { variant: "outline-secondary" },
+                          on: {
+                            click: function($event) {
+                              _vm.mostrarDetalles = false
+                            }
+                          }
+                        },
+                        [
+                          _c("i", { staticClass: "fa fa-mail-reply" }),
+                          _vm._v(" Regresar")
+                        ]
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c("hr"),
+              _vm._v(" "),
+              _c("b-table", {
+                attrs: { items: _vm.nota.registers, fields: _vm.fieldsD },
+                scopedSlots: _vm._u(
+                  [
+                    {
+                      key: "index",
+                      fn: function(row) {
+                        return [_vm._v(_vm._s(row.index + 1))]
+                      }
+                    },
+                    {
+                      key: "ISBN",
+                      fn: function(row) {
+                        return [_vm._v(_vm._s(row.item.libro.ISBN))]
+                      }
+                    },
+                    {
+                      key: "libro",
+                      fn: function(row) {
+                        return [_vm._v(_vm._s(row.item.libro.titulo))]
+                      }
+                    },
+                    {
+                      key: "costo_unitario",
+                      fn: function(row) {
+                        return [_vm._v("$" + _vm._s(row.item.costo_unitario))]
+                      }
+                    },
+                    {
+                      key: "total",
+                      fn: function(row) {
+                        return [_vm._v("$" + _vm._s(row.item.total))]
+                      }
+                    }
+                  ],
+                  null,
+                  false,
+                  2910147053
+                )
+              })
+            ],
+            1
+          )
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.mostrarCrearNota
+        ? _c(
+            "div",
+            [
+              _c(
+                "b-row",
+                [
+                  _c("b-col", [_c("h4", [_vm._v("Crear nota")])]),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { attrs: { align: "right" } },
+                    [
+                      _c(
+                        "b-button",
+                        {
+                          attrs: { variant: "outline-secondary" },
+                          on: {
+                            click: function($event) {
+                              _vm.mostrarCrearNota = false
+                            }
+                          }
+                        },
+                        [
+                          _c("i", { staticClass: "fa fa-mail-reply" }),
+                          _vm._v(" Regresar")
+                        ]
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c("hr"),
+              _vm._v(" "),
+              _c(
+                "b-row",
+                { staticClass: "col-md-8" },
+                [
+                  _c("b-col", { attrs: { sm: "3" } }, [_vm._v("Cliente")]),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { attrs: { sm: "6" } },
+                    [
+                      _c("b-form-input", {
+                        attrs: { disabled: _vm.load, state: _vm.state },
+                        on: {
+                          keyup: function($event) {
+                            if (
+                              !$event.type.indexOf("key") &&
+                              _vm._k(
+                                $event.keyCode,
+                                "enter",
+                                13,
+                                $event.key,
+                                "Enter"
+                              )
+                            ) {
+                              return null
+                            }
+                            return _vm.func_viewForm($event)
+                          }
+                        },
+                        model: {
+                          value: _vm.cliente,
+                          callback: function($$v) {
+                            _vm.cliente = $$v
+                          },
+                          expression: "cliente"
+                        }
+                      })
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { attrs: { sm: "3" } },
+                    [
+                      _vm.registers.length > 0
+                        ? _c(
+                            "b-button",
+                            {
+                              attrs: { variant: "success", disabled: _vm.load },
+                              on: { click: _vm.guardarNota }
+                            },
+                            [
+                              _vm._v(
+                                "\n                    " +
+                                  _vm._s(!_vm.load ? "Guardar" : "Guardando") +
+                                  "\n                "
+                              )
+                            ]
+                          )
+                        : _vm._e()
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c("hr"),
+              _vm._v(" "),
+              _vm.viewForm
+                ? _c(
+                    "div",
+                    [
+                      _c("b-table", {
+                        attrs: { items: _vm.registers, fields: _vm.fields },
+                        scopedSlots: _vm._u(
+                          [
+                            {
+                              key: "index",
+                              fn: function(row) {
+                                return [_vm._v(_vm._s(row.index + 1))]
+                              }
+                            },
+                            {
+                              key: "costo_unitario",
+                              fn: function(row) {
+                                return [
+                                  _vm._v("$" + _vm._s(row.item.costo_unitario))
+                                ]
+                              }
+                            },
+                            {
+                              key: "total",
+                              fn: function(row) {
+                                return [_vm._v("$" + _vm._s(row.item.total))]
+                              }
+                            },
+                            {
+                              key: "eliminar",
+                              fn: function(row) {
+                                return [
+                                  _c(
+                                    "b-button",
+                                    {
+                                      attrs: {
+                                        variant: "danger",
+                                        disabled: _vm.load
+                                      },
+                                      on: {
+                                        click: function($event) {
+                                          return _vm.eliminarRegistro(row.index)
+                                        }
+                                      }
+                                    },
+                                    [
+                                      _c("i", {
+                                        staticClass: "fa fa-minus-circle"
+                                      })
+                                    ]
+                                  )
+                                ]
+                              }
+                            }
+                          ],
+                          null,
+                          false,
+                          2558420522
+                        )
+                      }),
+                      _vm._v(" "),
+                      _c("hr"),
+                      _vm._v(" "),
+                      _c(
+                        "b-row",
+                        [
+                          _c(
+                            "b-col",
+                            { attrs: { sm: "3" } },
+                            [
+                              _c("label", { attrs: { for: "input-isbn" } }, [
+                                _vm._v("ISBN")
+                              ]),
+                              _vm._v(" "),
+                              _vm.inputISBN
+                                ? _c("b-input", {
+                                    attrs: {
+                                      id: "input-isbn",
+                                      disabled: _vm.load
+                                    },
+                                    on: {
+                                      keyup: function($event) {
+                                        if (
+                                          !$event.type.indexOf("key") &&
+                                          _vm._k(
+                                            $event.keyCode,
+                                            "enter",
+                                            13,
+                                            $event.key,
+                                            "Enter"
+                                          )
+                                        ) {
+                                          return null
+                                        }
+                                        return _vm.buscarLibroISBN($event)
+                                      }
+                                    },
+                                    model: {
+                                      value: _vm.isbn,
+                                      callback: function($$v) {
+                                        _vm.isbn = $$v
+                                      },
+                                      expression: "isbn"
+                                    }
+                                  })
+                                : _vm._e(),
+                              _vm._v(" "),
+                              _c("br"),
+                              !_vm.inputISBN
+                                ? _c("b", [_vm._v(_vm._s(_vm.temporal.ISBN))])
+                                : _vm._e()
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "b-col",
+                            { attrs: { sm: "4" } },
+                            [
+                              _c("label", { attrs: { for: "input-libro" } }, [
+                                _vm._v("Libro")
+                              ]),
+                              _vm._v(" "),
+                              _vm.inputLibro
+                                ? _c("b-input", {
+                                    attrs: {
+                                      id: "input-libro",
+                                      disabled: _vm.load
+                                    },
+                                    on: { keyup: _vm.mostrarLibros },
+                                    model: {
+                                      value: _vm.queryTitulo,
+                                      callback: function($$v) {
+                                        _vm.queryTitulo = $$v
+                                      },
+                                      expression: "queryTitulo"
+                                    }
+                                  })
+                                : _vm._e(),
+                              _vm._v(" "),
+                              _vm.resultslibros.length
+                                ? _c(
+                                    "div",
+                                    { staticClass: "list-group" },
+                                    _vm._l(_vm.resultslibros, function(
+                                      libro,
+                                      i
+                                    ) {
+                                      return _c(
+                                        "a",
+                                        {
+                                          key: i,
+                                          staticClass:
+                                            "list-group-item list-group-item-action",
+                                          attrs: { href: "#" },
+                                          on: {
+                                            click: function($event) {
+                                              return _vm.datosLibro(libro)
+                                            }
+                                          }
+                                        },
+                                        [
+                                          _vm._v(
+                                            "\n                            " +
+                                              _vm._s(libro.titulo) +
+                                              "\n                        "
+                                          )
+                                        ]
+                                      )
+                                    }),
+                                    0
+                                  )
+                                : _vm._e(),
+                              _vm._v(" "),
+                              _c("br"),
+                              !_vm.inputLibro
+                                ? _c("b", [_vm._v(_vm._s(_vm.temporal.titulo))])
+                                : _vm._e()
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "b-col",
+                            { attrs: { sm: "2" } },
+                            [
+                              _c("label", { attrs: { for: "input-costo" } }, [
+                                _vm._v("Costo unitario")
+                              ]),
+                              _vm._v(" "),
+                              _vm.inputCosto
+                                ? _c("b-form-input", {
+                                    attrs: {
+                                      id: "input-costo",
+                                      type: "number",
+                                      disabled: _vm.load
+                                    },
+                                    on: {
+                                      keyup: function($event) {
+                                        if (
+                                          !$event.type.indexOf("key") &&
+                                          _vm._k(
+                                            $event.keyCode,
+                                            "enter",
+                                            13,
+                                            $event.key,
+                                            "Enter"
+                                          )
+                                        ) {
+                                          return null
+                                        }
+                                        return _vm.guardarCosto($event)
+                                      }
+                                    },
+                                    model: {
+                                      value: _vm.costo_unitario,
+                                      callback: function($$v) {
+                                        _vm.costo_unitario = $$v
+                                      },
+                                      expression: "costo_unitario"
+                                    }
+                                  })
+                                : _vm._e()
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "b-col",
+                            { attrs: { sm: "2" } },
+                            [
+                              _c(
+                                "label",
+                                { attrs: { for: "input-unidades" } },
+                                [_vm._v("Unidades")]
+                              ),
+                              _vm._v(" "),
+                              _vm.inputUnidades
+                                ? _c("b-form-input", {
+                                    attrs: {
+                                      id: "input-unidades",
+                                      type: "number",
+                                      required: "",
+                                      disabled: _vm.load
+                                    },
+                                    on: {
+                                      keyup: function($event) {
+                                        if (
+                                          !$event.type.indexOf("key") &&
+                                          _vm._k(
+                                            $event.keyCode,
+                                            "enter",
+                                            13,
+                                            $event.key,
+                                            "Enter"
+                                          )
+                                        ) {
+                                          return null
+                                        }
+                                        return _vm.guardarRegistro($event)
+                                      }
+                                    },
+                                    model: {
+                                      value: _vm.unidades,
+                                      callback: function($$v) {
+                                        _vm.unidades = $$v
+                                      },
+                                      expression: "unidades"
+                                    }
+                                  })
+                                : _vm._e()
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "b-col",
+                            { attrs: { sm: "1" } },
+                            [
+                              _vm.inputCosto
+                                ? _c(
+                                    "b-button",
+                                    {
+                                      attrs: {
+                                        variant: "secondary",
+                                        disabled: _vm.load
+                                      },
+                                      on: { click: _vm.eliminarTemporal }
+                                    },
+                                    [
+                                      _c("i", {
+                                        staticClass: "fa fa-minus-circle"
+                                      })
+                                    ]
+                                  )
+                                : _vm._e()
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                : _vm._e()
+            ],
+            1
+          )
+        : _vm._e()
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/PagosComponent.vue?vue&type=template&id=7a9ae6ce&":
 /*!*****************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/PagosComponent.vue?vue&type=template&id=7a9ae6ce& ***!
@@ -96020,14 +97359,14 @@ var render = function() {
                         ? _c(
                             "b-button",
                             {
-                              attrs: { variant: "outline-primary" },
+                              attrs: { variant: "primary" },
                               on: {
                                 click: function($event) {
                                   return _vm.registrarPago(row.item, row.index)
                                 }
                               }
                             },
-                            [_vm._v("Registrar pago")]
+                            [_vm._v("Registrar")]
                           )
                         : _vm._e()
                     ]
@@ -96037,25 +97376,27 @@ var render = function() {
                   key: "ver_pagos",
                   fn: function(row) {
                     return [
-                      _c(
-                        "b-button",
-                        {
-                          attrs: { variant: "outline-info" },
-                          on: {
-                            click: function($event) {
-                              return _vm.verPagos(row.item)
-                            }
-                          }
-                        },
-                        [_vm._v("Ver pagos")]
-                      )
+                      row.item.pagos != 0
+                        ? _c(
+                            "b-button",
+                            {
+                              attrs: { variant: "info" },
+                              on: {
+                                click: function($event) {
+                                  return _vm.verPagos(row.item)
+                                }
+                              }
+                            },
+                            [_vm._v("Ver")]
+                          )
+                        : _vm._e()
                     ]
                   }
                 }
               ],
               null,
               false,
-              3029913075
+              3995642758
             )
           })
         : _vm._e(),
@@ -97158,7 +98499,7 @@ var render = function() {
           ])
         : _vm._e(),
       _vm._v(" "),
-      _vm.remisiones.length > 0
+      !_vm.mostrarDetalles && _vm.remisiones.length > 0
         ? _c("b-table", {
             attrs: { items: _vm.remisiones, fields: _vm.fields },
             scopedSlots: _vm._u(
@@ -97188,26 +98529,21 @@ var render = function() {
                   }
                 },
                 {
-                  key: "estado",
+                  key: "detalles",
                   fn: function(row) {
                     return [
-                      row.item.estado == "Iniciado"
-                        ? _c("b-badge", { attrs: { variant: "secondary" } }, [
-                            _vm._v(_vm._s(row.item.estado))
-                          ])
-                        : _vm._e(),
-                      _vm._v(" "),
-                      row.item.estado == "Proceso"
-                        ? _c("b-badge", { attrs: { variant: "primary" } }, [
-                            _vm._v("Entregado")
-                          ])
-                        : _vm._e(),
-                      _vm._v(" "),
-                      row.item.estado == "Terminado"
-                        ? _c("b-badge", { attrs: { variant: "success" } }, [
-                            _vm._v(_vm._s(row.item.estado))
-                          ])
-                        : _vm._e()
+                      _c(
+                        "b-button",
+                        {
+                          attrs: { variant: "outline-info" },
+                          on: {
+                            click: function($event) {
+                              return _vm.viewDetalles(row.item)
+                            }
+                          }
+                        },
+                        [_vm._v("\n                Detalles\n            ")]
+                      )
                     ]
                   }
                 },
@@ -97226,7 +98562,10 @@ var render = function() {
                                 }
                               }
                             },
-                            [_c("i", { staticClass: "fa fa-check" })]
+                            [
+                              _c("i", { staticClass: "fa fa-check" }),
+                              _vm._v(" Marcar entrega\n            ")
+                            ]
                           )
                         : _vm._e()
                     ]
@@ -97235,9 +98574,114 @@ var render = function() {
               ],
               null,
               false,
-              2288163876
+              3230725973
             )
           })
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.mostrarDetalles
+        ? _c(
+            "div",
+            [
+              _c(
+                "b-row",
+                [
+                  _c("b-col", [
+                    _c("h4", [
+                      _vm._v("Remisión n. " + _vm._s(_vm.remision.id))
+                    ]),
+                    _vm._v(" "),
+                    _c("label", [
+                      _vm._v("Cliente: " + _vm._s(_vm.remision.cliente.name))
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c("b-col", [
+                    _c("br"),
+                    _vm._v(" "),
+                    _c("label", [
+                      _c("b", [_vm._v("Unidades")]),
+                      _vm._v(": " + _vm._s(_vm.total_unidades))
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c("b-col", [
+                    _c("br"),
+                    _vm._v(" "),
+                    _c("label", [
+                      _c("b", [_vm._v("Total")]),
+                      _vm._v(": $" + _vm._s(_vm.remision.total))
+                    ]),
+                    _c("br")
+                  ]),
+                  _vm._v(" "),
+                  _c("b-col", [
+                    _c(
+                      "div",
+                      { staticClass: "text-right" },
+                      [
+                        _c(
+                          "b-button",
+                          {
+                            attrs: { variant: "outline-secondary" },
+                            on: {
+                              click: function($event) {
+                                _vm.mostrarDetalles = false
+                              }
+                            }
+                          },
+                          [
+                            _c("i", { staticClass: "fa fa-mail-reply" }),
+                            _vm._v(" Regresar\n                    ")
+                          ]
+                        )
+                      ],
+                      1
+                    )
+                  ])
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c("hr"),
+              _vm._v(" "),
+              _c("b-table", {
+                attrs: { items: _vm.remision.datos, fields: _vm.fieldsD },
+                scopedSlots: _vm._u(
+                  [
+                    {
+                      key: "isbn",
+                      fn: function(row) {
+                        return [_vm._v(_vm._s(row.item.libro.ISBN))]
+                      }
+                    },
+                    {
+                      key: "libro",
+                      fn: function(row) {
+                        return [_vm._v(_vm._s(row.item.libro.titulo))]
+                      }
+                    },
+                    {
+                      key: "costo_unitario",
+                      fn: function(row) {
+                        return [_vm._v("$" + _vm._s(row.item.costo_unitario))]
+                      }
+                    },
+                    {
+                      key: "subtotal",
+                      fn: function(row) {
+                        return [_vm._v("$" + _vm._s(row.item.total))]
+                      }
+                    }
+                  ],
+                  null,
+                  false,
+                  3556694248
+                )
+              })
+            ],
+            1
+          )
         : _vm._e()
     ],
     1
@@ -111017,6 +112461,7 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('new-libro-component', __we
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('pagos-component', __webpack_require__(/*! ./components/PagosComponent.vue */ "./resources/js/components/PagosComponent.vue")["default"]);
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('entradas-component', __webpack_require__(/*! ./components/EntradasComponent.vue */ "./resources/js/components/EntradasComponent.vue")["default"]);
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('clientes-component', __webpack_require__(/*! ./components/ClientesComponent.vue */ "./resources/js/components/ClientesComponent.vue")["default"]);
+vue__WEBPACK_IMPORTED_MODULE_0___default.a.component('new-nota-component', __webpack_require__(/*! ./components/NewNotaComponent.vue */ "./resources/js/components/NewNotaComponent.vue")["default"]);
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
@@ -111887,6 +113332,75 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_NewLibroComponent_vue_vue_type_template_id_c55a9e00___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_NewLibroComponent_vue_vue_type_template_id_c55a9e00___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./resources/js/components/NewNotaComponent.vue":
+/*!******************************************************!*\
+  !*** ./resources/js/components/NewNotaComponent.vue ***!
+  \******************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _NewNotaComponent_vue_vue_type_template_id_df19744c___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./NewNotaComponent.vue?vue&type=template&id=df19744c& */ "./resources/js/components/NewNotaComponent.vue?vue&type=template&id=df19744c&");
+/* harmony import */ var _NewNotaComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./NewNotaComponent.vue?vue&type=script&lang=js& */ "./resources/js/components/NewNotaComponent.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _NewNotaComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _NewNotaComponent_vue_vue_type_template_id_df19744c___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _NewNotaComponent_vue_vue_type_template_id_df19744c___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/NewNotaComponent.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/NewNotaComponent.vue?vue&type=script&lang=js&":
+/*!*******************************************************************************!*\
+  !*** ./resources/js/components/NewNotaComponent.vue?vue&type=script&lang=js& ***!
+  \*******************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_NewNotaComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./NewNotaComponent.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/NewNotaComponent.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_NewNotaComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/NewNotaComponent.vue?vue&type=template&id=df19744c&":
+/*!*************************************************************************************!*\
+  !*** ./resources/js/components/NewNotaComponent.vue?vue&type=template&id=df19744c& ***!
+  \*************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_NewNotaComponent_vue_vue_type_template_id_df19744c___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./NewNotaComponent.vue?vue&type=template&id=df19744c& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/NewNotaComponent.vue?vue&type=template&id=df19744c&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_NewNotaComponent_vue_vue_type_template_id_df19744c___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_NewNotaComponent_vue_vue_type_template_id_df19744c___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 

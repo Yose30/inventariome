@@ -50,6 +50,7 @@ Vue.component('new-libro-component', require('./components/NewLibroComponent.vue
 Vue.component('pagos-component', require('./components/PagosComponent.vue').default);
 Vue.component('entradas-component', require('./components/EntradasComponent.vue').default);
 Vue.component('clientes-component', require('./components/ClientesComponent.vue').default);
+Vue.component('new-nota-component', require('./components/NewNotaComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

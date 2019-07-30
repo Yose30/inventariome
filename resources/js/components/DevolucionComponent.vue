@@ -10,7 +10,7 @@
             <template slot="estado" slot-scope="row">
                 <b-badge variant="primary" v-if="row.item.estado == 'Proceso'">Entregado</b-badge>
                 <b-badge variant="success" v-if="row.item.estado == 'Terminado'">{{ row.item.estado }}</b-badge>
-            </template>
+            </template> 
             <template slot="registrar_devolucion" slot-scope="row">
                 <b-button v-if="row.item.estado != 'Terminado'" variant="outline-primary" @click="registrarDevolucion(row.item, row.index)">Registrar devolución</b-button>
             </template>

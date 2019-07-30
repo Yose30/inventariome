@@ -20,13 +20,13 @@
                     </b-row>
                 </div>
                 <div class="col-md-4">
-                    <div class="row">
+                    <!-- <div class="row">
                         <label class="col-md-3">Estado</label>
                         <div class="col-md-9">
                             <b-form-select v-model="selected" :options="options" @change="porEstado"></b-form-select>
                         </div>
                     </div>
-                    <hr>
+                    <hr> -->
                     <b-row class="my-1">
                         <b-col sm="3">
                             <label for="input-cliente">Cliente</label>
@@ -82,16 +82,16 @@
             <hr>
             <div align="right">
                 <a 
-                    class="btn btn-info col-md-1"
+                    class="btn btn-info"
                     v-if="imprimirCliente && remisiones.length"
                     :href="'/imprimirCliente/' + cliente_id + '/' + inicio + '/' + final">
-                    <i class="fa fa-print"></i>
+                    <i class="fa fa-download"></i> Descargar
                 </a>
                 <a 
-                    class="btn btn-info col-md-1"
+                    class="btn btn-info"
                     v-if="imprimirEstado && remisiones.length"
                     :href="'/imprimirEstado/' + estadoRemision">
-                    <i class="fa fa-print"></i>
+                    <i class="fa fa-download"></i> Descargar
                 </a>
             </div>
             <hr>
@@ -104,9 +104,8 @@
                             <th scope="col">Cliente</th>
                             <th scope="col">Salida</th>
                             <th scope="col">Devolución</th>
-                            <th scope="col">Final</th>
-                            <th scope="col">Estado</th>
-                            <th scope="col">Fecha de entrega</th>
+                            <th scope="col">Pagos</th>
+                            <th scope="col">Pagar</th>
                             <th scope="col"></th>
                         </tr>
                     </thead>
@@ -117,18 +116,19 @@
                             <td>{{ cliente_nombre }}</td>
                             <td>$ {{ remision.total }}</td>
                             <td>$ {{ remision.total_devolucion }}</td>
+                            <td>$ {{ remision.pagos }}</td>
                             <td>$ {{ remision.total_pagar }}</td>
-                            <td>
+                            <!-- <td>
                                 <b-badge variant="secondary" v-if="remision.estado == 'Iniciado'">{{ remision.estado }}</b-badge>
                                 <b-badge variant="primary" v-if="remision.estado == 'Proceso'">{{ remision.estado }}</b-badge>
                                 <b-badge variant="success" v-if="remision.estado == 'Terminado'">{{ remision.estado }}</b-badge>
                             </td>
-                            <td>{{ remision.fecha_entrega }}</td>
+                            <td>{{ remision.fecha_entrega }}</td> -->
                             <td>
                                 <button 
                                     class="btn btn-primary" 
                                     @click="detallesRemision(remision)">
-                                    <i class="fa fa-eye"></i>
+                                    Detalles
                                 </button>
                             </td>
                         </tr>
@@ -142,9 +142,10 @@
                             <th scope="col">Cliente</th>
                             <th scope="col">Salida</th>
                             <th scope="col">Devolución</th>
-                            <th scope="col">Final</th>
-                            <th scope="col">Estado</th>
-                            <th scope="col">Fecha de entrega</th>
+                            <th scope="col">Pagos</th>
+                            <th scope="col">Pagar</th>
+                            <!-- <th scope="col">Estado</th> -->
+                            <!-- <th scope="col">Fecha de entrega</th> -->
                             <th scope="col"></th>
                         </tr>
                     </thead>
@@ -155,18 +156,19 @@
                             <td>{{ remision.cliente.name }}</td>
                             <td>$ {{ remision.total }}</td>
                             <td>$ {{ remision.total_devolucion }}</td>
+                            <td>$ {{ remision.pagos }}</td>
                             <td>$ {{ remision.total_pagar }}</td>
-                            <td>
+                            <!-- <td>
                                 <b-badge variant="secondary" v-if="remision.estado == 'Iniciado'">{{ remision.estado }}</b-badge>
                                 <b-badge variant="primary" v-if="remision.estado == 'Proceso'">{{ remision.estado }}</b-badge>
                                 <b-badge variant="success" v-if="remision.estado == 'Terminado'">{{ remision.estado }}</b-badge>
-                            </td>
-                            <td>{{ remision.fecha_entrega }}</td>
+                            </td> -->
+                            <!-- <td>{{ remision.fecha_entrega }}</td> -->
                             <td>
                                 <button 
                                     class="btn btn-primary" 
                                     @click="detallesRemision(remision)">
-                                    <i class="fa fa-eye"></i>
+                                    Detalles
                                 </button>
                             </td>
                         </tr>
@@ -174,6 +176,7 @@
                             <td></td><td></td><td></td>
                             <td><b>$ {{ total_salida }}</b></td>
                             <td><b>$ {{ total_devolucion }}</b></td>
+                            <td><b>$ {{ total_pagos }}</b></td>
                             <td><b>$ {{ total_pagar }}</b></td>
                         </tr>
                     </tbody>
@@ -181,28 +184,29 @@
             </div>
         </div>
         <div v-if="detalles">
-            <div class="row">
-                <h4 class="col-md-11">Remisión N. {{ remision.id }}</h4>
-                <button 
-                    id="btnCancelar" 
-                    class="btn btn-danger"
-                    @click="detalles = false">
-                    <i class="fa fa-close"></i>
-                </button>
-            </div>
-            <hr>
-            <div class="row">
-                <div class="col-md-11">
-                    <b-badge variant="primary" v-if="remision.estado == 'Proceso'">{{ remision.estado }}</b-badge>
-                    <b-badge variant="success" v-if="remision.estado == 'Terminado'">{{ remision.estado }}</b-badge>
-                </div>
-                <a 
-                    class="btn btn-info"
-                    v-if="remision.estado == 'Terminado'"
-                    :href="'/imprimirSalida/' + remision.id">
-                    <i class="fa fa-print"></i>
-                </a>
-            </div>
+            <b-row>
+                <b-col sm="8">
+                    <h4>Remisión N. {{ remision.id }}</h4>
+                    <label>Cliente: {{ remision.cliente.name }}</label>    
+                </b-col>
+                <b-col sm="2" align="right">
+                    <!-- <a 
+                        class="btn btn-info"
+                        v-if="remision.estado == 'Terminado'"
+                        :href="'/imprimirSalida/' + remision.id">
+                        <i class="fa fa-download"></i> Descargar
+                    </a> -->
+                    <b-badge variant="info" v-if="remision.estado == 'Iniciado'">{{ remision.estado }}</b-badge>
+                    <b-badge variant="primary" v-if="remision.estado == 'Proceso'">Entregado</b-badge>
+                </b-col>
+                <b-col sm="2" align="right">
+                    <b-button 
+                        variant="secondary"
+                        @click="detalles = false">
+                        <i class="fa fa-mail-reply"></i> Regresar
+                    </b-button>
+                </b-col>
+            </b-row>
             <hr>
             <div class="row">
                 <h4 class="col-md-10">Salida</h4>
@@ -283,7 +287,46 @@
             </b-collapse>
             <hr>
             <div class="row" v-if="remision.estado == 'Proceso' || remision.estado == 'Terminado'">
-                <h4 class="col-md-10">Remisión final</h4>
+                <h4 class="col-md-10">Pagos</h4>
+                <b-button 
+                    variant="link" 
+                    :class="mostrarPagos ? 'collapsed' : null"
+                    :aria-expanded="mostrarPagos ? 'true' : 'false'"
+                    aria-controls="collapse-3"
+                    @click="mostrarPagos = !mostrarPagos">
+                    <i class="fa fa-sort-asc"></i>
+                </b-button>
+            </div>
+            <b-collapse id="collapse-3" v-model="mostrarPagos" class="mt-2">
+                <b-table :items="vendidos" :fields="fieldsP">
+                    <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
+                    <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
+                    <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario }}</template>
+                    <template slot="subtotal" slot-scope="row">${{ row.item.total }}</template>
+                    <template slot="detalles" slot-scope="row">
+                        <b-button v-if="row.item.pagos.length > 0" variant="outline-info" @click="row.toggleDetails">
+                            {{ row.detailsShowing ? 'Ocultar' : 'Mostrar'}} detalles
+                        </b-button>
+                    </template>
+                    <template slot="row-details" slot-scope="row">
+                        <b-card>
+                            <b-table :items="row.item.pagos" :fields="fieldsD">
+                                <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
+                                <template slot="user_id" slot-scope="row">
+                                    <label v-if="row.item.user_id == 2">Teresa Pérez</label>
+                                    <label v-if="row.item.user_id == 3">Almacén</label>
+                                </template>
+                                <template slot="unidades" slot-scope="row">{{ row.item.unidades }}</template>
+                                <template slot="pago" slot-scope="row">$ {{ row.item.pago }}</template>
+                                <template slot="created_at" slot-scope="row">{{ row.created_at | moment }}</template>
+                            </b-table>
+                        </b-card>
+                    </template>
+                </b-table>
+            </b-collapse>
+            <hr>
+            <div class="row" v-if="remision.estado == 'Proceso' || remision.estado == 'Terminado'">
+                <h4 class="col-md-10">Pagar</h4>
                 <b-button 
                     variant="link" 
                     :class="mostrarFinal ? 'collapsed' : null"
@@ -395,19 +438,43 @@
                 inputUnidades: false,
                 respuestaUnidades: '',
                 detalles: false,
-                mostrarSalida: true,
-                mostrarDevolucion: true,
-                mostrarFinal: true,
+                mostrarSalida: false,
+                mostrarDevolucion: false,
+                mostrarPagos: false,
+                mostrarFinal: false,
                 registros: [],
                 devoluciones: [],
                 d_total_salida: 0,
                 d_total_devolucion: 0,
                 d_total_pagar: 0,
+                total_pagos: 0,
+                vendidos: [],
+                fieldsP: [
+                    {key: 'isbn', label: 'ISBN'}, 
+                    'libro', 
+                    {key: 'costo_unitario', label: 'Costo unitario'}, 
+                    // {key: 'unidades_resta', label: 'Unidades pendientes'},
+                    {key: 'unidades', label: 'Unidades'}, 
+                    'subtotal',
+                    {key: 'detalles', label: ''}
+                ],
+                fieldsD: [
+                    {key: 'index', label: 'N.'},
+                    {key: 'user_id', label: 'Usuario'}, 
+                    'unidades',
+                    'pago', 
+                    {key: 'created_at', label: 'Fecha'}, 
+                ],
             }
         },
         created: function(){
 			this.getTodo();
-		},
+        },
+        filters: {
+            moment: function (date) {
+                return moment(date).format('DD-MM-YYYY');
+            }
+        },
         methods: {
             porNumero(){
                 if(this.num_remision > 0){
@@ -420,8 +487,7 @@
                         this.imprimirCliente = false;
                         this.imprimirEstado = false;
                     }).catch(error => {
-                        console.log(error.response);
-                        this.respuesta_numero = 'No existe';
+                        this.makeToast('danger', 'No existe la remisión');
                     });
                 }
             },
@@ -476,10 +542,12 @@
             acumular(){
                 this.total_salida = 0;
                 this.total_devolucion = 0;
+                this.total_pagos = 0;
                 this.total_pagar = 0;
                 this.remisiones.forEach(remision => {
                     this.total_salida += remision.total;
                     this.total_devolucion += remision.total_devolucion;
+                    this.total_pagos += remision.pagos;
                     this.total_pagar += remision.total_pagar;
                 });
             },
@@ -666,7 +734,8 @@
                     this.respuestaCosto = '';
                 }
                 else{
-                    this.respuestaCosto = 'Costo invalido';
+                    // this.respuestaCosto = 'Costo invalido';
+                    this.makeToast('warning', 'Costo invalido');
                 } 
             },
             eliminarTemporal(){
@@ -709,11 +778,23 @@
             detallesRemision(remision){
                 this.detalles = true;
                 this.remision = remision;
-                console.log(this.remision);
+                this.mostrarSalida = false;
+                this.mostrarDevolucion = false;
+                this.mostrarPagos = false;
+                this.mostrarFinal = false;
                 axios.get('/lista_datos', {params: {numero: remision.id}}).then(response => {
+                    
                     this.registros = response.data.datos;
                     this.devoluciones = response.data.devoluciones;
+                    this.vendidos = response.data.vendidos;
                 });
+            },
+            makeToast(variant = null, descripcion) {
+                this.$bvToast.toast(descripcion, {
+                    title: 'Mensaje',
+                    variant: variant,
+                    solid: true
+                })
             }
         }
     }

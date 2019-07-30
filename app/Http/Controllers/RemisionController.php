@@ -80,7 +80,13 @@ class RemisionController extends Controller
         $remision = Remisione::whereId($numero)->first();
         $datos = Dato::where('remision_id', $remision->id)->with('libro')->get();
         $devoluciones = Devolucione::where('remision_id', $remision->id)->with('libro', 'dato')->get();
-        return response()->json(['remision' => $remision, 'datos' => $datos, 'devoluciones' => $devoluciones]);
+        $vendidos = Vendido::where('remision_id', $remision->id)->with('libro', 'dato', 'pagos')->get();
+        return response()->json([
+            'remision' => $remision, 
+            'datos' => $datos, 
+            'devoluciones' => $devoluciones, 
+            'vendidos' => $vendidos
+        ]);
     }
 
     public function actualizar(Request $request){

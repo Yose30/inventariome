@@ -9,12 +9,16 @@
             <template slot="total_devolucion" slot-scope="row">${{ row.item.total_devolucion }}</template>
             <template slot="total_pagar" slot-scope="row">${{ row.item.total_pagar }}</template>
             <template slot="pagos" slot-scope="row">${{ row.item.pagos }}</template>
+            <!-- <template slot="registrar_devolucion" slot-scope="row">
+                <b-button v-if="row.item.estado != 'Terminado'" variant="primary" @click="registrarDevolucion(row.item, row.index)">Registrar</b-button>
+            </template> -->
             <template slot="pagar" slot-scope="row">
-                <b-button v-if="row.item.total_pagar > 0" variant="outline-primary" @click="registrarPago(row.item, row.index)">Registrar pago</b-button>
+                <b-button v-if="row.item.total_pagar > 0" variant="primary" @click="registrarPago(row.item, row.index)">Registrar</b-button>
             </template>
             <template slot="ver_pagos" slot-scope="row">
-                <b-button variant="outline-info" @click="verPagos(row.item)">Ver pagos</b-button>
+                <b-button v-if="row.item.pagos != 0" variant="info" @click="verPagos(row.item)">Ver</b-button>
             </template>
+
         </b-table>
         <div v-if="mostrarDetalles">
             <b-row>
@@ -78,7 +82,6 @@
                         {{ row.detailsShowing ? 'Ocultar' : 'Mostrar'}}
                     </b-button>
                 </template>
-
                 <template slot="row-details" slot-scope="row">
                     <b-card>
                         <b-table :items="row.item.pagos" :fields="fieldsD">
@@ -93,7 +96,6 @@
                         </b-table>
                     </b-card>
                 </template>
-
             </b-table>
         </div>
     </div>
@@ -112,8 +114,9 @@
                     {key: 'total_devolucion', label: 'Devolución'}, 
                     {key: 'pagos', label: 'Pagado'},
                     {key: 'total_pagar', label: 'Pagar'}, 
-                    {key: 'pagar', label: ''},
-                    {key: 'ver_pagos', label: ''},
+                    // {key: 'registrar_devolucion', label: 'Devolución'},
+                    {key: 'pagar', label: 'Pago'},
+                    {key: 'ver_pagos', label: 'Pagos'},
                 ],
                 fieldsD: [
                     {key: 'index', label: 'N.'},

@@ -3,10 +3,11 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Dato;
 use App\Devolucione;
+use App\Register;
 use App\Registro;
 use App\Vendido;
+use App\Dato;
 
 class Libro extends Model
 {
@@ -42,5 +43,11 @@ class Libro extends Model
     //Un libro puede pertenecer a muchas vendidos 
     public function vendidos(){
         return $this->hasMany(Vendido::class);
+    }
+
+    //Uno a muchos
+    //Un libro puede pertenecer a muchos registros de nota
+    public function registers(){
+        return $this->hasMany(Register::class);
     }
 }

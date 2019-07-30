@@ -126,6 +126,12 @@ Route::get('/imprimirEntrada/{id}', 'EntradaController@imprimirEntrada')->name('
 Route::post('registrar_pago', 'PagoController@store')->name('registrar_pago');
 //Obtener registros de vendidos
 Route::get('datos_vendidos', 'PagoController@datos_vendidos')->name('datos_vendidos');
-//Obtener los pagos de una remision
-// Route::get('obtener_pagos', 'PagoController@obtener_pagos')->name('obtener_pagos');
+
+//NOTA
+//Mostrar notas
+Route::get('all_notas', 'NoteController@show')->name('all_notas');
+//Guardar nota
+Route::post('guardar_nota', 'NoteController@store')->name('guardar_nota');
+//Mostrar detalles de nota
+Route::get('detalles_nota', 'NoteController@detalles_nota')->name('detalles_nota');
 
