@@ -57,6 +57,9 @@ Route::delete('eliminar_registro', 'RemisionController@eliminar')->name('elimina
 Route::put('actualizar_remision', 'RemisionController@actualizar')->name('actualizar_remision');
 //Llenar tabla de vendidos
 Route::put('vendidos_remision', 'RemisionController@registrar_vendidos')->name('vendidos_remision');
+//Cancelar remision
+Route::put('cancelar_remision', 'RemisionController@cancelar_remision')->name('cancelar_remision');
+
 
 //REMISIONES -Listado
 Route::get('todos_los_clientes', 'RemisionController@todos')->name('todos_los_clientes');

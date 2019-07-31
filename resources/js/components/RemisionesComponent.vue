@@ -96,10 +96,11 @@
             },
             entregaLibros(remision, i){
                 axios.put('/vendidos_remision', remision).then(response => {
-                    this.remisiones[i].estado = response.data.remision.estado;
+                    // this.remisiones[i].estado = response.data.remision.estado;
+                    console.log(response.data);
                 }).catch(error => {
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                });
+                }); 
             },
             viewDetalles(remision){
                 this.remision.id = remision.id;

@@ -185,19 +185,23 @@
         </div>
         <div v-if="detalles">
             <b-row>
-                <b-col sm="8">
+                <b-col sm="6">
                     <h4>Remisión N. {{ remision.id }}</h4>
                     <label>Cliente: {{ remision.cliente.name }}</label>    
                 </b-col>
-                <b-col sm="2" align="right">
-                    <!-- <a 
-                        class="btn btn-info"
-                        v-if="remision.estado == 'Terminado'"
-                        :href="'/imprimirSalida/' + remision.id">
-                        <i class="fa fa-download"></i> Descargar
-                    </a> -->
+                <b-col sm="3">
+                    <b-button 
+                        variant="outline-danger" 
+                        v-b-modal.modal-cancelar 
+                        v-if="remision.estado == 'Iniciado'"
+                    >
+                        <i class="fa fa-close"></i> Cancelar remisión
+                    </b-button>
+                </b-col>
+                <b-col sm="1" align="left">
                     <b-badge variant="info" v-if="remision.estado == 'Iniciado'">{{ remision.estado }}</b-badge>
                     <b-badge variant="primary" v-if="remision.estado == 'Proceso'">Entregado</b-badge>
+                    <b-badge variant="danger" v-if="remision.estado == 'Cancelado'">{{ remision.estado }}</b-badge>
                 </b-col>
                 <b-col sm="2" align="right">
                     <b-button 
@@ -363,6 +367,12 @@
                 </table>
             </b-collapse>
         </div>
+        <b-modal id="modal-cancelar" title="Cancelar remisión">
+            <p><b><i class="fa fa-exclamation-triangle"></i> ¿Estas seguro de cancelar la remisión?</b></p>
+            <div slot="modal-footer">
+                <b-button @click="cambiarEstado">OK</b-button>
+            </div>
+        </b-modal>
     </div>
 </template>
 
@@ -465,6 +475,7 @@
                     'pago', 
                     {key: 'created_at', label: 'Fecha'}, 
                 ],
+                idRemision: 0,
             }
         },
         created: function(){
@@ -502,7 +513,7 @@
                     this.getTodo();
                 }
             },
-            getTodo(){
+            getTodo(){ 
                 axios.get('/todos_los_clientes').then(response => {
                     this.imprimirCliente = true;
                     this.imprimirEstado = false;
@@ -750,6 +761,16 @@
                 this.costo_unitario = 0;
                 this.inputCosto = false;
                 this.respuestaCosto = '';
+            },
+            cambiarEstado(){
+                axios.put('/cancelar_remision', this.remision).then(response => {
+                    this.remision.estado = response.data.estado;
+                    this.$bvModal.hide('modal-cancelar');
+                    this.makeToast('secondary', 'Remisión cancelada');
+                })
+                .catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
             },
             guardarRegistro(){
                 if(this.unidades > 0){

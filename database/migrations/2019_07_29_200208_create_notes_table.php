@@ -15,6 +15,7 @@ class CreateNotesTable extends Migration
     {
         Schema::create('notes', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->string('folio');
             $table->string('cliente');
             $table->double('total_salida', 8, 2)->default(0);
             $table->double('total_devolucion', 8, 2)->default(0);

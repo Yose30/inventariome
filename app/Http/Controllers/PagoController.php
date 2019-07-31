@@ -63,7 +63,7 @@ class PagoController extends Controller
         $remision_id = Input::get('remision_id');
         $vendidos = Vendido::where('remision_id', $remision_id)->with('libro')->with('pagos')->with('dato')->get();
         return response()->json($vendidos);
-    }
+    } 
 
     // public function obtener_pagos(){
     //     $remision_id = Input::get('remision_id');

@@ -16,7 +16,7 @@ class DevolucioneController extends Controller
 {
     //Mostrar todas las devoluciones
     public function all_devoluciones(){
-        $remisiones = Remisione::where('estado', '!=', 'Iniciado')->with('cliente')->get();
+        $remisiones = Remisione::where('estado', '!=', 'Iniciado')->orderBy('id','desc')->with('cliente')->get();
         return response()->json($remisiones);
     }
 

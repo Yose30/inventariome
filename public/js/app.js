@@ -5557,6 +5557,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 moment.locale('es');
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -5667,7 +5677,8 @@ moment.locale('es');
       }, 'unidades', 'pago', {
         key: 'created_at',
         label: 'Fecha'
-      }]
+      }],
+      idRemision: 0
     };
   },
   created: function created() {
@@ -6050,15 +6061,27 @@ moment.locale('es');
     this.costo_unitario = 0;
     this.inputCosto = false;
     this.respuestaCosto = '';
-  }), _defineProperty(_methods, "guardarRegistro", function guardarRegistro() {
+  }), _defineProperty(_methods, "cambiarEstado", function cambiarEstado() {
     var _this16 = this;
+
+    axios.put('/cancelar_remision', this.remision).then(function (response) {
+      _this16.remision.estado = response.data.estado;
+
+      _this16.$bvModal.hide('modal-cancelar');
+
+      _this16.makeToast('secondary', 'Remisión cancelada');
+    })["catch"](function (error) {
+      _this16.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+    });
+  }), _defineProperty(_methods, "guardarRegistro", function guardarRegistro() {
+    var _this17 = this;
 
     if (this.unidades > 0) {
       this.temporal.remision_id = this.bdremision.id;
       this.temporal.unidades = this.unidades;
       this.temporal.total = this.unidades * this.temporal.costo_unitario;
       axios.post('/registro_remision', this.temporal).then(function (response) {
-        _this16.temporal = {
+        _this17.temporal = {
           id: response.data.dato.id,
           libro: {
             ISBN: response.data.libro.ISBN,
@@ -6069,15 +6092,15 @@ moment.locale('es');
           total: response.data.dato.total
         };
 
-        _this16.items.push(_this16.temporal);
+        _this17.items.push(_this17.temporal);
 
-        _this16.total_remision += response.data.dato.total; // this.getDescuento();
+        _this17.total_remision += response.data.dato.total; // this.getDescuento();
 
-        _this16.eliminarTemporal();
+        _this17.eliminarTemporal();
       });
     }
   }), _defineProperty(_methods, "detallesRemision", function detallesRemision(remision) {
-    var _this17 = this;
+    var _this18 = this;
 
     this.detalles = true;
     this.remision = remision;
@@ -6090,9 +6113,9 @@ moment.locale('es');
         numero: remision.id
       }
     }).then(function (response) {
-      _this17.registros = response.data.datos;
-      _this17.devoluciones = response.data.devoluciones;
-      _this17.vendidos = response.data.vendidos;
+      _this18.registros = response.data.datos;
+      _this18.devoluciones = response.data.devoluciones;
+      _this18.vendidos = response.data.vendidos;
     });
   }), _defineProperty(_methods, "makeToast", function makeToast() {
     var variant = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
@@ -8031,7 +8054,8 @@ __webpack_require__.r(__webpack_exports__);
       var _this2 = this;
 
       axios.put('/vendidos_remision', remision).then(function (response) {
-        _this2.remisiones[i].estado = response.data.remision.estado;
+        // this.remisiones[i].estado = response.data.remision.estado;
+        console.log(response.data);
       })["catch"](function (error) {
         _this2.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
@@ -95697,994 +95721,1086 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", [
-    _vm.mostrar && !_vm.detalles
-      ? _c("div", [
-          _c("h4", [_vm._v("Remisiones")]),
-          _vm._v(" "),
-          _c("div", { staticClass: "row" }, [
-            _c(
-              "div",
-              { staticClass: "col-md-3" },
-              [
-                _c(
-                  "b-row",
-                  { staticClass: "my-1" },
-                  [
-                    _c("b-col", { attrs: { sm: "5" } }, [
-                      _c("label", { attrs: { for: "input-numero" } }, [
-                        _vm._v("Remision")
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c(
-                      "b-col",
-                      { attrs: { sm: "7" } },
-                      [
-                        _c("b-form-input", {
-                          attrs: { id: "input-numero", type: "number" },
-                          on: {
-                            keyup: function($event) {
-                              if (
-                                !$event.type.indexOf("key") &&
-                                _vm._k(
-                                  $event.keyCode,
-                                  "enter",
-                                  13,
-                                  $event.key,
-                                  "Enter"
-                                )
-                              ) {
-                                return null
+  return _c(
+    "div",
+    [
+      _vm.mostrar && !_vm.detalles
+        ? _c("div", [
+            _c("h4", [_vm._v("Remisiones")]),
+            _vm._v(" "),
+            _c("div", { staticClass: "row" }, [
+              _c(
+                "div",
+                { staticClass: "col-md-3" },
+                [
+                  _c(
+                    "b-row",
+                    { staticClass: "my-1" },
+                    [
+                      _c("b-col", { attrs: { sm: "5" } }, [
+                        _c("label", { attrs: { for: "input-numero" } }, [
+                          _vm._v("Remision")
+                        ])
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "b-col",
+                        { attrs: { sm: "7" } },
+                        [
+                          _c("b-form-input", {
+                            attrs: { id: "input-numero", type: "number" },
+                            on: {
+                              keyup: function($event) {
+                                if (
+                                  !$event.type.indexOf("key") &&
+                                  _vm._k(
+                                    $event.keyCode,
+                                    "enter",
+                                    13,
+                                    $event.key,
+                                    "Enter"
+                                  )
+                                ) {
+                                  return null
+                                }
+                                return _vm.porNumero($event)
                               }
-                              return _vm.porNumero($event)
-                            }
-                          },
-                          model: {
-                            value: _vm.num_remision,
-                            callback: function($$v) {
-                              _vm.num_remision = $$v
                             },
-                            expression: "num_remision"
+                            model: {
+                              value: _vm.num_remision,
+                              callback: function($$v) {
+                                _vm.num_remision = $$v
+                              },
+                              expression: "num_remision"
+                            }
+                          }),
+                          _vm._v(" "),
+                          _c("div", { staticClass: "text-danger" }, [
+                            _vm._v(_vm._s(_vm.respuesta_numero))
+                          ])
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "col-md-4" },
+                [
+                  _c(
+                    "b-row",
+                    { staticClass: "my-1" },
+                    [
+                      _c("b-col", { attrs: { sm: "3" } }, [
+                        _c("label", { attrs: { for: "input-cliente" } }, [
+                          _vm._v("Cliente")
+                        ])
+                      ]),
+                      _vm._v(" "),
+                      _c(
+                        "b-col",
+                        { attrs: { sm: "9" } },
+                        [
+                          _c("b-input", {
+                            on: { keyup: _vm.mostrarClientes },
+                            model: {
+                              value: _vm.queryCliente,
+                              callback: function($$v) {
+                                _vm.queryCliente = $$v
+                              },
+                              expression: "queryCliente"
+                            }
+                          }),
+                          _vm._v(" "),
+                          _vm.resultsClientes.length
+                            ? _c(
+                                "div",
+                                { staticClass: "list-group" },
+                                _vm._l(_vm.resultsClientes, function(
+                                  result,
+                                  i
+                                ) {
+                                  return _c(
+                                    "a",
+                                    {
+                                      key: i,
+                                      staticClass:
+                                        "list-group-item list-group-item-action",
+                                      attrs: { href: "#" },
+                                      on: {
+                                        click: function($event) {
+                                          return _vm.porCliente(result)
+                                        }
+                                      }
+                                    },
+                                    [
+                                      _vm._v(
+                                        "\n                                " +
+                                          _vm._s(result.name) +
+                                          "\n                            "
+                                      )
+                                    ]
+                                  )
+                                }),
+                                0
+                              )
+                            : _vm._e()
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "col-md-5" },
+                [
+                  _c(
+                    "b-row",
+                    { staticClass: "my-1" },
+                    [
+                      _c("b-col", { attrs: { sm: "3" } }, [
+                        _c("label", { attrs: { for: "input-inicio" } }, [
+                          _vm._v("Inicio")
+                        ])
+                      ]),
+                      _vm._v(" "),
+                      _c("b-col", { attrs: { sm: "9" } }, [
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.inicio,
+                              expression: "inicio"
+                            }
+                          ],
+                          staticClass: "form-control",
+                          attrs: { type: "date" },
+                          domProps: { value: _vm.inicio },
+                          on: {
+                            change: _vm.porFecha,
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.inicio = $event.target.value
+                            }
                           }
                         }),
                         _vm._v(" "),
                         _c("div", { staticClass: "text-danger" }, [
-                          _vm._v(_vm._s(_vm.respuesta_numero))
-                        ])
-                      ],
-                      1
-                    )
-                  ],
-                  1
-                )
-              ],
-              1
-            ),
-            _vm._v(" "),
-            _c(
-              "div",
-              { staticClass: "col-md-4" },
-              [
-                _c(
-                  "b-row",
-                  { staticClass: "my-1" },
-                  [
-                    _c("b-col", { attrs: { sm: "3" } }, [
-                      _c("label", { attrs: { for: "input-cliente" } }, [
-                        _vm._v("Cliente")
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c(
-                      "b-col",
-                      { attrs: { sm: "9" } },
-                      [
-                        _c("b-input", {
-                          on: { keyup: _vm.mostrarClientes },
-                          model: {
-                            value: _vm.queryCliente,
-                            callback: function($$v) {
-                              _vm.queryCliente = $$v
-                            },
-                            expression: "queryCliente"
-                          }
-                        }),
-                        _vm._v(" "),
-                        _vm.resultsClientes.length
-                          ? _c(
-                              "div",
-                              { staticClass: "list-group" },
-                              _vm._l(_vm.resultsClientes, function(result, i) {
-                                return _c(
-                                  "a",
-                                  {
-                                    key: i,
-                                    staticClass:
-                                      "list-group-item list-group-item-action",
-                                    attrs: { href: "#" },
-                                    on: {
-                                      click: function($event) {
-                                        return _vm.porCliente(result)
-                                      }
-                                    }
-                                  },
-                                  [
-                                    _vm._v(
-                                      "\n                                " +
-                                        _vm._s(result.name) +
-                                        "\n                            "
-                                    )
-                                  ]
-                                )
-                              }),
-                              0
-                            )
-                          : _vm._e()
-                      ],
-                      1
-                    )
-                  ],
-                  1
-                )
-              ],
-              1
-            ),
-            _vm._v(" "),
-            _c(
-              "div",
-              { staticClass: "col-md-5" },
-              [
-                _c(
-                  "b-row",
-                  { staticClass: "my-1" },
-                  [
-                    _c("b-col", { attrs: { sm: "3" } }, [
-                      _c("label", { attrs: { for: "input-inicio" } }, [
-                        _vm._v("Inicio")
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c("b-col", { attrs: { sm: "9" } }, [
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.inicio,
-                            expression: "inicio"
-                          }
-                        ],
-                        staticClass: "form-control",
-                        attrs: { type: "date" },
-                        domProps: { value: _vm.inicio },
-                        on: {
-                          change: _vm.porFecha,
-                          input: function($event) {
-                            if ($event.target.composing) {
-                              return
-                            }
-                            _vm.inicio = $event.target.value
-                          }
-                        }
-                      }),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "text-danger" }, [
-                        _vm._v(_vm._s(_vm.respuesta_fecha))
-                      ])
-                    ])
-                  ],
-                  1
-                ),
-                _vm._v(" "),
-                _c(
-                  "b-row",
-                  { staticClass: "my-1" },
-                  [
-                    _c("b-col", { attrs: { sm: "3" } }, [
-                      _c("label", { attrs: { for: "input-final" } }, [
-                        _vm._v("Final")
-                      ])
-                    ]),
-                    _vm._v(" "),
-                    _c("b-col", { attrs: { sm: "9" } }, [
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.final,
-                            expression: "final"
-                          }
-                        ],
-                        staticClass: "form-control",
-                        attrs: { type: "date" },
-                        domProps: { value: _vm.final },
-                        on: {
-                          change: _vm.porFecha,
-                          input: function($event) {
-                            if ($event.target.composing) {
-                              return
-                            }
-                            _vm.final = $event.target.value
-                          }
-                        }
-                      })
-                    ])
-                  ],
-                  1
-                )
-              ],
-              1
-            )
-          ]),
-          _vm._v(" "),
-          _c("hr"),
-          _vm._v(" "),
-          _c("div", { attrs: { align: "right" } }, [
-            _vm.imprimirCliente && _vm.remisiones.length
-              ? _c(
-                  "a",
-                  {
-                    staticClass: "btn btn-info",
-                    attrs: {
-                      href:
-                        "/imprimirCliente/" +
-                        _vm.cliente_id +
-                        "/" +
-                        _vm.inicio +
-                        "/" +
-                        _vm.final
-                    }
-                  },
-                  [
-                    _c("i", { staticClass: "fa fa-download" }),
-                    _vm._v(" Descargar\n            ")
-                  ]
-                )
-              : _vm._e(),
-            _vm._v(" "),
-            _vm.imprimirEstado && _vm.remisiones.length
-              ? _c(
-                  "a",
-                  {
-                    staticClass: "btn btn-info",
-                    attrs: { href: "/imprimirEstado/" + _vm.estadoRemision }
-                  },
-                  [
-                    _c("i", { staticClass: "fa fa-download" }),
-                    _vm._v(" Descargar\n            ")
-                  ]
-                )
-              : _vm._e()
-          ]),
-          _vm._v(" "),
-          _c("hr"),
-          _vm._v(" "),
-          _c("div", [
-            _vm.tabla_numero
-              ? _c("table", { staticClass: "table" }, [
-                  _vm._m(0),
-                  _vm._v(" "),
-                  _c("tbody", [
-                    _c("tr", [
-                      _c("td", [_vm._v(_vm._s(_vm.remision.id))]),
-                      _vm._v(" "),
-                      _c("td", [_vm._v(_vm._s(_vm.remision.fecha_creacion))]),
-                      _vm._v(" "),
-                      _c("td", [_vm._v(_vm._s(_vm.cliente_nombre))]),
-                      _vm._v(" "),
-                      _c("td", [_vm._v("$ " + _vm._s(_vm.remision.total))]),
-                      _vm._v(" "),
-                      _c("td", [
-                        _vm._v("$ " + _vm._s(_vm.remision.total_devolucion))
-                      ]),
-                      _vm._v(" "),
-                      _c("td", [_vm._v("$ " + _vm._s(_vm.remision.pagos))]),
-                      _vm._v(" "),
-                      _c("td", [
-                        _vm._v("$ " + _vm._s(_vm.remision.total_pagar))
-                      ]),
-                      _vm._v(" "),
-                      _c("td", [
-                        _c(
-                          "button",
-                          {
-                            staticClass: "btn btn-primary",
-                            on: {
-                              click: function($event) {
-                                return _vm.detallesRemision(_vm.remision)
-                              }
-                            }
-                          },
-                          [
-                            _vm._v(
-                              "\n                                Detalles\n                            "
-                            )
-                          ]
-                        )
-                      ])
-                    ])
-                  ])
-                ])
-              : _vm._e(),
-            _vm._v(" "),
-            _vm.tabla_gral && _vm.remisiones.length
-              ? _c("table", { staticClass: "table" }, [
-                  _vm._m(1),
-                  _vm._v(" "),
-                  _c(
-                    "tbody",
-                    [
-                      _vm._l(_vm.remisiones, function(remision, i) {
-                        return _c("tr", { key: i }, [
-                          _c("td", [_vm._v(_vm._s(remision.id))]),
-                          _vm._v(" "),
-                          _c("td", [_vm._v(_vm._s(remision.fecha_creacion))]),
-                          _vm._v(" "),
-                          _c("td", [_vm._v(_vm._s(remision.cliente.name))]),
-                          _vm._v(" "),
-                          _c("td", [_vm._v("$ " + _vm._s(remision.total))]),
-                          _vm._v(" "),
-                          _c("td", [
-                            _vm._v("$ " + _vm._s(remision.total_devolucion))
-                          ]),
-                          _vm._v(" "),
-                          _c("td", [_vm._v("$ " + _vm._s(remision.pagos))]),
-                          _vm._v(" "),
-                          _c("td", [
-                            _vm._v("$ " + _vm._s(remision.total_pagar))
-                          ]),
-                          _vm._v(" "),
-                          _c("td", [
-                            _c(
-                              "button",
-                              {
-                                staticClass: "btn btn-primary",
-                                on: {
-                                  click: function($event) {
-                                    return _vm.detallesRemision(remision)
-                                  }
-                                }
-                              },
-                              [
-                                _vm._v(
-                                  "\n                                Detalles\n                            "
-                                )
-                              ]
-                            )
-                          ])
-                        ])
-                      }),
-                      _vm._v(" "),
-                      _c("tr", [
-                        _c("td"),
-                        _c("td"),
-                        _c("td"),
-                        _vm._v(" "),
-                        _c("td", [
-                          _c("b", [_vm._v("$ " + _vm._s(_vm.total_salida))])
-                        ]),
-                        _vm._v(" "),
-                        _c("td", [
-                          _c("b", [_vm._v("$ " + _vm._s(_vm.total_devolucion))])
-                        ]),
-                        _vm._v(" "),
-                        _c("td", [
-                          _c("b", [_vm._v("$ " + _vm._s(_vm.total_pagos))])
-                        ]),
-                        _vm._v(" "),
-                        _c("td", [
-                          _c("b", [_vm._v("$ " + _vm._s(_vm.total_pagar))])
+                          _vm._v(_vm._s(_vm.respuesta_fecha))
                         ])
                       ])
                     ],
-                    2
-                  )
-                ])
-              : _vm._e()
-          ])
-        ])
-      : _vm._e(),
-    _vm._v(" "),
-    _vm.detalles
-      ? _c(
-          "div",
-          [
-            _c(
-              "b-row",
-              [
-                _c("b-col", { attrs: { sm: "8" } }, [
-                  _c("h4", [_vm._v("Remisión N. " + _vm._s(_vm.remision.id))]),
+                    1
+                  ),
                   _vm._v(" "),
-                  _c("label", [
-                    _vm._v("Cliente: " + _vm._s(_vm.remision.cliente.name))
-                  ])
-                ]),
-                _vm._v(" "),
-                _c(
-                  "b-col",
-                  { attrs: { sm: "2", align: "right" } },
-                  [
-                    _vm.remision.estado == "Iniciado"
-                      ? _c("b-badge", { attrs: { variant: "info" } }, [
-                          _vm._v(_vm._s(_vm.remision.estado))
+                  _c(
+                    "b-row",
+                    { staticClass: "my-1" },
+                    [
+                      _c("b-col", { attrs: { sm: "3" } }, [
+                        _c("label", { attrs: { for: "input-final" } }, [
+                          _vm._v("Final")
                         ])
-                      : _vm._e(),
-                    _vm._v(" "),
-                    _vm.remision.estado == "Proceso"
-                      ? _c("b-badge", { attrs: { variant: "primary" } }, [
-                          _vm._v("Entregado")
-                        ])
-                      : _vm._e()
-                  ],
-                  1
-                ),
-                _vm._v(" "),
-                _c(
-                  "b-col",
-                  { attrs: { sm: "2", align: "right" } },
-                  [
-                    _c(
-                      "b-button",
-                      {
-                        attrs: { variant: "secondary" },
-                        on: {
-                          click: function($event) {
-                            _vm.detalles = false
+                      ]),
+                      _vm._v(" "),
+                      _c("b-col", { attrs: { sm: "9" } }, [
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.final,
+                              expression: "final"
+                            }
+                          ],
+                          staticClass: "form-control",
+                          attrs: { type: "date" },
+                          domProps: { value: _vm.final },
+                          on: {
+                            change: _vm.porFecha,
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.final = $event.target.value
+                            }
                           }
-                        }
-                      },
-                      [
-                        _c("i", { staticClass: "fa fa-mail-reply" }),
-                        _vm._v(" Regresar\n                ")
-                      ]
-                    )
-                  ],
-                  1
-                )
-              ],
-              1
-            ),
+                        })
+                      ])
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ]),
             _vm._v(" "),
             _c("hr"),
             _vm._v(" "),
-            _c(
-              "div",
-              { staticClass: "row" },
-              [
-                _c("h4", { staticClass: "col-md-10" }, [_vm._v("Salida")]),
-                _vm._v(" "),
-                _c(
-                  "b-button",
-                  {
-                    class: _vm.mostrarSalida ? "collapsed" : null,
-                    attrs: {
-                      variant: "link",
-                      "aria-expanded": _vm.mostrarSalida ? "true" : "false",
-                      "aria-controls": "collapse-1"
-                    },
-                    on: {
-                      click: function($event) {
-                        _vm.mostrarSalida = !_vm.mostrarSalida
+            _c("div", { attrs: { align: "right" } }, [
+              _vm.imprimirCliente && _vm.remisiones.length
+                ? _c(
+                    "a",
+                    {
+                      staticClass: "btn btn-info",
+                      attrs: {
+                        href:
+                          "/imprimirCliente/" +
+                          _vm.cliente_id +
+                          "/" +
+                          _vm.inicio +
+                          "/" +
+                          _vm.final
                       }
-                    }
-                  },
-                  [_c("i", { staticClass: "fa fa-sort-asc" })]
-                )
-              ],
-              1
-            ),
+                    },
+                    [
+                      _c("i", { staticClass: "fa fa-download" }),
+                      _vm._v(" Descargar\n            ")
+                    ]
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.imprimirEstado && _vm.remisiones.length
+                ? _c(
+                    "a",
+                    {
+                      staticClass: "btn btn-info",
+                      attrs: { href: "/imprimirEstado/" + _vm.estadoRemision }
+                    },
+                    [
+                      _c("i", { staticClass: "fa fa-download" }),
+                      _vm._v(" Descargar\n            ")
+                    ]
+                  )
+                : _vm._e()
+            ]),
             _vm._v(" "),
-            _c(
-              "b-collapse",
-              {
-                staticClass: "mt-2",
-                attrs: { id: "collapse-1" },
-                model: {
-                  value: _vm.mostrarSalida,
-                  callback: function($$v) {
-                    _vm.mostrarSalida = $$v
-                  },
-                  expression: "mostrarSalida"
-                }
-              },
-              [
-                _c("table", { staticClass: "table" }, [
-                  _c("thead", [
-                    _c("tr", [
-                      _c("th", { attrs: { scope: "col" } }, [_vm._v("ISBN")]),
-                      _vm._v(" "),
-                      _c("th", { attrs: { scope: "col" } }, [_vm._v("Libro")]),
-                      _vm._v(" "),
-                      _c("th", { attrs: { scope: "col" } }, [
-                        _vm._v("Costo unitario")
-                      ]),
-                      _vm._v(" "),
-                      _c("th", { attrs: { scope: "col" } }, [
-                        _vm._v("Unidades")
-                      ]),
-                      _vm._v(" "),
-                      _c("th", { attrs: { scope: "col" } }, [
-                        _vm._v("Subtotal")
+            _c("hr"),
+            _vm._v(" "),
+            _c("div", [
+              _vm.tabla_numero
+                ? _c("table", { staticClass: "table" }, [
+                    _vm._m(0),
+                    _vm._v(" "),
+                    _c("tbody", [
+                      _c("tr", [
+                        _c("td", [_vm._v(_vm._s(_vm.remision.id))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(_vm.remision.fecha_creacion))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(_vm.cliente_nombre))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v("$ " + _vm._s(_vm.remision.total))]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _vm._v("$ " + _vm._s(_vm.remision.total_devolucion))
+                        ]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v("$ " + _vm._s(_vm.remision.pagos))]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _vm._v("$ " + _vm._s(_vm.remision.total_pagar))
+                        ]),
+                        _vm._v(" "),
+                        _c("td", [
+                          _c(
+                            "button",
+                            {
+                              staticClass: "btn btn-primary",
+                              on: {
+                                click: function($event) {
+                                  return _vm.detallesRemision(_vm.remision)
+                                }
+                              }
+                            },
+                            [
+                              _vm._v(
+                                "\n                                Detalles\n                            "
+                              )
+                            ]
+                          )
+                        ])
                       ])
+                    ])
+                  ])
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.tabla_gral && _vm.remisiones.length
+                ? _c("table", { staticClass: "table" }, [
+                    _vm._m(1),
+                    _vm._v(" "),
+                    _c(
+                      "tbody",
+                      [
+                        _vm._l(_vm.remisiones, function(remision, i) {
+                          return _c("tr", { key: i }, [
+                            _c("td", [_vm._v(_vm._s(remision.id))]),
+                            _vm._v(" "),
+                            _c("td", [_vm._v(_vm._s(remision.fecha_creacion))]),
+                            _vm._v(" "),
+                            _c("td", [_vm._v(_vm._s(remision.cliente.name))]),
+                            _vm._v(" "),
+                            _c("td", [_vm._v("$ " + _vm._s(remision.total))]),
+                            _vm._v(" "),
+                            _c("td", [
+                              _vm._v("$ " + _vm._s(remision.total_devolucion))
+                            ]),
+                            _vm._v(" "),
+                            _c("td", [_vm._v("$ " + _vm._s(remision.pagos))]),
+                            _vm._v(" "),
+                            _c("td", [
+                              _vm._v("$ " + _vm._s(remision.total_pagar))
+                            ]),
+                            _vm._v(" "),
+                            _c("td", [
+                              _c(
+                                "button",
+                                {
+                                  staticClass: "btn btn-primary",
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.detallesRemision(remision)
+                                    }
+                                  }
+                                },
+                                [
+                                  _vm._v(
+                                    "\n                                Detalles\n                            "
+                                  )
+                                ]
+                              )
+                            ])
+                          ])
+                        }),
+                        _vm._v(" "),
+                        _c("tr", [
+                          _c("td"),
+                          _c("td"),
+                          _c("td"),
+                          _vm._v(" "),
+                          _c("td", [
+                            _c("b", [_vm._v("$ " + _vm._s(_vm.total_salida))])
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _c("b", [
+                              _vm._v("$ " + _vm._s(_vm.total_devolucion))
+                            ])
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _c("b", [_vm._v("$ " + _vm._s(_vm.total_pagos))])
+                          ]),
+                          _vm._v(" "),
+                          _c("td", [
+                            _c("b", [_vm._v("$ " + _vm._s(_vm.total_pagar))])
+                          ])
+                        ])
+                      ],
+                      2
+                    )
+                  ])
+                : _vm._e()
+            ])
+          ])
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.detalles
+        ? _c(
+            "div",
+            [
+              _c(
+                "b-row",
+                [
+                  _c("b-col", { attrs: { sm: "6" } }, [
+                    _c("h4", [
+                      _vm._v("Remisión N. " + _vm._s(_vm.remision.id))
+                    ]),
+                    _vm._v(" "),
+                    _c("label", [
+                      _vm._v("Cliente: " + _vm._s(_vm.remision.cliente.name))
                     ])
                   ]),
                   _vm._v(" "),
                   _c(
-                    "tbody",
+                    "b-col",
+                    { attrs: { sm: "3" } },
                     [
-                      _vm._l(_vm.registros, function(registro, i) {
-                        return _c("tr", { key: i }, [
-                          _c("td", [_vm._v(_vm._s(registro.libro.ISBN))]),
-                          _vm._v(" "),
-                          _c("td", [_vm._v(_vm._s(registro.libro.titulo))]),
-                          _vm._v(" "),
-                          _c("td", [
-                            _vm._v("$ " + _vm._s(registro.costo_unitario))
-                          ]),
-                          _vm._v(" "),
-                          _c("td", [_vm._v(_vm._s(registro.unidades))]),
-                          _vm._v(" "),
-                          _c("td", [_vm._v("$ " + _vm._s(registro.total))])
-                        ])
-                      }),
+                      _vm.remision.estado == "Iniciado"
+                        ? _c(
+                            "b-button",
+                            {
+                              directives: [
+                                {
+                                  name: "b-modal",
+                                  rawName: "v-b-modal.modal-cancelar",
+                                  modifiers: { "modal-cancelar": true }
+                                }
+                              ],
+                              attrs: { variant: "outline-danger" }
+                            },
+                            [
+                              _c("i", { staticClass: "fa fa-close" }),
+                              _vm._v(" Cancelar remisión\n                ")
+                            ]
+                          )
+                        : _vm._e()
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { attrs: { sm: "1", align: "left" } },
+                    [
+                      _vm.remision.estado == "Iniciado"
+                        ? _c("b-badge", { attrs: { variant: "info" } }, [
+                            _vm._v(_vm._s(_vm.remision.estado))
+                          ])
+                        : _vm._e(),
                       _vm._v(" "),
+                      _vm.remision.estado == "Proceso"
+                        ? _c("b-badge", { attrs: { variant: "primary" } }, [
+                            _vm._v("Entregado")
+                          ])
+                        : _vm._e(),
+                      _vm._v(" "),
+                      _vm.remision.estado == "Cancelado"
+                        ? _c("b-badge", { attrs: { variant: "danger" } }, [
+                            _vm._v(_vm._s(_vm.remision.estado))
+                          ])
+                        : _vm._e()
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { attrs: { sm: "2", align: "right" } },
+                    [
+                      _c(
+                        "b-button",
+                        {
+                          attrs: { variant: "secondary" },
+                          on: {
+                            click: function($event) {
+                              _vm.detalles = false
+                            }
+                          }
+                        },
+                        [
+                          _c("i", { staticClass: "fa fa-mail-reply" }),
+                          _vm._v(" Regresar\n                ")
+                        ]
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c("hr"),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "row" },
+                [
+                  _c("h4", { staticClass: "col-md-10" }, [_vm._v("Salida")]),
+                  _vm._v(" "),
+                  _c(
+                    "b-button",
+                    {
+                      class: _vm.mostrarSalida ? "collapsed" : null,
+                      attrs: {
+                        variant: "link",
+                        "aria-expanded": _vm.mostrarSalida ? "true" : "false",
+                        "aria-controls": "collapse-1"
+                      },
+                      on: {
+                        click: function($event) {
+                          _vm.mostrarSalida = !_vm.mostrarSalida
+                        }
+                      }
+                    },
+                    [_c("i", { staticClass: "fa fa-sort-asc" })]
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "b-collapse",
+                {
+                  staticClass: "mt-2",
+                  attrs: { id: "collapse-1" },
+                  model: {
+                    value: _vm.mostrarSalida,
+                    callback: function($$v) {
+                      _vm.mostrarSalida = $$v
+                    },
+                    expression: "mostrarSalida"
+                  }
+                },
+                [
+                  _c("table", { staticClass: "table" }, [
+                    _c("thead", [
                       _c("tr", [
-                        _c("td"),
-                        _c("td"),
+                        _c("th", { attrs: { scope: "col" } }, [_vm._v("ISBN")]),
                         _vm._v(" "),
-                        _c("td"),
-                        _c("td"),
+                        _c("th", { attrs: { scope: "col" } }, [
+                          _vm._v("Libro")
+                        ]),
                         _vm._v(" "),
-                        _c("td", [
-                          _c("h5", [_vm._v("$ " + _vm._s(_vm.remision.total))])
+                        _c("th", { attrs: { scope: "col" } }, [
+                          _vm._v("Costo unitario")
+                        ]),
+                        _vm._v(" "),
+                        _c("th", { attrs: { scope: "col" } }, [
+                          _vm._v("Unidades")
+                        ]),
+                        _vm._v(" "),
+                        _c("th", { attrs: { scope: "col" } }, [
+                          _vm._v("Subtotal")
                         ])
                       ])
-                    ],
-                    2
-                  )
-                ])
-              ]
-            ),
-            _vm._v(" "),
-            _c("hr"),
-            _vm._v(" "),
-            _vm.remision.estado == "Proceso" ||
-            _vm.remision.estado == "Terminado"
-              ? _c(
-                  "div",
-                  { staticClass: "row" },
-                  [
-                    _c("h4", { staticClass: "col-md-10" }, [
-                      _vm._v("Devolución")
                     ]),
                     _vm._v(" "),
                     _c(
-                      "b-button",
-                      {
-                        class: _vm.mostrarDevolucion ? "collapsed" : null,
-                        attrs: {
-                          variant: "link",
-                          "aria-expanded": _vm.mostrarDevolucion
-                            ? "true"
-                            : "false",
-                          "aria-controls": "collapse-2"
-                        },
-                        on: {
-                          click: function($event) {
-                            _vm.mostrarDevolucion = !_vm.mostrarDevolucion
-                          }
-                        }
-                      },
-                      [_c("i", { staticClass: "fa fa-sort-asc" })]
-                    )
-                  ],
-                  1
-                )
-              : _vm._e(),
-            _vm._v(" "),
-            _c(
-              "b-collapse",
-              {
-                staticClass: "mt-2",
-                attrs: { id: "collapse-2" },
-                model: {
-                  value: _vm.mostrarDevolucion,
-                  callback: function($$v) {
-                    _vm.mostrarDevolucion = $$v
-                  },
-                  expression: "mostrarDevolucion"
-                }
-              },
-              [
-                _vm.remision.estado == "Proceso" ||
-                _vm.remision.estado == "Terminado"
-                  ? _c("table", { staticClass: "table" }, [
-                      _c("thead", [
-                        _c("tr", [
-                          _c("th", { attrs: { scope: "col" } }, [
-                            _vm._v("ISBN")
-                          ]),
-                          _vm._v(" "),
-                          _c("th", { attrs: { scope: "col" } }, [
-                            _vm._v("Libro")
-                          ]),
-                          _vm._v(" "),
-                          _c("th", { attrs: { scope: "col" } }, [
-                            _vm._v("Costo unitario")
-                          ]),
-                          _vm._v(" "),
-                          _c("th", { attrs: { scope: "col" } }, [
-                            _vm._v("Unidades")
-                          ]),
-                          _vm._v(" "),
-                          _c("th", { attrs: { scope: "col" } }, [
-                            _vm._v("Subtotal")
-                          ])
-                        ])
-                      ]),
-                      _vm._v(" "),
-                      _c(
-                        "tbody",
-                        [
-                          _vm._l(_vm.devoluciones, function(devolucion, i) {
-                            return _c("tr", { key: i }, [
-                              _c("td", [_vm._v(_vm._s(devolucion.libro.ISBN))]),
-                              _vm._v(" "),
-                              _c("td", [
-                                _vm._v(_vm._s(devolucion.libro.titulo))
-                              ]),
-                              _vm._v(" "),
-                              _c("td", [
-                                _vm._v(
-                                  "$ " + _vm._s(devolucion.dato.costo_unitario)
-                                )
-                              ]),
-                              _vm._v(" "),
-                              _c("td", [_vm._v(_vm._s(devolucion.unidades))]),
-                              _vm._v(" "),
-                              _c("td", [
-                                _vm._v("$ " + _vm._s(devolucion.total))
-                              ])
-                            ])
-                          }),
-                          _vm._v(" "),
-                          _c("tr", [
-                            _c("td"),
-                            _c("td"),
+                      "tbody",
+                      [
+                        _vm._l(_vm.registros, function(registro, i) {
+                          return _c("tr", { key: i }, [
+                            _c("td", [_vm._v(_vm._s(registro.libro.ISBN))]),
                             _vm._v(" "),
-                            _c("td"),
-                            _c("td"),
+                            _c("td", [_vm._v(_vm._s(registro.libro.titulo))]),
                             _vm._v(" "),
                             _c("td", [
-                              _c("h5", [
-                                _vm._v(
-                                  "$ " + _vm._s(_vm.remision.total_devolucion)
-                                )
-                              ])
+                              _vm._v("$ " + _vm._s(registro.costo_unitario))
+                            ]),
+                            _vm._v(" "),
+                            _c("td", [_vm._v(_vm._s(registro.unidades))]),
+                            _vm._v(" "),
+                            _c("td", [_vm._v("$ " + _vm._s(registro.total))])
+                          ])
+                        }),
+                        _vm._v(" "),
+                        _c("tr", [
+                          _c("td"),
+                          _c("td"),
+                          _vm._v(" "),
+                          _c("td"),
+                          _c("td"),
+                          _vm._v(" "),
+                          _c("td", [
+                            _c("h5", [
+                              _vm._v("$ " + _vm._s(_vm.remision.total))
                             ])
                           ])
-                        ],
-                        2
-                      )
-                    ])
-                  : _vm._e()
-              ]
-            ),
-            _vm._v(" "),
-            _c("hr"),
-            _vm._v(" "),
-            _vm.remision.estado == "Proceso" ||
-            _vm.remision.estado == "Terminado"
-              ? _c(
-                  "div",
-                  { staticClass: "row" },
-                  [
-                    _c("h4", { staticClass: "col-md-10" }, [_vm._v("Pagos")]),
-                    _vm._v(" "),
-                    _c(
-                      "b-button",
-                      {
-                        class: _vm.mostrarPagos ? "collapsed" : null,
-                        attrs: {
-                          variant: "link",
-                          "aria-expanded": _vm.mostrarPagos ? "true" : "false",
-                          "aria-controls": "collapse-3"
-                        },
-                        on: {
-                          click: function($event) {
-                            _vm.mostrarPagos = !_vm.mostrarPagos
-                          }
-                        }
-                      },
-                      [_c("i", { staticClass: "fa fa-sort-asc" })]
+                        ])
+                      ],
+                      2
                     )
-                  ],
-                  1
-                )
-              : _vm._e(),
-            _vm._v(" "),
-            _c(
-              "b-collapse",
-              {
-                staticClass: "mt-2",
-                attrs: { id: "collapse-3" },
-                model: {
-                  value: _vm.mostrarPagos,
-                  callback: function($$v) {
-                    _vm.mostrarPagos = $$v
-                  },
-                  expression: "mostrarPagos"
-                }
-              },
-              [
-                _c("b-table", {
-                  attrs: { items: _vm.vendidos, fields: _vm.fieldsP },
-                  scopedSlots: _vm._u(
+                  ])
+                ]
+              ),
+              _vm._v(" "),
+              _c("hr"),
+              _vm._v(" "),
+              _vm.remision.estado == "Proceso" ||
+              _vm.remision.estado == "Terminado"
+                ? _c(
+                    "div",
+                    { staticClass: "row" },
                     [
-                      {
-                        key: "isbn",
-                        fn: function(row) {
-                          return [_vm._v(_vm._s(row.item.libro.ISBN))]
-                        }
-                      },
-                      {
-                        key: "libro",
-                        fn: function(row) {
-                          return [_vm._v(_vm._s(row.item.libro.titulo))]
-                        }
-                      },
-                      {
-                        key: "costo_unitario",
-                        fn: function(row) {
-                          return [
-                            _vm._v("$" + _vm._s(row.item.dato.costo_unitario))
-                          ]
-                        }
-                      },
-                      {
-                        key: "subtotal",
-                        fn: function(row) {
-                          return [_vm._v("$" + _vm._s(row.item.total))]
-                        }
-                      },
-                      {
-                        key: "detalles",
-                        fn: function(row) {
-                          return [
-                            row.item.pagos.length > 0
-                              ? _c(
-                                  "b-button",
-                                  {
-                                    attrs: { variant: "outline-info" },
-                                    on: { click: row.toggleDetails }
-                                  },
-                                  [
-                                    _vm._v(
-                                      "\n                        " +
-                                        _vm._s(
-                                          row.detailsShowing
-                                            ? "Ocultar"
-                                            : "Mostrar"
-                                        ) +
-                                        " detalles\n                    "
-                                    )
-                                  ]
-                                )
-                              : _vm._e()
-                          ]
-                        }
-                      },
-                      {
-                        key: "row-details",
-                        fn: function(row) {
-                          return [
-                            _c(
-                              "b-card",
-                              [
-                                _c("b-table", {
-                                  attrs: {
-                                    items: row.item.pagos,
-                                    fields: _vm.fieldsD
-                                  },
-                                  scopedSlots: _vm._u(
-                                    [
-                                      {
-                                        key: "index",
-                                        fn: function(row) {
-                                          return [_vm._v(_vm._s(row.index + 1))]
-                                        }
-                                      },
-                                      {
-                                        key: "user_id",
-                                        fn: function(row) {
-                                          return [
-                                            row.item.user_id == 2
-                                              ? _c("label", [
-                                                  _vm._v("Teresa Pérez")
-                                                ])
-                                              : _vm._e(),
-                                            _vm._v(" "),
-                                            row.item.user_id == 3
-                                              ? _c("label", [_vm._v("Almacén")])
-                                              : _vm._e()
-                                          ]
-                                        }
-                                      },
-                                      {
-                                        key: "unidades",
-                                        fn: function(row) {
-                                          return [
-                                            _vm._v(_vm._s(row.item.unidades))
-                                          ]
-                                        }
-                                      },
-                                      {
-                                        key: "pago",
-                                        fn: function(row) {
-                                          return [
-                                            _vm._v("$ " + _vm._s(row.item.pago))
-                                          ]
-                                        }
-                                      },
-                                      {
-                                        key: "created_at",
-                                        fn: function(row) {
-                                          return [
-                                            _vm._v(
-                                              _vm._s(
-                                                _vm._f("moment")(row.created_at)
-                                              )
-                                            )
-                                          ]
-                                        }
-                                      }
-                                    ],
-                                    null,
-                                    true
-                                  )
-                                })
-                              ],
-                              1
-                            )
-                          ]
-                        }
-                      }
-                    ],
-                    null,
-                    false,
-                    3568398885
-                  )
-                })
-              ],
-              1
-            ),
-            _vm._v(" "),
-            _c("hr"),
-            _vm._v(" "),
-            _vm.remision.estado == "Proceso" ||
-            _vm.remision.estado == "Terminado"
-              ? _c(
-                  "div",
-                  { staticClass: "row" },
-                  [
-                    _c("h4", { staticClass: "col-md-10" }, [_vm._v("Pagar")]),
-                    _vm._v(" "),
-                    _c(
-                      "b-button",
-                      {
-                        class: _vm.mostrarFinal ? "collapsed" : null,
-                        attrs: {
-                          variant: "link",
-                          "aria-expanded": _vm.mostrarFinal ? "true" : "false",
-                          "aria-controls": "collapse-3"
-                        },
-                        on: {
-                          click: function($event) {
-                            _vm.mostrarFinal = !_vm.mostrarFinal
-                          }
-                        }
-                      },
-                      [_c("i", { staticClass: "fa fa-sort-asc" })]
-                    )
-                  ],
-                  1
-                )
-              : _vm._e(),
-            _vm._v(" "),
-            _c(
-              "b-collapse",
-              {
-                staticClass: "mt-2",
-                attrs: { id: "collapse-3" },
-                model: {
-                  value: _vm.mostrarFinal,
-                  callback: function($$v) {
-                    _vm.mostrarFinal = $$v
-                  },
-                  expression: "mostrarFinal"
-                }
-              },
-              [
-                _vm.remision.estado == "Proceso" ||
-                _vm.remision.estado == "Terminado"
-                  ? _c("table", { staticClass: "table" }, [
-                      _c("thead", [
-                        _c("tr", [
-                          _c("th", { attrs: { scope: "col" } }, [
-                            _vm._v("ISBN")
-                          ]),
-                          _vm._v(" "),
-                          _c("th", { attrs: { scope: "col" } }, [
-                            _vm._v("Libro")
-                          ]),
-                          _vm._v(" "),
-                          _c("th", { attrs: { scope: "col" } }, [
-                            _vm._v("Costo unitario")
-                          ]),
-                          _vm._v(" "),
-                          _c("th", { attrs: { scope: "col" } }, [
-                            _vm._v("Unidades")
-                          ]),
-                          _vm._v(" "),
-                          _c("th", { attrs: { scope: "col" } }, [
-                            _vm._v("Subtotal")
-                          ])
-                        ])
+                      _c("h4", { staticClass: "col-md-10" }, [
+                        _vm._v("Devolución")
                       ]),
                       _vm._v(" "),
                       _c(
-                        "tbody",
-                        [
-                          _vm._l(_vm.devoluciones, function(devolucion, i) {
-                            return _c("tr", { key: i }, [
-                              _c("td", [_vm._v(_vm._s(devolucion.libro.ISBN))]),
-                              _vm._v(" "),
-                              _c("td", [
-                                _vm._v(_vm._s(devolucion.libro.titulo))
-                              ]),
-                              _vm._v(" "),
-                              _c("td", [
-                                _vm._v(
-                                  "$ " + _vm._s(devolucion.dato.costo_unitario)
-                                )
-                              ]),
-                              _vm._v(" "),
-                              _c("td", [
-                                _vm._v(_vm._s(devolucion.unidades_resta))
-                              ]),
-                              _vm._v(" "),
-                              _c("td", [
-                                _vm._v("$ " + _vm._s(devolucion.total_resta))
-                              ])
-                            ])
-                          }),
-                          _vm._v(" "),
+                        "b-button",
+                        {
+                          class: _vm.mostrarDevolucion ? "collapsed" : null,
+                          attrs: {
+                            variant: "link",
+                            "aria-expanded": _vm.mostrarDevolucion
+                              ? "true"
+                              : "false",
+                            "aria-controls": "collapse-2"
+                          },
+                          on: {
+                            click: function($event) {
+                              _vm.mostrarDevolucion = !_vm.mostrarDevolucion
+                            }
+                          }
+                        },
+                        [_c("i", { staticClass: "fa fa-sort-asc" })]
+                      )
+                    ],
+                    1
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              _c(
+                "b-collapse",
+                {
+                  staticClass: "mt-2",
+                  attrs: { id: "collapse-2" },
+                  model: {
+                    value: _vm.mostrarDevolucion,
+                    callback: function($$v) {
+                      _vm.mostrarDevolucion = $$v
+                    },
+                    expression: "mostrarDevolucion"
+                  }
+                },
+                [
+                  _vm.remision.estado == "Proceso" ||
+                  _vm.remision.estado == "Terminado"
+                    ? _c("table", { staticClass: "table" }, [
+                        _c("thead", [
                           _c("tr", [
-                            _c("td"),
-                            _c("td"),
-                            _c("td"),
-                            _c("td"),
+                            _c("th", { attrs: { scope: "col" } }, [
+                              _vm._v("ISBN")
+                            ]),
                             _vm._v(" "),
-                            _c("td", [
-                              _c("h5", [
-                                _vm._v("$ " + _vm._s(_vm.remision.total_pagar))
-                              ])
+                            _c("th", { attrs: { scope: "col" } }, [
+                              _vm._v("Libro")
+                            ]),
+                            _vm._v(" "),
+                            _c("th", { attrs: { scope: "col" } }, [
+                              _vm._v("Costo unitario")
+                            ]),
+                            _vm._v(" "),
+                            _c("th", { attrs: { scope: "col" } }, [
+                              _vm._v("Unidades")
+                            ]),
+                            _vm._v(" "),
+                            _c("th", { attrs: { scope: "col" } }, [
+                              _vm._v("Subtotal")
                             ])
                           ])
-                        ],
-                        2
+                        ]),
+                        _vm._v(" "),
+                        _c(
+                          "tbody",
+                          [
+                            _vm._l(_vm.devoluciones, function(devolucion, i) {
+                              return _c("tr", { key: i }, [
+                                _c("td", [
+                                  _vm._v(_vm._s(devolucion.libro.ISBN))
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(_vm._s(devolucion.libro.titulo))
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(
+                                    "$ " +
+                                      _vm._s(devolucion.dato.costo_unitario)
+                                  )
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [_vm._v(_vm._s(devolucion.unidades))]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v("$ " + _vm._s(devolucion.total))
+                                ])
+                              ])
+                            }),
+                            _vm._v(" "),
+                            _c("tr", [
+                              _c("td"),
+                              _c("td"),
+                              _vm._v(" "),
+                              _c("td"),
+                              _c("td"),
+                              _vm._v(" "),
+                              _c("td", [
+                                _c("h5", [
+                                  _vm._v(
+                                    "$ " + _vm._s(_vm.remision.total_devolucion)
+                                  )
+                                ])
+                              ])
+                            ])
+                          ],
+                          2
+                        )
+                      ])
+                    : _vm._e()
+                ]
+              ),
+              _vm._v(" "),
+              _c("hr"),
+              _vm._v(" "),
+              _vm.remision.estado == "Proceso" ||
+              _vm.remision.estado == "Terminado"
+                ? _c(
+                    "div",
+                    { staticClass: "row" },
+                    [
+                      _c("h4", { staticClass: "col-md-10" }, [_vm._v("Pagos")]),
+                      _vm._v(" "),
+                      _c(
+                        "b-button",
+                        {
+                          class: _vm.mostrarPagos ? "collapsed" : null,
+                          attrs: {
+                            variant: "link",
+                            "aria-expanded": _vm.mostrarPagos
+                              ? "true"
+                              : "false",
+                            "aria-controls": "collapse-3"
+                          },
+                          on: {
+                            click: function($event) {
+                              _vm.mostrarPagos = !_vm.mostrarPagos
+                            }
+                          }
+                        },
+                        [_c("i", { staticClass: "fa fa-sort-asc" })]
                       )
-                    ])
-                  : _vm._e()
-              ]
-            )
-          ],
-          1
-        )
-      : _vm._e()
-  ])
+                    ],
+                    1
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              _c(
+                "b-collapse",
+                {
+                  staticClass: "mt-2",
+                  attrs: { id: "collapse-3" },
+                  model: {
+                    value: _vm.mostrarPagos,
+                    callback: function($$v) {
+                      _vm.mostrarPagos = $$v
+                    },
+                    expression: "mostrarPagos"
+                  }
+                },
+                [
+                  _c("b-table", {
+                    attrs: { items: _vm.vendidos, fields: _vm.fieldsP },
+                    scopedSlots: _vm._u(
+                      [
+                        {
+                          key: "isbn",
+                          fn: function(row) {
+                            return [_vm._v(_vm._s(row.item.libro.ISBN))]
+                          }
+                        },
+                        {
+                          key: "libro",
+                          fn: function(row) {
+                            return [_vm._v(_vm._s(row.item.libro.titulo))]
+                          }
+                        },
+                        {
+                          key: "costo_unitario",
+                          fn: function(row) {
+                            return [
+                              _vm._v("$" + _vm._s(row.item.dato.costo_unitario))
+                            ]
+                          }
+                        },
+                        {
+                          key: "subtotal",
+                          fn: function(row) {
+                            return [_vm._v("$" + _vm._s(row.item.total))]
+                          }
+                        },
+                        {
+                          key: "detalles",
+                          fn: function(row) {
+                            return [
+                              row.item.pagos.length > 0
+                                ? _c(
+                                    "b-button",
+                                    {
+                                      attrs: { variant: "outline-info" },
+                                      on: { click: row.toggleDetails }
+                                    },
+                                    [
+                                      _vm._v(
+                                        "\n                        " +
+                                          _vm._s(
+                                            row.detailsShowing
+                                              ? "Ocultar"
+                                              : "Mostrar"
+                                          ) +
+                                          " detalles\n                    "
+                                      )
+                                    ]
+                                  )
+                                : _vm._e()
+                            ]
+                          }
+                        },
+                        {
+                          key: "row-details",
+                          fn: function(row) {
+                            return [
+                              _c(
+                                "b-card",
+                                [
+                                  _c("b-table", {
+                                    attrs: {
+                                      items: row.item.pagos,
+                                      fields: _vm.fieldsD
+                                    },
+                                    scopedSlots: _vm._u(
+                                      [
+                                        {
+                                          key: "index",
+                                          fn: function(row) {
+                                            return [
+                                              _vm._v(_vm._s(row.index + 1))
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          key: "user_id",
+                                          fn: function(row) {
+                                            return [
+                                              row.item.user_id == 2
+                                                ? _c("label", [
+                                                    _vm._v("Teresa Pérez")
+                                                  ])
+                                                : _vm._e(),
+                                              _vm._v(" "),
+                                              row.item.user_id == 3
+                                                ? _c("label", [
+                                                    _vm._v("Almacén")
+                                                  ])
+                                                : _vm._e()
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          key: "unidades",
+                                          fn: function(row) {
+                                            return [
+                                              _vm._v(_vm._s(row.item.unidades))
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          key: "pago",
+                                          fn: function(row) {
+                                            return [
+                                              _vm._v(
+                                                "$ " + _vm._s(row.item.pago)
+                                              )
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          key: "created_at",
+                                          fn: function(row) {
+                                            return [
+                                              _vm._v(
+                                                _vm._s(
+                                                  _vm._f("moment")(
+                                                    row.created_at
+                                                  )
+                                                )
+                                              )
+                                            ]
+                                          }
+                                        }
+                                      ],
+                                      null,
+                                      true
+                                    )
+                                  })
+                                ],
+                                1
+                              )
+                            ]
+                          }
+                        }
+                      ],
+                      null,
+                      false,
+                      3568398885
+                    )
+                  })
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c("hr"),
+              _vm._v(" "),
+              _vm.remision.estado == "Proceso" ||
+              _vm.remision.estado == "Terminado"
+                ? _c(
+                    "div",
+                    { staticClass: "row" },
+                    [
+                      _c("h4", { staticClass: "col-md-10" }, [_vm._v("Pagar")]),
+                      _vm._v(" "),
+                      _c(
+                        "b-button",
+                        {
+                          class: _vm.mostrarFinal ? "collapsed" : null,
+                          attrs: {
+                            variant: "link",
+                            "aria-expanded": _vm.mostrarFinal
+                              ? "true"
+                              : "false",
+                            "aria-controls": "collapse-3"
+                          },
+                          on: {
+                            click: function($event) {
+                              _vm.mostrarFinal = !_vm.mostrarFinal
+                            }
+                          }
+                        },
+                        [_c("i", { staticClass: "fa fa-sort-asc" })]
+                      )
+                    ],
+                    1
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              _c(
+                "b-collapse",
+                {
+                  staticClass: "mt-2",
+                  attrs: { id: "collapse-3" },
+                  model: {
+                    value: _vm.mostrarFinal,
+                    callback: function($$v) {
+                      _vm.mostrarFinal = $$v
+                    },
+                    expression: "mostrarFinal"
+                  }
+                },
+                [
+                  _vm.remision.estado == "Proceso" ||
+                  _vm.remision.estado == "Terminado"
+                    ? _c("table", { staticClass: "table" }, [
+                        _c("thead", [
+                          _c("tr", [
+                            _c("th", { attrs: { scope: "col" } }, [
+                              _vm._v("ISBN")
+                            ]),
+                            _vm._v(" "),
+                            _c("th", { attrs: { scope: "col" } }, [
+                              _vm._v("Libro")
+                            ]),
+                            _vm._v(" "),
+                            _c("th", { attrs: { scope: "col" } }, [
+                              _vm._v("Costo unitario")
+                            ]),
+                            _vm._v(" "),
+                            _c("th", { attrs: { scope: "col" } }, [
+                              _vm._v("Unidades")
+                            ]),
+                            _vm._v(" "),
+                            _c("th", { attrs: { scope: "col" } }, [
+                              _vm._v("Subtotal")
+                            ])
+                          ])
+                        ]),
+                        _vm._v(" "),
+                        _c(
+                          "tbody",
+                          [
+                            _vm._l(_vm.devoluciones, function(devolucion, i) {
+                              return _c("tr", { key: i }, [
+                                _c("td", [
+                                  _vm._v(_vm._s(devolucion.libro.ISBN))
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(_vm._s(devolucion.libro.titulo))
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(
+                                    "$ " +
+                                      _vm._s(devolucion.dato.costo_unitario)
+                                  )
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v(_vm._s(devolucion.unidades_resta))
+                                ]),
+                                _vm._v(" "),
+                                _c("td", [
+                                  _vm._v("$ " + _vm._s(devolucion.total_resta))
+                                ])
+                              ])
+                            }),
+                            _vm._v(" "),
+                            _c("tr", [
+                              _c("td"),
+                              _c("td"),
+                              _c("td"),
+                              _c("td"),
+                              _vm._v(" "),
+                              _c("td", [
+                                _c("h5", [
+                                  _vm._v(
+                                    "$ " + _vm._s(_vm.remision.total_pagar)
+                                  )
+                                ])
+                              ])
+                            ])
+                          ],
+                          2
+                        )
+                      ])
+                    : _vm._e()
+                ]
+              )
+            ],
+            1
+          )
+        : _vm._e(),
+      _vm._v(" "),
+      _c(
+        "b-modal",
+        { attrs: { id: "modal-cancelar", title: "Cancelar remisión" } },
+        [
+          _c("p", [
+            _c("b", [
+              _c("i", { staticClass: "fa fa-exclamation-triangle" }),
+              _vm._v(" ¿Estas seguro de cancelar la remisión?")
+            ])
+          ]),
+          _vm._v(" "),
+          _c(
+            "div",
+            { attrs: { slot: "modal-footer" }, slot: "modal-footer" },
+            [
+              _c("b-button", { on: { click: _vm.cambiarEstado } }, [
+                _vm._v("OK")
+              ])
+            ],
+            1
+          )
+        ]
+      )
+    ],
+    1
+  )
 }
 var staticRenderFns = [
   function() {
