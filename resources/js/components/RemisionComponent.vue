@@ -595,7 +595,7 @@
             },
             makeToast(variant = null, descripcion) {
                 this.$bvToast.toast(descripcion, {
-                    title: 'Error',
+                    title: 'Mensaje',
                     variant: variant,
                     solid: true
                 })

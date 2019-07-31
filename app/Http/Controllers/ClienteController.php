@@ -38,23 +38,20 @@ class ClienteController extends Controller
         $this->validacion($request);
         try {
             \DB::beginTransaction();
-            
             $cliente->name = $request->name;
+            $cliente->contacto = $request->contacto;
             $cliente->email = $request->email;
             $cliente->telefono = $request->telefono;
             $cliente->direccion = $request->direccion;
-            // $cliente->descuento = $request->descuento;
             $cliente->condiciones_pago = $request->condiciones_pago;
             $cliente->save();
-
             \DB::commit();
-
-            return response()->json($cliente);
 
         } catch (Exception $e) {
             \DB::rollBack();
             return response()->json($exception->getMessage());
-		}
+        }
+        return response()->json($cliente);
     }
 
     public function validacion($request){
