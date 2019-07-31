@@ -60,7 +60,6 @@ class ClienteController extends Controller
             'email' => 'min:8|max:50|required|email',
             'telefono' => 'required|numeric|max:9999999999|min:1000000',
             'direccion' => 'min:3|max:150|required|string',
-            // 'descuento' => 'numeric|required|min:0|max:99',
             'condiciones_pago' => 'min:3|max:150|required|string'
         ]);
     }

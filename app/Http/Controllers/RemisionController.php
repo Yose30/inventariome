@@ -52,8 +52,7 @@ class RemisionController extends Controller
     public function store(Request $request){
         try {
             \DB::beginTransaction();
-            $cliente = Cliente::whereId($request->cliente_id)->update(['estado' => 'Terminado']);
-
+            
             $remision = Remisione::create([
                 'cliente_id' => $request->cliente_id,
                 'total' => $request->total,
@@ -63,16 +62,26 @@ class RemisionController extends Controller
                 'fecha_devolucion' => Carbon::now()->format('Y-m-d')
             ]);
 
-            $this->concluir_remision($remision->id);
-
+            foreach($request->registros as $registro){
+                $dato = Dato::create([
+                    'remision_id' => $remision->id,
+                    'libro_id'  => $registro['id'],
+                    'costo_unitario' => $registro['costo_unitario'],
+                    'unidades'  => $registro['unidades'],
+                    'total'     => $registro['total'],
+                    'estado'    => 'Terminado'
+                ]);
+    
+                $libro = Libro::whereId($dato->libro_id)->first();
+                $libro->update(['piezas' => $libro->piezas - $dato->unidades]);
+            }
+            
             \DB::commit();
-        
-            return response()->json($remision);
-
         } catch (Exception $e) {
             \DB::rollBack();
             return response()->json($exception->getMessage());
-		}
+        }
+        return response()->json($remision);
     }
 
     public function show(){

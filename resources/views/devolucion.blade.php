@@ -86,7 +86,7 @@
         </ul>
         <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade show active" id="v-entrega">
-                <br>
+                <br> 
                 <remisiones-component></remisiones-component>
             </div>
             <div class="tab-pane fade" id="v-remisiones">

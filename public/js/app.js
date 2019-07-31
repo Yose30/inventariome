@@ -1882,90 +1882,6 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 //
 //
 //
@@ -2086,52 +2002,45 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
-    var _ref;
-
-    return _ref = {
+    return {
       fields: [{
         key: 'id',
-        label: 'N.'
-      }, 'estado', 'cliente', {
-        key: 'total_pagar',
-        label: 'Total'
+        label: 'Remisión No.'
+      }, 'cliente', {
+        key: 'total',
+        label: 'Salida'
       }, {
         key: 'total_devolucion',
-        label: 'Total devolución'
+        label: 'Devolución'
+      }, {
+        key: 'pagos',
+        label: 'Pagado'
+      }, {
+        key: 'total_pagar',
+        label: 'Pagar'
+      }, {
+        key: 'detalles',
+        label: ''
       }, {
         key: 'registrar_devolucion',
         label: ''
       }],
-      numero: 0,
-      //Variable del input
-      inputNRemision: false,
-      //Indica si esta habilitado o no
-      respuesta: '',
-      //Indica si es correcto o no el numero de remision
-      respuestaUnidades: '',
+      mostrarDetalles: false,
       btnGuardar: false,
       //Indica si se muestra el boton de guardar
-      btnImprimir: false,
-      //ndica si se muestra el boton de imprimir
-      mostrarDatos: false,
-      //Boton para registrar la devolucion
-      txtBoton: '',
-      //Mensaje del boton de registrar devolucion
-      mostrarSalida: false,
-      mostrarColumnas: false,
       mostrarDevolucion: false,
-      mostrarFinal: false,
-      //Indica si se muestra el collspan
-      registros: [],
-      //Array de registros de salida
       remision: {},
       //Datos de la remision
       devoluciones: [],
       //Array de las devoluciones
       inputUnidades: false,
       //Indica si esta habilitado o no el de unidades
-      disabled: false
-    }, _defineProperty(_ref, "btnImprimir", false), _defineProperty(_ref, "item", 0), _defineProperty(_ref, "total_salida", 0), _defineProperty(_ref, "total_devolucion", 0), _defineProperty(_ref, "total_pagar", 0), _defineProperty(_ref, "remisiones", []), _defineProperty(_ref, "posicion", 0), _ref;
+      disabled: false,
+      //Indica si esta hablitidado o no el boton de registrar
+      total_devolucion: 0,
+      remisiones: [],
+      posicion: 0
+    };
   },
   created: function created() {
     this.getTodo();
@@ -2144,55 +2053,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         _this.remisiones = response.data;
       });
     },
-    listaRemisiones: function listaRemisiones() {
-      var _this2 = this;
-
-      if (this.numero > 0) {
-        this.respuesta = '';
-        axios.get('/lista_datos', {
-          params: {
-            numero: this.numero
-          }
-        }).then(function (response) {
-          _this2.mostrarDatos = true;
-          _this2.mostrarSalida = true;
-          _this2.mostrarColumnas = false;
-          _this2.mostrarDevolucion = false;
-          _this2.mostrarFinal = false;
-          _this2.disabled = false;
-          _this2.btnGuardar = false;
-          _this2.btnImprimir = false;
-          _this2.inputUnidades = false;
-          _this2.remision = {};
-          _this2.registros = [];
-          _this2.devoluciones = [];
-          _this2.remision = response.data.remision;
-          _this2.registros = response.data.datos;
-
-          _this2.acumularSalida();
-
-          if (_this2.remision.estado == 'Iniciado') {
-            _this2.txtBoton = 'Registrar devolución';
-          }
-
-          if (_this2.remision.estado == 'Proceso') {
-            _this2.txtBoton = 'Registrar devolución';
-          }
-
-          if (_this2.remision.estado == 'Terminado') {
-            _this2.txtBoton = 'Devolución registrada';
-            _this2.mostrarDatos = true;
-            _this2.btnImprimir = true;
-          }
-        })["catch"](function (error) {
-          _this2.respuesta = 'No existe';
-        });
-      } else {
-        this.respuesta = 'No valido';
-      }
-    },
     registrarDevolucion: function registrarDevolucion(remision, i) {
-      var _this3 = this;
+      var _this2 = this;
 
       this.devoluciones = [];
       this.posicion = i;
@@ -2201,88 +2063,77 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           numero: remision.id
         }
       }).then(function (response) {
-        _this3.devoluciones = response.data.devoluciones;
-        _this3.mostrarDevolucion = true;
-        _this3.remision = remision;
+        _this2.devoluciones = response.data.devoluciones;
+        _this2.remision = remision;
 
-        _this3.acumularFinal();
+        _this2.acumularFinal();
+
+        _this2.mostrarDevolucion = true;
       })["catch"](function (error) {
-        _this3.makeToast('danger', 'Ocurrio un problema, vuelve a intentar');
-      }); // axios.get('/devoluciones_remision', {params: {remision_id: this.remision.id}}).then(response => {
-      //     this.devoluciones = response.data.devoluciones;
-      //     this.disabled = true;
-      //     this.mostrarSalida = false;
-      //     this.mostrarColumnas = true;
-      //     this.mostrarDevolucion = true;
-      //     this.mostrarFinal = true;
-      //     this.remision.estado = response.data.remision.estado;
-      //     this.remision.total_devolucion = response.data.remision.total_devolucion;
-      //     this.remision.total_pagar = response.data.remision.total_pagar;
-      //     this.acumularFinal();
-      //     if(this.remision.estado != 'Terminado'){
-      //         this.btnGuardar = true;
-      //     }
-      //     if(this.remision.estado == 'Terminado'){
-      //         this.inputUnidades = true;
-      //     }
-      // }).catch(error => {
-      //     console.log(error.response);
-      // });
+        _this2.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+      });
     },
     guardarUnidades: function guardarUnidades(devolucion, i) {
       if (devolucion.unidades > 0) {
         if (devolucion.unidades <= devolucion.unidades_resta) {
-          // axios.put('/actualizar_unidades', devolucion).then(response => {
-          //     console.log(response);
-          //     this.devoluciones.splice(i, 1, response.data.devolucion);
-          //     this.remision.total_devolucion = response.data.total_devolucion;
-          //     this.remision.total_pagar = response.data.total_pagar;
-          //     this.acumularFinal();
-          // }).catch(error => {
-          //     console.log(error.response);
-          // });
-          this.devoluciones[i].total = devolucion.dato.costo_unitario * devolucion.unidades; // this.remision.total_devolucion = response.data.total_devolucion;
-          // this.remision.total_pagar = response.data.total_pagar;
-
+          this.devoluciones[i].total = devolucion.dato.costo_unitario * devolucion.unidades;
           this.acumularFinal();
           this.btnGuardar = true;
         } else {
           this.item = devolucion.id;
-          this.makeToast('danger', 'Unidades mayor a unidades pendientes');
+          this.makeToast('warning', 'Unidades mayor a unidades pendientes');
         }
       } else {
-        this.makeToast('danger', 'Las unidades no pueden ser cero');
+        this.makeToast('warning', 'Las unidades no pueden ser cero');
       }
     },
     guardar: function guardar() {
-      var _this4 = this;
+      var _this3 = this;
 
       this.remision.devoluciones = this.devoluciones;
       axios.put('/concluir_remision', this.remision).then(function (response) {
-        _this4.remisiones[_this4.posicion].estado = response.data.estado;
-        _this4.remisiones[_this4.posicion].total_devolucion = response.data.total_devolucion;
-        _this4.mostrarDevolucion = false;
-        console.log(response.data);
+        _this3.remisiones[_this3.posicion].estado = response.data.estado;
+        _this3.remisiones[_this3.posicion].total_devolucion = response.data.total_devolucion;
+        _this3.remisiones[_this3.posicion].total_pagar = response.data.total_pagar;
+        _this3.mostrarDevolucion = false;
       })["catch"](function (error) {
         console.log(error.response);
       });
     },
     acumularSalida: function acumularSalida() {
-      var _this5 = this;
+      var _this4 = this;
 
       this.total_salida = 0;
       this.registros.forEach(function (registro) {
-        _this5.total_salida += registro.total;
+        _this4.total_salida += registro.total;
       });
     },
     acumularFinal: function acumularFinal() {
-      var _this6 = this;
+      var _this5 = this;
 
       this.total_devolucion = 0;
       this.total_pagar = 0;
       this.devoluciones.forEach(function (devolucion) {
-        _this6.total_devolucion += devolucion.total;
-        _this6.total_pagar += devolucion.total_resta;
+        _this5.total_devolucion += devolucion.total;
+        _this5.total_pagar += devolucion.total_resta;
+      });
+    },
+    func_detalles: function func_detalles(remision) {
+      var _this6 = this;
+
+      this.devoluciones = [];
+      axios.get('/lista_datos', {
+        params: {
+          numero: remision.id
+        }
+      }).then(function (response) {
+        _this6.devoluciones = response.data.devoluciones;
+        _this6.mostrarDetalles = true;
+        _this6.remision = remision;
+
+        _this6.acumularFinal();
+      })["catch"](function (error) {
+        _this6.makeToast('danger', 'Ocurrio un problema, vuelve a intentar');
       });
     },
     makeToast: function makeToast() {
@@ -7177,15 +7028,20 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       remisiones: [],
       fields: [{
         key: 'id',
-        label: 'Folio'
-      }, // 'estado',
-      'cliente', {
+        label: 'Remisión No.'
+      }, 'cliente', {
         key: 'total',
         label: 'Salida'
       }, {
@@ -7197,25 +7053,14 @@ __webpack_require__.r(__webpack_exports__);
       }, {
         key: 'total_pagar',
         label: 'Pagar'
-      }, // {key: 'registrar_devolucion', label: 'Devolución'},
-      {
-        key: 'pagar',
-        label: 'Pago'
       }, {
         key: 'ver_pagos',
-        label: 'Pagos'
-      }],
-      fieldsD: [{
-        key: 'index',
-        label: 'N.'
+        label: ''
       }, {
-        key: 'user_id',
-        label: 'Usuario'
-      }, 'unidades', 'pago', {
-        key: 'created_at',
-        label: 'Fecha'
+        key: 'pagar',
+        label: ''
       }],
-      fieldsSD: [{
+      fieldsRP: [{
         key: 'isbn',
         label: 'ISBN'
       }, 'libro', {
@@ -7234,21 +7079,32 @@ __webpack_require__.r(__webpack_exports__);
       }, 'libro', {
         key: 'costo_unitario',
         label: 'Costo unitario'
-      }, // {key: 'unidades_resta', label: 'Unidades pendientes'},
-      {
+      }, {
         key: 'unidades',
-        label: 'Unidades'
+        label: 'Unidades vendidas'
       }, 'subtotal', 'detalles'],
+      fieldsD: [{
+        key: 'index',
+        label: 'N.'
+      }, {
+        key: 'user_id',
+        label: 'Usuario'
+      }, {
+        key: 'unidades',
+        label: 'Unidades vendidas'
+      }, 'pago', {
+        key: 'created_at',
+        label: 'Fecha'
+      }],
       mostrarDetalles: false,
       remision: {
         id: 0,
         cliente: {},
+        pagos: 0,
+        unidades: 0,
         datos: [],
         vendidos: []
       },
-      informacion: {},
-      pago: 0,
-      posicion: 0,
       btnGuardar: false,
       total_vendido: 0,
       pos_remision: 0,
@@ -7279,42 +7135,46 @@ __webpack_require__.r(__webpack_exports__);
 
       axios.get('/all_devoluciones').then(function (response) {
         _this.remisiones = response.data;
+      })["catch"](function (error) {
+        _this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     registrarPago: function registrarPago(remision, index) {
       var _this2 = this;
 
-      this.remision.id = remision.id;
       this.pos_remision = index;
       axios.get('/datos_vendidos', {
         params: {
           remision_id: remision.id
         }
       }).then(function (response) {
-        _this2.remision.vendidos = response.data;
+        _this2.remision.id = remision.id;
         _this2.remision.cliente = remision.cliente;
+        _this2.remision.vendidos = response.data;
         _this2.mostrarDetalles = true;
+      })["catch"](function (error) {
+        _this2.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     guardarUnidades: function guardarUnidades() {
       var _this3 = this;
 
       axios.post('/registrar_pago', this.remision).then(function (response) {
-        _this3.mostrarDetalles = false;
+        _this3.remisiones[_this3.pos_remision].pagos = response.data.pagos;
+        _this3.remisiones[_this3.pos_remision].total_pagar = response.data.total_pagar;
 
         _this3.makeToast('success', 'El pago se guardo correctamente');
 
-        _this3.remisiones[_this3.pos_remision].pagos = response.data.pagos;
-        _this3.remisiones[_this3.pos_remision].total_pagar = response.data.total_pagar;
+        _this3.mostrarDetalles = false;
       })["catch"](function (error) {
-        _this3.makeToast('danger', 'Ocurrio un error, vuelve a intentarlo');
+        _this3.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     verificarUnidades: function verificarUnidades(base, resta, costo, i) {
       var _this4 = this;
 
       if (base > resta) {
-        this.makeToast('warning', 'Las unidades son mayor a lo pendiente');
+        this.makeToast('warning', 'Las unidades son mayor a las unidades pendientes');
       }
 
       if (base <= resta) {
@@ -7329,15 +7189,24 @@ __webpack_require__.r(__webpack_exports__);
     verPagos: function verPagos(remision) {
       var _this5 = this;
 
-      this.remision.id = remision.id;
+      this.remision.unidades = 0;
       axios.get('/datos_vendidos', {
         params: {
           remision_id: remision.id
         }
       }).then(function (response) {
+        _this5.remision.id = remision.id;
+        _this5.remision.pagos = remision.pagos;
         _this5.remision.vendidos = response.data;
         _this5.remision.cliente = remision.cliente;
+
+        _this5.remision.vendidos.forEach(function (vendido) {
+          _this5.remision.unidades += vendido.unidades;
+        });
+
         _this5.mostrarPagos = true;
+      })["catch"](function (error) {
+        _this5.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     makeToast: function makeToast() {
@@ -7666,7 +7535,8 @@ __webpack_require__.r(__webpack_exports__);
         id: 0,
         cliente_id: 0,
         total: 0,
-        fecha_entrega: ''
+        fecha_entrega: '',
+        registros: []
       },
       //Para guardar todos los datos de la remision
       editar: false,
@@ -7797,37 +7667,31 @@ __webpack_require__.r(__webpack_exports__);
     },
     //Guardar un registro de la remision
     guardarRegistro: function guardarRegistro() {
-      var _this5 = this;
-
       if (this.unidades > 0) {
         if (this.unidades <= this.temporal.piezas) {
-          this.mostrarDatos = false;
-          this.temporal.remision_id = 0;
+          this.mostrarDatos = false; // this.temporal.remision_id = 0;
+
           this.temporal.unidades = this.unidades;
           this.temporal.total = this.unidades * this.temporal.costo_unitario;
-
-          if (this.editar) {
-            this.temporal.remision_id = this.bdremision.id;
-          }
-
-          axios.post('/registro_remision', this.temporal).then(function (response) {
-            _this5.temporal = {
-              id: response.data.dato.id,
-              ISBN: response.data.libro.ISBN,
-              titulo: response.data.libro.titulo,
-              costo_unitario: response.data.dato.costo_unitario,
-              unidades: response.data.dato.unidades,
-              total: response.data.dato.total
-            };
-
-            _this5.items.push(_this5.temporal);
-
-            _this5.total_remision += response.data.dato.total;
-
-            _this5.getDescuento();
-
-            _this5.inicializar_registro();
-          });
+          this.items.push(this.temporal);
+          this.total_remision += this.temporal.total;
+          this.inicializar_registro(); // if(this.editar){
+          //     this.temporal.remision_id = this.bdremision.id;
+          // }  
+          // axios.post('/registro_remision', this.temporal).then(response => {
+          //     this.temporal = {
+          //         id: response.data.dato.id,
+          //         ISBN: response.data.libro.ISBN,
+          //         titulo: response.data.libro.titulo,
+          //         costo_unitario: response.data.dato.costo_unitario,
+          //         unidades: response.data.dato.unidades,
+          //         total: response.data.dato.total
+          //     };
+          //     
+          //     
+          //     
+          //     
+          // }); 
         } else {
           this.makeToast('danger', "".concat(this.temporal.piezas, " piezas en existencia"));
         }
@@ -7837,33 +7701,29 @@ __webpack_require__.r(__webpack_exports__);
     },
     //Eliminar registro de la remision
     eliminarRegistro: function eliminarRegistro(item, i) {
-      var _this6 = this;
-
-      axios["delete"]('/eliminar_registro', {
-        params: {
-          id: item.id
-        }
-      }).then(function (response) {
-        _this6.items.splice(i, 1);
-
-        _this6.total_remision = _this6.total_remision - item.total;
-        _this6.bdremision.total = _this6.total_remision;
-      });
+      this.items.splice(i, 1);
+      this.total_remision = this.total_remision - item.total;
+      this.bdremision.total = this.total_remision; // axios.delete('/eliminar_registro', {params: {id: item.id}}).then(response => {
+      //     this.items.splice(i, 1);
+      //     this.total_remision = this.total_remision - item.total;
+      //     this.bdremision.total = this.total_remision;
+      // });
     },
     //Guardar toda la remision
     guardarRemision: function guardarRemision() {
-      var _this7 = this;
+      var _this5 = this;
 
       this.bdremision.total = this.total_remision;
       this.bdremision.cliente_id = this.dato.id;
+      this.bdremision.registros = this.items;
 
       if (this.bdremision.fecha_entrega != '') {
         axios.post('/crear_remision', this.bdremision).then(function (response) {
-          _this7.bdremision.id = response.data.id;
-          _this7.respuestaFecha = '';
-          _this7.mostrarGuardar = false;
+          _this5.bdremision.id = response.data.id;
+          _this5.respuestaFecha = '';
+          _this5.mostrarGuardar = false;
 
-          _this7.inicializar_guardar();
+          _this5.inicializar_guardar();
         });
       } else {
         this.makeToast('danger', 'Selecciona fecha de entrega');
@@ -7879,13 +7739,13 @@ __webpack_require__.r(__webpack_exports__);
     },
     //Guardar cambios de la remision
     actRemision: function actRemision() {
-      var _this8 = this;
+      var _this6 = this;
 
       this.bdremision.total = this.total_remision;
       axios.put('/actualizar_remision', this.bdremision).then(function (response) {
-        _this8.mostrarActualizar = false;
+        _this6.mostrarActualizar = false;
 
-        _this8.inicializar_guardar();
+        _this6.inicializar_guardar();
       });
     },
     imprimir: function imprimir() {
@@ -7918,27 +7778,27 @@ __webpack_require__.r(__webpack_exports__);
     },
     //Función para guardar datos del cliente
     onSubmit: function onSubmit(evt) {
-      var _this9 = this;
+      var _this7 = this;
 
       this.errors = {};
 
       if (this.dato.id == undefined) {
         axios.post('/new_client', this.form).then(function (response) {
-          _this9.inicializar_editar(response.data);
+          _this7.inicializar_editar(response.data);
         })["catch"](function (error) {
           if (error.response.status === 422) {
-            _this9.errors = error.response.data.errors || {};
+            _this7.errors = error.response.data.errors || {};
           }
         });
       } else {
         this.form.id = this.dato.id;
         axios.put('/editar_cliente', this.form).then(function (response) {
-          _this9.inicializar_editar(response.data);
+          _this7.inicializar_editar(response.data);
 
-          _this9.getDescuento();
+          _this7.getDescuento();
         })["catch"](function (error) {
           if (error.response.status === 422) {
-            _this9.errors = error.response.data.errors || {};
+            _this7.errors = error.response.data.errors || {};
           }
         });
       }
@@ -8119,28 +7979,20 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       remisiones: [],
       fields: [{
         key: 'id',
-        label: 'Folio'
+        label: 'No.'
       }, {
         key: 'fecha_creacion',
         label: 'Fecha de creación'
       }, 'cliente', {
         key: 'total',
         label: 'Salida'
-      }, // 'estado',
-      // {key: 'fecha_entrega', label: 'Fecha de entrega'},
-      {
+      }, {
         key: 'detalles',
         label: ''
       }, {
@@ -8171,6 +8023,8 @@ __webpack_require__.r(__webpack_exports__);
 
       axios.get('/todos_los_clientes').then(function (response) {
         _this.remisiones = response.data;
+      })["catch"](function (error) {
+        _this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     entregaLibros: function entregaLibros(remision, i) {
@@ -8179,11 +8033,7 @@ __webpack_require__.r(__webpack_exports__);
       axios.put('/vendidos_remision', remision).then(function (response) {
         _this2.remisiones[i].estado = response.data.remision.estado;
       })["catch"](function (error) {
-        _this2.$bvToast.toast('Ocurrio un problema, vuelve a intentar', {
-          title: 'Mensaje',
-          variant: 'danger',
-          solid: true
-        });
+        _this2.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     viewDetalles: function viewDetalles(remision) {
@@ -8192,6 +8042,7 @@ __webpack_require__.r(__webpack_exports__);
       this.remision.id = remision.id;
       this.remision.cliente = remision.cliente;
       this.remision.total = remision.total;
+      this.total_unidades = 0;
       axios.get('/lista_datos', {
         params: {
           numero: remision.id
@@ -8203,6 +8054,17 @@ __webpack_require__.r(__webpack_exports__);
         _this3.remision.datos.forEach(function (dato) {
           _this3.total_unidades += dato.unidades;
         });
+      })["catch"](function (error) {
+        _this3.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+      });
+    },
+    makeToast: function makeToast() {
+      var variante = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var descripcion = arguments.length > 1 ? arguments[1] : undefined;
+      this.$bvToast.toast(descripcion, {
+        title: 'Mensaje',
+        variant: variante,
+        solid: true
       });
     }
   }
@@ -91673,7 +91535,9 @@ var render = function() {
           ])
         : _vm._e(),
       _vm._v(" "),
-      _vm.remisiones.length > 0 && !_vm.mostrarDevolucion
+      _vm.remisiones.length > 0 &&
+      !_vm.mostrarDevolucion &&
+      !_vm.mostrarDetalles
         ? _c("b-table", {
             attrs: { items: _vm.remisiones, fields: _vm.fields },
             scopedSlots: _vm._u(
@@ -91685,7 +91549,7 @@ var render = function() {
                   }
                 },
                 {
-                  key: "total_pagar",
+                  key: "total",
                   fn: function(row) {
                     return [_vm._v("$" + _vm._s(row.item.total))]
                   }
@@ -91697,19 +91561,34 @@ var render = function() {
                   }
                 },
                 {
-                  key: "estado",
+                  key: "pagos",
+                  fn: function(row) {
+                    return [_vm._v("$" + _vm._s(row.item.pagos))]
+                  }
+                },
+                {
+                  key: "total_pagar",
+                  fn: function(row) {
+                    return [_vm._v("$" + _vm._s(row.item.total_pagar))]
+                  }
+                },
+                {
+                  key: "detalles",
                   fn: function(row) {
                     return [
-                      row.item.estado == "Proceso"
-                        ? _c("b-badge", { attrs: { variant: "primary" } }, [
-                            _vm._v("Entregado")
-                          ])
-                        : _vm._e(),
-                      _vm._v(" "),
-                      row.item.estado == "Terminado"
-                        ? _c("b-badge", { attrs: { variant: "success" } }, [
-                            _vm._v(_vm._s(row.item.estado))
-                          ])
+                      row.item.total_devolucion != 0
+                        ? _c(
+                            "b-button",
+                            {
+                              attrs: { variant: "info" },
+                              on: {
+                                click: function($event) {
+                                  return _vm.func_detalles(row.item)
+                                }
+                              }
+                            },
+                            [_vm._v("Detalles")]
+                          )
                         : _vm._e()
                     ]
                   }
@@ -91722,7 +91601,7 @@ var render = function() {
                         ? _c(
                             "b-button",
                             {
-                              attrs: { variant: "outline-primary" },
+                              attrs: { variant: "primary" },
                               on: {
                                 click: function($event) {
                                   return _vm.registrarDevolucion(
@@ -91741,7 +91620,7 @@ var render = function() {
               ],
               null,
               false,
-              4193917127
+              1426604813
             )
           })
         : _vm._e(),
@@ -91770,7 +91649,7 @@ var render = function() {
                         },
                         [
                           _c("i", { staticClass: "fa fa-check" }),
-                          _vm._v(" Concluir\n            ")
+                          _vm._v(" Concluir\n                ")
                         ]
                       )
                     : _vm._e()
@@ -91796,7 +91675,7 @@ var render = function() {
                     },
                     [
                       _c("i", { staticClass: "fa fa-mail-reply" }),
-                      _vm._v(" Regresar\n            ")
+                      _vm._v(" Regresar\n                ")
                     ]
                   )
                 ],
@@ -91868,13 +91747,7 @@ var render = function() {
                               )
                             }
                           }
-                        }),
-                        _vm._v(" "),
-                        _vm.item == devolucion.id
-                          ? _c("div", { staticClass: "text-danger" }, [
-                              _vm._v(_vm._s(_vm.respuestaUnidades))
-                            ])
-                          : _vm._e()
+                        })
                       ]),
                       _vm._v(" "),
                       _c("td", [_vm._v("$ " + _vm._s(devolucion.total))])
@@ -91896,9 +91769,84 @@ var render = function() {
                 ],
                 2
               )
+            ])
+          ])
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.mostrarDetalles
+        ? _c("div", [
+            _c("div", { staticClass: "row" }, [
+              _c("div", { staticClass: "col-md-9" }, [
+                _c("h4", [_vm._v("Remisión n. " + _vm._s(_vm.remision.id))]),
+                _vm._v(" "),
+                _c("label", [
+                  _vm._v("Cliente: " + _vm._s(_vm.remision.cliente.name))
+                ])
+              ]),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "col-md-3 text-right" },
+                [
+                  _c(
+                    "b-button",
+                    {
+                      attrs: { variant: "outline-secondary" },
+                      on: {
+                        click: function($event) {
+                          _vm.mostrarDetalles = false
+                        }
+                      }
+                    },
+                    [
+                      _c("i", { staticClass: "fa fa-mail-reply" }),
+                      _vm._v(" Regresar\n                ")
+                    ]
+                  )
+                ],
+                1
+              )
             ]),
             _vm._v(" "),
-            _c("hr")
+            _c("hr"),
+            _vm._v(" "),
+            _c("table", { staticClass: "table" }, [
+              _vm._m(1),
+              _vm._v(" "),
+              _c(
+                "tbody",
+                [
+                  _vm._l(_vm.devoluciones, function(devolucion, i) {
+                    return _c("tr", { key: i }, [
+                      _c("td", [_vm._v(_vm._s(devolucion.libro.ISBN))]),
+                      _vm._v(" "),
+                      _c("td", [_vm._v(_vm._s(devolucion.libro.titulo))]),
+                      _vm._v(" "),
+                      _c("td", [
+                        _vm._v("$ " + _vm._s(devolucion.dato.costo_unitario))
+                      ]),
+                      _vm._v(" "),
+                      _c("td", [_vm._v(_vm._s(devolucion.unidades))]),
+                      _vm._v(" "),
+                      _c("td", [_vm._v("$ " + _vm._s(devolucion.total))])
+                    ])
+                  }),
+                  _vm._v(" "),
+                  _c("tr", [
+                    _c("td"),
+                    _c("td"),
+                    _vm._v(" "),
+                    _c("td"),
+                    _c("td"),
+                    _vm._v(" "),
+                    _c("td", [
+                      _c("h5", [_vm._v("$ " + _vm._s(_vm.total_devolucion))])
+                    ])
+                  ])
+                ],
+                2
+              )
+            ])
           ])
         : _vm._e()
     ],
@@ -91921,6 +91869,24 @@ var staticRenderFns = [
         _c("th", { attrs: { scope: "col" } }, [_vm._v("Unidades pendientes")]),
         _vm._v(" "),
         _c("th", { attrs: { scope: "col" } }, [_vm._v("Unidades")]),
+        _vm._v(" "),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Subtotal")])
+      ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", [
+      _c("tr", [
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("ISBN")]),
+        _vm._v(" "),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Libro")]),
+        _vm._v(" "),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Costo unitario")]),
+        _vm._v(" "),
+        _c("th", { attrs: { scope: "col" } }, [_vm._v("Unidades devueltas")]),
         _vm._v(" "),
         _c("th", { attrs: { scope: "col" } }, [_vm._v("Subtotal")])
       ])
@@ -98292,7 +98258,7 @@ var render = function() {
                                 }
                               }
                             },
-                            [_vm._v("Registrar")]
+                            [_vm._v("Registrar pago")]
                           )
                         : _vm._e()
                     ]
@@ -98313,7 +98279,7 @@ var render = function() {
                                 }
                               }
                             },
-                            [_vm._v("Ver")]
+                            [_vm._v("Ver pagos")]
                           )
                         : _vm._e()
                     ]
@@ -98322,7 +98288,7 @@ var render = function() {
               ],
               null,
               false,
-              3995642758
+              3477389973
             )
           })
         : _vm._e(),
@@ -98336,7 +98302,7 @@ var render = function() {
                 [
                   _c("b-col", [
                     _c("h4", [
-                      _vm._v("Remisión n. " + _vm._s(_vm.remision.id))
+                      _vm._v("Remisión No. " + _vm._s(_vm.remision.id))
                     ]),
                     _vm._v(" "),
                     _c("label", [
@@ -98398,7 +98364,7 @@ var render = function() {
               _c("hr"),
               _vm._v(" "),
               _c("b-table", {
-                attrs: { items: _vm.remision.vendidos, fields: _vm.fieldsSD },
+                attrs: { items: _vm.remision.vendidos, fields: _vm.fieldsRP },
                 scopedSlots: _vm._u(
                   [
                     {
@@ -98478,12 +98444,31 @@ var render = function() {
                 [
                   _c("b-col", [
                     _c("h4", [
-                      _vm._v("Remisión n. " + _vm._s(_vm.remision.id))
+                      _vm._v("Remisión No. " + _vm._s(_vm.remision.id))
                     ]),
                     _vm._v(" "),
                     _c("label", [
                       _vm._v("Cliente: " + _vm._s(_vm.remision.cliente.name))
                     ])
+                  ]),
+                  _vm._v(" "),
+                  _c("b-col", [
+                    _c("br"),
+                    _vm._v(" "),
+                    _c("label", [
+                      _c("b", [_vm._v("Unidades vendidas")]),
+                      _vm._v(": " + _vm._s(_vm.remision.unidades))
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c("b-col", [
+                    _c("br"),
+                    _vm._v(" "),
+                    _c("label", [
+                      _c("b", [_vm._v("Total")]),
+                      _vm._v(": $" + _vm._s(_vm.remision.pagos))
+                    ]),
+                    _c("br")
                   ]),
                   _vm._v(" "),
                   _c("b-col", [
@@ -98813,7 +98798,10 @@ var render = function() {
                 staticClass: "btn btn-info",
                 attrs: { href: "/imprimirSalida/" + _vm.bdremision.id }
               },
-              [_c("i", { staticClass: "fa fa-print" })]
+              [
+                _c("i", { staticClass: "fa fa-download" }),
+                _vm._v(" Descargar\n            ")
+              ]
             )
           : _vm._e()
       ])
@@ -99514,7 +99502,7 @@ var render = function() {
                 [
                   _c("b-col", [
                     _c("h4", [
-                      _vm._v("Remisión n. " + _vm._s(_vm.remision.id))
+                      _vm._v("Remisión No. " + _vm._s(_vm.remision.id))
                     ]),
                     _vm._v(" "),
                     _c("label", [

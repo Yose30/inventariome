@@ -51,7 +51,7 @@
                     class="btn btn-info"
                     v-if="mostrarOpciones"
                     :href="'/imprimirSalida/' + bdremision.id">
-                    <i class="fa fa-print"></i>
+                    <i class="fa fa-download"></i> Descargar
                 </a>
             </div>
         </div>
@@ -286,7 +286,8 @@
                     id: 0,
                     cliente_id: 0,
                     total: 0,
-                    fecha_entrega: ''
+                    fecha_entrega: '',
+                    registros: []
                 }, //Para guardar todos los datos de la remision
                 editar: false, //Indicar si la remision esta en forma de edicion
                 items: [], //Registros guardados de la remision
@@ -383,27 +384,30 @@
                 if(this.unidades > 0){
                     if(this.unidades <= this.temporal.piezas){
                         this.mostrarDatos = false;
-                        this.temporal.remision_id = 0;
+                        // this.temporal.remision_id = 0;
                         this.temporal.unidades = this.unidades;
                         this.temporal.total = this.unidades * this.temporal.costo_unitario;
-                        if(this.editar){
-                            this.temporal.remision_id = this.bdremision.id;
-                        }
-
-                        axios.post('/registro_remision', this.temporal).then(response => {
-                            this.temporal = {
-                                id: response.data.dato.id,
-                                ISBN: response.data.libro.ISBN,
-                                titulo: response.data.libro.titulo,
-                                costo_unitario: response.data.dato.costo_unitario,
-                                unidades: response.data.dato.unidades,
-                                total: response.data.dato.total
-                            };
-                            this.items.push(this.temporal);
-                            this.total_remision += response.data.dato.total;
-                            this.getDescuento();
-                            this.inicializar_registro();
-                        }); 
+                        this.items.push(this.temporal);
+                        this.total_remision += this.temporal.total;
+                        this.inicializar_registro();
+                        // if(this.editar){
+                        //     this.temporal.remision_id = this.bdremision.id;
+                        // }  
+                        
+                        // axios.post('/registro_remision', this.temporal).then(response => {
+                        //     this.temporal = {
+                        //         id: response.data.dato.id,
+                        //         ISBN: response.data.libro.ISBN,
+                        //         titulo: response.data.libro.titulo,
+                        //         costo_unitario: response.data.dato.costo_unitario,
+                        //         unidades: response.data.dato.unidades,
+                        //         total: response.data.dato.total
+                        //     };
+                        //     
+                        //     
+                        //     
+                        //     
+                        // }); 
                     }
                     else{
                         this.makeToast('danger', `${this.temporal.piezas} piezas en existencia`);
@@ -415,16 +419,20 @@
             },
             //Eliminar registro de la remision
             eliminarRegistro(item, i){
-                axios.delete('/eliminar_registro', {params: {id: item.id}}).then(response => {
-                    this.items.splice(i, 1);
-                    this.total_remision = this.total_remision - item.total;
-                    this.bdremision.total = this.total_remision;
-                });
+                this.items.splice(i, 1);
+                this.total_remision = this.total_remision - item.total;
+                this.bdremision.total = this.total_remision;
+                // axios.delete('/eliminar_registro', {params: {id: item.id}}).then(response => {
+                //     this.items.splice(i, 1);
+                //     this.total_remision = this.total_remision - item.total;
+                //     this.bdremision.total = this.total_remision;
+                // });
             },
             //Guardar toda la remision
             guardarRemision(){
                 this.bdremision.total = this.total_remision;
                 this.bdremision.cliente_id = this.dato.id;
+                this.bdremision.registros = this.items;
                 if(this.bdremision.fecha_entrega != ''){
                     axios.post('/crear_remision', this.bdremision).then(response => {
                         this.bdremision.id = response.data.id;

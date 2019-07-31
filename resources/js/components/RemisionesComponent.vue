@@ -9,13 +9,7 @@
             </template>
             <template slot="total" slot-scope="row">
                 ${{ row.item.total }}
-            </template>
-            <!-- <template slot="estado" slot-scope="row">
-                <b-badge variant="secondary" v-if="row.item.estado == 'Iniciado'">{{ row.item.estado }}</b-badge>
-                <b-badge variant="primary" v-if="row.item.estado == 'Proceso'">Entregado</b-badge>
-                <b-badge variant="success" v-if="row.item.estado == 'Terminado'">{{ row.item.estado }}</b-badge>
-            </template> -->
-            <template slot="detalles" slot-scope="row">
+            </template><template slot="detalles" slot-scope="row">
                 <b-button 
                     variant="outline-info"
                     @click="viewDetalles(row.item)">
@@ -35,7 +29,7 @@
         <div v-if="mostrarDetalles">
             <b-row>
                 <b-col>
-                    <h4>Remisión n. {{ remision.id }}</h4>
+                    <h4>Remisión No. {{ remision.id }}</h4>
                     <label>Cliente: {{ remision.cliente.name }}</label>
                 </b-col>
                 <b-col>
@@ -71,12 +65,10 @@
             return {
                 remisiones: [],
                 fields: [
-                    {key: 'id', label: 'Folio'}, 
+                    {key: 'id', label: 'No.'}, 
                     {key: 'fecha_creacion', label: 'Fecha de creación'}, 
                     'cliente', 
                     {key: 'total', label: 'Salida'},
-                    // 'estado',
-                    // {key: 'fecha_entrega', label: 'Fecha de entrega'},
                     {key: 'detalles', label: ''},
                     {key: 'registrar_entrega', label: ''},
                 ],
@@ -89,7 +81,6 @@
                 mostrarDetalles: false,
                 remision: {},
                 total_unidades: 0
-
             }
         },
         created: function(){
@@ -99,31 +90,38 @@
             getTodo(){
                 axios.get('/todos_los_clientes').then(response => {
                     this.remisiones = response.data;
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
             entregaLibros(remision, i){
                 axios.put('/vendidos_remision', remision).then(response => {
                     this.remisiones[i].estado = response.data.remision.estado;
                 }).catch(error => {
-                    this.$bvToast.toast('Ocurrio un problema, vuelve a intentar', {
-                        title: 'Mensaje',
-                        variant: 'danger',
-                        solid: true
-                    });
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
             viewDetalles(remision){
                 this.remision.id = remision.id;
                 this.remision.cliente = remision.cliente;
                 this.remision.total = remision.total;
+                this.total_unidades = 0;
                 axios.get('/lista_datos', {params: {numero: remision.id}}).then(response => {
                     this.mostrarDetalles = true;
                     this.remision.datos = response.data.datos;
                     this.remision.datos.forEach(dato => {
                         this.total_unidades += dato.unidades;
                     });
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
-                
+            },
+            makeToast(variante = null, descripcion){
+                this.$bvToast.toast(descripcion, {
+                    title: 'Mensaje',
+                    variant: variante,
+                    solid: true
+                });
             }
         }
     }

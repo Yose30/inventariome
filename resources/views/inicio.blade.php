@@ -71,7 +71,7 @@
             </div>
             <div class="tab-pane fade" id="v-remisiones">
                 <br>
-                <lista-remisiones-component></lista-remisiones-component>
+                <listado-component></listado-component>
             </div>
             <div class="tab-pane fade" id="v-pagos">
                 <br>

@@ -3,27 +3,25 @@
         <b-alert v-if="remisiones.length == 0" show variant="secondary">
             <i class="fa fa-exclamation-triangle"></i> No hay remisones
         </b-alert>
-        <b-table v-if="!mostrarDetalles && !mostrarPagos && remisiones.length > 0" :items="remisiones" :fields="fields">
+        <b-table 
+            v-if="!mostrarDetalles && !mostrarPagos && remisiones.length > 0" 
+            :items="remisiones" :fields="fields">
             <template slot="cliente" slot-scope="row">{{ row.item.cliente.name }}</template>
             <template slot="total" slot-scope="row">${{ row.item.total }}</template>
             <template slot="total_devolucion" slot-scope="row">${{ row.item.total_devolucion }}</template>
             <template slot="total_pagar" slot-scope="row">${{ row.item.total_pagar }}</template>
             <template slot="pagos" slot-scope="row">${{ row.item.pagos }}</template>
-            <!-- <template slot="registrar_devolucion" slot-scope="row">
-                <b-button v-if="row.item.estado != 'Terminado'" variant="primary" @click="registrarDevolucion(row.item, row.index)">Registrar</b-button>
-            </template> -->
             <template slot="pagar" slot-scope="row">
-                <b-button v-if="row.item.total_pagar > 0" variant="primary" @click="registrarPago(row.item, row.index)">Registrar</b-button>
+                <b-button v-if="row.item.total_pagar > 0" variant="primary" @click="registrarPago(row.item, row.index)">Registrar pago</b-button>
             </template>
             <template slot="ver_pagos" slot-scope="row">
-                <b-button v-if="row.item.pagos != 0" variant="info" @click="verPagos(row.item)">Ver</b-button>
+                <b-button v-if="row.item.pagos != 0" variant="info" @click="verPagos(row.item)">Ver pagos</b-button>
             </template>
-
         </b-table>
         <div v-if="mostrarDetalles">
             <b-row>
                 <b-col>
-                    <h4>Remisión n. {{ remision.id }}</h4>
+                    <h4>Remisión No. {{ remision.id }}</h4>
                     <label>Cliente: {{ remision.cliente.name }}</label>
                 </b-col>
                 <b-col>
@@ -42,7 +40,7 @@
                 </b-col>
             </b-row>
             <hr>
-            <b-table :items="remision.vendidos" :fields="fieldsSD">
+            <b-table :items="remision.vendidos" :fields="fieldsRP">
                 <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                 <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
                 <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario }}</template>
@@ -60,8 +58,16 @@
         <div v-if="mostrarPagos">
             <b-row>
                 <b-col>
-                    <h4>Remisión n. {{ remision.id }}</h4>
+                    <h4>Remisión No. {{ remision.id }}</h4>
                     <label>Cliente: {{ remision.cliente.name }}</label>
+                </b-col>
+                <b-col>
+                    <br>
+                    <label><b>Unidades vendidas</b>: {{ remision.unidades }}</label>
+                </b-col>
+                <b-col>
+                    <br>
+                    <label><b>Total</b>: ${{ remision.pagos }}</label><br>
                 </b-col>
                 <b-col>
                     <div class="text-right">
@@ -107,49 +113,47 @@
             return {
                 remisiones: [],
                 fields: [
-                    {key: 'id', label: 'Folio'}, 
-                    // 'estado',
+                    {key: 'id', label: 'Remisión No.'}, 
                     'cliente', 
                     {key: 'total', label: 'Salida'}, 
                     {key: 'total_devolucion', label: 'Devolución'}, 
                     {key: 'pagos', label: 'Pagado'},
                     {key: 'total_pagar', label: 'Pagar'}, 
-                    // {key: 'registrar_devolucion', label: 'Devolución'},
-                    {key: 'pagar', label: 'Pago'},
-                    {key: 'ver_pagos', label: 'Pagos'},
+                    {key: 'ver_pagos', label: ''},
+                    {key: 'pagar', label: ''},
                 ],
-                fieldsD: [
-                    {key: 'index', label: 'N.'},
-                    {key: 'user_id', label: 'Usuario'}, 
-                    'unidades',
-                    'pago', 
-                    {key: 'created_at', label: 'Fecha'}, 
-                ],
-                fieldsSD: [
+                fieldsRP: [
                     {key: 'isbn', label: 'ISBN'}, 
                     'libro', 
                     {key: 'costo_unitario', label: 'Costo unitario'}, 
                     {key: 'unidades_resta', label: 'Unidades pendientes'},
                     {key: 'unidades_base', label: 'Unidades'}, 
-                    'subtotal'],
+                    'subtotal'
+                ],
                 fieldsP: [
                     {key: 'isbn', label: 'ISBN'}, 
                     'libro', 
                     {key: 'costo_unitario', label: 'Costo unitario'}, 
-                    // {key: 'unidades_resta', label: 'Unidades pendientes'},
-                    {key: 'unidades', label: 'Unidades'}, 
+                    {key: 'unidades', label: 'Unidades vendidas'}, 
                     'subtotal',
-                    'detalles'],
+                    'detalles'
+                ],
+                fieldsD: [
+                    {key: 'index', label: 'N.'},
+                    {key: 'user_id', label: 'Usuario'}, 
+                    {key: 'unidades', label: 'Unidades vendidas'},
+                    'pago', 
+                    {key: 'created_at', label: 'Fecha'}, 
+                ],
                 mostrarDetalles: false,
                 remision: {
                     id: 0,
                     cliente: {},
+                    pagos: 0,
+                    unidades: 0,
                     datos: [],
                     vendidos: []
                 },
-                informacion: {},
-                pago: 0,
-                posicion: 0,
                 btnGuardar: false,
                 total_vendido: 0,
                 pos_remision: 0,
@@ -168,31 +172,34 @@
             getTodo(){
                 axios.get('/all_devoluciones').then(response => {
                     this.remisiones = response.data;
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
             registrarPago(remision, index){
-                this.remision.id = remision.id;
                 this.pos_remision = index;
                 axios.get('/datos_vendidos', {params: {remision_id: remision.id}}).then(response => {
-                    this.remision.vendidos = response.data;
+                    this.remision.id = remision.id;
                     this.remision.cliente = remision.cliente;
+                    this.remision.vendidos = response.data;
                     this.mostrarDetalles = true;
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
             guardarUnidades(){
                 axios.post('/registrar_pago', this.remision).then(response => {
-                    this.mostrarDetalles = false;
-                    this.makeToast('success', 'El pago se guardo correctamente');
                     this.remisiones[this.pos_remision].pagos = response.data.pagos;
                     this.remisiones[this.pos_remision].total_pagar = response.data.total_pagar;
-                })
-                .catch(error => {
-                    this.makeToast('danger', 'Ocurrio un error, vuelve a intentarlo');
+                    this.makeToast('success', 'El pago se guardo correctamente');
+                     this.mostrarDetalles = false;
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
             verificarUnidades(base, resta, costo, i){
                 if(base > resta){
-                    this.makeToast('warning', 'Las unidades son mayor a lo pendiente');
+                    this.makeToast('warning', 'Las unidades son mayor a las unidades pendientes');
                 }
                 if(base <= resta){
                     this.total_vendido = 0;
@@ -204,11 +211,18 @@
                 }
             },
             verPagos(remision){
-                this.remision.id = remision.id;
+                this.remision.unidades = 0;
                 axios.get('/datos_vendidos', {params: {remision_id: remision.id}}).then(response => {
+                    this.remision.id = remision.id;
+                    this.remision.pagos = remision.pagos;
                     this.remision.vendidos = response.data;
                     this.remision.cliente = remision.cliente;
+                    this.remision.vendidos.forEach(vendido => {
+                        this.remision.unidades += vendido.unidades;
+                    });
                     this.mostrarPagos = true;
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
             makeToast(variant = null, descripcion) {
