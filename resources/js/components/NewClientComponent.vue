@@ -6,7 +6,7 @@
             <div class="card-body">
                 <b-form @submit.prevent="onSubmit">
                     <b-row class="my-1">
-                        <label align="right" for="input-name" class="col-md-5">Nombre</label>
+                        <b-col align="right">Nombre</b-col>
                         <div class="col-md-7">
                             <b-form-input 
                                 id="input-name"
@@ -18,7 +18,18 @@
                         </div>
                     </b-row>
                     <b-row class="my-1">
-                        <label align="right" for="input-email" class="col-md-5">Correo electrónico</label>
+                        <b-col align="right">Contacto</b-col>
+                        <div class="col-md-7">
+                            <b-form-input 
+                                id="input-name"
+                                v-model="form.contacto"
+                                :disabled="loaded">
+                            </b-form-input>
+                            <div v-if="errors && errors.contacto" class="text-danger">{{ errors.contacto[0] }}</div>
+                        </div>
+                    </b-row>
+                    <b-row class="my-1">
+                        <b-col align="right">Correo electrónico</b-col>
                         <div class="col-md-7">
                             <b-form-input 
                                 id="input-email"
@@ -31,7 +42,7 @@
                         </div>
                     </b-row>
                     <b-row class="my-1">
-                        <label align="right" for="input-telefono" class="col-md-5">Teléfono</label>
+                        <b-col align="right">Teléfono</b-col>
                         <div class="col-md-7">
                             <b-form-input 
                                 id="input-telefono"
@@ -43,7 +54,7 @@
                         </div>
                     </b-row>
                     <b-row class="my-1">
-                        <label align="right" for="input-direccion" class="col-md-5">Dirección</label>
+                        <b-col align="right">Dirección</b-col>
                         <div class="col-md-7">
                             <b-form-input 
                                 id="input-direccion"
@@ -55,7 +66,7 @@
                         </div>
                     </b-row>
                     <b-row class="my-1">
-                        <label align="right" for="input-condiciones_pago" class="col-md-5">Condiciones de pago</label>
+                        <b-col align="right">Condiciones de pago</b-col>
                         <div class="col-md-7">
                             <b-form-input 
                                 id="input-condiciones_pago"

@@ -1707,6 +1707,95 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -1717,19 +1806,21 @@ __webpack_require__.r(__webpack_exports__);
       }, {
         key: 'name',
         label: 'Nombre'
-      }, {
+      }, 'contacto', {
         key: 'email',
         label: 'Correo'
       }, {
         key: 'telefono',
         label: 'Teléfono'
       }, {
-        key: 'direccion',
-        label: 'Dirección'
-      }, {
-        key: 'condiciones_pago',
-        label: 'Condiciones de pago'
-      }]
+        key: 'editar',
+        label: ''
+      }],
+      mostrarEditar: false,
+      form: {},
+      loaded: false,
+      errors: {},
+      posicion: null
     };
   },
   created: function created() {
@@ -1741,6 +1832,40 @@ __webpack_require__.r(__webpack_exports__);
 
       axios.get('/getTodo').then(function (response) {
         _this.clientes = response.data;
+      });
+    },
+    editarCliente: function editarCliente(cliente, i) {
+      this.form = cliente;
+      this.posicion = i;
+      this.mostrarEditar = true;
+    },
+    onUpdate: function onUpdate() {
+      var _this2 = this;
+
+      this.loaded = true;
+      axios.put('/editar_cliente', this.form).then(function (response) {
+        _this2.loaded = false;
+        _this2.clientes[_this2.posicion] = response.data;
+        _this2.mostrarEditar = false;
+
+        _this2.makeToast('success', 'Cliente actualizado');
+      })["catch"](function (error) {
+        _this2.loaded = false;
+
+        if (error.response.status === 422) {
+          _this2.errors = error.response.data.errors || {};
+        } else {
+          _this2.makeToast('danger', 'Ocurrio un problema, vuelve a intentar');
+        }
+      });
+    },
+    makeToast: function makeToast() {
+      var variant = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var descripcion = arguments.length > 1 ? arguments[1] : undefined;
+      this.$bvToast.toast(descripcion, {
+        title: 'Mensaje',
+        variant: variant,
+        solid: true
       });
     }
   }
@@ -6222,6 +6347,17 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -7903,7 +8039,7 @@ __webpack_require__.r(__webpack_exports__);
       var variant = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       var descripcion = arguments.length > 1 ? arguments[1] : undefined;
       this.$bvToast.toast(descripcion, {
-        title: 'Error',
+        title: 'Mensaje',
         variant: variant,
         solid: true
       });
@@ -91166,7 +91302,342 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "div",
-    [_c("b-table", { attrs: { items: _vm.clientes, fields: _vm.fields } })],
+    [
+      !_vm.mostrarEditar
+        ? _c("b-table", {
+            attrs: { items: _vm.clientes, fields: _vm.fields },
+            scopedSlots: _vm._u(
+              [
+                {
+                  key: "editar",
+                  fn: function(row) {
+                    return [
+                      _c(
+                        "b-button",
+                        {
+                          attrs: { variant: "outline-warning" },
+                          on: {
+                            click: function($event) {
+                              return _vm.editarCliente(row.item, row.index)
+                            }
+                          }
+                        },
+                        [
+                          _c("i", { staticClass: "fa fa-pencil" }),
+                          _vm._v(" Editar")
+                        ]
+                      )
+                    ]
+                  }
+                }
+              ],
+              null,
+              false,
+              459796112
+            )
+          })
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.mostrarEditar
+        ? _c("div", [
+            _c("div", { attrs: { align: "center" } }, [
+              _c("h4", [_vm._v("Editar cliente")]),
+              _vm._v(" "),
+              _c("hr"),
+              _vm._v(" "),
+              _c("div", { staticClass: "card col-md-8" }, [
+                _c(
+                  "div",
+                  { staticClass: "card-body" },
+                  [
+                    _c(
+                      "b-form",
+                      {
+                        on: {
+                          submit: function($event) {
+                            $event.preventDefault()
+                            return _vm.onUpdate($event)
+                          }
+                        }
+                      },
+                      [
+                        _c(
+                          "b-row",
+                          { staticClass: "my-1" },
+                          [
+                            _c("b-col", { attrs: { align: "right" } }, [
+                              _vm._v("Nombre")
+                            ]),
+                            _vm._v(" "),
+                            _c(
+                              "div",
+                              { staticClass: "col-md-7" },
+                              [
+                                _c("b-form-input", {
+                                  attrs: {
+                                    id: "input-name",
+                                    disabled: _vm.loaded,
+                                    required: ""
+                                  },
+                                  model: {
+                                    value: _vm.form.name,
+                                    callback: function($$v) {
+                                      _vm.$set(_vm.form, "name", $$v)
+                                    },
+                                    expression: "form.name"
+                                  }
+                                }),
+                                _vm._v(" "),
+                                _vm.errors && _vm.errors.name
+                                  ? _c("div", { staticClass: "text-danger" }, [
+                                      _vm._v(_vm._s(_vm.errors.name[0]))
+                                    ])
+                                  : _vm._e()
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "b-row",
+                          { staticClass: "my-1" },
+                          [
+                            _c("b-col", { attrs: { align: "right" } }, [
+                              _vm._v("Contacto")
+                            ]),
+                            _vm._v(" "),
+                            _c(
+                              "div",
+                              { staticClass: "col-md-7" },
+                              [
+                                _c("b-form-input", {
+                                  attrs: {
+                                    id: "input-name",
+                                    disabled: _vm.loaded
+                                  },
+                                  model: {
+                                    value: _vm.form.contacto,
+                                    callback: function($$v) {
+                                      _vm.$set(_vm.form, "contacto", $$v)
+                                    },
+                                    expression: "form.contacto"
+                                  }
+                                }),
+                                _vm._v(" "),
+                                _vm.errors && _vm.errors.contacto
+                                  ? _c("div", { staticClass: "text-danger" }, [
+                                      _vm._v(_vm._s(_vm.errors.contacto[0]))
+                                    ])
+                                  : _vm._e()
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "b-row",
+                          { staticClass: "my-1" },
+                          [
+                            _c("b-col", { attrs: { align: "right" } }, [
+                              _vm._v("Correo electrónico")
+                            ]),
+                            _vm._v(" "),
+                            _c(
+                              "div",
+                              { staticClass: "col-md-7" },
+                              [
+                                _c("b-form-input", {
+                                  attrs: {
+                                    id: "input-email",
+                                    type: "email",
+                                    disabled: _vm.loaded,
+                                    required: ""
+                                  },
+                                  model: {
+                                    value: _vm.form.email,
+                                    callback: function($$v) {
+                                      _vm.$set(_vm.form, "email", $$v)
+                                    },
+                                    expression: "form.email"
+                                  }
+                                }),
+                                _vm._v(" "),
+                                _vm.errors && _vm.errors.email
+                                  ? _c("div", { staticClass: "text-danger" }, [
+                                      _vm._v(_vm._s(_vm.errors.email[0]))
+                                    ])
+                                  : _vm._e()
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "b-row",
+                          { staticClass: "my-1" },
+                          [
+                            _c("b-col", { attrs: { align: "right" } }, [
+                              _vm._v("Teléfono")
+                            ]),
+                            _vm._v(" "),
+                            _c(
+                              "div",
+                              { staticClass: "col-md-7" },
+                              [
+                                _c("b-form-input", {
+                                  attrs: {
+                                    id: "input-telefono",
+                                    disabled: _vm.loaded,
+                                    required: ""
+                                  },
+                                  model: {
+                                    value: _vm.form.telefono,
+                                    callback: function($$v) {
+                                      _vm.$set(_vm.form, "telefono", $$v)
+                                    },
+                                    expression: "form.telefono"
+                                  }
+                                }),
+                                _vm._v(" "),
+                                _vm.errors && _vm.errors.telefono
+                                  ? _c("div", { staticClass: "text-danger" }, [
+                                      _vm._v(_vm._s(_vm.errors.telefono[0]))
+                                    ])
+                                  : _vm._e()
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "b-row",
+                          { staticClass: "my-1" },
+                          [
+                            _c("b-col", { attrs: { align: "right" } }, [
+                              _vm._v("Dirección")
+                            ]),
+                            _vm._v(" "),
+                            _c(
+                              "div",
+                              { staticClass: "col-md-7" },
+                              [
+                                _c("b-form-input", {
+                                  attrs: {
+                                    id: "input-direccion",
+                                    disabled: _vm.loaded,
+                                    required: ""
+                                  },
+                                  model: {
+                                    value: _vm.form.direccion,
+                                    callback: function($$v) {
+                                      _vm.$set(_vm.form, "direccion", $$v)
+                                    },
+                                    expression: "form.direccion"
+                                  }
+                                }),
+                                _vm._v(" "),
+                                _vm.errors && _vm.errors.direccion
+                                  ? _c("div", { staticClass: "text-danger" }, [
+                                      _vm._v(_vm._s(_vm.errors.direccion[0]))
+                                    ])
+                                  : _vm._e()
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "b-row",
+                          { staticClass: "my-1" },
+                          [
+                            _c("b-col", { attrs: { align: "right" } }, [
+                              _vm._v("Condiciones de pago")
+                            ]),
+                            _vm._v(" "),
+                            _c(
+                              "div",
+                              { staticClass: "col-md-7" },
+                              [
+                                _c("b-form-input", {
+                                  attrs: {
+                                    id: "input-condiciones_pago",
+                                    disabled: _vm.loaded,
+                                    required: ""
+                                  },
+                                  model: {
+                                    value: _vm.form.condiciones_pago,
+                                    callback: function($$v) {
+                                      _vm.$set(
+                                        _vm.form,
+                                        "condiciones_pago",
+                                        $$v
+                                      )
+                                    },
+                                    expression: "form.condiciones_pago"
+                                  }
+                                }),
+                                _vm._v(" "),
+                                _vm.errors && _vm.errors.condiciones_pago
+                                  ? _c("div", { staticClass: "text-danger" }, [
+                                      _vm._v(
+                                        _vm._s(_vm.errors.condiciones_pago[0])
+                                      )
+                                    ])
+                                  : _vm._e()
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        ),
+                        _vm._v(" "),
+                        _c("hr"),
+                        _vm._v(" "),
+                        _c(
+                          "b-button",
+                          {
+                            attrs: {
+                              type: "submit",
+                              disabled: _vm.loaded,
+                              variant: "success"
+                            }
+                          },
+                          [
+                            _c("i", { staticClass: "fa fa-check" }),
+                            _vm._v(
+                              " " +
+                                _vm._s(
+                                  !_vm.loaded ? "Actualizar" : "Actualizando"
+                                ) +
+                                " "
+                            ),
+                            _vm.loaded
+                              ? _c("b-spinner", { attrs: { small: "" } })
+                              : _vm._e()
+                          ],
+                          1
+                        )
+                      ],
+                      1
+                    )
+                  ],
+                  1
+                )
+              ])
+            ])
+          ])
+        : _vm._e()
+    ],
     1
   )
 }
@@ -96341,201 +96812,236 @@ var render = function() {
               }
             },
             [
-              _c("b-row", { staticClass: "my-1" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-md-5",
-                    attrs: { align: "right", for: "input-name" }
-                  },
-                  [_vm._v("Nombre")]
-                ),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  { staticClass: "col-md-7" },
-                  [
-                    _c("b-form-input", {
-                      attrs: {
-                        id: "input-name",
-                        disabled: _vm.loaded,
-                        required: ""
-                      },
-                      model: {
-                        value: _vm.form.name,
-                        callback: function($$v) {
-                          _vm.$set(_vm.form, "name", $$v)
+              _c(
+                "b-row",
+                { staticClass: "my-1" },
+                [
+                  _c("b-col", { attrs: { align: "right" } }, [
+                    _vm._v("Nombre")
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "col-md-7" },
+                    [
+                      _c("b-form-input", {
+                        attrs: {
+                          id: "input-name",
+                          disabled: _vm.loaded,
+                          required: ""
                         },
-                        expression: "form.name"
-                      }
-                    }),
-                    _vm._v(" "),
-                    _vm.errors && _vm.errors.name
-                      ? _c("div", { staticClass: "text-danger" }, [
-                          _vm._v(_vm._s(_vm.errors.name[0]))
-                        ])
-                      : _vm._e()
-                  ],
-                  1
-                )
-              ]),
+                        model: {
+                          value: _vm.form.name,
+                          callback: function($$v) {
+                            _vm.$set(_vm.form, "name", $$v)
+                          },
+                          expression: "form.name"
+                        }
+                      }),
+                      _vm._v(" "),
+                      _vm.errors && _vm.errors.name
+                        ? _c("div", { staticClass: "text-danger" }, [
+                            _vm._v(_vm._s(_vm.errors.name[0]))
+                          ])
+                        : _vm._e()
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
               _vm._v(" "),
-              _c("b-row", { staticClass: "my-1" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-md-5",
-                    attrs: { align: "right", for: "input-email" }
-                  },
-                  [_vm._v("Correo electrónico")]
-                ),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  { staticClass: "col-md-7" },
-                  [
-                    _c("b-form-input", {
-                      attrs: {
-                        id: "input-email",
-                        type: "email",
-                        disabled: _vm.loaded,
-                        required: ""
-                      },
-                      model: {
-                        value: _vm.form.email,
-                        callback: function($$v) {
-                          _vm.$set(_vm.form, "email", $$v)
-                        },
-                        expression: "form.email"
-                      }
-                    }),
-                    _vm._v(" "),
-                    _vm.errors && _vm.errors.email
-                      ? _c("div", { staticClass: "text-danger" }, [
-                          _vm._v(_vm._s(_vm.errors.email[0]))
-                        ])
-                      : _vm._e()
-                  ],
-                  1
-                )
-              ]),
+              _c(
+                "b-row",
+                { staticClass: "my-1" },
+                [
+                  _c("b-col", { attrs: { align: "right" } }, [
+                    _vm._v("Contacto")
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "col-md-7" },
+                    [
+                      _c("b-form-input", {
+                        attrs: { id: "input-name", disabled: _vm.loaded },
+                        model: {
+                          value: _vm.form.contacto,
+                          callback: function($$v) {
+                            _vm.$set(_vm.form, "contacto", $$v)
+                          },
+                          expression: "form.contacto"
+                        }
+                      }),
+                      _vm._v(" "),
+                      _vm.errors && _vm.errors.contacto
+                        ? _c("div", { staticClass: "text-danger" }, [
+                            _vm._v(_vm._s(_vm.errors.contacto[0]))
+                          ])
+                        : _vm._e()
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
               _vm._v(" "),
-              _c("b-row", { staticClass: "my-1" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-md-5",
-                    attrs: { align: "right", for: "input-telefono" }
-                  },
-                  [_vm._v("Teléfono")]
-                ),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  { staticClass: "col-md-7" },
-                  [
-                    _c("b-form-input", {
-                      attrs: {
-                        id: "input-telefono",
-                        disabled: _vm.loaded,
-                        required: ""
-                      },
-                      model: {
-                        value: _vm.form.telefono,
-                        callback: function($$v) {
-                          _vm.$set(_vm.form, "telefono", $$v)
+              _c(
+                "b-row",
+                { staticClass: "my-1" },
+                [
+                  _c("b-col", { attrs: { align: "right" } }, [
+                    _vm._v("Correo electrónico")
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "col-md-7" },
+                    [
+                      _c("b-form-input", {
+                        attrs: {
+                          id: "input-email",
+                          type: "email",
+                          disabled: _vm.loaded,
+                          required: ""
                         },
-                        expression: "form.telefono"
-                      }
-                    }),
-                    _vm._v(" "),
-                    _vm.errors && _vm.errors.telefono
-                      ? _c("div", { staticClass: "text-danger" }, [
-                          _vm._v(_vm._s(_vm.errors.telefono[0]))
-                        ])
-                      : _vm._e()
-                  ],
-                  1
-                )
-              ]),
+                        model: {
+                          value: _vm.form.email,
+                          callback: function($$v) {
+                            _vm.$set(_vm.form, "email", $$v)
+                          },
+                          expression: "form.email"
+                        }
+                      }),
+                      _vm._v(" "),
+                      _vm.errors && _vm.errors.email
+                        ? _c("div", { staticClass: "text-danger" }, [
+                            _vm._v(_vm._s(_vm.errors.email[0]))
+                          ])
+                        : _vm._e()
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
               _vm._v(" "),
-              _c("b-row", { staticClass: "my-1" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-md-5",
-                    attrs: { align: "right", for: "input-direccion" }
-                  },
-                  [_vm._v("Dirección")]
-                ),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  { staticClass: "col-md-7" },
-                  [
-                    _c("b-form-input", {
-                      attrs: {
-                        id: "input-direccion",
-                        disabled: _vm.loaded,
-                        required: ""
-                      },
-                      model: {
-                        value: _vm.form.direccion,
-                        callback: function($$v) {
-                          _vm.$set(_vm.form, "direccion", $$v)
+              _c(
+                "b-row",
+                { staticClass: "my-1" },
+                [
+                  _c("b-col", { attrs: { align: "right" } }, [
+                    _vm._v("Teléfono")
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "col-md-7" },
+                    [
+                      _c("b-form-input", {
+                        attrs: {
+                          id: "input-telefono",
+                          disabled: _vm.loaded,
+                          required: ""
                         },
-                        expression: "form.direccion"
-                      }
-                    }),
-                    _vm._v(" "),
-                    _vm.errors && _vm.errors.direccion
-                      ? _c("div", { staticClass: "text-danger" }, [
-                          _vm._v(_vm._s(_vm.errors.direccion[0]))
-                        ])
-                      : _vm._e()
-                  ],
-                  1
-                )
-              ]),
+                        model: {
+                          value: _vm.form.telefono,
+                          callback: function($$v) {
+                            _vm.$set(_vm.form, "telefono", $$v)
+                          },
+                          expression: "form.telefono"
+                        }
+                      }),
+                      _vm._v(" "),
+                      _vm.errors && _vm.errors.telefono
+                        ? _c("div", { staticClass: "text-danger" }, [
+                            _vm._v(_vm._s(_vm.errors.telefono[0]))
+                          ])
+                        : _vm._e()
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
               _vm._v(" "),
-              _c("b-row", { staticClass: "my-1" }, [
-                _c(
-                  "label",
-                  {
-                    staticClass: "col-md-5",
-                    attrs: { align: "right", for: "input-condiciones_pago" }
-                  },
-                  [_vm._v("Condiciones de pago")]
-                ),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  { staticClass: "col-md-7" },
-                  [
-                    _c("b-form-input", {
-                      attrs: {
-                        id: "input-condiciones_pago",
-                        disabled: _vm.loaded,
-                        required: ""
-                      },
-                      model: {
-                        value: _vm.form.condiciones_pago,
-                        callback: function($$v) {
-                          _vm.$set(_vm.form, "condiciones_pago", $$v)
+              _c(
+                "b-row",
+                { staticClass: "my-1" },
+                [
+                  _c("b-col", { attrs: { align: "right" } }, [
+                    _vm._v("Dirección")
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "col-md-7" },
+                    [
+                      _c("b-form-input", {
+                        attrs: {
+                          id: "input-direccion",
+                          disabled: _vm.loaded,
+                          required: ""
                         },
-                        expression: "form.condiciones_pago"
-                      }
-                    }),
-                    _vm._v(" "),
-                    _vm.errors && _vm.errors.condiciones_pago
-                      ? _c("div", { staticClass: "text-danger" }, [
-                          _vm._v(_vm._s(_vm.errors.condiciones_pago[0]))
-                        ])
-                      : _vm._e()
-                  ],
-                  1
-                )
-              ]),
+                        model: {
+                          value: _vm.form.direccion,
+                          callback: function($$v) {
+                            _vm.$set(_vm.form, "direccion", $$v)
+                          },
+                          expression: "form.direccion"
+                        }
+                      }),
+                      _vm._v(" "),
+                      _vm.errors && _vm.errors.direccion
+                        ? _c("div", { staticClass: "text-danger" }, [
+                            _vm._v(_vm._s(_vm.errors.direccion[0]))
+                          ])
+                        : _vm._e()
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "b-row",
+                { staticClass: "my-1" },
+                [
+                  _c("b-col", { attrs: { align: "right" } }, [
+                    _vm._v("Condiciones de pago")
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "col-md-7" },
+                    [
+                      _c("b-form-input", {
+                        attrs: {
+                          id: "input-condiciones_pago",
+                          disabled: _vm.loaded,
+                          required: ""
+                        },
+                        model: {
+                          value: _vm.form.condiciones_pago,
+                          callback: function($$v) {
+                            _vm.$set(_vm.form, "condiciones_pago", $$v)
+                          },
+                          expression: "form.condiciones_pago"
+                        }
+                      }),
+                      _vm._v(" "),
+                      _vm.errors && _vm.errors.condiciones_pago
+                        ? _c("div", { staticClass: "text-danger" }, [
+                            _vm._v(_vm._s(_vm.errors.condiciones_pago[0]))
+                          ])
+                        : _vm._e()
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
               _vm._v(" "),
               _c("hr"),
               _vm._v(" "),
