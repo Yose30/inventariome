@@ -10,6 +10,7 @@ class Note extends Model
 {
     protected $fillable = [
         'id', 
+        'folio',
         'cliente', 
         'total_salida',  
         'total_devolucion', 
