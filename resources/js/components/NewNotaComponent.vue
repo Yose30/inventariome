@@ -6,7 +6,9 @@
         <b-alert v-if="!mostrarDetalles && !mostrarCrearNota && !mostrarNewPago && notes.length == 0" show variant="secondary">
             <i class="fa fa-exclamation-triangle"></i> No hay notas
         </b-alert>
-        <b-table v-if="!mostrarDetalles && !mostrarCrearNota && !mostrarNewPago && notes.length > 0" :items="notes" :fields="fieldsN">
+        <b-table 
+            v-if="!mostrarDetalles && !mostrarCrearNota && !mostrarNewPago && notes.length > 0" 
+            :items="notes" :fields="fieldsN">
             <template slot="created_at" slot-scope="row">
                 {{ row.item.created_at | moment }}
             </template>
@@ -235,6 +237,7 @@
                     {key: 'created_at', label: 'Fecha'}, 
                 ],
                 fieldsN: [
+                    'folio',
                     'cliente',
                     {key: 'created_at', label: 'Fecha de creación'},
                     {key: 'total_salida', label: 'Salida'},

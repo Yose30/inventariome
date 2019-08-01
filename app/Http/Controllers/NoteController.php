@@ -15,7 +15,23 @@ class NoteController extends Controller
     public function store(Request $request){
         try{
             \DB::beginTransaction();
-            $note = Note::create(['cliente' => $request->cliente]);
+            $num = Note::get()->count() + 1;
+            if($num < 10){
+                $folio = 'A000'.$num;
+            }
+            if($num >= 10 && $num < 100){
+                $folio = 'A00'.$num;
+            }
+            if($num >= 100 && $num < 1000){
+                $folio = 'A0'.$num;
+            }
+            if($num >= 1000 && $num < 10000){
+                $folio = 'A'.$num;
+            }
+            $note = Note::create([
+                'folio'     => $folio,
+                'cliente'   => $request->cliente
+            ]);
             $total = 0;
             foreach($request->registers as $register){
                 Register::create([
@@ -43,7 +59,7 @@ class NoteController extends Controller
 
     //Mostrar notas
     public function show(){
-        $notes = Note::all();
+        $notes = Note::orderBy('folio','desc')->get();
         return response()->json($notes);
     }
 
