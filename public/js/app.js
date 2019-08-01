@@ -3176,6 +3176,16 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 // moment.locale('es');
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['role_id'],
@@ -3186,7 +3196,7 @@ __webpack_require__.r(__webpack_exports__);
       fields: [{
         key: 'id',
         label: 'N.'
-      }, 'folio', {
+      }, 'folio', 'editorial', {
         key: 'created_at',
         label: 'Fecha de creación'
       }, {
@@ -3231,7 +3241,11 @@ __webpack_require__.r(__webpack_exports__);
       resultslibros: [],
       inputUnidades: false,
       unidades: 0,
-      total_unidades: 0
+      total_unidades: 0,
+      stateN: null,
+      stateE: null,
+      load: false,
+      posicion: null
     };
   },
   created: function created() {
@@ -3274,9 +3288,10 @@ __webpack_require__.r(__webpack_exports__);
         _this2.registros = response.data.registros;
       });
     },
-    editarEntrada: function editarEntrada(entrada) {
+    editarEntrada: function editarEntrada(entrada, i) {
       var _this3 = this;
 
+      this.posicion = i;
       axios.get('/detalles_entrada', {
         params: {
           entrada_id: entrada.id
@@ -3386,13 +3401,22 @@ __webpack_require__.r(__webpack_exports__);
     actRemision: function actRemision() {
       var _this8 = this;
 
-      // this.bdentrada.total = this.total_entrada;
       this.entrada.unidades = this.total_unidades;
-      axios.put('/actualizar_entrada', this.entrada).then(function (response) {
-        _this8.makeToast('success', 'La entrada se ha actualizado');
 
-        _this8.mostrarEditar = false;
-      });
+      if (this.entrada.editorial.length > 0) {
+        this.load = true;
+        this.stateE = null;
+        axios.put('/actualizar_entrada', this.entrada).then(function (response) {
+          _this8.makeToast('success', 'La entrada se ha actualizado');
+
+          _this8.load = false;
+          _this8.entradas[_this8.posicion] = response.data;
+          _this8.mostrarEditar = false;
+        });
+      } else {
+        this.stateE = false;
+        this.makeToast('danger', 'Definir editorial');
+      }
     },
     eliminarTemporal: function eliminarTemporal() {
       this.temporal = {};
@@ -3402,11 +3426,35 @@ __webpack_require__.r(__webpack_exports__);
       this.queryTitulo = '';
       this.unidades = 0;
     },
+    guardarNum: function guardarNum() {
+      var _this9 = this;
+
+      if (this.entrada.folio.length > 0) {
+        axios.get('/buscarFolio', {
+          params: {
+            folio: this.entrada.folio
+          }
+        }).then(function (response) {
+          if (response.data.id != undefined) {
+            _this9.stateN = false;
+
+            _this9.makeToast('danger', 'El folio ya existe');
+          } else {
+            _this9.stateN = null;
+          }
+        })["catch"](function (error) {
+          _this9.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+        });
+      } else {
+        this.stateN = false;
+        this.makeToast('danger', 'Definir folio');
+      }
+    },
     makeToast: function makeToast() {
       var variant = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       var descripcion = arguments.length > 1 ? arguments[1] : undefined;
       this.$bvToast.toast(descripcion, {
-        title: 'Error',
+        title: 'Mensaje',
         variant: variant,
         solid: true
       });
@@ -3425,19 +3473,6 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 //
 //
 //
@@ -3608,7 +3643,8 @@ __webpack_require__.r(__webpack_exports__);
         id: 0,
         unidades: 0,
         total: 0,
-        folio: ''
+        folio: '',
+        editorial: ''
       },
       //Para guardar todos los datos de la remision
       costo_unitario: 0,
@@ -3616,7 +3652,9 @@ __webpack_require__.r(__webpack_exports__);
       respuestaCosto: '',
       respuestaUnidades: '',
       mostrarCampo: false,
-      numnota: ''
+      stateN: null,
+      stateE: null,
+      load: false
     };
   },
   methods: {
@@ -3629,7 +3667,8 @@ __webpack_require__.r(__webpack_exports__);
           id: 0,
           unidades: 0,
           total: 0,
-          folio: ''
+          folio: '',
+          editorial: ''
         };
         _this.items = [];
         _this.temporal = {};
@@ -3643,34 +3682,37 @@ __webpack_require__.r(__webpack_exports__);
         _this.mostrarActualizar = false;
         _this.mostrarGuardar = false;
         _this.mostrarEditar = false;
-        _this.btnNuevo = false; // this.mostrarTabla = true;
-
+        _this.btnNuevo = false;
         _this.numnota = '';
         _this.mostrarTabla = false;
         _this.mostrarCampo = true;
+      })["catch"](function (error) {
+        _this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     //Guardar numero de nota
     guardarNum: function guardarNum() {
       var _this2 = this;
 
-      if (this.numnota.length > 0) {
+      if (this.bdentrada.folio.length > 0) {
         axios.get('/buscarFolio', {
           params: {
-            folio: this.numnota
+            folio: this.bdentrada.folio
           }
         }).then(function (response) {
-          console.log(response.data.id);
-
           if (response.data.id != undefined) {
+            _this2.stateN = false;
+
             _this2.makeToast('danger', 'El folio ya existe');
           } else {
             _this2.mostrarTabla = true;
+            _this2.stateN = null;
           }
         })["catch"](function (error) {
-          _this2.makeToast('danger', 'Ocurrio un error, vuelve a intentar');
+          _this2.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
         });
       } else {
+        this.stateN = false;
         this.makeToast('danger', 'Definir folio');
       }
     },
@@ -3702,6 +3744,8 @@ __webpack_require__.r(__webpack_exports__);
           }
         }).then(function (response) {
           _this4.resultslibros = response.data;
+        })["catch"](function (error) {
+          _this4.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
         });
       }
     },
@@ -3796,23 +3840,39 @@ __webpack_require__.r(__webpack_exports__);
         _this6.total_unidades = _this6.total_unidades - item.unidades;
         _this6.bdentrada.total = _this6.total_entrada;
         _this6.bdentrada.unidades = _this6.total_unidades;
+      })["catch"](function (error) {
+        _this6.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     //Guardar toda la remision
     onSubmit: function onSubmit() {
       var _this7 = this;
 
+      this.load = true;
       this.bdentrada.total = this.total_entrada;
       this.bdentrada.unidades = this.total_unidades;
-      this.bdentrada.folio = this.numnota;
-      axios.post('/crear_entrada', this.bdentrada).then(function (response) {
-        _this7.bdentrada.id = response.data.id;
-        _this7.mostrarGuardar = false;
-        _this7.mostrarEditar = true;
-        _this7.btnNuevo = true;
 
-        _this7.inicializar_guardar();
-      });
+      if (this.bdentrada.editorial.length > 0) {
+        this.stateE = null;
+        axios.post('/crear_entrada', this.bdentrada).then(function (response) {
+          _this7.bdentrada.id = response.data.id;
+          _this7.mostrarGuardar = false;
+          _this7.mostrarEditar = true;
+          _this7.btnNuevo = true;
+
+          _this7.inicializar_guardar();
+
+          _this7.load = false;
+
+          _this7.makeToast('success', 'La entrada se creo correctamente');
+        })["catch"](function (error) {
+          _this7.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+        });
+      } else {
+        this.stateE = false;
+        this.load = false;
+        this.makeToast('danger', 'Definir editorial');
+      }
     },
     //Editar la remision
     editarTEntrada: function editarTEntrada() {
@@ -3828,6 +3888,7 @@ __webpack_require__.r(__webpack_exports__);
     actRemision: function actRemision() {
       var _this8 = this;
 
+      this.load = true;
       this.bdentrada.total = this.total_entrada;
       this.bdentrada.unidades = this.total_unidades;
       axios.put('/actualizar_entrada', this.bdentrada).then(function (response) {
@@ -3835,6 +3896,10 @@ __webpack_require__.r(__webpack_exports__);
         _this8.btnNuevo = true;
 
         _this8.inicializar_guardar();
+
+        _this8.load = false;
+      })["catch"](function (error) {
+        _this8.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     //Inicializar valores
@@ -3859,7 +3924,7 @@ __webpack_require__.r(__webpack_exports__);
       var variant = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       var descripcion = arguments.length > 1 ? arguments[1] : undefined;
       this.$bvToast.toast(descripcion, {
-        title: 'Error',
+        title: 'Mensaje',
         variant: variant,
         solid: true
       });
@@ -14862,7 +14927,7 @@ var components = {
 /*!****************************************************************!*\
   !*** ./node_modules/bootstrap-vue/esm/components/index.esm.js ***!
   \****************************************************************/
-/*! exports provided: BVModalPlugin, BVToastPlugin, AlertPlugin, BadgePlugin, BreadcrumbPlugin, ButtonPlugin, ButtonGroupPlugin, ButtonToolbarPlugin, InputGroupPlugin, CardPlugin, CarouselPlugin, LayoutPlugin, CollapsePlugin, DropdownPlugin, EmbedPlugin, FormPlugin, FormGroupPlugin, FormCheckboxPlugin, FormRadioPlugin, FormInputPlugin, FormTextareaPlugin, FormFilePlugin, FormSelectPlugin, ImagePlugin, JumbotronPlugin, LinkPlugin, ListGroupPlugin, MediaPlugin, ModalPlugin, NavPlugin, NavbarPlugin, PaginationPlugin, PaginationNavPlugin, PopoverPlugin, ProgressPlugin, SpinnerPlugin, TablePlugin, TabsPlugin, ToastPlugin, TooltipPlugin, BAlert, BBadge, BBreadcrumb, BBreadcrumbItem, BBreadcrumbLink, BButton, BButtonClose, BButtonGroup, BButtonToolbar, BInputGroup, BInputGroupAddon, BInputGroupPrepend, BInputGroupAppend, BInputGroupText, BCard, BCardHeader, BCardBody, BCardTitle, BCardSubTitle, BCardFooter, BCardImg, BCardImgLazy, BCardText, BCardGroup, BCarousel, BCarouselSlide, BContainer, BRow, BCol, BFormRow, BCollapse, BDropdown, BDropdownItem, BDropdownItemButton, BDropdownHeader, BDropdownDivider, BDropdownForm, BDropdownText, BDropdownGroup, BEmbed, BForm, BFormDatalist, BFormText, BFormInvalidFeedback, BFormValidFeedback, BFormGroup, BFormCheckbox, BFormCheckboxGroup, BFormRadio, BFormRadioGroup, BFormInput, BFormTextarea, BFormFile, BFormSelect, BImg, BImgLazy, BJumbotron, BLink, BListGroup, BListGroupItem, BMedia, BMediaAside, BMediaBody, BModal, BNav, BNavItem, BNavText, BNavForm, BNavItemDropdown, BNavbar, BNavbarNav, BNavbarBrand, BNavbarToggle, BPagination, BPaginationNav, BPopover, BProgress, BProgressBar, BSpinner, BTable, BTabs, BTab, BToast, BToaster, BTooltip, componentsPlugin */
+/*! exports provided: componentsPlugin, BVModalPlugin, BVToastPlugin, AlertPlugin, BadgePlugin, BreadcrumbPlugin, ButtonPlugin, ButtonGroupPlugin, ButtonToolbarPlugin, InputGroupPlugin, CardPlugin, CarouselPlugin, LayoutPlugin, CollapsePlugin, DropdownPlugin, EmbedPlugin, FormPlugin, FormGroupPlugin, FormCheckboxPlugin, FormRadioPlugin, FormInputPlugin, FormTextareaPlugin, FormFilePlugin, FormSelectPlugin, ImagePlugin, JumbotronPlugin, LinkPlugin, ListGroupPlugin, MediaPlugin, ModalPlugin, NavPlugin, NavbarPlugin, PaginationPlugin, PaginationNavPlugin, PopoverPlugin, ProgressPlugin, SpinnerPlugin, TablePlugin, TabsPlugin, ToastPlugin, TooltipPlugin, BAlert, BBadge, BBreadcrumb, BBreadcrumbItem, BBreadcrumbLink, BButton, BButtonClose, BButtonGroup, BButtonToolbar, BInputGroup, BInputGroupAddon, BInputGroupPrepend, BInputGroupAppend, BInputGroupText, BCard, BCardHeader, BCardBody, BCardTitle, BCardSubTitle, BCardFooter, BCardImg, BCardImgLazy, BCardText, BCardGroup, BCarousel, BCarouselSlide, BContainer, BRow, BCol, BFormRow, BCollapse, BDropdown, BDropdownItem, BDropdownItemButton, BDropdownHeader, BDropdownDivider, BDropdownForm, BDropdownText, BDropdownGroup, BEmbed, BForm, BFormDatalist, BFormText, BFormInvalidFeedback, BFormValidFeedback, BFormGroup, BFormCheckbox, BFormCheckboxGroup, BFormRadio, BFormRadioGroup, BFormInput, BFormTextarea, BFormFile, BFormSelect, BImg, BImgLazy, BJumbotron, BLink, BListGroup, BListGroupItem, BMedia, BMediaAside, BMediaBody, BModal, BNav, BNavItem, BNavText, BNavForm, BNavItemDropdown, BNavbar, BNavbarNav, BNavbarBrand, BNavbarToggle, BPagination, BPaginationNav, BPopover, BProgress, BProgressBar, BSpinner, BTable, BTabs, BTab, BToast, BToaster, BTooltip */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -25251,7 +25316,7 @@ var NAME = 'BTooltip'; // @vue/component
 /*!****************************************************************!*\
   !*** ./node_modules/bootstrap-vue/esm/directives/index.esm.js ***!
   \****************************************************************/
-/*! exports provided: VBTogglePlugin, VBModalPlugin, VBScrollspyPlugin, VBTooltipPlugin, VBPopoverPlugin, VBToggle, VBModal, VBScrollspy, VBTooltip, VBPopover, directivesPlugin */
+/*! exports provided: directivesPlugin, VBTogglePlugin, VBModalPlugin, VBScrollspyPlugin, VBTooltipPlugin, VBPopoverPlugin, VBToggle, VBModal, VBScrollspy, VBTooltip, VBPopover */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -26766,7 +26831,7 @@ var removeTooltip = function removeTooltip(el) {
 /*!*************************************************!*\
   !*** ./node_modules/bootstrap-vue/esm/index.js ***!
   \*************************************************/
-/*! exports provided: BVConfigPlugin, BVConfig, BootstrapVue, install, setConfig, default, BVModalPlugin, BVToastPlugin, AlertPlugin, BadgePlugin, BreadcrumbPlugin, ButtonPlugin, ButtonGroupPlugin, ButtonToolbarPlugin, InputGroupPlugin, CardPlugin, CarouselPlugin, LayoutPlugin, CollapsePlugin, DropdownPlugin, EmbedPlugin, FormPlugin, FormGroupPlugin, FormCheckboxPlugin, FormRadioPlugin, FormInputPlugin, FormTextareaPlugin, FormFilePlugin, FormSelectPlugin, ImagePlugin, JumbotronPlugin, LinkPlugin, ListGroupPlugin, MediaPlugin, ModalPlugin, NavPlugin, NavbarPlugin, PaginationPlugin, PaginationNavPlugin, PopoverPlugin, ProgressPlugin, SpinnerPlugin, TablePlugin, TabsPlugin, ToastPlugin, TooltipPlugin, BAlert, BBadge, BBreadcrumb, BBreadcrumbItem, BBreadcrumbLink, BButton, BButtonClose, BButtonGroup, BButtonToolbar, BInputGroup, BInputGroupAddon, BInputGroupPrepend, BInputGroupAppend, BInputGroupText, BCard, BCardHeader, BCardBody, BCardTitle, BCardSubTitle, BCardFooter, BCardImg, BCardImgLazy, BCardText, BCardGroup, BCarousel, BCarouselSlide, BContainer, BRow, BCol, BFormRow, BCollapse, BDropdown, BDropdownItem, BDropdownItemButton, BDropdownHeader, BDropdownDivider, BDropdownForm, BDropdownText, BDropdownGroup, BEmbed, BForm, BFormDatalist, BFormText, BFormInvalidFeedback, BFormValidFeedback, BFormGroup, BFormCheckbox, BFormCheckboxGroup, BFormRadio, BFormRadioGroup, BFormInput, BFormTextarea, BFormFile, BFormSelect, BImg, BImgLazy, BJumbotron, BLink, BListGroup, BListGroupItem, BMedia, BMediaAside, BMediaBody, BModal, BNav, BNavItem, BNavText, BNavForm, BNavItemDropdown, BNavbar, BNavbarNav, BNavbarBrand, BNavbarToggle, BPagination, BPaginationNav, BPopover, BProgress, BProgressBar, BSpinner, BTable, BTabs, BTab, BToast, BToaster, BTooltip, componentsPlugin, VBTogglePlugin, VBModalPlugin, VBScrollspyPlugin, VBTooltipPlugin, VBPopoverPlugin, VBToggle, VBModal, VBScrollspy, VBTooltip, VBPopover, directivesPlugin */
+/*! exports provided: BVConfigPlugin, BVConfig, BootstrapVue, install, setConfig, default, componentsPlugin, directivesPlugin, BVModalPlugin, BVToastPlugin, AlertPlugin, BadgePlugin, BreadcrumbPlugin, ButtonPlugin, ButtonGroupPlugin, ButtonToolbarPlugin, InputGroupPlugin, CardPlugin, CarouselPlugin, LayoutPlugin, CollapsePlugin, DropdownPlugin, EmbedPlugin, FormPlugin, FormGroupPlugin, FormCheckboxPlugin, FormRadioPlugin, FormInputPlugin, FormTextareaPlugin, FormFilePlugin, FormSelectPlugin, ImagePlugin, JumbotronPlugin, LinkPlugin, ListGroupPlugin, MediaPlugin, ModalPlugin, NavPlugin, NavbarPlugin, PaginationPlugin, PaginationNavPlugin, PopoverPlugin, ProgressPlugin, SpinnerPlugin, TablePlugin, TabsPlugin, ToastPlugin, TooltipPlugin, BAlert, BBadge, BBreadcrumb, BBreadcrumbItem, BBreadcrumbLink, BButton, BButtonClose, BButtonGroup, BButtonToolbar, BInputGroup, BInputGroupAddon, BInputGroupPrepend, BInputGroupAppend, BInputGroupText, BCard, BCardHeader, BCardBody, BCardTitle, BCardSubTitle, BCardFooter, BCardImg, BCardImgLazy, BCardText, BCardGroup, BCarousel, BCarouselSlide, BContainer, BRow, BCol, BFormRow, BCollapse, BDropdown, BDropdownItem, BDropdownItemButton, BDropdownHeader, BDropdownDivider, BDropdownForm, BDropdownText, BDropdownGroup, BEmbed, BForm, BFormDatalist, BFormText, BFormInvalidFeedback, BFormValidFeedback, BFormGroup, BFormCheckbox, BFormCheckboxGroup, BFormRadio, BFormRadioGroup, BFormInput, BFormTextarea, BFormFile, BFormSelect, BImg, BImgLazy, BJumbotron, BLink, BListGroup, BListGroupItem, BMedia, BMediaAside, BMediaBody, BModal, BNav, BNavItem, BNavText, BNavForm, BNavItemDropdown, BNavbar, BNavbarNav, BNavbarBrand, BNavbarToggle, BPagination, BPaginationNav, BPopover, BProgress, BProgressBar, BSpinner, BTable, BTabs, BTab, BToast, BToaster, BTooltip, VBTogglePlugin, VBModalPlugin, VBScrollspyPlugin, VBTooltipPlugin, VBPopoverPlugin, VBToggle, VBModal, VBScrollspy, VBTooltip, VBPopover */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -26783,6 +26848,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "BVConfigPlugin", function() { return _bv_config__WEBPACK_IMPORTED_MODULE_4__["default"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "BVConfig", function() { return _bv_config__WEBPACK_IMPORTED_MODULE_4__["default"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "componentsPlugin", function() { return _components_index_esm__WEBPACK_IMPORTED_MODULE_2__["componentsPlugin"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "BVModalPlugin", function() { return _components_index_esm__WEBPACK_IMPORTED_MODULE_2__["BVModalPlugin"]; });
 
@@ -27034,7 +27101,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "BTooltip", function() { return _components_index_esm__WEBPACK_IMPORTED_MODULE_2__["BTooltip"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "componentsPlugin", function() { return _components_index_esm__WEBPACK_IMPORTED_MODULE_2__["componentsPlugin"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "directivesPlugin", function() { return _directives_index_esm__WEBPACK_IMPORTED_MODULE_3__["directivesPlugin"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VBTogglePlugin", function() { return _directives_index_esm__WEBPACK_IMPORTED_MODULE_3__["VBTogglePlugin"]; });
 
@@ -27055,8 +27122,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VBTooltip", function() { return _directives_index_esm__WEBPACK_IMPORTED_MODULE_3__["VBTooltip"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VBPopover", function() { return _directives_index_esm__WEBPACK_IMPORTED_MODULE_3__["VBPopover"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "directivesPlugin", function() { return _directives_index_esm__WEBPACK_IMPORTED_MODULE_3__["directivesPlugin"]; });
 
 /*!
  * BoostrapVue 2.0.0-rc.22
@@ -93044,7 +93109,7 @@ var render = function() {
                               attrs: { variant: "warning" },
                               on: {
                                 click: function($event) {
-                                  return _vm.editarEntrada(row.item)
+                                  return _vm.editarEntrada(row.item, row.index)
                                 }
                               }
                             },
@@ -93060,7 +93125,7 @@ var render = function() {
               ],
               null,
               false,
-              1250339499
+              1608359549
             )
           })
         : _vm._e(),
@@ -93155,14 +93220,44 @@ var render = function() {
               _c(
                 "b-row",
                 [
-                  _c("b-col", [
-                    _c("h6", [
-                      _vm._v("Folio: "),
-                      _c("b", [_vm._v(_vm._s(_vm.entrada.folio))])
-                    ])
+                  _c("b-col", { attrs: { sm: "1" } }, [
+                    _c("label", [_vm._v("Folio")]),
+                    _c("br"),
+                    _vm._v(" "),
+                    _c("label", [_vm._v("Editorial")])
                   ]),
                   _vm._v(" "),
-                  _c("b-col", [
+                  _c(
+                    "b-col",
+                    { attrs: { sm: "5" } },
+                    [
+                      _c("b-form-input", {
+                        attrs: { state: _vm.stateN },
+                        on: { change: _vm.guardarNum },
+                        model: {
+                          value: _vm.entrada.folio,
+                          callback: function($$v) {
+                            _vm.$set(_vm.entrada, "folio", $$v)
+                          },
+                          expression: "entrada.folio"
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c("b-form-input", {
+                        attrs: { state: _vm.stateE },
+                        model: {
+                          value: _vm.entrada.editorial,
+                          callback: function($$v) {
+                            _vm.$set(_vm.entrada, "editorial", $$v)
+                          },
+                          expression: "entrada.editorial"
+                        }
+                      })
+                    ],
+                    1
+                  ),
+                  _vm._v(" "),
+                  _c("b-col", { attrs: { sm: "3", align: "right" } }, [
                     _c("label", [
                       _c("b", [_vm._v("Unidades:")]),
                       _vm._v(" " + _vm._s(_vm.total_unidades))
@@ -93171,18 +93266,24 @@ var render = function() {
                   _vm._v(" "),
                   _c(
                     "b-col",
-                    { staticClass: "text-right" },
+                    { staticClass: "text-right", attrs: { sm: "3" } },
                     [
                       _vm.registros.length > 0
                         ? _c(
                             "b-button",
                             {
-                              attrs: { variant: "success" },
+                              attrs: { variant: "success", disabled: _vm.load },
                               on: { click: _vm.actRemision }
                             },
                             [
                               _c("i", { staticClass: "fa fa-check" }),
-                              _vm._v(" Guardar\n                ")
+                              _vm._v(
+                                " " +
+                                  _vm._s(
+                                    !_vm.load ? "Actualizar" : "Actualizando"
+                                  ) +
+                                  "\n                "
+                              )
                             ]
                           )
                         : _vm._e()
@@ -93451,15 +93552,22 @@ var render = function() {
       _vm._v(" "),
       _c(
         "div",
-        { staticClass: "col-md-2" },
+        { staticClass: "col-md-3" },
         [
           _vm.mostrarGuardar && !_vm.editar && _vm.items.length > 0
             ? _c(
                 "b-button",
-                { attrs: { variant: "success" }, on: { click: _vm.onSubmit } },
+                {
+                  attrs: { disabled: _vm.load, variant: "success" },
+                  on: { click: _vm.onSubmit }
+                },
                 [
                   _c("i", { staticClass: "fa fa-check" }),
-                  _vm._v(" Guardar\n            ")
+                  _vm._v(
+                    " " +
+                      _vm._s(!_vm.load ? "Guardar" : "Guardando") +
+                      "\n            "
+                  )
                 ]
               )
             : _vm._e(),
@@ -93468,12 +93576,16 @@ var render = function() {
             ? _c(
                 "b-button",
                 {
-                  attrs: { variant: "success" },
+                  attrs: { variant: "success", disabled: _vm.load },
                   on: { click: _vm.actRemision }
                 },
                 [
                   _c("i", { staticClass: "fa fa-check" }),
-                  _vm._v(" Guardar\n            ")
+                  _vm._v(
+                    " " +
+                      _vm._s(!_vm.load ? "Actualizar" : "Actualizando") +
+                      "\n            "
+                  )
                 ]
               )
             : _vm._e()
@@ -93489,17 +93601,20 @@ var render = function() {
             ? _c(
                 "b-button",
                 {
-                  attrs: { variant: "warning" },
+                  attrs: { variant: "warning", disabled: _vm.load },
                   on: { click: _vm.editarTEntrada }
                 },
-                [_c("i", { staticClass: "fa fa-pencil" })]
+                [
+                  _c("i", { staticClass: "fa fa-pencil" }),
+                  _vm._v(" Editar\n            ")
+                ]
               )
             : _vm._e()
         ],
         1
       ),
       _vm._v(" "),
-      _c("div", { staticClass: "col-md-1" }, [
+      _c("div", { staticClass: "col-md-2" }, [
         _vm.mostrarEditar
           ? _c(
               "a",
@@ -93507,7 +93622,10 @@ var render = function() {
                 staticClass: "btn btn-info",
                 attrs: { href: "/imprimirEntrada/" + _vm.bdentrada.id }
               },
-              [_c("i", { staticClass: "fa fa-print" })]
+              [
+                _c("i", { staticClass: "fa fa-download" }),
+                _vm._v(" Descargar\n            ")
+              ]
             )
           : _vm._e()
       ])
@@ -93521,46 +93639,52 @@ var render = function() {
           [
             _c(
               "b-row",
-              { staticClass: "col-md-5" },
               [
-                _c("b-col", { attrs: { sm: "6" } }, [
-                  _c("label", [_vm._v("Folio")])
+                _c("b-col", { attrs: { sm: "1" } }, [
+                  _c("label", [_vm._v("Folio")]),
+                  _c("br"),
+                  _vm._v(" "),
+                  _c("label", [_vm._v("Editorial")])
                 ]),
                 _vm._v(" "),
                 _c(
                   "b-col",
-                  { attrs: { sm: "6" } },
+                  { attrs: { sm: "5" } },
                   [
                     _c("b-form-input", {
-                      attrs: { disabled: _vm.mostrarTabla },
-                      on: {
-                        keyup: function($event) {
-                          if (
-                            !$event.type.indexOf("key") &&
-                            _vm._k(
-                              $event.keyCode,
-                              "enter",
-                              13,
-                              $event.key,
-                              "Enter"
-                            )
-                          ) {
-                            return null
-                          }
-                          return _vm.guardarNum($event)
-                        }
-                      },
+                      attrs: { disabled: _vm.mostrarEditar, state: _vm.stateN },
+                      on: { change: _vm.guardarNum },
                       model: {
-                        value: _vm.numnota,
+                        value: _vm.bdentrada.folio,
                         callback: function($$v) {
-                          _vm.numnota = $$v
+                          _vm.$set(_vm.bdentrada, "folio", $$v)
                         },
-                        expression: "numnota"
+                        expression: "bdentrada.folio"
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c("b-form-input", {
+                      attrs: { disabled: _vm.mostrarEditar, state: _vm.stateE },
+                      model: {
+                        value: _vm.bdentrada.editorial,
+                        callback: function($$v) {
+                          _vm.$set(_vm.bdentrada, "editorial", $$v)
+                        },
+                        expression: "bdentrada.editorial"
                       }
                     })
                   ],
                   1
-                )
+                ),
+                _vm._v(" "),
+                _c("b-col", { attrs: { sm: "6", align: "right" } }, [
+                  _vm.mostrarTabla
+                    ? _c("label", [
+                        _c("b", [_vm._v("Unidades:")]),
+                        _vm._v(" " + _vm._s(_vm.total_unidades))
+                      ])
+                    : _vm._e()
+                ])
               ],
               1
             )
@@ -93571,15 +93695,6 @@ var render = function() {
     _vm._v(" "),
     _vm.mostrarTabla
       ? _c("div", [
-          _c("div", { attrs: { align: "right" } }),
-          _vm._v(" "),
-          _c("div", { attrs: { align: "left" } }, [
-            _c("label", [
-              _c("b", [_vm._v("Unidades:")]),
-              _vm._v(" " + _vm._s(_vm.total_unidades))
-            ])
-          ]),
-          _vm._v(" "),
           _c("hr"),
           _vm._v(" "),
           _c("div", [

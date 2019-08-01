@@ -153,6 +153,7 @@ class EntradaController extends Controller
 
             $entrada = Entrada::create([
                 'folio' => $request->folio,
+                'editorial' => $request->editorial,
                 'unidades' => $request->unidades,
                 'total' => $request->total,
             ]);
@@ -174,7 +175,8 @@ class EntradaController extends Controller
         
         try {
             \DB::beginTransaction();
-
+            $entrada->folio = $request->folio;
+            $entrada->editorial = $request->editorial;
             $entrada->unidades = $request->unidades;
             $entrada->total = $request->total;
             $entrada->save();
@@ -183,12 +185,11 @@ class EntradaController extends Controller
 
             \DB::commit();
 
-            return response()->json($entrada);
-
         } catch (Exception $e) {
             \DB::rollBack();
             return response()->json($exception->getMessage());
-		}
+        }
+        return response()->json($entrada);
     }
 
     public function concluir_registro($id){
