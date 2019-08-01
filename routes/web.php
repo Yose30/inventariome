@@ -62,6 +62,7 @@ Route::put('cancelar_remision', 'RemisionController@cancelar_remision')->name('c
 
 
 //REMISIONES -Listado
+Route::get('get_iniciados', 'RemisionController@get_iniciados')->name('get_iniciados');
 Route::get('todos_los_clientes', 'RemisionController@todos')->name('todos_los_clientes');
 Route::get('buscar_por_numero', 'RemisionController@por_numero')->name('buscar_por_numero');
 Route::get('buscar_por_cliente', 'RemisionController@por_cliente')->name('buscar_por_cliente');
