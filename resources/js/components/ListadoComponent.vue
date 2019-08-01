@@ -176,7 +176,7 @@
         </div>
         <div v-if="detalles">
             <b-row>
-                <b-col sm="6">
+                <b-col sm="5">
                     <h4>Remisión N. {{ remision.id }}</h4>
                     <label>Cliente: {{ remision.cliente.name }}</label>    
                 </b-col>
@@ -184,15 +184,15 @@
                     <b-button 
                         variant="outline-danger" 
                         v-b-modal.modal-cancelar 
-                        v-if="remision.estado == 'Iniciado'"
+                        v-if="remision.estado == 'Iniciado' && role_id == 2"
                     >
                         <i class="fa fa-close"></i> Cancelar remisión
                     </b-button>
                 </b-col>
-                <b-col sm="1" align="left">
+                <b-col sm="2" align="left">
                     <b-badge variant="info" v-if="remision.estado == 'Iniciado'">{{ remision.estado }}</b-badge>
                     <b-badge variant="primary" v-if="remision.estado == 'Proceso'">Entregado</b-badge>
-                    <b-badge variant="danger" v-if="remision.estado == 'Cancelado'">{{ remision.estado }}</b-badge>
+                    <b-badge variant="danger" v-if="remision.estado == 'Cancelado'">Remisión cancelada</b-badge>
                 </b-col>
                 <b-col sm="2" align="right">
                     <b-button 
@@ -370,6 +370,7 @@
 <script>
     moment.locale('es');
     export default {
+        props: ['role_id'],
         data() {
             return {
                 num_remision: 0,

@@ -58,7 +58,7 @@
         <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade show active" id="v-remisiones">
                 <br>
-                <listado-component></listado-component>
+                <listado-component :role_id="{{auth()->user()->role_id}}"></listado-component>
             </div>
             <div class="tab-pane fade" id="v-entradas">
                 <br>

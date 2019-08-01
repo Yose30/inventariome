@@ -5560,6 +5560,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 moment.locale('es');
 /* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['role_id'],
   data: function data() {
     return {
       num_remision: 0,
@@ -96129,7 +96130,7 @@ var render = function() {
               _c(
                 "b-row",
                 [
-                  _c("b-col", { attrs: { sm: "6" } }, [
+                  _c("b-col", { attrs: { sm: "5" } }, [
                     _c("h4", [
                       _vm._v("Remisión N. " + _vm._s(_vm.remision.id))
                     ]),
@@ -96143,7 +96144,7 @@ var render = function() {
                     "b-col",
                     { attrs: { sm: "3" } },
                     [
-                      _vm.remision.estado == "Iniciado"
+                      _vm.remision.estado == "Iniciado" && _vm.role_id == 2
                         ? _c(
                             "b-button",
                             {
@@ -96168,7 +96169,7 @@ var render = function() {
                   _vm._v(" "),
                   _c(
                     "b-col",
-                    { attrs: { sm: "1", align: "left" } },
+                    { attrs: { sm: "2", align: "left" } },
                     [
                       _vm.remision.estado == "Iniciado"
                         ? _c("b-badge", { attrs: { variant: "info" } }, [
@@ -96184,7 +96185,7 @@ var render = function() {
                       _vm._v(" "),
                       _vm.remision.estado == "Cancelado"
                         ? _c("b-badge", { attrs: { variant: "danger" } }, [
-                            _vm._v(_vm._s(_vm.remision.estado))
+                            _vm._v("Remisión cancelada")
                           ])
                         : _vm._e()
                     ],
