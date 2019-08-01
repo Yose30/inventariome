@@ -148,6 +148,14 @@ class RemisionController extends Controller
         return response()->json($remisiones);
     } 
 
+    public function get_iniciados(){
+        $remisiones = Remisione::where('estado', '!=', 'Cancelado')
+                            ->orderBy('id','desc')
+                            ->with('cliente')
+                            ->get();
+        return response()->json($remisiones);
+    } 
+
     public function por_numero(){
         $num_remision = Input::get('num_remision');
         $remision = Remisione::whereId($num_remision)->first();

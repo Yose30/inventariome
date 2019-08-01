@@ -88,7 +88,7 @@
 		},
         methods: {
             getTodo(){
-                axios.get('/todos_los_clientes').then(response => {
+                axios.get('/get_iniciados').then(response => {
                     this.remisiones = response.data;
                 }).catch(error => {
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');

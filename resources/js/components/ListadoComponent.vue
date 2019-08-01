@@ -118,12 +118,6 @@
                             <td>$ {{ remision.total_devolucion }}</td>
                             <td>$ {{ remision.pagos }}</td>
                             <td>$ {{ remision.total_pagar }}</td>
-                            <!-- <td>
-                                <b-badge variant="secondary" v-if="remision.estado == 'Iniciado'">{{ remision.estado }}</b-badge>
-                                <b-badge variant="primary" v-if="remision.estado == 'Proceso'">{{ remision.estado }}</b-badge>
-                                <b-badge variant="success" v-if="remision.estado == 'Terminado'">{{ remision.estado }}</b-badge>
-                            </td>
-                            <td>{{ remision.fecha_entrega }}</td> -->
                             <td>
                                 <button 
                                     class="btn btn-primary" 
@@ -150,7 +144,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(remision, i) in remisiones" v-bind:key="i">
+                        <tr 
+                            v-for="(remision, i) in remisiones" 
+                            v-bind:key="i" 
+                            :class="`${remision.estado == 'Cancelado' ? 'table-danger' : 'null'}`"> 
                             <td>{{ remision.id }}</td>
                             <td>{{ remision.fecha_creacion }}</td>
                             <td>{{ remision.cliente.name }}</td>
@@ -158,12 +155,6 @@
                             <td>$ {{ remision.total_devolucion }}</td>
                             <td>$ {{ remision.pagos }}</td>
                             <td>$ {{ remision.total_pagar }}</td>
-                            <!-- <td>
-                                <b-badge variant="secondary" v-if="remision.estado == 'Iniciado'">{{ remision.estado }}</b-badge>
-                                <b-badge variant="primary" v-if="remision.estado == 'Proceso'">{{ remision.estado }}</b-badge>
-                                <b-badge variant="success" v-if="remision.estado == 'Terminado'">{{ remision.estado }}</b-badge>
-                            </td> -->
-                            <!-- <td>{{ remision.fecha_entrega }}</td> -->
                             <td>
                                 <button 
                                     class="btn btn-primary" 

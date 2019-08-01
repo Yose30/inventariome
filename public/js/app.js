@@ -5558,15 +5558,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
 moment.locale('es');
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -8044,7 +8035,7 @@ __webpack_require__.r(__webpack_exports__);
     getTodo: function getTodo() {
       var _this = this;
 
-      axios.get('/todos_los_clientes').then(function (response) {
+      axios.get('/get_iniciados').then(function (response) {
         _this.remisiones = response.data;
       })["catch"](function (error) {
         _this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
@@ -96046,44 +96037,57 @@ var render = function() {
                       "tbody",
                       [
                         _vm._l(_vm.remisiones, function(remision, i) {
-                          return _c("tr", { key: i }, [
-                            _c("td", [_vm._v(_vm._s(remision.id))]),
-                            _vm._v(" "),
-                            _c("td", [_vm._v(_vm._s(remision.fecha_creacion))]),
-                            _vm._v(" "),
-                            _c("td", [_vm._v(_vm._s(remision.cliente.name))]),
-                            _vm._v(" "),
-                            _c("td", [_vm._v("$ " + _vm._s(remision.total))]),
-                            _vm._v(" "),
-                            _c("td", [
-                              _vm._v("$ " + _vm._s(remision.total_devolucion))
-                            ]),
-                            _vm._v(" "),
-                            _c("td", [_vm._v("$ " + _vm._s(remision.pagos))]),
-                            _vm._v(" "),
-                            _c("td", [
-                              _vm._v("$ " + _vm._s(remision.total_pagar))
-                            ]),
-                            _vm._v(" "),
-                            _c("td", [
-                              _c(
-                                "button",
-                                {
-                                  staticClass: "btn btn-primary",
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.detallesRemision(remision)
+                          return _c(
+                            "tr",
+                            {
+                              key: i,
+                              class:
+                                "" +
+                                (remision.estado == "Cancelado"
+                                  ? "table-danger"
+                                  : "null")
+                            },
+                            [
+                              _c("td", [_vm._v(_vm._s(remision.id))]),
+                              _vm._v(" "),
+                              _c("td", [
+                                _vm._v(_vm._s(remision.fecha_creacion))
+                              ]),
+                              _vm._v(" "),
+                              _c("td", [_vm._v(_vm._s(remision.cliente.name))]),
+                              _vm._v(" "),
+                              _c("td", [_vm._v("$ " + _vm._s(remision.total))]),
+                              _vm._v(" "),
+                              _c("td", [
+                                _vm._v("$ " + _vm._s(remision.total_devolucion))
+                              ]),
+                              _vm._v(" "),
+                              _c("td", [_vm._v("$ " + _vm._s(remision.pagos))]),
+                              _vm._v(" "),
+                              _c("td", [
+                                _vm._v("$ " + _vm._s(remision.total_pagar))
+                              ]),
+                              _vm._v(" "),
+                              _c("td", [
+                                _c(
+                                  "button",
+                                  {
+                                    staticClass: "btn btn-primary",
+                                    on: {
+                                      click: function($event) {
+                                        return _vm.detallesRemision(remision)
+                                      }
                                     }
-                                  }
-                                },
-                                [
-                                  _vm._v(
-                                    "\n                                Detalles\n                            "
-                                  )
-                                ]
-                              )
-                            ])
-                          ])
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n                                Detalles\n                            "
+                                    )
+                                  ]
+                                )
+                              ])
+                            ]
+                          )
                         }),
                         _vm._v(" "),
                         _c("tr", [
