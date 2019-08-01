@@ -19,7 +19,7 @@
             </template>
             <template slot="editar" slot-scope="row">
                 <b-button 
-                    @click="editarEntrada(row.item)"
+                    @click="editarEntrada(row.item, row.index)"
                     variant="warning" 
                     v-if="role_id == 3 && fechaFinal.diff(row.item.created_at, 'days') < 5">
                     <i class="fa fa-pencil"></i> Editar
@@ -42,14 +42,24 @@
             </div>
             <hr>
             <b-row>
-                <b-col><h6>Folio: <b>{{ entrada.folio }}</b></h6></b-col>
-                <b-col><label><b>Unidades:</b> {{ total_unidades }}</label></b-col>
-                <b-col class="text-right">
+                <b-col sm="1">
+                    <label>Folio</label><br>
+                    <label>Editorial</label>
+                </b-col>
+                <b-col sm="5">
+                    <b-form-input v-model="entrada.folio" :state="stateN" @change="guardarNum"></b-form-input>
+                    <b-form-input v-model="entrada.editorial" :state="stateE"></b-form-input>
+                </b-col>
+                <b-col sm="3" align="right">
+                    <label><b>Unidades:</b> {{ total_unidades }}</label>
+                </b-col>
+                <b-col sm="3" class="text-right">
                     <b-button 
                         @click="actRemision" 
                         variant="success"
+                        :disabled="load"
                         v-if="registros.length > 0">
-                        <i class="fa fa-check"></i> Guardar
+                        <i class="fa fa-check"></i> {{ !load ? 'Actualizar' : 'Actualizando' }}
                     </b-button>
                 </b-col>
             </b-row>
@@ -124,6 +134,7 @@
                 fields: [
                     {key: 'id', label: 'N.'}, 
                     'folio',
+                    'editorial',
                     {key: 'created_at', label: 'Fecha de creación'},
                     {key: 'detalles', label: ''},  
                     {key: 'descargar', label: ''}, 
@@ -135,7 +146,6 @@
                 fechaFinal: '',
                 entrada: {},
                 mostrarEditar: false,
-                
                 isbn: '',
                 inputISBN: true,
                 temporal: {},
@@ -145,6 +155,10 @@
                 inputUnidades: false,
                 unidades: 0,
                 total_unidades: 0,
+                stateN: null,
+                stateE: null,
+                load: false,
+                posicion: null,
             }
         },
         created: function(){
@@ -169,7 +183,8 @@
                     this.registros = response.data.registros;
                 });
             },
-            editarEntrada(entrada){
+            editarEntrada(entrada, i){
+                this.posicion = i;
                 axios.get('/detalles_entrada', {params: {entrada_id: entrada.id}}).then(response => {
                     this.mostrarEditar = true;
                     this.entrada = response.data.entrada;
@@ -224,8 +239,6 @@
                 if(this.unidades > 0){
                     this.temporal.entrada_id = this.entrada.id;
                     this.temporal.unidades = this.unidades;
-                    
-
                     axios.post('/registro_entrada', this.temporal).then(response => {
                         this.temporal = {
                             id: response.data.registro.id,
@@ -255,12 +268,21 @@
                 }
             },
             actRemision(){
-                // this.bdentrada.total = this.total_entrada;
                 this.entrada.unidades = this.total_unidades;
-                axios.put('/actualizar_entrada', this.entrada).then(response => {
-                    this.makeToast('success', 'La entrada se ha actualizado');
-                    this.mostrarEditar = false;
-                });
+                if(this.entrada.editorial.length > 0){
+                    this.load = true;
+                    this.stateE = null;
+                    axios.put('/actualizar_entrada', this.entrada).then(response => {
+                        this.makeToast('success', 'La entrada se ha actualizado');
+                        this.load = false;
+                        this.entradas[this.posicion] = response.data;
+                        this.mostrarEditar = false;
+                    });
+                }
+                else{
+                    this.stateE = false;
+                    this.makeToast('danger', 'Definir editorial');
+                }
             },
             eliminarTemporal(){
                 this.temporal = {};
@@ -270,10 +292,28 @@
                 this.queryTitulo = '';
                 this.unidades = 0;
             },
-
+            guardarNum(){
+                if(this.entrada.folio.length > 0){
+                    axios.get('/buscarFolio', {params: {folio: this.entrada.folio}}).then(response => {
+                        if(response.data.id != undefined){
+                            this.stateN = false;
+                            this.makeToast('danger', 'El folio ya existe');
+                        }
+                        else{
+                            this.stateN = null;
+                        }
+                    }).catch(error => {
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    });
+                }
+                else{
+                    this.stateN = false;
+                    this.makeToast('danger', 'Definir folio');
+                }
+            },
             makeToast(variant = null, descripcion) {
                 this.$bvToast.toast(descripcion, {
-                    title: 'Error',
+                    title: 'Mensaje',
                     variant: variant,
                     solid: true
                 })

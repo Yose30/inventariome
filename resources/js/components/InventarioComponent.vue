@@ -5,55 +5,57 @@
             <div class="col-md-1">
                 <b-button variant="success" @click="nuevaEntrada" v-if="btnNuevo"><i class="fa fa-plus"></i></b-button>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <b-button 
                     @click="onSubmit" 
                     v-if="mostrarGuardar && !editar && items.length > 0"
+                    :disabled="load"
                     variant="success">
-                    <i class="fa fa-check"></i> Guardar
+                    <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }}
                 </b-button>
                 <b-button 
                     @click="actRemision" 
                     variant="success"
+                    :disabled="load"
                     v-if="mostrarActualizar && items.length > 0">
-                    <i class="fa fa-check"></i> Guardar
+                    <i class="fa fa-check"></i> {{ !load ? 'Actualizar' : 'Actualizando' }}
                 </b-button>
             </div>
             <div class="col-md-2">
                 <b-button 
                     variant="warning" 
                     @click="editarTEntrada"
+                    :disabled="load"
                     v-if="mostrarEditar">
-                    <i class="fa fa-pencil"></i>
+                    <i class="fa fa-pencil"></i> Editar
                 </b-button>
             </div>
-            <div class="col-md-1">
+            <div class="col-md-2">
                 <a 
                     class="btn btn-info"
                     v-if="mostrarEditar"
                     :href="'/imprimirEntrada/' + bdentrada.id">
-                    <i class="fa fa-print"></i>
+                    <i class="fa fa-download"></i> Descargar
                 </a>
             </div>
         </div>
         <hr>
         <div v-if="mostrarCampo">
-            <b-row class="col-md-5">
-                <b-col sm="6">
-                    <label>Folio</label>
+            <b-row>
+                <b-col sm="1">
+                    <label>Folio</label><br>
+                    <label>Editorial</label>
                 </b-col>
-                <b-col sm="6">
-                    <b-form-input :disabled="mostrarTabla" v-model="numnota" @keyup.enter="guardarNum"></b-form-input>
+                <b-col sm="5">
+                    <b-form-input v-model="bdentrada.folio" :disabled="mostrarEditar" :state="stateN" @change="guardarNum"></b-form-input>
+                    <b-form-input v-model="bdentrada.editorial" :disabled="mostrarEditar" :state="stateE"></b-form-input>
+                </b-col>
+                <b-col sm="6" align="right">
+                    <label v-if="mostrarTabla"><b>Unidades:</b> {{ total_unidades }}</label>
                 </b-col>
             </b-row>
         </div>
         <div v-if="mostrarTabla">
-            <div align="right">
-                <!-- <label><b>Total:</b> ${{ total_entrada }}</label> -->
-            </div>
-            <div align="left">
-                <label><b>Unidades:</b> {{ total_unidades }}</label>
-            </div>
             <hr>
             <div>
                 <table class="table">
@@ -61,9 +63,7 @@
                         <tr>
                             <th scope="col">ISBN</th>
                             <th scope="col">Libro</th>
-                            <!-- <th scope="col">Costo unitario</th> -->
                             <th scope="col">Unidades</th>
-                            <!-- <th scope="col">Subtotal</th> -->
                             <th scope="col"></th>
                         </tr>
                     </thead>
@@ -71,9 +71,7 @@
                         <tr v-for="(item, i) in items" v-bind:key="i">
                             <td>{{ item.ISBN }}</td>
                             <td>{{ item.titulo }}</td>
-                            <!-- <td>$ {{ item.costo_unitario }}</td> -->
                             <td>{{ item.unidades }}</td>
-                            <!-- <td>$ {{ item.total }}</td> -->
                             <td><button class="btn btn-danger" @click="eliminarRegistro(item, i)" v-if="botonEliminar"><i class="fa fa-minus-circle"></i></button></td>
                         </tr>
                         <tr>
@@ -103,16 +101,6 @@
                                 </div>
                                 <b v-if="!inputLibro">{{ temporal.titulo }}</b>
                             </td>
-                            <!-- <td>
-                                <b-form-input 
-                                    @keyup.enter="guardarCosto()"
-                                    v-model="costo_unitario" 
-                                    v-if="inputCosto"
-                                    type="number"
-                                    required>
-                                </b-form-input>
-                                <b v-if="!inputCosto">$ {{ temporal.costo_unitario }}</b>
-                            </td> -->
                             <td>
                                 <b-form-input 
                                     @keyup.enter="guardarRegistro()"
@@ -122,7 +110,6 @@
                                     required>
                                 </b-form-input>
                             </td>
-                            <!-- <td></td> -->
                             <td>
                                 <button 
                                     class="btn btn-secondary" 
@@ -166,21 +153,24 @@
                     id: 0,
                     unidades: 0,
                     total: 0,
-                    folio: ''
+                    folio: '',
+                    editorial: ''
                 }, //Para guardar todos los datos de la remision
                 costo_unitario: 0,
                 inputCosto: false,
                 respuestaCosto: '',
                 respuestaUnidades: '',
                 mostrarCampo: false,
-                numnota: ''
+                stateN: null,
+                stateE: null,
+                load: false,
             }
         },
         methods: {
             //Nueva entrada
             nuevaEntrada(){
                 axios.get('/nueva_entrada').then(response => {
-                    this.bdentrada = {id: 0, unidades: 0, total: 0, folio: ''};
+                    this.bdentrada = {id: 0, unidades: 0, total: 0, folio: '', editorial: ''};
                     this.items = [];
                     this.temporal = {};
                     this.total_entrada = 0;
@@ -194,28 +184,31 @@
                     this.mostrarGuardar = false;
                     this.mostrarEditar = false;
                     this.btnNuevo = false;
-                    // this.mostrarTabla = true;
                     this.numnota = '';
                     this.mostrarTabla = false;
                     this.mostrarCampo = true;
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
             //Guardar numero de nota
             guardarNum(){
-                if(this.numnota.length > 0){
-                    axios.get('/buscarFolio', {params: {folio: this.numnota}}).then(response => {
-                        console.log(response.data.id);
+                if(this.bdentrada.folio.length > 0){
+                    axios.get('/buscarFolio', {params: {folio: this.bdentrada.folio}}).then(response => {
                         if(response.data.id != undefined){
+                            this.stateN = false;
                             this.makeToast('danger', 'El folio ya existe');
                         }
                         else{
                             this.mostrarTabla = true;
+                            this.stateN = null;
                         }
                     }).catch(error => {
-                        this.makeToast('danger', 'Ocurrio un error, vuelve a intentar');
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                     });
                 }
                 else{
+                    this.stateN = false;
                     this.makeToast('danger', 'Definir folio');
                 }
             },
@@ -234,6 +227,8 @@
                 if(this.queryTitulo.length > 0){
                    axios.get('/mostrarLibros', {params: {queryTitulo: this.queryTitulo}}).then(response => {
                         this.resultslibros = response.data;
+                    }).catch(error => {
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                     });
                } 
             },
@@ -319,20 +314,35 @@
                     this.total_unidades = this.total_unidades - item.unidades;
                     this.bdentrada.total = this.total_entrada;
                     this.bdentrada.unidades = this.total_unidades;
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
             //Guardar toda la remision
             onSubmit(){
+                this.load = true;
                 this.bdentrada.total = this.total_entrada;
                 this.bdentrada.unidades = this.total_unidades;
-                this.bdentrada.folio = this.numnota;
-                axios.post('/crear_entrada', this.bdentrada).then(response => {
-                    this.bdentrada.id = response.data.id;
-                    this.mostrarGuardar = false;
-                    this.mostrarEditar = true;
-                    this.btnNuevo = true;
-                    this.inicializar_guardar();
-                });
+                if(this.bdentrada.editorial.length > 0){
+                    this.stateE = null;
+                    axios.post('/crear_entrada', this.bdentrada).then(response => {
+                        this.bdentrada.id = response.data.id;
+                        this.mostrarGuardar = false;
+                        this.mostrarEditar = true;
+                        this.btnNuevo = true;
+                        this.inicializar_guardar();
+                        this.load = false;
+                        this.makeToast('success', 'La entrada se creo correctamente');
+                    }).catch(error => {
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    });
+                }
+                else{
+                    this.stateE = false;
+                    this.load = false;
+                    this.makeToast('danger', 'Definir editorial');
+                }
+                
             },
             //Editar la remision
             editarTEntrada(){
@@ -346,12 +356,16 @@
             },
             //Guardar cambios de la remision
             actRemision(){
+                this.load = true;
                 this.bdentrada.total = this.total_entrada;
                 this.bdentrada.unidades = this.total_unidades;
                 axios.put('/actualizar_entrada', this.bdentrada).then(response => {
                     this.mostrarActualizar = false;
                     this.btnNuevo = true;
                     this.inicializar_guardar();
+                    this.load = false;
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
             //Inicializar valores
@@ -375,7 +389,7 @@
             },
             makeToast(variant = null, descripcion) {
                 this.$bvToast.toast(descripcion, {
-                    title: 'Error',
+                    title: 'Mensaje',
                     variant: variant,
                     solid: true
                 })

@@ -11,6 +11,7 @@ class Entrada extends Model
     protected $fillable = [
         'id', 
         'folio',
+        'editorial',
         'unidades', 
         'total'
     ];
