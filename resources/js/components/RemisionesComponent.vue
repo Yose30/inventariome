@@ -20,8 +20,10 @@
                 <b-button 
                     variant="success" 
                     v-if="row.item.estado == 'Iniciado'"
+                    :disabled="load"
                     v-on:click="entregaLibros(row.item, row.index)">
                     <i class="fa fa-check"></i> Marcar entrega
+                    <b-spinner v-if="load" small></b-spinner>
                 </b-button>
             </template>
         </b-table>
@@ -80,7 +82,8 @@
                     'subtotal',],
                 mostrarDetalles: false,
                 remision: {},
-                total_unidades: 0
+                total_unidades: 0,
+                load: false,
             }
         },
         created: function(){
@@ -95,10 +98,12 @@
                 });
             },
             entregaLibros(remision, i){
+                this.load = true;
                 axios.put('/vendidos_remision', remision).then(response => {
-                    // this.remisiones[i].estado = response.data.remision.estado;
-                    console.log(response.data);
+                    this.load = false;
+                    this.remisiones[i].estado = response.data.remision.estado;
                 }).catch(error => {
+                    this.load = false;
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 }); 
             },
