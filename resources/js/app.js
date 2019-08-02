@@ -51,6 +51,8 @@ Vue.component('pagos-component', require('./components/PagosComponent.vue').defa
 Vue.component('entradas-component', require('./components/EntradasComponent.vue').default);
 Vue.component('clientes-component', require('./components/ClientesComponent.vue').default);
 Vue.component('new-nota-component', require('./components/NewNotaComponent.vue').default);
+Vue.component('vendidos-component', require('./components/VendidosComponent.vue').default);
+Vue.component('adeudos-component', require('./components/AdeudosComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

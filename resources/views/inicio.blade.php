@@ -63,6 +63,16 @@
                     {{ __("Libros") }}
                 </a>
             </li>
+            <li class="nav-item">
+                <a 
+                    class="nav-link" 
+                    id="adeudos-tab" 
+                    data-toggle="tab" 
+                    href="#v-adeudos" 
+                    aria-controls="v-adeudos">
+                    {{ __("Adeudos") }}
+                </a>
+            </li>
         </ul>
         <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade show active" id="v-movimientos">
@@ -89,6 +99,11 @@
                 <br>
                 <clientes-component></clientes-component>
             </div>
+            <div class="tab-pane fade" id="v-adeudos">
+                <br>
+                <adeudos-component></adeudos-component>
+            </div>
+            
         </div>
     </div>
 @endsection

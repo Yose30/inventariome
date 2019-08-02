@@ -7,6 +7,16 @@
             <li class="nav-item">
                 <a 
                     class="nav-link active" 
+                    id="vendidos-tab" 
+                    data-toggle="tab" 
+                    href="#v-vendidos" 
+                    aria-controls="v-vendidos">
+                    {{ __("Vendidos") }}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a 
+                    class="nav-link" 
                     id="remisiones-tab" 
                     data-toggle="tab" 
                     href="#v-remisiones" 
@@ -56,7 +66,11 @@
             </li>
         </ul>
         <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade show active" id="v-remisiones">
+            <div class="tab-pane fade show active" id="v-vendidos">
+                <br>
+                <vendidos-component></vendidos-component>
+            </div>
+            <div class="tab-pane fade" id="v-remisiones">
                 <br>
                 <listado-component :role_id="{{auth()->user()->role_id}}"></listado-component>
             </div>

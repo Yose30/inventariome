@@ -12,6 +12,7 @@ use App\Vendido;
 use App\Cliente;
 use App\Libro;
 use App\Dato;
+use App\Pago;
 use PDF;
 
 class RemisionController extends Controller
@@ -441,5 +442,41 @@ class RemisionController extends Controller
 		}
         
         return response()->json($remision);
+    }
+
+    public function obtener_vendidos(){
+        $vendidos = Vendido::select(
+            'libro_id', 
+            \DB::raw('SUM(unidades_resta) as unidades_r'),
+            \DB::raw('SUM(total_resta) as total_r'),
+            \DB::raw('SUM(unidades) as unidades_v'),
+            \DB::raw('SUM(total) as total_v'))
+            ->with('libro')->groupBy('libro_id')->get();
+        return response()->json($vendidos);
+    }
+
+    
+    // ->whereDate('created_at', $fecha)
+    //Función para obtener vendidos por fecha
+    public function obtener_por_fecha(){
+        $fecha = Input::get('fecha');
+        // $vendidos = Vendido::whereDate('created_at', $fecha)->get();
+        
+        // $pagos = Pago::whereIn('id', $ids)->get();
+        $pagos = Pago::whereDate('created_at', $fecha)->get();
+        $ids = array();
+        foreach($pagos as $pago){
+            array_push($ids, $pago->vendido_id);
+        }
+        $vendidos = Vendido::whereIn('id', $ids)->select(
+            'libro_id', 
+            \DB::raw('SUM(unidades_resta) as unidades_r'),
+            \DB::raw('SUM(total_resta) as total_r'),
+            \DB::raw('SUM(unidades) as unidades_v'),
+            \DB::raw('SUM(total) as total_v')
+            )
+            ->with('libro')->groupBy('libro_id')
+            ->get();
+        return response()->json($vendidos);
     }
 }

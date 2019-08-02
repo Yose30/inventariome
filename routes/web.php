@@ -70,6 +70,10 @@ Route::get('buscar_por_fecha', 'RemisionController@por_fecha')->name('buscar_por
 Route::get('buscar_por_estado', 'RemisionController@por_estado')->name('buscar_por_estado');
 Route::get('buscar_por_estado_libros', 'RemisionController@por_estado_libros')->name('buscar_por_estado_libros');
 
+//Obtener todas las unidades pendientes
+Route::get('obtener_vendidos', 'RemisionController@obtener_vendidos')->name('obtener_vendidos');
+//Obtener por fecha
+Route::get('obtener_por_fecha', 'RemisionController@obtener_por_fecha')->name('obtener_por_fecha');
 
 //REMISIONES -Imprimir
 Route::get('/imprimirSalida/{id}', 'RemisionController@imprimirSalida')->name('imprimirSalida');
@@ -127,6 +131,7 @@ Route::put('actualizar_entrada', 'EntradaController@actualizar')->name('actualiz
 Route::get('/imprimirEntrada/{id}', 'EntradaController@imprimirEntrada')->name('imprimirEntrada');
 
 //PAGOS
+//Guardar pago
 Route::post('registrar_pago', 'PagoController@store')->name('registrar_pago');
 //Obtener registros de vendidos
 Route::get('datos_vendidos', 'PagoController@datos_vendidos')->name('datos_vendidos');
@@ -141,3 +146,10 @@ Route::get('detalles_nota', 'NoteController@detalles_nota')->name('detalles_nota
 //Guardar pago de la nota
 Route::post('guardar_pago', 'NoteController@guardar_pago')->name('guardar_pago');
 
+//ADEUDO
+//Guardar adeudo
+Route::post('guardar_adeudo', 'AdeudoController@store')->name('guardar_adeudo');
+//Mostrar adeudos
+Route::get('obtener_adeudos', 'AdeudoController@show')->name('obtener_adeudos');
+//Guardar abono
+Route::post('guardar_abono', 'AdeudoController@guardar_abono')->name('guardar_abono');

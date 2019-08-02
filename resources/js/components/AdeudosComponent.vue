@@ -1,0 +1,341 @@
+<template>
+    <div>
+        <div v-if="listadoAdeudos">
+            <div align="right">
+                <b-button variant="primary" v-if="!mostrarRegistrar" @click="registrarAdeudo">
+                    <i class="fa fa-plus"></i> Registrar adeudo
+                </b-button>
+            </div>
+            <b-table :items="adeudos" :fields="fieldsA">
+                <template slot="cliente_id" slot-scope="row">
+                    {{ row.item.cliente.name }}
+                </template>
+                <template slot="total_adeudo" slot-scope="row">
+                    ${{ row.item.total_adeudo }}
+                </template>
+                <template slot="total_abonos" slot-scope="row">
+                    ${{ row.item.total_abonos }}
+                </template>
+                <template slot="total_pendiente" slot-scope="row">
+                    ${{ row.item.total_pendiente }}
+                </template>
+                <template slot="detalles" slot-scope="row">
+                    <b-button v-if="row.item.total_abonos != 0" variant="info" @click="detallesAdeudo(row.item)">Detalles</b-button>
+                </template>
+                <template slot="registrar_pago" slot-scope="row">
+                    <b-button v-if="row.item.total_pendiente != 0" v-b-modal.modal-pago variant="primary" @click="registrarAbono(row.item, row.index)">Registrar pago</b-button>
+                </template>
+            </b-table>
+            <b-modal id="modal-pago" title="Registrar pago">
+                <b-form @submit.prevent="guardarAbono">
+                    <b-row>
+                        <b-col sm="2">
+                            <label>Pago</label>
+                        </b-col>
+                        <b-col sm="5">
+                            <b-form-input v-model="abono.pago" :state="state" :disabled="load" type="number" required></b-form-input>
+                        </b-col>
+                        <b-col>
+                            <b-button type="submit" variant="success" :disabled="load">
+                                <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
+                            </b-button>
+                        </b-col>
+                    </b-row>
+                </b-form>
+                <div slot="modal-footer"></div>
+            </b-modal>
+        </div>
+
+        <div v-if="mostrarRegistrar">
+            <div align="right">
+                <b-button variant="success" @click="guardarAdeudo" :disabled="load" v-if="adeudo.total_adeudo != 0">
+                    <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
+                </b-button>
+            </div>
+            <hr>
+            <div v-if="mostrarSeleccionar">
+                <b-row>
+                    <b-col sm="10"><h6>Seleccionar cliente</h6></b-col>
+                    <b-col sm="1">
+                        <b-button 
+                            variant="danger"
+                            @click="mostrarSeleccionar = false; mostrarForm = true;"
+                            v-if="cliente.name"
+                            id="btnCancelar" >
+                            <i class="fa fa-close"></i>
+                        </b-button>
+                    </b-col>
+                </b-row>
+                <b-table :items="clientes" :fields="fieldsC">
+                    <template slot="seleccionar" slot-scope="row">
+                        <b-button variant="success" @click="seleccionCliente(row.item)">
+                            <i class="fa fa-check"></i>
+                        </b-button>
+                    </template>
+                </b-table>
+            </div>
+            <div v-if="mostrarForm">
+                <b-row>
+                    <b-col sm="10"><h6>Datos del cliente</h6></b-col>
+                    <b-col sm="1">
+                        <b-button 
+                            variant="warning" 
+                            @click="mostrarForm = false; mostrarSeleccionar = true;" 
+                            :disabled="load"
+                            id="btnEditar">
+                            <i class="fa fa-pencil"></i>
+                        </b-button>
+                    </b-col>
+                    <b-button 
+                        variant="link" 
+                        :class="mostrarDatos ? 'collapsed' : null"
+                        :aria-expanded="mostrarDatos ? 'true' : 'false'"
+                        aria-controls="collapse-1"
+                        @click="mostrarDatos = !mostrarDatos">
+                        <i class="fa fa-sort-asc"></i>
+                    </b-button>
+                </b-row>
+                <b-collapse id="collapse-1" v-model="mostrarDatos" class="mt-2">
+                    <b-row>
+                        <b-list-group class="col-md-6">
+                            <b-list-group-item><b>Nombre:</b> {{ cliente.name }}</b-list-group-item>
+                            <b-list-group-item><b>Dirección:</b> {{cliente.direccion  }}</b-list-group-item>
+                            <b-list-group-item><b>Condiciones de pago:</b> {{ cliente.condiciones_pago }}</b-list-group-item>
+                        </b-list-group>
+                        <b-list-group class="col-md-6">
+                            <b-list-group-item><b>Correo electrónico:</b> {{ cliente.email }}</b-list-group-item>
+                            <b-list-group-item><b>Teléfono:</b> {{ cliente.telefono }}</b-list-group-item>
+                        </b-list-group>
+                    </b-row>
+                </b-collapse>
+                <hr>
+                <b-row>
+                    <b-col>
+                        <label>Remisión No. (Opcional):</label><br>
+                        <label>Fecha del adeudo (Opcional):</label>
+                    </b-col>
+                    <b-col>
+                        <b-input type="number" v-model="adeudo.remision_num" :disabled="load"></b-input>
+                        <b-input type="date" v-model="adeudo.fecha_adeudo" :disabled="load"></b-input>
+                    </b-col>
+                    <b-col align="right">
+                        <label>Total adeudo: <b id="txtObligatorio">*</b></label>
+                    </b-col>
+                    <b-col>
+                        <b-input type="number" v-model="adeudo.total_adeudo" :state="state" :disabled="load"></b-input>
+                    </b-col>
+                </b-row>
+            </div>
+        </div> 
+
+        <div v-if="mostrarAbonos">
+            <b-row>
+                <b-col sm="4">
+                    <label><b>Cliente</b><br>{{ adeudo.cliente.name }}</label>
+                </b-col>
+                <b-col sm="2">
+                    <label><b>Total adeudo</b> ${{ adeudo.total_adeudo }}</label>
+                </b-col>
+                <b-col sm="2">
+                    <label><b>Pagos</b> ${{ adeudo.total_abonos }}</label>
+                </b-col>
+                <b-col sm="2">
+                    <label><b>Total pendiente</b> ${{ adeudo.total_pendiente }}</label>
+                </b-col>
+                <b-col sm="2" align="right">
+                    <b-button variant="secondary" @click="listadoAdeudos = true; mostrarAbonos = false;">
+                        <i class="fa fa-mail-reply"></i> Regresar
+                    </b-button>
+                </b-col>
+            </b-row>
+            <hr>
+            <b-table :items="adeudo.abonos" :fields="fieldsP">
+                <template slot="index" slot-scope="row">
+                    {{ row.index + 1 }}
+                </template>
+                <template slot="pago" slot-scope="row">
+                    ${{ row.item.pago }}
+                </template>
+                <template slot="created_at" slot-scope="row">
+                    {{ row.item.created_at | moment }}
+                </template>
+            </b-table>
+        </div>
+    </div>
+</template>
+
+<script>
+    export default {
+        data() {
+            return {
+                listadoAdeudos: true,
+                mostrarRegistrar: false,
+                mostrarSeleccionar: true,
+                mostrarAbonos: false,
+                mostrarForm: false,
+                mostrarDatos: true,
+                clientes: [],
+                fieldsC: [
+                    {key: 'name', label: 'Nombre'},
+                    {key: 'email', label: 'Correo'},
+                    {key: 'direccion', label: 'Dirección'},
+                    {key: 'seleccionar', label: ''}
+                ],
+                cliente: {},
+                adeudo: {
+                    cliente_id: 0,
+                    cliente: {},
+                    remision_num: 0,
+                    fecha_adeudo: '',
+                    total_adeudo: 0,
+                    total_pendiente: 0
+                },
+                state: null,
+                load: false,
+                adeudos: [],
+                fieldsA: [
+                    {key: 'cliente_id', label: 'Cliente'},
+                    {key: 'total_adeudo', label: 'Total adeudo'},
+                    {key: 'total_abonos', label: 'Pagos'},
+                    {key: 'total_pendiente', label: 'Total pendiente'},
+                    {key: 'detalles', label: ''},
+                    {key: 'registrar_pago', label: ''}
+                ],
+                fieldsP: [
+                    {key: 'index', label: 'No.'},
+                    'pago',
+                    {key: 'created_at', label: 'Fecha de pago'},
+                ],
+                abono: {
+                    adeudo_id: 0,
+                    pago: 0,
+                },
+                posicion: null,
+            }
+        },
+        created: function(){
+			this.obtenerAdeudos();
+        },
+        filters: {
+            moment: function (date) {
+                return moment(date).format('DD-MM-YYYY');
+            }
+        },
+        methods: {
+            obtenerAdeudos(){
+                axios.get('/obtener_adeudos').then(response => {
+                    this.adeudos = response.data;
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
+            },
+            registrarAdeudo(){
+                this.clientes = [];
+                this.ini_adeudo();
+                axios.get('/getTodo').then(response => {
+                    this.clientes = response.data;
+                    this.listadoAdeudos = false;
+                    this.mostrarRegistrar = true;
+                }).catch(error => {
+                   this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
+            },
+            seleccionCliente(cliente){
+                this.cliente = {};
+                this.cliente = cliente;
+                this.mostrarSeleccionar = false;
+                this.mostrarDatos = true;
+                this.mostrarForm = true;
+            },
+            guardarAdeudo(){
+                this.load = true;
+                this.adeudo.cliente_id = this.cliente.id;
+                this.adeudo.total_pendiente = this.adeudo.total_adeudo;
+                axios.post('/guardar_adeudo', this.adeudo).then(response => {
+                    this.adeudos.push(response.data);
+                    this.load = false;
+                    this.mostrarRegistrar = false;
+                    this.listadoAdeudos = true;
+                })
+                .catch(error => {
+                    this.load = false;
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
+            },
+            registrarAbono(adeudo, i){
+                this.ini_adeudo();
+                this.abono = { adeudo_id: 0, pago: 0, };
+                this.posicion = i;
+                this.adeudo = adeudo;
+                this.abono.adeudo_id = this.adeudo.id;
+            },
+            guardarAbono(){
+                if(this.abono.pago > 0){
+                    if(this.abono.pago <= this.adeudo.total_pendiente){
+                        this.state = null;
+                        this.load = true;
+                        axios.post('/guardar_abono', this.abono).then(response => {
+                            this.$bvModal.hide('modal-pago');
+                            this.load = false;
+                            this.adeudos[this.posicion].total_abonos = response.data.total_abonos;
+                            this.adeudos[this.posicion].total_pendiente = response.data.total_pendiente;
+                        })
+                        .catch(error => {
+                            this.load = false;
+                            this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                        });
+                    }
+                    else{
+                        this.state = false;
+                        this.makeToast('warning', 'El pago es mayor al total pendiente');
+                    }
+                }
+                else{
+                    this.state = false;
+                    this.makeToast('warning', 'El pago tiene que ser mayor a 0');
+                }
+            },
+            detallesAdeudo(adeudo){
+                this.ini_adeudo();
+                this.adeudo = adeudo;
+                this.listadoAdeudos = false;
+                this.mostrarAbonos = true;
+            },
+            ini_adeudo(){
+                this.adeudo = {
+                    cliente_id: 0,
+                    cliente: {},
+                    remision_num: 0,
+                    fecha_adeudo: '',
+                    total_adeudo: 0,
+                    total_pendiente: 0
+                };
+            },
+            makeToast(variant = null, descripcion) {
+                this.$bvToast.toast(descripcion, {
+                    title: 'Mensaje',
+                    variant: variant,
+                    solid: true
+                })
+            }
+        }
+    }
+</script>
+
+<style>
+    #btnEditar {
+        color: #ffb300;
+        background-color: transparent;
+        border: 0ch;
+        font-size: 25px;
+    }
+    #btnCancelar {
+        color: red;
+        background-color: transparent;
+        border: 0ch;
+        font-size: 25px;
+    }
+    #txtObligatorio {
+        color: red;
+    }
+</style>
