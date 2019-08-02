@@ -53,6 +53,7 @@ Vue.component('clientes-component', require('./components/ClientesComponent.vue'
 Vue.component('new-nota-component', require('./components/NewNotaComponent.vue').default);
 Vue.component('vendidos-component', require('./components/VendidosComponent.vue').default);
 Vue.component('adeudos-component', require('./components/AdeudosComponent.vue').default);
+Vue.component('promociones-component', require('./components/PromocionesComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

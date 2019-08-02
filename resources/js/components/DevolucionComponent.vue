@@ -13,7 +13,7 @@
                 <b-button v-if="row.item.total_devolucion != 0" variant="info" @click="func_detalles(row.item)">Detalles</b-button>
             </template>
             <template slot="registrar_devolucion" slot-scope="row">
-                <b-button v-if="row.item.estado != 'Terminado'" variant="primary" @click="registrarDevolucion(row.item, row.index)">Registrar devolución</b-button>
+                <b-button v-if="row.item.estado != 'Terminado' && row.item.total_pagar != 0" variant="primary" @click="registrarDevolucion(row.item, row.index)">Registrar devolución</b-button>
             </template>
         </b-table>
         <div v-if="mostrarDevolucion">

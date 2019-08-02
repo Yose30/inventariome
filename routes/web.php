@@ -153,3 +153,11 @@ Route::post('guardar_adeudo', 'AdeudoController@store')->name('guardar_adeudo');
 Route::get('obtener_adeudos', 'AdeudoController@show')->name('obtener_adeudos');
 //Guardar abono
 Route::post('guardar_abono', 'AdeudoController@guardar_abono')->name('guardar_abono');
+
+//PROMOCION
+//Guardar promocion
+Route::post('guardar_promocion', 'PromotionController@store')->name('guardar_promocion');
+//Mostrar promociones
+Route::get('obtener_promociones', 'PromotionController@show')->name('obtener_promociones');
+//Mostrar departures
+Route::get('obtener_departures', 'PromotionController@obtener_departures')->name('obtener_departures');

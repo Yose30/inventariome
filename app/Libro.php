@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Devolucione;
+use App\Departure;
 use App\Register;
 use App\Registro;
 use App\Vendido;
@@ -49,5 +50,11 @@ class Libro extends Model
     //Un libro puede pertenecer a muchos registros de nota
     public function registers(){
         return $this->hasMany(Register::class);
+    }
+
+    //Uno a muhcos
+    //Un libro puede tener muchas salidas
+    public function departures(){
+        return $this->hasMany(Departure::class);
     }
 }
