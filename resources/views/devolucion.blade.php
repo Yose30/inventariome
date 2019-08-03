@@ -46,6 +46,16 @@
             <li class="nav-item">
                 <a 
                     class="nav-link" 
+                    id="promociones-tab" 
+                    data-toggle="tab" 
+                    href="#v-promociones" 
+                    aria-controls="v-promociones">
+                    {{ __("Promociones") }}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a 
+                    class="nav-link" 
                     id="entrada-tab" 
                     data-toggle="tab" 
                     href="#v-entrada" 
@@ -100,6 +110,10 @@
             <div class="tab-pane fade" id="v-notas">
                 <br>
                 <new-nota-component :role_id="{{ auth()->user()->role_id }}"></new-nota-component>
+            </div>
+            <div class="tab-pane fade" id="v-promociones">
+                <br>
+                <promociones-component></promociones-component>
             </div>
             <div class="tab-pane fade" id="v-entrada">
                 <br>
