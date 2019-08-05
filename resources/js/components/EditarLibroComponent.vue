@@ -82,7 +82,6 @@
                 axios.put('/actualizar_libro', this.libro).then(response => {
                     this.errors = {};
                     this.loaded = false;
-                    this.$emit('actualizarLista', response.data);
                 })
                 .catch(error => {
                     this.errors = {};
@@ -91,8 +90,8 @@
                         this.errors = error.response.data.errors || {};
                     }
                     else{
-                        this.$bvToast.toast('Ocurrio un error, vuelve a intentar', {
-                            title: 'Error',
+                        this.$bvToast.toast('Ocurrio un problema, vuelve a intentar o actualiza la pagina', {
+                            title: 'Mensaje',
                             variant: 'danger',
                             solid: true
                         });

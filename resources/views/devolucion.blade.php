@@ -16,6 +16,16 @@
             <li class="nav-item">
                 <a 
                     class="nav-link" 
+                    id="vendidos-tab" 
+                    data-toggle="tab" 
+                    href="#v-vendidos" 
+                    aria-controls="v-vendidos">
+                    {{ __("Vendidos") }}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a 
+                    class="nav-link" 
                     id="remisiones-tab" 
                     data-toggle="tab" 
                     href="#v-remisiones" 
@@ -56,26 +66,6 @@
             <li class="nav-item">
                 <a 
                     class="nav-link" 
-                    id="entrada-tab" 
-                    data-toggle="tab" 
-                    href="#v-entrada" 
-                    aria-controls="v-entrada">
-                    {{ __("Registrar entrada") }}
-                </a>
-            </li>
-            <li class="nav-item">
-                <a 
-                    class="nav-link" 
-                    id="newlibro-tab" 
-                    data-toggle="tab" 
-                    href="#v-newlibro" 
-                    aria-controls="v-newlibro">
-                    {{ __("Agregar libro") }}
-                </a>
-            </li>
-            <li class="nav-item">
-                <a 
-                    class="nav-link" 
                     id="entradas-tab" 
                     data-toggle="tab" 
                     href="#v-entradas" 
@@ -99,6 +89,10 @@
                 <br> 
                 <remisiones-component></remisiones-component>
             </div>
+            <div class="tab-pane fade" id="v-vendidos">
+                <br>
+                <vendidos-component></vendidos-component>
+            </div>
             <div class="tab-pane fade" id="v-remisiones">
                 <br>
                 <pagos-component></pagos-component>
@@ -113,15 +107,7 @@
             </div>
             <div class="tab-pane fade" id="v-promociones">
                 <br>
-                <promociones-component></promociones-component>
-            </div>
-            <div class="tab-pane fade" id="v-entrada">
-                <br>
-                <inventario-component></inventario-component>
-            </div>
-            <div class="tab-pane fade" id="v-newlibro">
-                <br>
-                <new-libro-component></new-libro-component>
+                <promociones-component :role_id="{{ auth()->user()->role_id }}"></promociones-component>
             </div>
             <div class="tab-pane fade" id="v-entradas">
                 <br>

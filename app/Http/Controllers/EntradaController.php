@@ -25,6 +25,13 @@ class EntradaController extends Controller
         return response()->json($entrada);
     }
 
+    //Mostrar editoriales
+    public function mostrarEditoriales(){
+        $editorial = Input::get('editorial');
+        $entradas = Entrada::where('editorial','like','%'.$editorial.'%')->get();
+        return response()->json($entradas);
+    }
+
     //Mostrar detalles de una entrada
     public function detalles_entrada(){
         $entrada_id = Input::get('entrada_id');
@@ -45,43 +52,43 @@ class EntradaController extends Controller
     }
 
     public function nueva(){
-        $entrada = Entrada::all()->count() + 1;
+        // $entrada = Entrada::all()->count() + 1;
 
-        try {
-            \DB::beginTransaction();
+        // try {
+        //     \DB::beginTransaction();
 
-            //En caso de edicion
-            $this->func_inicializar_editar($entrada - 1);
+        //     //En caso de edicion
+        //     $this->func_inicializar_editar($entrada - 1);
 
-            //En caso de creacion
-            $eliminados = Registro::where('entrada_id', $entrada)->where('estado', 'Eliminado')->get();
+        //     //En caso de creacion
+        //     $eliminados = Registro::where('entrada_id', $entrada)->where('estado', 'Eliminado')->get();
 
-            if($eliminados->count() > 0){
-                foreach($eliminados as $eliminado){
-                    $libro = Libro::whereId($eliminado->libro_id)->first();
-                    $libro->update(['piezas' => $libro->piezas - $eliminado->unidades]);
-                }
-            }
+        //     if($eliminados->count() > 0){
+        //         foreach($eliminados as $eliminado){
+        //             $libro = Libro::whereId($eliminado->libro_id)->first();
+        //             $libro->update(['piezas' => $libro->piezas - $eliminado->unidades]);
+        //         }
+        //     }
         
-            $registros = Registro::where('entrada_id', $entrada)->where('estado', 'Iniciado')->get();
-            if($registros->count() > 0){
-                foreach($registros as $registro){
-                    $libro = Libro::whereId($registro->libro_id)->first();
-                    $libro->update(['piezas' => $libro->piezas - $registro->unidades]);
-                }
-            }
+        //     $registros = Registro::where('entrada_id', $entrada)->where('estado', 'Iniciado')->get();
+        //     if($registros->count() > 0){
+        //         foreach($registros as $registro){
+        //             $libro = Libro::whereId($registro->libro_id)->first();
+        //             $libro->update(['piezas' => $libro->piezas - $registro->unidades]);
+        //         }
+        //     }
             
-            Registro::where('entrada_id', $entrada - 1)->where('estado', 'Iniciado')->delete();
-            Registro::where('entrada_id', $entrada)->where('estado', 'Eliminado')->delete();
-            Registro::where('entrada_id', $entrada)->where('estado', 'Iniciado')->delete();
+        //     Registro::where('entrada_id', $entrada - 1)->where('estado', 'Iniciado')->delete();
+        //     Registro::where('entrada_id', $entrada)->where('estado', 'Eliminado')->delete();
+        //     Registro::where('entrada_id', $entrada)->where('estado', 'Iniciado')->delete();
         
-            \DB::commit();
+        //     \DB::commit();
             
-        }catch (Exception $e) {
-            \DB::rollBack();
-            return response()->json($e->getMessage());
-        }
-        return response()->json(null, 200);
+        // }catch (Exception $e) {
+        //     \DB::rollBack();
+        //     return response()->json($e->getMessage());
+        // }
+        // return response()->json(null, 200);
     }
 
     public function func_inicializar_editar($entrada){
@@ -100,35 +107,35 @@ class EntradaController extends Controller
     }
 
     public function registro(Request $request){
-        if($request->entrada_id != 0){
-            $entrada = $request->entrada_id;
-        }
-        else{
-            $entrada = Entrada::all()->count() + 1;
-        }
+        // if($request->entrada_id != 0){
+        //     $entrada = $request->entrada_id;
+        // }
+        // else{
+        //     $entrada = Entrada::all()->count() + 1;
+        // }
 
-        try {
-            \DB::beginTransaction();
+        // try {
+        //     \DB::beginTransaction();
 
-            $registro = Registro::create([
-                'entrada_id' => $entrada,
-                'libro_id'  => $request->id,
-                'costo_unitario' => $request->costo_unitario,
-                'unidades'  => $request->unidades,
-                'total'     => $request->total
-            ]);
+        //     $registro = Registro::create([
+        //         'entrada_id' => $entrada,
+        //         'libro_id'  => $request->id,
+        //         'costo_unitario' => $request->costo_unitario,
+        //         'unidades'  => $request->unidades,
+        //         'total'     => $request->total
+        //     ]);
 
-            $libro = Libro::whereId($registro->libro_id)->first();
-            $libro->update(['piezas' => $libro->piezas + $registro->unidades]);
+        //     $libro = Libro::whereId($registro->libro_id)->first();
+        //     $libro->update(['piezas' => $libro->piezas + $registro->unidades]);
 
-            \DB::commit();
+        //     \DB::commit();
 
-            return response()->json(['registro' => $registro, 'libro' => $registro->libro]);
+        //     return response()->json(['registro' => $registro, 'libro' => $registro->libro]);
 
-        } catch (Exception $e) {
-            \DB::rollBack();
-            return response()->json($e->getMessage());
-		}
+        // } catch (Exception $e) {
+        //     \DB::rollBack();
+        //     return response()->json($e->getMessage());
+		// }
     }
 
     public function eliminar(Request $request){
@@ -155,19 +162,27 @@ class EntradaController extends Controller
                 'folio' => $request->folio,
                 'editorial' => $request->editorial,
                 'unidades' => $request->unidades,
-                'total' => $request->total,
             ]);
-
-            $this->concluir_registro($entrada->id);
-
+            $unidades = 0;
+            foreach($request->items as $item){
+                $registro = Registro::create([
+                    'entrada_id' => $entrada->id,
+                    'libro_id'  => $item['id'],
+                    'unidades'  => $item['unidades'],
+                    'estado'    => 'Terminado'
+                ]);
+    
+                $libro = Libro::whereId($item['id'])->first();
+                $libro->update(['piezas' => $libro->piezas + $item['unidades']]);
+                $unidades += $item['unidades'];
+            }
+            $entrada->update(['unidades' => $unidades]);
             \DB::commit();
-
-            return response()->json($entrada);
-
         } catch (Exception $e) {
             \DB::rollBack();
             return response()->json($exception->getMessage());
-		}
+        }
+        return response()->json($entrada);
     }
 
     public function actualizar(Request $request){
@@ -178,10 +193,21 @@ class EntradaController extends Controller
             $entrada->folio = $request->folio;
             $entrada->editorial = $request->editorial;
             $entrada->unidades = $request->unidades;
-            $entrada->total = $request->total;
             $entrada->save();
 
             $this->concluir_registro($entrada->id);
+            
+            foreach($request->nuevos as $nuevo){
+                Registro::create([
+                    'entrada_id' => $entrada->id,
+                    'libro_id'  => $nuevo['id'],
+                    'unidades'  => $nuevo['unidades'],
+                    'estado'    => 'Terminado'
+                ]);
+    
+                $libro = Libro::whereId($nuevo['id'])->first();
+                $libro->update(['piezas' => $libro->piezas + $nuevo['unidades']]);
+            }
 
             \DB::commit();
 
@@ -201,7 +227,29 @@ class EntradaController extends Controller
         }
 
         Registro::where('entrada_id', $id)->where('estado', 'Eliminado')->delete();
-        Registro::where('entrada_id', $id)->update(['estado' => 'Terminado']);
+        // Registro::where('entrada_id', $id)->update(['estado' => 'Terminado']);
+    }
+
+    public function actualizar_costos(Request $request){
+        $total = 0;
+        try {
+            \DB::beginTransaction();
+            foreach($request->items as $item){
+                Registro::whereId($item['id'])->update([
+                    'costo_unitario' => $item['costo_unitario'],
+                    'total' => $item['total']
+                ]);
+                $total += $item['total'];
+            }
+            $entrada = Entrada::whereId($request->id)->first();
+            $entrada->total = $total;
+            $entrada->save();
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
+        return response()->json($entrada);
     }
 
     public function imprimirEntrada($id){

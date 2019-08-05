@@ -27,6 +27,14 @@
                     </b-col>
                 </b-row>
             </div>
+            <div class="col-md-4" align="right">
+                <b-button 
+                    variant="success" 
+                    v-if="role_id == 3" 
+                    v-b-modal.modal-newLibro>
+                    <i class="fa fa-plus"></i> Agregar libro
+                </b-button>
+            </div>
         </div>
         <hr>
         <b-table 
@@ -52,8 +60,13 @@
             aria-controls="my-table"
         ></b-pagination>
 
+        <b-modal id="modal-newLibro" title="Agregar libro">
+            <new-libro-component @actualizarLista="actLista"></new-libro-component>
+            <div slot="modal-footer"></div>
+        </b-modal>
+
         <b-modal id="modal-editar" title="Editar libro">
-            <editar-libro-component :formlibro="formlibro" @actualizarLista="actLista"></editar-libro-component>
+            <editar-libro-component :formlibro="formlibro"></editar-libro-component>
             <div slot="modal-footer"></div>
         </b-modal>
 
@@ -71,6 +84,8 @@
         props: ['role_id'],
         data() {
             return {
+                mostrarNewLibro: false,
+
                 formlibro: {},
                 libros: [],
                 errors: {},
@@ -95,6 +110,11 @@
             this.todosLibros();
 		},
         methods: {
+            //Guardar un libro
+            onSubmit() {
+
+            },
+
             //Mostrar resultados de la busqueda por titulo del libro
             mostrarLibros(){
                 if(this.queryTitulo.length > 0){
@@ -135,7 +155,7 @@
                 this.posicion = i;
             },
             actLista(libro){
-                this.libros[this.posicion] = libro;
+                this.libros.push(libro);
             },
             eliminarLibro(){
                 axios.delete('/eliminar_libro', {params: {id: this.formlibro.id}}).then(response => {

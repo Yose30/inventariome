@@ -2,7 +2,7 @@
     <div>
         <div v-if="listadoAdeudos">
             <div align="right">
-                <b-button variant="primary" v-if="!mostrarRegistrar" @click="registrarAdeudo">
+                <b-button v-if="role_id == 2 && !mostrarRegistrar" variant="primary" @click="registrarAdeudo">
                     <i class="fa fa-plus"></i> Registrar adeudo
                 </b-button>
             </div>
@@ -23,7 +23,7 @@
                     <b-button v-if="row.item.total_abonos != 0" variant="info" @click="detallesAdeudo(row.item)">Detalles</b-button>
                 </template>
                 <template slot="registrar_pago" slot-scope="row">
-                    <b-button v-if="row.item.total_pendiente != 0" v-b-modal.modal-pago variant="primary" @click="registrarAbono(row.item, row.index)">Registrar pago</b-button>
+                    <b-button v-if="role_id == 2 && row.item.total_pendiente != 0" v-b-modal.modal-pago variant="primary" @click="registrarAbono(row.item, row.index)">Registrar pago</b-button>
                 </template>
             </b-table>
             <b-modal id="modal-pago" title="Registrar pago">
@@ -166,6 +166,7 @@
 
 <script>
     export default {
+        props: ['role_id'],
         data() {
             return {
                 listadoAdeudos: true,

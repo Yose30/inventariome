@@ -74,6 +74,8 @@ Route::get('buscar_por_estado_libros', 'RemisionController@por_estado_libros')->
 Route::get('obtener_vendidos', 'RemisionController@obtener_vendidos')->name('obtener_vendidos');
 //Obtener por fecha
 Route::get('obtener_por_fecha', 'RemisionController@obtener_por_fecha')->name('obtener_por_fecha');
+//Obtener detalles de vendidos
+Route::get('detalles_vendidos', 'RemisionController@detalles_vendidos')->name('detalles_vendidos');
 
 //REMISIONES -Imprimir
 Route::get('/imprimirSalida/{id}', 'RemisionController@imprimirSalida')->name('imprimirSalida');
@@ -113,6 +115,8 @@ Route::get('allLibros', 'LibroController@allLibros')->name('allLibros');
 //ENTRADAS
 //Mostrar todas las entradas
 Route::get('all_entradas', 'EntradaController@show')->name('all_entradas');
+//Buscar editorial
+Route::get('/mostrarEditoriales', 'EntradaController@mostrarEditoriales')->name('mostrarEditoriales');
 //Buscar folio
 Route::get('/buscarFolio', 'EntradaController@buscarFolio')->name('buscarFolio');
 //Mostrar todas las entradas
@@ -129,6 +133,8 @@ Route::delete('eliminar_registro_entrada', 'EntradaController@eliminar')->name('
 Route::put('actualizar_entrada', 'EntradaController@actualizar')->name('actualizar_entrada');
 //Imprimir entrada
 Route::get('/imprimirEntrada/{id}', 'EntradaController@imprimirEntrada')->name('imprimirEntrada');
+//Actualizar costos unitarios
+Route::put('actualizar_costos', 'EntradaController@actualizar_costos')->name('actualizar_costos');
 
 //PAGOS
 //Guardar pago

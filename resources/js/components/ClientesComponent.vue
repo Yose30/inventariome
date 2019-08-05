@@ -2,9 +2,31 @@
     <div>
         <b-table v-if="!mostrarEditar" :items="clientes" :fields="fields">
             <template slot="editar" slot-scope="row">
-                <b-button variant="outline-warning" @click="editarCliente(row.item, row.index)"><i class="fa fa-pencil"></i> Editar</b-button>
+                <b-button v-if="role_id == 2" variant="outline-warning" @click="editarCliente(row.item, row.index)"><i class="fa fa-pencil"></i> Editar</b-button>
+            </template>
+            <template slot="detalles" slot-scope="row">
+                <b-button variant="info" v-b-modal.modal-detalles @click="form = row.item">Detalles</b-button>
             </template>
         </b-table>
+
+        <b-modal id="modal-detalles" :title="`${form.name}`">
+            <b-row>
+                <b-col sm="5" align="right">
+                    <label><b>Contacto:</b></label><br>
+                    <label><b>Correo:</b></label><br>
+                    <label><b>Telefono:</b></label><br>
+                    <label><b>Dirección:</b></label><br>
+                    <label><b>Condiciones de pago:</b></label>
+                </b-col>
+                <b-col>
+                    <label>{{ form.contacto }}</label><br>
+                    <label>{{ form.email }}</label><br>
+                    <label>{{ form.telefono }}</label><br>
+                    <label>{{ form.direccion }}</label><br>
+                    <label>{{ form.condiciones_pago }}</label>
+                </b-col>
+            </b-row>
+        </b-modal>
 
         <div v-if="mostrarEditar">
             <div align="center">
@@ -99,6 +121,7 @@
 
 <script>
     export default {
+        props: ['role_id'],
         data() {
             return {
                clientes: [],
@@ -108,6 +131,7 @@
                    'contacto',
                    {key: 'email', label: 'Correo'},
                    {key: 'telefono', label: 'Teléfono'},
+                   {key: 'detalles', label: ''},
                    {key: 'editar', label: ''}
                 ],
                 mostrarEditar: false,
@@ -124,9 +148,12 @@
             getTodo(){
                 axios.get('/getTodo').then(response => {
                     this.clientes = response.data;
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
             editarCliente(cliente, i){
+                this.form = {};
                 this.form = cliente;
                 this.posicion = i;
                 this.mostrarEditar = true;
@@ -145,7 +172,7 @@
                         this.errors = error.response.data.errors || {};
                     }
                     else{
-                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar');
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                     }
                 });
             },
