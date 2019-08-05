@@ -27,7 +27,7 @@
                 <template slot="detalles" slot-scope="row">
                     <b-button variant="info" @click="detallesEntrada(row.item)">Ver detalles</b-button>
                 </template>
-                <template slot="descargar" slot-scope="row">
+                <template v-if="role_id != 2" slot="descargar" slot-scope="row">
                     <b-button 
                         variant="primary"
                         :href="'/imprimirEntrada/' + row.item.id">
@@ -78,6 +78,8 @@
             <b-table v-if="registros.length > 0" :items="registros" :fields="fieldsR">
                 <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                 <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
+                <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario }}</template>
+                <template slot="total" slot-scope="row">${{ row.item.total }}</template>
             </b-table>
         </div>
         <div v-if="mostrarEA">
@@ -214,7 +216,14 @@
                     {key: 'descargar', label: ''}, 
                     {key: 'editar', label: ''}
                 ],
-                fieldsR: [{key: 'id', label: 'N.'}, {key: 'isbn', label: 'ISBN'}, {key: 'titulo', label: 'Libro'}, 'unidades'],
+                fieldsR: [
+                    {key: 'id', label: 'N.'}, 
+                    {key: 'isbn', label: 'ISBN'}, 
+                    {key: 'titulo', label: 'Libro'}, 
+                    {key: 'costo_unitario', label: 'Costo unitario'},
+                    'unidades',
+                    {key: 'total', label: 'Subtotal'},
+                ],
                 fieldsRE: [
                     {key: 'id', label: 'N.'}, 
                     {key: 'ISBN', label: 'ISBN'}, 
@@ -432,7 +441,6 @@
                     this.load = true;
                     this.stateE = null;
                     axios.put('/actualizar_entrada', this.entrada).then(response => {
-                        console.log(response.data);
                         this.makeToast('success', 'La entrada se ha actualizado');
                         this.load = false;
                         this.entradas[this.posicion] = response.data;
@@ -514,6 +522,7 @@
                     this.entrada.items = this.registros;
                     axios.put('/actualizar_costos', this.entrada).then(response => {
                         this.makeToast('success', 'La entrada se ha actualizado');
+                        this.entradas[this.posicion].total = response.data.total;
                         this.load = false;
                         this.mostrarEA = false;
                         this.listadoEntradas = true;
