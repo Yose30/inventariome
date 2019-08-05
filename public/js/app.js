@@ -3662,6 +3662,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 // moment.locale('es');
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['role_id'],
@@ -3695,7 +3697,13 @@ __webpack_require__.r(__webpack_exports__);
       }, {
         key: 'titulo',
         label: 'Libro'
-      }, 'unidades'],
+      }, {
+        key: 'costo_unitario',
+        label: 'Costo unitario'
+      }, 'unidades', {
+        key: 'total',
+        label: 'Subtotal'
+      }],
       fieldsRE: [{
         key: 'id',
         label: 'N.'
@@ -3974,8 +3982,6 @@ __webpack_require__.r(__webpack_exports__);
         this.load = true;
         this.stateE = null;
         axios.put('/actualizar_entrada', this.entrada).then(function (response) {
-          console.log(response.data);
-
           _this9.makeToast('success', 'La entrada se ha actualizado');
 
           _this9.load = false;
@@ -4074,6 +4080,7 @@ __webpack_require__.r(__webpack_exports__);
         axios.put('/actualizar_costos', this.entrada).then(function (response) {
           _this13.makeToast('success', 'La entrada se ha actualizado');
 
+          _this13.entradas[_this13.posicion].total = response.data.total;
           _this13.load = false;
           _this13.mostrarEA = false;
           _this13.listadoEntradas = true;
@@ -95094,22 +95101,24 @@ var render = function() {
                       {
                         key: "descargar",
                         fn: function(row) {
-                          return [
-                            _c(
-                              "b-button",
-                              {
-                                attrs: {
-                                  variant: "primary",
-                                  href: "/imprimirEntrada/" + row.item.id
-                                }
-                              },
-                              [
-                                _vm._v(
-                                  "\n                    Descargar\n                "
+                          return _vm.role_id != 2
+                            ? [
+                                _c(
+                                  "b-button",
+                                  {
+                                    attrs: {
+                                      variant: "primary",
+                                      href: "/imprimirEntrada/" + row.item.id
+                                    }
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n                    Descargar\n                "
+                                    )
+                                  ]
                                 )
                               ]
-                            )
-                          ]
+                            : undefined
                         }
                       },
                       {
@@ -95174,8 +95183,7 @@ var render = function() {
                       }
                     ],
                     null,
-                    false,
-                    2849168077
+                    true
                   )
                 })
               : _vm._e()
@@ -95264,11 +95272,23 @@ var render = function() {
                         fn: function(row) {
                           return [_vm._v(_vm._s(row.item.libro.titulo))]
                         }
+                      },
+                      {
+                        key: "costo_unitario",
+                        fn: function(row) {
+                          return [_vm._v("$" + _vm._s(row.item.costo_unitario))]
+                        }
+                      },
+                      {
+                        key: "total",
+                        fn: function(row) {
+                          return [_vm._v("$" + _vm._s(row.item.total))]
+                        }
                       }
                     ],
                     null,
                     false,
-                    2102252105
+                    4012157641
                   )
                 })
               : _vm._e()
