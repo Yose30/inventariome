@@ -40,6 +40,7 @@ class LibroController extends Controller
         $libros = \DB::table('libros')->select('id', 'ISBN', 'titulo', 'editorial', 'piezas')->where('titulo','like','%'.$queryTitulo.'%')->get();
         return response()->json($libros);
     }
+
     //Buscar libro
     public function show(){
         $isbn = Input::get('isbn');
@@ -55,6 +56,7 @@ class LibroController extends Controller
         ];
         return response()->json($datos);
     }
+    
 
     //Obtener todos los libros
     public function allLibros(){

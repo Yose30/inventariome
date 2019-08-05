@@ -445,38 +445,73 @@ class RemisionController extends Controller
     }
 
     public function obtener_vendidos(){
-        $vendidos = Vendido::select(
-            'libro_id', 
-            \DB::raw('SUM(unidades_resta) as unidades_r'),
-            \DB::raw('SUM(total_resta) as total_r'),
-            \DB::raw('SUM(unidades) as unidades_v'),
-            \DB::raw('SUM(total) as total_v'))
-            ->with('libro')->groupBy('libro_id')->get();
-        return response()->json($vendidos);
+        $datos = \DB::table('vendidos')
+                    ->join('libros', 'vendidos.libro_id', '=', 'libros.id')
+                    ->select(
+                        'libros.id as libro_id',
+                        'libros.titulo as libro',
+                        \DB::raw('SUM(unidades) as unidades_vendido'),
+                        \DB::raw('SUM(total) as total_vendido'),
+                        \DB::raw('SUM(unidades_resta) as unidades_pendiente'),
+                        \DB::raw('SUM(total_resta) as total_pendiente')
+                    )
+                    ->groupBy('libros.titulo', 'libros.id')
+                    ->get();
+        return response()->json($datos);
     }
 
-    
-    // ->whereDate('created_at', $fecha)
     //Función para obtener vendidos por fecha
     public function obtener_por_fecha(){
         $fecha = Input::get('fecha');
-        // $vendidos = Vendido::whereDate('created_at', $fecha)->get();
+        $datos = \DB::table('vendidos')
+                    ->join('libros', 'vendidos.libro_id', '=', 'libros.id')
+                    ->whereDate('vendidos.created_at', $fecha)
+                    ->select(
+                        'libros.id as libro_id',
+                        'libros.titulo as libro',
+                        \DB::raw('SUM(unidades) as unidades_vendido'),
+                        \DB::raw('SUM(total) as total_vendido'),
+                        \DB::raw('SUM(unidades_resta) as unidades_pendiente'),
+                        \DB::raw('SUM(total_resta) as total_pendiente')
+                    )
+                    ->groupBy('libros.titulo', 'libros.id')
+                    ->get();
         
-        // $pagos = Pago::whereIn('id', $ids)->get();
-        $pagos = Pago::whereDate('created_at', $fecha)->get();
-        $ids = array();
-        foreach($pagos as $pago){
-            array_push($ids, $pago->vendido_id);
+        return response()->json($datos);
+    }
+
+    //Función para mostrar detalles
+    public function detalles_vendidos(){
+        $fecha = Input::get('fecha');
+        $libro_id = Input::get('libro_id');
+
+        if($fecha != null){
+            $remisiones = \DB::table('vendidos')
+                        ->join('remisiones', 'vendidos.remision_id', '=', 'remisiones.id')
+                        ->join('clientes', 'remisiones.cliente_id', '=', 'clientes.id')
+                        ->whereDate('vendidos.created_at', $fecha)
+                        ->where('vendidos.libro_id', $libro_id)
+                        ->select(
+                            'clientes.name as cliente', 
+                            'vendidos.unidades as unidades_vendidas',
+                            'vendidos.unidades_resta as unidades_pendientes'
+                        )
+                        ->get();
         }
-        $vendidos = Vendido::whereIn('id', $ids)->select(
-            'libro_id', 
-            \DB::raw('SUM(unidades_resta) as unidades_r'),
-            \DB::raw('SUM(total_resta) as total_r'),
-            \DB::raw('SUM(unidades) as unidades_v'),
-            \DB::raw('SUM(total) as total_v')
-            )
-            ->with('libro')->groupBy('libro_id')
-            ->get();
-        return response()->json($vendidos);
+        else{
+            $remisiones = \DB::table('vendidos')
+                        ->join('remisiones', 'vendidos.remision_id', '=', 'remisiones.id')
+                        ->join('clientes', 'remisiones.cliente_id', '=', 'clientes.id')
+                        ->where('vendidos.libro_id', $libro_id)
+                        ->select(
+                            'clientes.name as cliente', 
+                            'vendidos.unidades as unidades_vendidas',
+                            'vendidos.unidades_resta as unidades_pendientes'
+                        )
+                        ->get();
+        }
+        
+
+        return response()->json($remisiones);
     }
 }

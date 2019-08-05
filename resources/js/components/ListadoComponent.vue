@@ -152,9 +152,20 @@
                             <td>{{ remision.fecha_creacion }}</td>
                             <td>{{ remision.cliente.name }}</td>
                             <td>$ {{ remision.total }}</td>
-                            <td>$ {{ remision.total_devolucion }}</td>
-                            <td>$ {{ remision.pagos }}</td>
-                            <td>$ {{ remision.total_pagar }}</td>
+                            <td>
+                                <label v-if="remision.estado != 'Cancelado'">$ {{ remision.total_devolucion }}</label>
+                            </td>
+                            <td>
+                                <label v-if="remision.estado != 'Cancelado'">$ {{ remision.pagos }}</label>
+
+                            </td>
+                            <td>
+                                <label 
+                                    v-if="remision.total_pagar != 0 && remision.estado != 'Cancelado'">
+                                    $ {{ remision.total_pagar }}
+                                </label>
+                                <b-badge v-if="remision.total_pagar == 0 && remision.estado != 'Cancelado'" variant="success">Pagado</b-badge>
+                            </td>
                             <td>
                                 <button 
                                     class="btn btn-primary" 
@@ -548,10 +559,12 @@
                 this.total_pagos = 0;
                 this.total_pagar = 0;
                 this.remisiones.forEach(remision => {
-                    this.total_salida += remision.total;
-                    this.total_devolucion += remision.total_devolucion;
-                    this.total_pagos += remision.pagos;
-                    this.total_pagar += remision.total_pagar;
+                    if(remision.estado != 'Cancelado'){
+                        this.total_salida += remision.total;
+                        this.total_devolucion += remision.total_devolucion;
+                        this.total_pagos += remision.pagos;
+                        this.total_pagar += remision.total_pagar;
+                    }
                 });
             },
             valores(response){

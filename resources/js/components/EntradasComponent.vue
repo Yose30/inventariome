@@ -1,34 +1,78 @@
 <template>
     <div>
-        <b-alert v-if="entradas.length == 0" show variant="secondary">
-            <i class="fa fa-exclamation-triangle"></i> No hay entradas
-        </b-alert>
-        <b-table v-if="!mostrarDetalles && !mostrarEditar && entradas.length > 0" :items="entradas" :fields="fields">
-            <template slot="detalles" slot-scope="row">
-                <b-button variant="info" @click="detallesEntrada(row.item)">Ver detalles</b-button>
-            </template>
-            <template slot="descargar" slot-scope="row">
-                <b-button 
-                    variant="primary"
-                    :href="'/imprimirEntrada/' + row.item.id">
-                    Descargar
-                </b-button>
-            </template>
-            <template slot="created_at" slot-scope="row">
-                {{ row.item.created_at | moment }}
-            </template>
-            <template slot="editar" slot-scope="row">
-                <b-button 
-                    @click="editarEntrada(row.item, row.index)"
-                    variant="warning" 
-                    v-if="role_id == 3 && fechaFinal.diff(row.item.created_at, 'days') < 5">
-                    <i class="fa fa-pencil"></i> Editar
-                </b-button>
-            </template>
-        </b-table>
+        <div v-if="listadoEntradas">
+            <b-row>
+                <b-col v-if="role_id == 1">
+                    <b-row class="my-1">
+                        <b-col sm="3">
+                            <label for="input-editorial">Editorial</label>
+                        </b-col>
+                        <b-col sm="9">
+                            <b-input
+                                v-model="editorial"
+                                @keyup="mostrarEditoriales"
+                            ></b-input>
+                        </b-col>
+                    </b-row>
+                </b-col>
+                <b-col  v-if="role_id == 1" align="right">
+                    <label>Unidades: {{ total }}</label>
+                </b-col>
+                <b-col align="right">
+                    <b-button v-if="role_id == 3" variant="success" @click="nuevaEntrada"><i class="fa fa-plus"></i> Registrar entrada</b-button>
+                </b-col>
+            </b-row>
+            <hr>
+            <b-table v-if="!mostrarDetalles && !mostrarEA && entradas.length > 0" :items="entradas" :fields="fields">
+                <template slot="detalles" slot-scope="row">
+                    <b-button variant="info" @click="detallesEntrada(row.item)">Ver detalles</b-button>
+                </template>
+                <template slot="descargar" slot-scope="row">
+                    <b-button 
+                        variant="primary"
+                        :href="'/imprimirEntrada/' + row.item.id">
+                        Descargar
+                    </b-button>
+                </template>
+                <template slot="created_at" slot-scope="row">
+                    {{ row.item.created_at | moment }}
+                </template>
+                <template slot="editar" slot-scope="row">
+                    <!-- fechaFinal.diff(row.item.created_at, 'days') < 5 -->
+                    <b-button 
+                        @click="editarEntrada(row.item, row.index)"
+                        variant="warning" 
+                        v-if="role_id == 3">
+                        <i class="fa fa-pencil"></i> Editar
+                    </b-button>
+                    <b-button 
+                        @click="editarEntrada(row.item, row.index)"
+                        variant="warning" 
+                        v-if="role_id == 2 && row.item.total == 0">
+                        <i class="fa fa-pencil"></i> Editar
+                    </b-button>
+                </template>
+            </b-table>
+        </div>
         <div v-if="mostrarDetalles">
+            <b-row>
+                <b-col sm="1">
+                    <label>Folio</label><br>
+                    <label>Editorial</label>
+                </b-col>
+                <b-col sm="4">
+                    <label>{{entrada.folio}}</label><br>
+                    <label>{{entrada.editorial}}</label>
+                </b-col>
+                <b-col sm="3" align="right">
+                    <label><b>Unidades:</b> {{ entrada.unidades }}</label>
+                </b-col>
+                <b-col sm="3" align="right">
+                    <label><b>Total:</b> ${{ entrada.total }}</label>
+                </b-col>
+            </b-row>
             <div class="text-right">
-                <b-button variant="secondary" @click="mostrarDetalles = false"><i class="fa fa-mail-reply"></i> Entradas</b-button>
+                <b-button variant="secondary" @click="mostrarDetalles = false; listadoEntradas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
             </div>
             <hr>
             <b-table v-if="registros.length > 0" :items="registros" :fields="fieldsR">
@@ -36,9 +80,9 @@
                 <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
             </b-table>
         </div>
-        <div v-if="mostrarEditar">
+        <div v-if="mostrarEA">
             <div class="text-right">
-                <b-button variant="secondary" @click="mostrarEditar = false"><i class="fa fa-mail-reply"></i> Entradas</b-button>
+                <b-button variant="secondary" @click="mostrarEA = false; listadoEntradas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
             </div>
             <hr>
             <b-row>
@@ -46,9 +90,13 @@
                     <label>Folio</label><br>
                     <label>Editorial</label>
                 </b-col>
-                <b-col sm="5">
+                <b-col sm="5" v-if="role_id == 3">
                     <b-form-input v-model="entrada.folio" :state="stateN" @change="guardarNum"></b-form-input>
                     <b-form-input v-model="entrada.editorial" :state="stateE"></b-form-input>
+                </b-col>
+                <b-col sm="5" v-if="role_id == 2">
+                    <label>{{entrada.folio}}</label><br>
+                    <label>{{entrada.editorial}}</label>
                 </b-col>
                 <b-col sm="3" align="right">
                     <label><b>Unidades:</b> {{ total_unidades }}</label>
@@ -58,8 +106,22 @@
                         @click="actRemision" 
                         variant="success"
                         :disabled="load"
-                        v-if="registros.length > 0">
-                        <i class="fa fa-check"></i> {{ !load ? 'Actualizar' : 'Actualizando' }}
+                        v-if="registros.length > 0 && !agregar && entrada.folio.length > 0 && role_id == 3">
+                        <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }}
+                    </b-button>
+                    <b-button 
+                        @click="actualizarCosto" 
+                        variant="success"
+                        :disabled="load"
+                        v-if="registros.length > 0 && !agregar && entrada.folio.length > 0 && role_id == 2">
+                        <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }}
+                    </b-button>
+                    <b-button 
+                        @click="onSubmit" 
+                        variant="success"
+                        :disabled="load"
+                        v-if="registros.length > 0 && agregar && entrada.folio.length > 0">
+                        <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }}
                     </b-button>
                 </b-col>
             </b-row>
@@ -67,13 +129,23 @@
             <b-table :items="registros" :fields="fieldsRE">
                 <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                 <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
+                <template slot="costo_unitario" slot-scope="row">
+                    <b-input 
+                        type="number" 
+                        v-if="role_id == 2"
+                        placeholder="Costo unitario"
+                        @change="verificarUnidades(row.item.unidades, row.item.costo_unitario, row.index)" 
+                        v-model="row.item.costo_unitario">
+                    </b-input>
+                </template>
+                <template v-if="role_id == 2" slot="total" slot-scope="row">${{ row.item.total }}</template>
                 <template slot="eliminar" slot-scope="row">
-                    <b-button variant="danger" @click="eliminarRegistro(row.item, row.index)">
+                    <b-button v-if="role_id == 3" variant="danger" @click="eliminarRegistro(row.item, row.index)">
                         <i class="fa fa-minus-circle"></i>
                     </b-button>
                 </template>
             </b-table>
-            <b-row>
+            <b-row v-if="role_id == 3">
                 <b-col sm="1"></b-col>
                 <b-col sm="3">
                     <b-input
@@ -81,7 +153,7 @@
                         @keyup.enter="buscarLibroISBN()"
                         v-if="inputISBN"
                     ></b-input>
-                    <b v-if="!inputISBN">{{ temporal.ISBN }}</b>
+                    <b v-if="!inputISBN">{{ temporal.libro.ISBN }}</b>
                 </b-col>
                 <b-col sm="5">
                     <b-input
@@ -99,7 +171,7 @@
                             {{ libro.titulo }}
                         </a>
                     </div>
-                    <b v-if="!inputLibro">{{ temporal.titulo }}</b>
+                    <b v-if="!inputLibro">{{ temporal.libro.titulo }}</b>
                 </b-col>
                 <b-col sm="2">
                     <b-form-input 
@@ -131,21 +203,39 @@
             return {
                 entradas: [],
                 registros: [],
+                editorial: '',
                 fields: [
                     {key: 'id', label: 'N.'}, 
                     'folio',
                     'editorial',
+                    'unidades',
                     {key: 'created_at', label: 'Fecha de creación'},
                     {key: 'detalles', label: ''},  
                     {key: 'descargar', label: ''}, 
                     {key: 'editar', label: ''}
                 ],
                 fieldsR: [{key: 'id', label: 'N.'}, {key: 'isbn', label: 'ISBN'}, {key: 'titulo', label: 'Libro'}, 'unidades'],
-                fieldsRE: [{key: 'id', label: 'N.'}, {key: 'ISBN', label: 'ISBN'}, {key: 'titulo', label: 'Libro'}, 'unidades', 'eliminar'],
+                fieldsRE: [
+                    {key: 'id', label: 'N.'}, 
+                    {key: 'ISBN', label: 'ISBN'}, 
+                    {key: 'titulo', label: 'Libro'}, 
+                    'unidades', 
+                    {key: 'costo_unitario', label: ''},
+                    {key: 'total', label: ''},
+                    {key: 'eliminar', label: ''}
+                ],
                 mostrarDetalles: false,
                 fechaFinal: '',
-                entrada: {},
-                mostrarEditar: false,
+                entrada: {
+                    id: 0,
+                    unidades: 0,
+                    total: 0,
+                    folio: '',
+                    editorial: '',
+                    items: [],
+                    nuevos: []
+                },
+                mostrarEA: false,
                 isbn: '',
                 inputISBN: true,
                 temporal: {},
@@ -159,6 +249,11 @@
                 stateE: null,
                 load: false,
                 posicion: null,
+                listadoEntradas: true,
+                agregar: false,
+                nuevos: [],
+                total: 0,
+                estado: false
             }
         },
         created: function(){
@@ -170,23 +265,75 @@
             }
         }, 
         methods: {
+            nuevaEntrada(){
+                axios.get('/nueva_entrada').then(response => {
+                    this.listadoEntradas = false;
+                    this.agregar = true;
+                    this.mostrarEA = true;
+                    this.entrada = {
+                        id: 0,
+                        unidades: 0,
+                        total: 0,
+                        folio: '',
+                        editorial: '',
+                        items: [],
+                        nuevos: []
+                    };
+                    this.registros = [];
+                    this.eliminarTemporal();
+                    this.total_unidades = 0;
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
+            },
+            onSubmit(){
+                this.load = true;
+                this.entrada.unidades = this.total_unidades;
+                this.entrada.items = this.registros;
+                if(this.entrada.editorial.length > 0){
+                    this.stateE = null;
+                    axios.post('/crear_entrada', this.entrada).then(response => {
+                        this.entradas.push(response.data);
+                        this.load = false;
+                        this.mostrarEA = false;
+                        this.listadoEntradas = true;
+                        this.makeToast('success', 'La entrada se creo correctamente');
+                    }).catch(error => {
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    });
+                }
+                else{
+                    this.stateE = false;
+                    this.load = false;
+                    this.makeToast('danger', 'Definir editorial');
+                }
+            },
             getTodo(){
                 var ffinal = moment();
                 this.fechaFinal = ffinal;
                 axios.get('/all_entradas').then(response => {
                     this.entradas = response.data;
+                    this.acumular();
                 });
             },
             detallesEntrada(entrada){
                 axios.get('/detalles_entrada', {params: {entrada_id: entrada.id}}).then(response => {
+                    this.listadoEntradas = false;
                     this.mostrarDetalles = true;
+                    this.entrada.folio = response.data.entrada.folio;
+                    this.entrada.editorial = response.data.entrada.editorial;
+                    this.entrada.total = response.data.entrada.total;
+                    this.entrada.unidades = response.data.entrada.unidades;
                     this.registros = response.data.registros;
                 });
             },
             editarEntrada(entrada, i){
                 this.posicion = i;
+                this.agregar = false;
                 axios.get('/detalles_entrada', {params: {entrada_id: entrada.id}}).then(response => {
-                    this.mostrarEditar = true;
+                    this.eliminarTemporal();
+                    this.listadoEntradas = false;
+                    this.mostrarEA = true;
                     this.entrada = response.data.entrada;
                     this.total_unidades = this.entrada.unidades;
                     this.registros = response.data.registros;
@@ -194,17 +341,25 @@
             },
             //Eliminar registro de la entrada
             eliminarRegistro(item, i){
-                axios.delete('/eliminar_registro_entrada', {params: {id: item.id}}).then(response => {
-                    this.registros.splice(i, 1);
-                    this.total_unidades = this.total_unidades - item.unidades;
-                    this.entrada.unidades = this.total_unidades;
-                });
+                if(this.agregar == false){
+                    axios.delete('/eliminar_registro_entrada', {params: {id: item.id}}).then(response => {
+                        this.restasUnidades(item, i);
+                    });
+                } 
+                else{
+                    this.restasUnidades(item, i);
+                }
+                
+            },
+            restasUnidades(item, i){
+                this.registros.splice(i, 1);
+                this.total_unidades = this.total_unidades - item.unidades;
+                this.entrada.unidades = this.total_unidades;
             },
             //Buscar libro por ISBN
             buscarLibroISBN(){
                 axios.get('/buscarISBN', {params: {isbn: this.isbn}}).then(response => {
-                    this.temporal = response.data;
-                    this.ini_1();
+                    this.datosLibro(response.data);
                 }).catch(error => {
                     this.makeToast('danger', 'ISBN incorrecto');
                 });
@@ -221,11 +376,11 @@
                 this.ini_1();
                 this.temporal = {
                     id: libro.id,
-                    ISBN: libro.ISBN,
-                    titulo: libro.titulo,
-                    costo_unitario: 0,
+                    libro: {
+                        ISBN: libro.ISBN,
+                        titulo: libro.titulo,
+                    },
                     unidades: 0,
-                    total: 0
                 };
             },
             ini_1(){
@@ -237,19 +392,22 @@
             //Guardar un registro de la entrada
             guardarRegistro(){
                 if(this.unidades > 0){
-                    this.temporal.entrada_id = this.entrada.id;
+                    // this.temporal.entrada_id = this.entrada.id;
                     this.temporal.unidades = this.unidades;
-                    axios.post('/registro_entrada', this.temporal).then(response => {
-                        this.temporal = {
-                            id: response.data.registro.id,
-                            libro: {
-                                ISBN: response.data.libro.ISBN,
-                                titulo: response.data.libro.titulo,
-                            },
-                            unidades: response.data.registro.unidades,
-                        };
+                    // axios.post('/registro_entrada', this.temporal).then(response => {
+                    //     this.temporal = {
+                    //         id: response.data.registro.id,
+                    //         libro: {
+                    //             ISBN: response.data.libro.ISBN,
+                    //             titulo: response.data.libro.titulo,
+                    //         },
+                    //         unidades: response.data.registro.unidades,
+                    //     };
+                        if(this.agregar == false){
+                            this.nuevos.push(this.temporal);
+                        }
                         this.registros.push(this.temporal);
-                        this.total_unidades += parseInt(response.data.registro.unidades);
+                        this.total_unidades += parseInt(this.temporal.unidades);
                         this.unidades = 0;
                         this.temporal = {};
                         this.isbn = '';
@@ -258,10 +416,10 @@
                         this.inputLibro = true;
                         this.inputUnidades = false;
                         // this.botonEliminar = true;
-                    })
-                    .catch(error => {
-                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentarlo');
-                    });
+                    // })
+                    // .catch(error => {
+                    //     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentarlo');
+                    // });
                 }
                 else{
                     this.makeToast('danger', 'Unidades no validas');
@@ -269,14 +427,20 @@
             },
             actRemision(){
                 this.entrada.unidades = this.total_unidades;
+                this.entrada.nuevos = this.nuevos;
                 if(this.entrada.editorial.length > 0){
                     this.load = true;
                     this.stateE = null;
                     axios.put('/actualizar_entrada', this.entrada).then(response => {
+                        console.log(response.data);
                         this.makeToast('success', 'La entrada se ha actualizado');
                         this.load = false;
                         this.entradas[this.posicion] = response.data;
-                        this.mostrarEditar = false;
+                        this.mostrarEA = false;
+                        this.listadoEntradas = true;
+                    }).catch(error => {
+                        this.load = false;
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                     });
                 }
                 else{
@@ -291,6 +455,7 @@
                 this.inputUnidades = false;
                 this.queryTitulo = '';
                 this.unidades = 0;
+                this.isbn = '';
             },
             guardarNum(){
                 if(this.entrada.folio.length > 0){
@@ -309,6 +474,53 @@
                 else{
                     this.stateN = false;
                     this.makeToast('danger', 'Definir folio');
+                }
+            },
+            mostrarEditoriales(){
+                if(this.editorial.length > 0){
+                    axios.get('/mostrarEditoriales', {params: {editorial: this.editorial}}).then(response => {
+                        this.entradas = [];
+                        this.entradas = response.data;
+                        this.acumular();
+                    }).catch(error => {
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    });
+                }
+                else{
+                    this.getTodo();
+                } 
+            },
+            acumular(){
+                this.total = 0;
+                this.entradas.forEach(entrada => {
+                    this.total += entrada.unidades;
+                });
+            },
+            verificarUnidades(unidades, costo_unitario, i){
+                this.registros[i].total = unidades * costo_unitario;
+            },
+            actualizarCosto(){
+                this.estado = false;
+                this.registros.forEach(registro => {
+                    if(registro.costo_unitario == 0){
+                        this.estado = true;
+                    }
+                });
+                if(this.estado == true){
+                    this.makeToast('warning', 'El costo unitario no puede ser 0');
+                }
+                else{
+                    this.load = true;
+                    this.entrada.items = this.registros;
+                    axios.put('/actualizar_costos', this.entrada).then(response => {
+                        this.makeToast('success', 'La entrada se ha actualizado');
+                        this.load = false;
+                        this.mostrarEA = false;
+                        this.listadoEntradas = true;
+                    }).catch(error => {
+                        this.load = false;
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    });
                 }
             },
             makeToast(variant = null, descripcion) {

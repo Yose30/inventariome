@@ -2,7 +2,7 @@
     <div>
         <div v-if="listadoPromociones">
             <div align="right">
-                <b-button variant="success" @click="registrarPromocion">
+                <b-button v-if="role_id == 3" variant="success" @click="registrarPromocion">
                     <i class="fa fa-plus"></i> Registrar promoción
                 </b-button>
             </div>
@@ -129,6 +129,7 @@
 
 <script>
     export default {
+        props: ['role_id'],
         data() {
             return {
                 listadoPromociones: true,
@@ -246,6 +247,8 @@
                 if(this.temporal.titulo.length > 0){
                    axios.get('/mostrarLibros', {params: {queryTitulo: this.temporal.titulo}}).then(response => {
                         this.resultslibros = response.data;
+                    }).catch(error => {
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                     });
                }
             },

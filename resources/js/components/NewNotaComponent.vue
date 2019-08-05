@@ -324,7 +324,7 @@
                 }).catch(error => {
                     this.makeToast('danger', 'ISBN incorrecto');
                 });
-            },
+            }, 
             mostrarLibros(){
                 if(this.queryTitulo.length > 0){
                    axios.get('/mostrarLibros', {params: {queryTitulo: this.queryTitulo}}).then(response => {

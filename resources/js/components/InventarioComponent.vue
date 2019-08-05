@@ -13,31 +13,15 @@
                     variant="success">
                     <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }}
                 </b-button>
-                <b-button 
-                    @click="actRemision" 
-                    variant="success"
-                    :disabled="load"
-                    v-if="mostrarActualizar && items.length > 0">
-                    <i class="fa fa-check"></i> {{ !load ? 'Actualizar' : 'Actualizando' }}
-                </b-button>
             </div>
-            <div class="col-md-2">
-                <b-button 
-                    variant="warning" 
-                    @click="editarTEntrada"
-                    :disabled="load"
-                    v-if="mostrarEditar">
-                    <i class="fa fa-pencil"></i> Editar
-                </b-button>
-            </div>
-            <div class="col-md-2">
+            <!-- <div class="col-md-2">
                 <a 
                     class="btn btn-info"
                     v-if="mostrarEditar"
                     :href="'/imprimirEntrada/' + bdentrada.id">
                     <i class="fa fa-download"></i> Descargar
                 </a>
-            </div>
+            </div> -->
         </div>
         <hr>
         <div v-if="mostrarCampo">
@@ -169,8 +153,8 @@
         methods: {
             //Nueva entrada
             nuevaEntrada(){
-                axios.get('/nueva_entrada').then(response => {
-                    this.bdentrada = {id: 0, unidades: 0, total: 0, folio: '', editorial: ''};
+                // axios.get('/nueva_entrada').then(response => {
+                    this.bdentrada = {id: 0, unidades: 0, total: 0, folio: '', editorial: '', items: []};
                     this.items = [];
                     this.temporal = {};
                     this.total_entrada = 0;
@@ -187,9 +171,9 @@
                     this.numnota = '';
                     this.mostrarTabla = false;
                     this.mostrarCampo = true;
-                }).catch(error => {
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                });
+                // }).catch(error => {
+                //     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                // });
             },
             //Guardar numero de nota
             guardarNum(){
@@ -212,15 +196,19 @@
                     this.makeToast('danger', 'Definir folio');
                 }
             },
+
             //SE REPITEN
            //Buscar libro por ISBN
             buscarLibroISBN(){
                 axios.get('/buscarISBN', {params: {isbn: this.isbn}}).then(response => {
                     this.inicializar();
-                    this.temporal = response.data;
+                    this.temporal.id = response.data.id;
+                    this.temporal.ISBN = response.data.ISBN;
+                    this.temporal.titulo = response.data.titulo;
                 }).catch(error => {
                     this.makeToast('danger', 'ISBN incorrecto');
                 });
+                
             }, 
             //Mostrar resultados de la busqueda por titulo del libro
             mostrarLibros(){
@@ -239,9 +227,7 @@
                     id: libro.id,
                     ISBN: libro.ISBN,
                     titulo: libro.titulo,
-                    costo_unitario: 0,
                     unidades: 0,
-                    total: 0
                 };
             },
             //Inicializar los valores
@@ -254,53 +240,41 @@
                 this.resultslibros = [];
                 this.inputUnidades = true;
             },
-            //SE REPITEN FIN
-            guardarCosto(){
-                if(this.costo_unitario > 0){
-                    this.temporal.costo_unitario = this.costo_unitario;
-                    this.inputCosto = false;
-                    this.inputUnidades = true;
-                    this.respuestaCosto = '';
-                }
-                else{
-                    this.makeToast('danger', 'Costo invalido');
-                } 
-            },
             //Guardar un registro de la entrada
             guardarRegistro(){
                 if(this.unidades > 0){
-                    this.temporal.entrada_id = 0;
+                    // this.temporal.entrada_id = 0;
                     this.temporal.unidades = this.unidades;
-                    this.temporal.costo_unitario = this.costo_unitario;
-                    this.temporal.total = this.unidades * this.temporal.costo_unitario;
-                    if(this.editar){
-                        this.temporal.entrada_id = this.bdentrada.id;
-                    }
+                    this.total_unidades += parseInt(this.temporal.unidades);
+                    this.items.push(this.temporal);
+                    this.unidades = 0;
+                    this.temporal = {};
+                    this.inputISBN = true;
+                    this.inputLibro = true;
+                    this.inputUnidades = false;
+                    this.botonEliminar = true;
+                    this.mostrarGuardar = true;
+                    // if(this.editar){
+                    //     this.temporal.entrada_id = this.bdentrada.id;
+                    // }
 
-                    axios.post('/registro_entrada', this.temporal).then(response => {
-                        this.temporal = {
-                            id: response.data.registro.id,
-                            ISBN: response.data.libro.ISBN,
-                            titulo: response.data.libro.titulo,
-                            costo_unitario: response.data.registro.costo_unitario,
-                            unidades: response.data.registro.unidades,
-                            total: response.data.registro.total
-                        };
-                        this.items.push(this.temporal);
-                        this.total_entrada += response.data.registro.total;
-                        this.total_unidades += parseInt(response.data.registro.unidades);
-                        this.unidades = 0;
-                        this.costo_unitario = 0;
-                        this.temporal = {};
-                        this.inputISBN = true;
-                        this.inputLibro = true;
-                        this.inputUnidades = false;
-                        this.botonEliminar = true;
-                        this.mostrarGuardar = true;
-                    })
-                    .catch(error => {
-                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentarlo');
-                    });
+                    // axios.post('/registro_entrada', this.temporal).then(response => {
+                    //     this.temporal = {
+                    //         id: response.data.registro.id,
+                    //         ISBN: response.data.libro.ISBN,
+                    //         titulo: response.data.libro.titulo,
+                    //         costo_unitario: response.data.registro.costo_unitario,
+                    //         unidades: response.data.registro.unidades,
+                    //         total: response.data.registro.total
+                    //     };
+                    //     this.items.push(this.temporal);
+                    //     this.total_entrada += response.data.registro.total;
+                    //     this.total_unidades += parseInt(response.data.registro.unidades);
+                        
+                    // })
+                    // .catch(error => {
+                    //     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentarlo');
+                    // });
                 }
                 else{
                     this.makeToast('danger', 'Unidades no validas');
@@ -308,21 +282,21 @@
             },
             //Eliminar registro de la remision
             eliminarRegistro(item, i){
-                axios.delete('/eliminar_registro_entrada', {params: {id: item.id}}).then(response => {
+                // axios.delete('/eliminar_registro_entrada', {params: {id: item.id}}).then(response => {
                     this.items.splice(i, 1);
                     this.total_entrada = this.total_entrada - item.total;
                     this.total_unidades = this.total_unidades - item.unidades;
                     this.bdentrada.total = this.total_entrada;
                     this.bdentrada.unidades = this.total_unidades;
-                }).catch(error => {
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                });
+                // }).catch(error => {
+                //     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                // });
             },
             //Guardar toda la remision
             onSubmit(){
                 this.load = true;
-                this.bdentrada.total = this.total_entrada;
                 this.bdentrada.unidades = this.total_unidades;
+                this.bdentrada.items = this.items;
                 if(this.bdentrada.editorial.length > 0){
                     this.stateE = null;
                     axios.post('/crear_entrada', this.bdentrada).then(response => {

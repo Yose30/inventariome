@@ -1864,6 +1864,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 /* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['role_id'],
   data: function data() {
     return {
       listadoAdeudos: true,
@@ -2172,7 +2173,30 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['role_id'],
   data: function data() {
     return {
       clientes: [],
@@ -2188,6 +2212,9 @@ __webpack_require__.r(__webpack_exports__);
       }, {
         key: 'telefono',
         label: 'Teléfono'
+      }, {
+        key: 'detalles',
+        label: ''
       }, {
         key: 'editar',
         label: ''
@@ -2208,9 +2235,12 @@ __webpack_require__.r(__webpack_exports__);
 
       axios.get('/getTodo').then(function (response) {
         _this.clientes = response.data;
+      })["catch"](function (error) {
+        _this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     editarCliente: function editarCliente(cliente, i) {
+      this.form = {};
       this.form = cliente;
       this.posicion = i;
       this.mostrarEditar = true;
@@ -2231,7 +2261,7 @@ __webpack_require__.r(__webpack_exports__);
         if (error.response.status === 422) {
           _this2.errors = error.response.data.errors || {};
         } else {
-          _this2.makeToast('danger', 'Ocurrio un problema, vuelve a intentar');
+          _this2.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
         }
       });
     },
@@ -2620,8 +2650,6 @@ __webpack_require__.r(__webpack_exports__);
       axios.put('/actualizar_libro', this.libro).then(function (response) {
         _this.errors = {};
         _this.loaded = false;
-
-        _this.$emit('actualizarLista', response.data);
       })["catch"](function (error) {
         _this.errors = {};
         _this.loaded = false;
@@ -2629,8 +2657,8 @@ __webpack_require__.r(__webpack_exports__);
         if (error.response.status === 422) {
           _this.errors = error.response.data.errors || {};
         } else {
-          _this.$bvToast.toast('Ocurrio un error, vuelve a intentar', {
-            title: 'Error',
+          _this.$bvToast.toast('Ocurrio un problema, vuelve a intentar o actualiza la pagina', {
+            title: 'Mensaje',
             variant: 'danger',
             solid: true
           });
@@ -3562,6 +3590,78 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 // moment.locale('es');
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['role_id'],
@@ -3569,10 +3669,11 @@ __webpack_require__.r(__webpack_exports__);
     return {
       entradas: [],
       registros: [],
+      editorial: '',
       fields: [{
         key: 'id',
         label: 'N.'
-      }, 'folio', 'editorial', {
+      }, 'folio', 'editorial', 'unidades', {
         key: 'created_at',
         label: 'Fecha de creación'
       }, {
@@ -3604,11 +3705,28 @@ __webpack_require__.r(__webpack_exports__);
       }, {
         key: 'titulo',
         label: 'Libro'
-      }, 'unidades', 'eliminar'],
+      }, 'unidades', {
+        key: 'costo_unitario',
+        label: ''
+      }, {
+        key: 'total',
+        label: ''
+      }, {
+        key: 'eliminar',
+        label: ''
+      }],
       mostrarDetalles: false,
       fechaFinal: '',
-      entrada: {},
-      mostrarEditar: false,
+      entrada: {
+        id: 0,
+        unidades: 0,
+        total: 0,
+        folio: '',
+        editorial: '',
+        items: [],
+        nuevos: []
+      },
+      mostrarEA: false,
       isbn: '',
       inputISBN: true,
       temporal: {},
@@ -3621,7 +3739,12 @@ __webpack_require__.r(__webpack_exports__);
       stateN: null,
       stateE: null,
       load: false,
-      posicion: null
+      posicion: null,
+      listadoEntradas: true,
+      agregar: false,
+      nuevos: [],
+      total: 0,
+      estado: false
     };
   },
   created: function created() {
@@ -3643,75 +3766,141 @@ __webpack_require__.r(__webpack_exports__);
     })
   },
   methods: {
-    getTodo: function getTodo() {
+    nuevaEntrada: function nuevaEntrada() {
       var _this = this;
+
+      axios.get('/nueva_entrada').then(function (response) {
+        _this.listadoEntradas = false;
+        _this.agregar = true;
+        _this.mostrarEA = true;
+        _this.entrada = {
+          id: 0,
+          unidades: 0,
+          total: 0,
+          folio: '',
+          editorial: '',
+          items: [],
+          nuevos: []
+        };
+        _this.registros = [];
+
+        _this.eliminarTemporal();
+
+        _this.total_unidades = 0;
+      })["catch"](function (error) {
+        _this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+      });
+    },
+    onSubmit: function onSubmit() {
+      var _this2 = this;
+
+      this.load = true;
+      this.entrada.unidades = this.total_unidades;
+      this.entrada.items = this.registros;
+
+      if (this.entrada.editorial.length > 0) {
+        this.stateE = null;
+        axios.post('/crear_entrada', this.entrada).then(function (response) {
+          _this2.entradas.push(response.data);
+
+          _this2.load = false;
+          _this2.mostrarEA = false;
+          _this2.listadoEntradas = true;
+
+          _this2.makeToast('success', 'La entrada se creo correctamente');
+        })["catch"](function (error) {
+          _this2.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+        });
+      } else {
+        this.stateE = false;
+        this.load = false;
+        this.makeToast('danger', 'Definir editorial');
+      }
+    },
+    getTodo: function getTodo() {
+      var _this3 = this;
 
       var ffinal = moment();
       this.fechaFinal = ffinal;
       axios.get('/all_entradas').then(function (response) {
-        _this.entradas = response.data;
+        _this3.entradas = response.data;
+
+        _this3.acumular();
       });
     },
     detallesEntrada: function detallesEntrada(entrada) {
-      var _this2 = this;
+      var _this4 = this;
 
       axios.get('/detalles_entrada', {
         params: {
           entrada_id: entrada.id
         }
       }).then(function (response) {
-        _this2.mostrarDetalles = true;
-        _this2.registros = response.data.registros;
+        _this4.listadoEntradas = false;
+        _this4.mostrarDetalles = true;
+        _this4.entrada.folio = response.data.entrada.folio;
+        _this4.entrada.editorial = response.data.entrada.editorial;
+        _this4.entrada.total = response.data.entrada.total;
+        _this4.entrada.unidades = response.data.entrada.unidades;
+        _this4.registros = response.data.registros;
       });
     },
     editarEntrada: function editarEntrada(entrada, i) {
-      var _this3 = this;
+      var _this5 = this;
 
       this.posicion = i;
+      this.agregar = false;
       axios.get('/detalles_entrada', {
         params: {
           entrada_id: entrada.id
         }
       }).then(function (response) {
-        _this3.mostrarEditar = true;
-        _this3.entrada = response.data.entrada;
-        _this3.total_unidades = _this3.entrada.unidades;
-        _this3.registros = response.data.registros;
+        _this5.eliminarTemporal();
+
+        _this5.listadoEntradas = false;
+        _this5.mostrarEA = true;
+        _this5.entrada = response.data.entrada;
+        _this5.total_unidades = _this5.entrada.unidades;
+        _this5.registros = response.data.registros;
       });
     },
     //Eliminar registro de la entrada
     eliminarRegistro: function eliminarRegistro(item, i) {
-      var _this4 = this;
+      var _this6 = this;
 
-      axios["delete"]('/eliminar_registro_entrada', {
-        params: {
-          id: item.id
-        }
-      }).then(function (response) {
-        _this4.registros.splice(i, 1);
-
-        _this4.total_unidades = _this4.total_unidades - item.unidades;
-        _this4.entrada.unidades = _this4.total_unidades;
-      });
+      if (this.agregar == false) {
+        axios["delete"]('/eliminar_registro_entrada', {
+          params: {
+            id: item.id
+          }
+        }).then(function (response) {
+          _this6.restasUnidades(item, i);
+        });
+      } else {
+        this.restasUnidades(item, i);
+      }
+    },
+    restasUnidades: function restasUnidades(item, i) {
+      this.registros.splice(i, 1);
+      this.total_unidades = this.total_unidades - item.unidades;
+      this.entrada.unidades = this.total_unidades;
     },
     //Buscar libro por ISBN
     buscarLibroISBN: function buscarLibroISBN() {
-      var _this5 = this;
+      var _this7 = this;
 
       axios.get('/buscarISBN', {
         params: {
           isbn: this.isbn
         }
       }).then(function (response) {
-        _this5.temporal = response.data;
-
-        _this5.ini_1();
+        _this7.datosLibro(response.data);
       })["catch"](function (error) {
-        _this5.makeToast('danger', 'ISBN incorrecto');
+        _this7.makeToast('danger', 'ISBN incorrecto');
       });
     },
     mostrarLibros: function mostrarLibros() {
-      var _this6 = this;
+      var _this8 = this;
 
       if (this.queryTitulo.length > 0) {
         axios.get('/mostrarLibros', {
@@ -3719,7 +3908,7 @@ __webpack_require__.r(__webpack_exports__);
             queryTitulo: this.queryTitulo
           }
         }).then(function (response) {
-          _this6.resultslibros = response.data;
+          _this8.resultslibros = response.data;
         });
       }
     },
@@ -3728,11 +3917,11 @@ __webpack_require__.r(__webpack_exports__);
       this.ini_1();
       this.temporal = {
         id: libro.id,
-        ISBN: libro.ISBN,
-        titulo: libro.titulo,
-        costo_unitario: 0,
-        unidades: 0,
-        total: 0
+        libro: {
+          ISBN: libro.ISBN,
+          titulo: libro.titulo
+        },
+        unidades: 0
       };
     },
     ini_1: function ini_1() {
@@ -3743,51 +3932,60 @@ __webpack_require__.r(__webpack_exports__);
     },
     //Guardar un registro de la entrada
     guardarRegistro: function guardarRegistro() {
-      var _this7 = this;
-
       if (this.unidades > 0) {
-        this.temporal.entrada_id = this.entrada.id;
-        this.temporal.unidades = this.unidades;
-        axios.post('/registro_entrada', this.temporal).then(function (response) {
-          _this7.temporal = {
-            id: response.data.registro.id,
-            libro: {
-              ISBN: response.data.libro.ISBN,
-              titulo: response.data.libro.titulo
-            },
-            unidades: response.data.registro.unidades
-          };
+        // this.temporal.entrada_id = this.entrada.id;
+        this.temporal.unidades = this.unidades; // axios.post('/registro_entrada', this.temporal).then(response => {
+        //     this.temporal = {
+        //         id: response.data.registro.id,
+        //         libro: {
+        //             ISBN: response.data.libro.ISBN,
+        //             titulo: response.data.libro.titulo,
+        //         },
+        //         unidades: response.data.registro.unidades,
+        //     };
 
-          _this7.registros.push(_this7.temporal);
+        if (this.agregar == false) {
+          this.nuevos.push(this.temporal);
+        }
 
-          _this7.total_unidades += parseInt(response.data.registro.unidades);
-          _this7.unidades = 0;
-          _this7.temporal = {};
-          _this7.isbn = '';
-          _this7.queryTitulo = '', _this7.inputISBN = true;
-          _this7.inputLibro = true;
-          _this7.inputUnidades = false; // this.botonEliminar = true;
-        })["catch"](function (error) {
-          _this7.makeToast('danger', 'Ocurrio un problema, vuelve a intentarlo');
-        });
+        this.registros.push(this.temporal);
+        this.total_unidades += parseInt(this.temporal.unidades);
+        this.unidades = 0;
+        this.temporal = {};
+        this.isbn = '';
+        this.queryTitulo = '', this.inputISBN = true;
+        this.inputLibro = true;
+        this.inputUnidades = false; // this.botonEliminar = true;
+        // })
+        // .catch(error => {
+        //     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentarlo');
+        // });
       } else {
         this.makeToast('danger', 'Unidades no validas');
       }
     },
     actRemision: function actRemision() {
-      var _this8 = this;
+      var _this9 = this;
 
       this.entrada.unidades = this.total_unidades;
+      this.entrada.nuevos = this.nuevos;
 
       if (this.entrada.editorial.length > 0) {
         this.load = true;
         this.stateE = null;
         axios.put('/actualizar_entrada', this.entrada).then(function (response) {
-          _this8.makeToast('success', 'La entrada se ha actualizado');
+          console.log(response.data);
 
-          _this8.load = false;
-          _this8.entradas[_this8.posicion] = response.data;
-          _this8.mostrarEditar = false;
+          _this9.makeToast('success', 'La entrada se ha actualizado');
+
+          _this9.load = false;
+          _this9.entradas[_this9.posicion] = response.data;
+          _this9.mostrarEA = false;
+          _this9.listadoEntradas = true;
+        })["catch"](function (error) {
+          _this9.load = false;
+
+          _this9.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
         });
       } else {
         this.stateE = false;
@@ -3801,9 +3999,10 @@ __webpack_require__.r(__webpack_exports__);
       this.inputUnidades = false;
       this.queryTitulo = '';
       this.unidades = 0;
+      this.isbn = '';
     },
     guardarNum: function guardarNum() {
-      var _this9 = this;
+      var _this10 = this;
 
       if (this.entrada.folio.length > 0) {
         axios.get('/buscarFolio', {
@@ -3812,18 +4011,77 @@ __webpack_require__.r(__webpack_exports__);
           }
         }).then(function (response) {
           if (response.data.id != undefined) {
-            _this9.stateN = false;
+            _this10.stateN = false;
 
-            _this9.makeToast('danger', 'El folio ya existe');
+            _this10.makeToast('danger', 'El folio ya existe');
           } else {
-            _this9.stateN = null;
+            _this10.stateN = null;
           }
         })["catch"](function (error) {
-          _this9.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+          _this10.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
         });
       } else {
         this.stateN = false;
         this.makeToast('danger', 'Definir folio');
+      }
+    },
+    mostrarEditoriales: function mostrarEditoriales() {
+      var _this11 = this;
+
+      if (this.editorial.length > 0) {
+        axios.get('/mostrarEditoriales', {
+          params: {
+            editorial: this.editorial
+          }
+        }).then(function (response) {
+          _this11.entradas = [];
+          _this11.entradas = response.data;
+
+          _this11.acumular();
+        })["catch"](function (error) {
+          _this11.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+        });
+      } else {
+        this.getTodo();
+      }
+    },
+    acumular: function acumular() {
+      var _this12 = this;
+
+      this.total = 0;
+      this.entradas.forEach(function (entrada) {
+        _this12.total += entrada.unidades;
+      });
+    },
+    verificarUnidades: function verificarUnidades(unidades, costo_unitario, i) {
+      this.registros[i].total = unidades * costo_unitario;
+    },
+    actualizarCosto: function actualizarCosto() {
+      var _this13 = this;
+
+      this.estado = false;
+      this.registros.forEach(function (registro) {
+        if (registro.costo_unitario == 0) {
+          _this13.estado = true;
+        }
+      });
+
+      if (this.estado == true) {
+        this.makeToast('warning', 'El costo unitario no puede ser 0');
+      } else {
+        this.load = true;
+        this.entrada.items = this.registros;
+        axios.put('/actualizar_costos', this.entrada).then(function (response) {
+          _this13.makeToast('success', 'La entrada se ha actualizado');
+
+          _this13.load = false;
+          _this13.mostrarEA = false;
+          _this13.listadoEntradas = true;
+        })["catch"](function (error) {
+          _this13.load = false;
+
+          _this13.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+        });
       }
     },
     makeToast: function makeToast() {
@@ -3849,22 +4107,6 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 //
 //
 //
@@ -4036,39 +4278,37 @@ __webpack_require__.r(__webpack_exports__);
   methods: {
     //Nueva entrada
     nuevaEntrada: function nuevaEntrada() {
-      var _this = this;
-
-      axios.get('/nueva_entrada').then(function (response) {
-        _this.bdentrada = {
-          id: 0,
-          unidades: 0,
-          total: 0,
-          folio: '',
-          editorial: ''
-        };
-        _this.items = [];
-        _this.temporal = {};
-        _this.total_entrada = 0;
-        _this.total_unidades = 0;
-        _this.editar = false;
-        _this.unidades = 0;
-        _this.inputLibro = true;
-        _this.inputISBN = true;
-        _this.inputUnidades = false;
-        _this.mostrarActualizar = false;
-        _this.mostrarGuardar = false;
-        _this.mostrarEditar = false;
-        _this.btnNuevo = false;
-        _this.numnota = '';
-        _this.mostrarTabla = false;
-        _this.mostrarCampo = true;
-      })["catch"](function (error) {
-        _this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-      });
+      // axios.get('/nueva_entrada').then(response => {
+      this.bdentrada = {
+        id: 0,
+        unidades: 0,
+        total: 0,
+        folio: '',
+        editorial: '',
+        items: []
+      };
+      this.items = [];
+      this.temporal = {};
+      this.total_entrada = 0;
+      this.total_unidades = 0;
+      this.editar = false;
+      this.unidades = 0;
+      this.inputLibro = true;
+      this.inputISBN = true;
+      this.inputUnidades = false;
+      this.mostrarActualizar = false;
+      this.mostrarGuardar = false;
+      this.mostrarEditar = false;
+      this.btnNuevo = false;
+      this.numnota = '';
+      this.mostrarTabla = false;
+      this.mostrarCampo = true; // }).catch(error => {
+      //     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+      // });
     },
     //Guardar numero de nota
     guardarNum: function guardarNum() {
-      var _this2 = this;
+      var _this = this;
 
       if (this.bdentrada.folio.length > 0) {
         axios.get('/buscarFolio', {
@@ -4077,15 +4317,15 @@ __webpack_require__.r(__webpack_exports__);
           }
         }).then(function (response) {
           if (response.data.id != undefined) {
-            _this2.stateN = false;
+            _this.stateN = false;
 
-            _this2.makeToast('danger', 'El folio ya existe');
+            _this.makeToast('danger', 'El folio ya existe');
           } else {
-            _this2.mostrarTabla = true;
-            _this2.stateN = null;
+            _this.mostrarTabla = true;
+            _this.stateN = null;
           }
         })["catch"](function (error) {
-          _this2.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+          _this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
         });
       } else {
         this.stateN = false;
@@ -4095,23 +4335,25 @@ __webpack_require__.r(__webpack_exports__);
     //SE REPITEN
     //Buscar libro por ISBN
     buscarLibroISBN: function buscarLibroISBN() {
-      var _this3 = this;
+      var _this2 = this;
 
       axios.get('/buscarISBN', {
         params: {
           isbn: this.isbn
         }
       }).then(function (response) {
-        _this3.inicializar();
+        _this2.inicializar();
 
-        _this3.temporal = response.data;
+        _this2.temporal.id = response.data.id;
+        _this2.temporal.ISBN = response.data.ISBN;
+        _this2.temporal.titulo = response.data.titulo;
       })["catch"](function (error) {
-        _this3.makeToast('danger', 'ISBN incorrecto');
+        _this2.makeToast('danger', 'ISBN incorrecto');
       });
     },
     //Mostrar resultados de la busqueda por titulo del libro
     mostrarLibros: function mostrarLibros() {
-      var _this4 = this;
+      var _this3 = this;
 
       if (this.queryTitulo.length > 0) {
         axios.get('/mostrarLibros', {
@@ -4119,9 +4361,9 @@ __webpack_require__.r(__webpack_exports__);
             queryTitulo: this.queryTitulo
           }
         }).then(function (response) {
-          _this4.resultslibros = response.data;
+          _this3.resultslibros = response.data;
         })["catch"](function (error) {
-          _this4.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+          _this3.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
         });
       }
     },
@@ -4132,9 +4374,7 @@ __webpack_require__.r(__webpack_exports__);
         id: libro.id,
         ISBN: libro.ISBN,
         titulo: libro.titulo,
-        costo_unitario: 0,
-        unidades: 0,
-        total: 0
+        unidades: 0
       };
     },
     //Inicializar los valores
@@ -4147,102 +4387,76 @@ __webpack_require__.r(__webpack_exports__);
       this.resultslibros = [];
       this.inputUnidades = true;
     },
-    //SE REPITEN FIN
-    guardarCosto: function guardarCosto() {
-      if (this.costo_unitario > 0) {
-        this.temporal.costo_unitario = this.costo_unitario;
-        this.inputCosto = false;
-        this.inputUnidades = true;
-        this.respuestaCosto = '';
-      } else {
-        this.makeToast('danger', 'Costo invalido');
-      }
-    },
     //Guardar un registro de la entrada
     guardarRegistro: function guardarRegistro() {
-      var _this5 = this;
-
       if (this.unidades > 0) {
-        this.temporal.entrada_id = 0;
+        // this.temporal.entrada_id = 0;
         this.temporal.unidades = this.unidades;
-        this.temporal.costo_unitario = this.costo_unitario;
-        this.temporal.total = this.unidades * this.temporal.costo_unitario;
-
-        if (this.editar) {
-          this.temporal.entrada_id = this.bdentrada.id;
-        }
-
-        axios.post('/registro_entrada', this.temporal).then(function (response) {
-          _this5.temporal = {
-            id: response.data.registro.id,
-            ISBN: response.data.libro.ISBN,
-            titulo: response.data.libro.titulo,
-            costo_unitario: response.data.registro.costo_unitario,
-            unidades: response.data.registro.unidades,
-            total: response.data.registro.total
-          };
-
-          _this5.items.push(_this5.temporal);
-
-          _this5.total_entrada += response.data.registro.total;
-          _this5.total_unidades += parseInt(response.data.registro.unidades);
-          _this5.unidades = 0;
-          _this5.costo_unitario = 0;
-          _this5.temporal = {};
-          _this5.inputISBN = true;
-          _this5.inputLibro = true;
-          _this5.inputUnidades = false;
-          _this5.botonEliminar = true;
-          _this5.mostrarGuardar = true;
-        })["catch"](function (error) {
-          _this5.makeToast('danger', 'Ocurrio un problema, vuelve a intentarlo');
-        });
+        this.total_unidades += parseInt(this.temporal.unidades);
+        this.items.push(this.temporal);
+        this.unidades = 0;
+        this.temporal = {};
+        this.inputISBN = true;
+        this.inputLibro = true;
+        this.inputUnidades = false;
+        this.botonEliminar = true;
+        this.mostrarGuardar = true; // if(this.editar){
+        //     this.temporal.entrada_id = this.bdentrada.id;
+        // }
+        // axios.post('/registro_entrada', this.temporal).then(response => {
+        //     this.temporal = {
+        //         id: response.data.registro.id,
+        //         ISBN: response.data.libro.ISBN,
+        //         titulo: response.data.libro.titulo,
+        //         costo_unitario: response.data.registro.costo_unitario,
+        //         unidades: response.data.registro.unidades,
+        //         total: response.data.registro.total
+        //     };
+        //     this.items.push(this.temporal);
+        //     this.total_entrada += response.data.registro.total;
+        //     this.total_unidades += parseInt(response.data.registro.unidades);
+        // })
+        // .catch(error => {
+        //     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentarlo');
+        // });
       } else {
         this.makeToast('danger', 'Unidades no validas');
       }
     },
     //Eliminar registro de la remision
     eliminarRegistro: function eliminarRegistro(item, i) {
-      var _this6 = this;
-
-      axios["delete"]('/eliminar_registro_entrada', {
-        params: {
-          id: item.id
-        }
-      }).then(function (response) {
-        _this6.items.splice(i, 1);
-
-        _this6.total_entrada = _this6.total_entrada - item.total;
-        _this6.total_unidades = _this6.total_unidades - item.unidades;
-        _this6.bdentrada.total = _this6.total_entrada;
-        _this6.bdentrada.unidades = _this6.total_unidades;
-      })["catch"](function (error) {
-        _this6.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-      });
+      // axios.delete('/eliminar_registro_entrada', {params: {id: item.id}}).then(response => {
+      this.items.splice(i, 1);
+      this.total_entrada = this.total_entrada - item.total;
+      this.total_unidades = this.total_unidades - item.unidades;
+      this.bdentrada.total = this.total_entrada;
+      this.bdentrada.unidades = this.total_unidades; // }).catch(error => {
+      //     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+      // });
     },
     //Guardar toda la remision
     onSubmit: function onSubmit() {
-      var _this7 = this;
+      var _this4 = this;
 
       this.load = true;
-      this.bdentrada.total = this.total_entrada;
       this.bdentrada.unidades = this.total_unidades;
+      this.bdentrada.items = this.items;
 
       if (this.bdentrada.editorial.length > 0) {
         this.stateE = null;
         axios.post('/crear_entrada', this.bdentrada).then(function (response) {
-          _this7.bdentrada.id = response.data.id;
-          _this7.mostrarGuardar = false;
-          _this7.mostrarEditar = true;
-          _this7.btnNuevo = true;
+          _this4.bdentrada.id = response.data.id;
+          _this4.mostrarGuardar = false;
+          _this4.mostrarEditar = true;
+          _this4.btnNuevo = true;
 
-          _this7.inicializar_guardar();
+          _this4.inicializar_guardar();
 
-          _this7.load = false;
+          _this4.load = false;
 
-          _this7.makeToast('success', 'La entrada se creo correctamente');
+          _this4.makeToast('success', 'La entrada se creo correctamente');
         })["catch"](function (error) {
-          _this7.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+          _this4.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
         });
       } else {
         this.stateE = false;
@@ -4262,20 +4476,20 @@ __webpack_require__.r(__webpack_exports__);
     },
     //Guardar cambios de la remision
     actRemision: function actRemision() {
-      var _this8 = this;
+      var _this5 = this;
 
       this.load = true;
       this.bdentrada.total = this.total_entrada;
       this.bdentrada.unidades = this.total_unidades;
       axios.put('/actualizar_entrada', this.bdentrada).then(function (response) {
-        _this8.mostrarActualizar = false;
-        _this8.btnNuevo = true;
+        _this5.mostrarActualizar = false;
+        _this5.btnNuevo = true;
 
-        _this8.inicializar_guardar();
+        _this5.inicializar_guardar();
 
-        _this8.load = false;
+        _this5.load = false;
       })["catch"](function (error) {
-        _this8.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+        _this5.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     //Inicializar valores
@@ -4387,10 +4601,24 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['role_id'],
   data: function data() {
     return {
+      mostrarNewLibro: false,
       formlibro: {},
       libros: [],
       errors: {},
@@ -4415,6 +4643,8 @@ __webpack_require__.r(__webpack_exports__);
     this.todosLibros();
   },
   methods: {
+    //Guardar un libro
+    onSubmit: function onSubmit() {},
     //Mostrar resultados de la busqueda por titulo del libro
     mostrarLibros: function mostrarLibros() {
       var _this = this;
@@ -4466,7 +4696,7 @@ __webpack_require__.r(__webpack_exports__);
       this.posicion = i;
     },
     actLista: function actLista(libro) {
-      this.libros[this.posicion] = libro;
+      this.libros.push(libro);
     },
     eliminarLibro: function eliminarLibro() {
       var _this4 = this;
@@ -5999,6 +6229,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 moment.locale('es');
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['role_id'],
@@ -6237,10 +6478,12 @@ moment.locale('es');
       this.total_pagos = 0;
       this.total_pagar = 0;
       this.remisiones.forEach(function (remision) {
-        _this6.total_salida += remision.total;
-        _this6.total_devolucion += remision.total_devolucion;
-        _this6.total_pagos += remision.pagos;
-        _this6.total_pagar += remision.total_pagar;
+        if (remision.estado != 'Cancelado') {
+          _this6.total_salida += remision.total;
+          _this6.total_devolucion += remision.total_devolucion;
+          _this6.total_pagos += remision.pagos;
+          _this6.total_pagar += remision.total_pagar;
+        }
       });
     },
     valores: function valores(response) {
@@ -6766,32 +7009,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -6812,12 +7029,20 @@ __webpack_require__.r(__webpack_exports__);
         _this.form = {};
         _this.loaded = false;
         _this.success = true;
+
+        _this.$emit('actualizarLista', response.data);
       })["catch"](function (error) {
         _this.errors = {};
         _this.loaded = false;
 
         if (error.response.status === 422) {
           _this.errors = error.response.data.errors || {};
+        } else {
+          _this.$bvToast.toast('Ocurrio un problema, vuelve a intentar o actualiza la pagina', {
+            title: 'Mensaje',
+            variant: 'danger',
+            solid: true
+          });
         }
       });
     }
@@ -7820,6 +8045,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 /* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['role_id'],
   data: function data() {
     return {
       listadoPromociones: true,
@@ -7974,6 +8200,8 @@ __webpack_require__.r(__webpack_exports__);
           }
         }).then(function (response) {
           _this4.resultslibros = response.data;
+        })["catch"](function (error) {
+          _this4.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
         });
       }
     },
@@ -8934,27 +9162,43 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      fecha: '',
+      fecha: null,
       vendidos: [],
-      fields: [{
-        key: 'libro_id',
-        label: 'Libro'
-      }, {
-        key: 'unidades_v',
+      fields: ['libro', {
+        key: 'unidades_vendido',
         label: 'Unidades vendidas'
       }, {
-        key: 'total_v',
+        key: 'total_vendido',
         label: 'Subtotal'
       }, {
-        key: 'unidades_r',
+        key: 'unidades_pendiente',
         label: 'Unidades pendientes'
       }, {
-        key: 'total_r',
+        key: 'total_pendiente',
         label: 'Subtotal'
-      }]
+      }, {
+        key: 'detalles',
+        label: ''
+      }],
+      listadoLibros: true,
+      mostrarDetalles: false,
+      registros: []
     };
   },
   created: function created() {
@@ -8978,10 +9222,26 @@ __webpack_require__.r(__webpack_exports__);
           fecha: this.fecha
         }
       }).then(function (response) {
-        // this.vendidos = response.data;
-        console.log(response.data);
+        _this2.vendidos = response.data;
       })["catch"](function (error) {
         _this2.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+      });
+    },
+    func_detalles: function func_detalles(vendido) {
+      var _this3 = this;
+
+      console.log(vendido);
+      this.listadoLibros = false;
+      this.mostrarDetalles = true;
+      axios.get('/detalles_vendidos', {
+        params: {
+          fecha: this.fecha,
+          libro_id: vendido.libro_id
+        }
+      }).then(function (response) {
+        _this3.registros = response.data;
+      })["catch"](function (error) {
+        _this3.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     makeToast: function makeToast() {
@@ -92195,7 +92455,7 @@ var render = function() {
               "div",
               { attrs: { align: "right" } },
               [
-                !_vm.mostrarRegistrar
+                _vm.role_id == 2 && !_vm.mostrarRegistrar
                   ? _c(
                       "b-button",
                       {
@@ -92289,7 +92549,7 @@ var render = function() {
                     key: "registrar_pago",
                     fn: function(row) {
                       return [
-                        row.item.total_pendiente != 0
+                        _vm.role_id == 2 && row.item.total_pendiente != 0
                           ? _c(
                               "b-button",
                               {
@@ -92319,7 +92579,7 @@ var render = function() {
                 ],
                 null,
                 false,
-                4214676278
+                2424436098
               )
             }),
             _vm._v(" "),
@@ -92875,20 +93135,48 @@ var render = function() {
                   key: "editar",
                   fn: function(row) {
                     return [
+                      _vm.role_id == 2
+                        ? _c(
+                            "b-button",
+                            {
+                              attrs: { variant: "outline-warning" },
+                              on: {
+                                click: function($event) {
+                                  return _vm.editarCliente(row.item, row.index)
+                                }
+                              }
+                            },
+                            [
+                              _c("i", { staticClass: "fa fa-pencil" }),
+                              _vm._v(" Editar")
+                            ]
+                          )
+                        : _vm._e()
+                    ]
+                  }
+                },
+                {
+                  key: "detalles",
+                  fn: function(row) {
+                    return [
                       _c(
                         "b-button",
                         {
-                          attrs: { variant: "outline-warning" },
+                          directives: [
+                            {
+                              name: "b-modal",
+                              rawName: "v-b-modal.modal-detalles",
+                              modifiers: { "modal-detalles": true }
+                            }
+                          ],
+                          attrs: { variant: "info" },
                           on: {
                             click: function($event) {
-                              return _vm.editarCliente(row.item, row.index)
+                              _vm.form = row.item
                             }
                           }
                         },
-                        [
-                          _c("i", { staticClass: "fa fa-pencil" }),
-                          _vm._v(" Editar")
-                        ]
+                        [_vm._v("Detalles")]
                       )
                     ]
                   }
@@ -92896,10 +93184,55 @@ var render = function() {
               ],
               null,
               false,
-              459796112
+              1859432887
             )
           })
         : _vm._e(),
+      _vm._v(" "),
+      _c(
+        "b-modal",
+        { attrs: { id: "modal-detalles", title: "" + _vm.form.name } },
+        [
+          _c(
+            "b-row",
+            [
+              _c("b-col", { attrs: { sm: "5", align: "right" } }, [
+                _c("label", [_c("b", [_vm._v("Contacto:")])]),
+                _c("br"),
+                _vm._v(" "),
+                _c("label", [_c("b", [_vm._v("Correo:")])]),
+                _c("br"),
+                _vm._v(" "),
+                _c("label", [_c("b", [_vm._v("Telefono:")])]),
+                _c("br"),
+                _vm._v(" "),
+                _c("label", [_c("b", [_vm._v("Dirección:")])]),
+                _c("br"),
+                _vm._v(" "),
+                _c("label", [_c("b", [_vm._v("Condiciones de pago:")])])
+              ]),
+              _vm._v(" "),
+              _c("b-col", [
+                _c("label", [_vm._v(_vm._s(_vm.form.contacto))]),
+                _c("br"),
+                _vm._v(" "),
+                _c("label", [_vm._v(_vm._s(_vm.form.email))]),
+                _c("br"),
+                _vm._v(" "),
+                _c("label", [_vm._v(_vm._s(_vm.form.telefono))]),
+                _c("br"),
+                _vm._v(" "),
+                _c("label", [_vm._v(_vm._s(_vm.form.direccion))]),
+                _c("br"),
+                _vm._v(" "),
+                _c("label", [_vm._v(_vm._s(_vm.form.condiciones_pago))])
+              ])
+            ],
+            1
+          )
+        ],
+        1
+      ),
       _vm._v(" "),
       _vm.mostrarEditar
         ? _c("div", [
@@ -94653,477 +94986,708 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    [
-      _vm.entradas.length == 0
-        ? _c("b-alert", { attrs: { show: "", variant: "secondary" } }, [
-            _c("i", { staticClass: "fa fa-exclamation-triangle" }),
-            _vm._v(" No hay entradas\n    ")
-          ])
-        : _vm._e(),
-      _vm._v(" "),
-      !_vm.mostrarDetalles && !_vm.mostrarEditar && _vm.entradas.length > 0
-        ? _c("b-table", {
-            attrs: { items: _vm.entradas, fields: _vm.fields },
-            scopedSlots: _vm._u(
+  return _c("div", [
+    _vm.listadoEntradas
+      ? _c(
+          "div",
+          [
+            _c(
+              "b-row",
               [
-                {
-                  key: "detalles",
-                  fn: function(row) {
-                    return [
-                      _c(
-                        "b-button",
-                        {
-                          attrs: { variant: "info" },
-                          on: {
-                            click: function($event) {
-                              return _vm.detallesEntrada(row.item)
-                            }
-                          }
-                        },
-                        [_vm._v("Ver detalles")]
-                      )
-                    ]
-                  }
-                },
-                {
-                  key: "descargar",
-                  fn: function(row) {
-                    return [
-                      _c(
-                        "b-button",
-                        {
-                          attrs: {
-                            variant: "primary",
-                            href: "/imprimirEntrada/" + row.item.id
-                          }
-                        },
-                        [_vm._v("\n                Descargar\n            ")]
-                      )
-                    ]
-                  }
-                },
-                {
-                  key: "created_at",
-                  fn: function(row) {
-                    return [
-                      _vm._v(
-                        "\n            " +
-                          _vm._s(_vm._f("moment")(row.item.created_at)) +
-                          "\n        "
-                      )
-                    ]
-                  }
-                },
-                {
-                  key: "editar",
-                  fn: function(row) {
-                    return [
-                      _vm.role_id == 3 &&
-                      _vm.fechaFinal.diff(row.item.created_at, "days") < 5
-                        ? _c(
-                            "b-button",
-                            {
-                              attrs: { variant: "warning" },
-                              on: {
-                                click: function($event) {
-                                  return _vm.editarEntrada(row.item, row.index)
-                                }
-                              }
-                            },
-                            [
-                              _c("i", { staticClass: "fa fa-pencil" }),
-                              _vm._v(" Editar\n            ")
-                            ]
-                          )
-                        : _vm._e()
-                    ]
-                  }
-                }
-              ],
-              null,
-              false,
-              1608359549
-            )
-          })
-        : _vm._e(),
-      _vm._v(" "),
-      _vm.mostrarDetalles
-        ? _c(
-            "div",
-            [
-              _c(
-                "div",
-                { staticClass: "text-right" },
-                [
-                  _c(
-                    "b-button",
-                    {
-                      attrs: { variant: "secondary" },
-                      on: {
-                        click: function($event) {
-                          _vm.mostrarDetalles = false
-                        }
-                      }
-                    },
-                    [
-                      _c("i", { staticClass: "fa fa-mail-reply" }),
-                      _vm._v(" Entradas")
-                    ]
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c("hr"),
-              _vm._v(" "),
-              _vm.registros.length > 0
-                ? _c("b-table", {
-                    attrs: { items: _vm.registros, fields: _vm.fieldsR },
-                    scopedSlots: _vm._u(
+                _vm.role_id == 1
+                  ? _c(
+                      "b-col",
                       [
-                        {
-                          key: "isbn",
-                          fn: function(row) {
-                            return [_vm._v(_vm._s(row.item.libro.ISBN))]
-                          }
-                        },
-                        {
-                          key: "titulo",
-                          fn: function(row) {
-                            return [_vm._v(_vm._s(row.item.libro.titulo))]
-                          }
-                        }
-                      ],
-                      null,
-                      false,
-                      2102252105
-                    )
-                  })
-                : _vm._e()
-            ],
-            1
-          )
-        : _vm._e(),
-      _vm._v(" "),
-      _vm.mostrarEditar
-        ? _c(
-            "div",
-            [
-              _c(
-                "div",
-                { staticClass: "text-right" },
-                [
-                  _c(
-                    "b-button",
-                    {
-                      attrs: { variant: "secondary" },
-                      on: {
-                        click: function($event) {
-                          _vm.mostrarEditar = false
-                        }
-                      }
-                    },
-                    [
-                      _c("i", { staticClass: "fa fa-mail-reply" }),
-                      _vm._v(" Entradas")
-                    ]
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c("hr"),
-              _vm._v(" "),
-              _c(
-                "b-row",
-                [
-                  _c("b-col", { attrs: { sm: "1" } }, [
-                    _c("label", [_vm._v("Folio")]),
-                    _c("br"),
-                    _vm._v(" "),
-                    _c("label", [_vm._v("Editorial")])
-                  ]),
-                  _vm._v(" "),
-                  _c(
-                    "b-col",
-                    { attrs: { sm: "5" } },
-                    [
-                      _c("b-form-input", {
-                        attrs: { state: _vm.stateN },
-                        on: { change: _vm.guardarNum },
-                        model: {
-                          value: _vm.entrada.folio,
-                          callback: function($$v) {
-                            _vm.$set(_vm.entrada, "folio", $$v)
-                          },
-                          expression: "entrada.folio"
-                        }
-                      }),
-                      _vm._v(" "),
-                      _c("b-form-input", {
-                        attrs: { state: _vm.stateE },
-                        model: {
-                          value: _vm.entrada.editorial,
-                          callback: function($$v) {
-                            _vm.$set(_vm.entrada, "editorial", $$v)
-                          },
-                          expression: "entrada.editorial"
-                        }
-                      })
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c("b-col", { attrs: { sm: "3", align: "right" } }, [
-                    _c("label", [
-                      _c("b", [_vm._v("Unidades:")]),
-                      _vm._v(" " + _vm._s(_vm.total_unidades))
-                    ])
-                  ]),
-                  _vm._v(" "),
-                  _c(
-                    "b-col",
-                    { staticClass: "text-right", attrs: { sm: "3" } },
-                    [
-                      _vm.registros.length > 0
-                        ? _c(
-                            "b-button",
-                            {
-                              attrs: { variant: "success", disabled: _vm.load },
-                              on: { click: _vm.actRemision }
-                            },
-                            [
-                              _c("i", { staticClass: "fa fa-check" }),
-                              _vm._v(
-                                " " +
-                                  _vm._s(
-                                    !_vm.load ? "Actualizar" : "Actualizando"
-                                  ) +
-                                  "\n                "
+                        _c(
+                          "b-row",
+                          { staticClass: "my-1" },
+                          [
+                            _c("b-col", { attrs: { sm: "3" } }, [
+                              _c(
+                                "label",
+                                { attrs: { for: "input-editorial" } },
+                                [_vm._v("Editorial")]
                               )
-                            ]
-                          )
-                        : _vm._e()
-                    ],
-                    1
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c("hr"),
-              _vm._v(" "),
-              _c("b-table", {
-                attrs: { items: _vm.registros, fields: _vm.fieldsRE },
-                scopedSlots: _vm._u(
+                            ]),
+                            _vm._v(" "),
+                            _c(
+                              "b-col",
+                              { attrs: { sm: "9" } },
+                              [
+                                _c("b-input", {
+                                  on: { keyup: _vm.mostrarEditoriales },
+                                  model: {
+                                    value: _vm.editorial,
+                                    callback: function($$v) {
+                                      _vm.editorial = $$v
+                                    },
+                                    expression: "editorial"
+                                  }
+                                })
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        )
+                      ],
+                      1
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.role_id == 1
+                  ? _c("b-col", { attrs: { align: "right" } }, [
+                      _c("label", [_vm._v("Unidades: " + _vm._s(_vm.total))])
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                _c(
+                  "b-col",
+                  { attrs: { align: "right" } },
                   [
-                    {
-                      key: "ISBN",
-                      fn: function(row) {
-                        return [_vm._v(_vm._s(row.item.libro.ISBN))]
+                    _vm.role_id == 3
+                      ? _c(
+                          "b-button",
+                          {
+                            attrs: { variant: "success" },
+                            on: { click: _vm.nuevaEntrada }
+                          },
+                          [
+                            _c("i", { staticClass: "fa fa-plus" }),
+                            _vm._v(" Registrar entrada")
+                          ]
+                        )
+                      : _vm._e()
+                  ],
+                  1
+                )
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c("hr"),
+            _vm._v(" "),
+            !_vm.mostrarDetalles && !_vm.mostrarEA && _vm.entradas.length > 0
+              ? _c("b-table", {
+                  attrs: { items: _vm.entradas, fields: _vm.fields },
+                  scopedSlots: _vm._u(
+                    [
+                      {
+                        key: "detalles",
+                        fn: function(row) {
+                          return [
+                            _c(
+                              "b-button",
+                              {
+                                attrs: { variant: "info" },
+                                on: {
+                                  click: function($event) {
+                                    return _vm.detallesEntrada(row.item)
+                                  }
+                                }
+                              },
+                              [_vm._v("Ver detalles")]
+                            )
+                          ]
+                        }
+                      },
+                      {
+                        key: "descargar",
+                        fn: function(row) {
+                          return [
+                            _c(
+                              "b-button",
+                              {
+                                attrs: {
+                                  variant: "primary",
+                                  href: "/imprimirEntrada/" + row.item.id
+                                }
+                              },
+                              [
+                                _vm._v(
+                                  "\n                    Descargar\n                "
+                                )
+                              ]
+                            )
+                          ]
+                        }
+                      },
+                      {
+                        key: "created_at",
+                        fn: function(row) {
+                          return [
+                            _vm._v(
+                              "\n                " +
+                                _vm._s(_vm._f("moment")(row.item.created_at)) +
+                                "\n            "
+                            )
+                          ]
+                        }
+                      },
+                      {
+                        key: "editar",
+                        fn: function(row) {
+                          return [
+                            _vm.role_id == 3
+                              ? _c(
+                                  "b-button",
+                                  {
+                                    attrs: { variant: "warning" },
+                                    on: {
+                                      click: function($event) {
+                                        return _vm.editarEntrada(
+                                          row.item,
+                                          row.index
+                                        )
+                                      }
+                                    }
+                                  },
+                                  [
+                                    _c("i", { staticClass: "fa fa-pencil" }),
+                                    _vm._v(" Editar\n                ")
+                                  ]
+                                )
+                              : _vm._e(),
+                            _vm._v(" "),
+                            _vm.role_id == 2 && row.item.total == 0
+                              ? _c(
+                                  "b-button",
+                                  {
+                                    attrs: { variant: "warning" },
+                                    on: {
+                                      click: function($event) {
+                                        return _vm.editarEntrada(
+                                          row.item,
+                                          row.index
+                                        )
+                                      }
+                                    }
+                                  },
+                                  [
+                                    _c("i", { staticClass: "fa fa-pencil" }),
+                                    _vm._v(" Editar\n                ")
+                                  ]
+                                )
+                              : _vm._e()
+                          ]
+                        }
                       }
-                    },
-                    {
-                      key: "titulo",
-                      fn: function(row) {
-                        return [_vm._v(_vm._s(row.item.libro.titulo))]
+                    ],
+                    null,
+                    false,
+                    2849168077
+                  )
+                })
+              : _vm._e()
+          ],
+          1
+        )
+      : _vm._e(),
+    _vm._v(" "),
+    _vm.mostrarDetalles
+      ? _c(
+          "div",
+          [
+            _c(
+              "b-row",
+              [
+                _c("b-col", { attrs: { sm: "1" } }, [
+                  _c("label", [_vm._v("Folio")]),
+                  _c("br"),
+                  _vm._v(" "),
+                  _c("label", [_vm._v("Editorial")])
+                ]),
+                _vm._v(" "),
+                _c("b-col", { attrs: { sm: "4" } }, [
+                  _c("label", [_vm._v(_vm._s(_vm.entrada.folio))]),
+                  _c("br"),
+                  _vm._v(" "),
+                  _c("label", [_vm._v(_vm._s(_vm.entrada.editorial))])
+                ]),
+                _vm._v(" "),
+                _c("b-col", { attrs: { sm: "3", align: "right" } }, [
+                  _c("label", [
+                    _c("b", [_vm._v("Unidades:")]),
+                    _vm._v(" " + _vm._s(_vm.entrada.unidades))
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("b-col", { attrs: { sm: "3", align: "right" } }, [
+                  _c("label", [
+                    _c("b", [_vm._v("Total:")]),
+                    _vm._v(" $" + _vm._s(_vm.entrada.total))
+                  ])
+                ])
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: "text-right" },
+              [
+                _c(
+                  "b-button",
+                  {
+                    attrs: { variant: "secondary" },
+                    on: {
+                      click: function($event) {
+                        _vm.mostrarDetalles = false
+                        _vm.listadoEntradas = true
                       }
-                    },
-                    {
-                      key: "eliminar",
-                      fn: function(row) {
-                        return [
-                          _c(
-                            "b-button",
-                            {
-                              attrs: { variant: "danger" },
+                    }
+                  },
+                  [
+                    _c("i", { staticClass: "fa fa-mail-reply" }),
+                    _vm._v(" Regresar")
+                  ]
+                )
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c("hr"),
+            _vm._v(" "),
+            _vm.registros.length > 0
+              ? _c("b-table", {
+                  attrs: { items: _vm.registros, fields: _vm.fieldsR },
+                  scopedSlots: _vm._u(
+                    [
+                      {
+                        key: "isbn",
+                        fn: function(row) {
+                          return [_vm._v(_vm._s(row.item.libro.ISBN))]
+                        }
+                      },
+                      {
+                        key: "titulo",
+                        fn: function(row) {
+                          return [_vm._v(_vm._s(row.item.libro.titulo))]
+                        }
+                      }
+                    ],
+                    null,
+                    false,
+                    2102252105
+                  )
+                })
+              : _vm._e()
+          ],
+          1
+        )
+      : _vm._e(),
+    _vm._v(" "),
+    _vm.mostrarEA
+      ? _c(
+          "div",
+          [
+            _c(
+              "div",
+              { staticClass: "text-right" },
+              [
+                _c(
+                  "b-button",
+                  {
+                    attrs: { variant: "secondary" },
+                    on: {
+                      click: function($event) {
+                        _vm.mostrarEA = false
+                        _vm.listadoEntradas = true
+                      }
+                    }
+                  },
+                  [
+                    _c("i", { staticClass: "fa fa-mail-reply" }),
+                    _vm._v(" Regresar")
+                  ]
+                )
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c("hr"),
+            _vm._v(" "),
+            _c(
+              "b-row",
+              [
+                _c("b-col", { attrs: { sm: "1" } }, [
+                  _c("label", [_vm._v("Folio")]),
+                  _c("br"),
+                  _vm._v(" "),
+                  _c("label", [_vm._v("Editorial")])
+                ]),
+                _vm._v(" "),
+                _vm.role_id == 3
+                  ? _c(
+                      "b-col",
+                      { attrs: { sm: "5" } },
+                      [
+                        _c("b-form-input", {
+                          attrs: { state: _vm.stateN },
+                          on: { change: _vm.guardarNum },
+                          model: {
+                            value: _vm.entrada.folio,
+                            callback: function($$v) {
+                              _vm.$set(_vm.entrada, "folio", $$v)
+                            },
+                            expression: "entrada.folio"
+                          }
+                        }),
+                        _vm._v(" "),
+                        _c("b-form-input", {
+                          attrs: { state: _vm.stateE },
+                          model: {
+                            value: _vm.entrada.editorial,
+                            callback: function($$v) {
+                              _vm.$set(_vm.entrada, "editorial", $$v)
+                            },
+                            expression: "entrada.editorial"
+                          }
+                        })
+                      ],
+                      1
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.role_id == 2
+                  ? _c("b-col", { attrs: { sm: "5" } }, [
+                      _c("label", [_vm._v(_vm._s(_vm.entrada.folio))]),
+                      _c("br"),
+                      _vm._v(" "),
+                      _c("label", [_vm._v(_vm._s(_vm.entrada.editorial))])
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                _c("b-col", { attrs: { sm: "3", align: "right" } }, [
+                  _c("label", [
+                    _c("b", [_vm._v("Unidades:")]),
+                    _vm._v(" " + _vm._s(_vm.total_unidades))
+                  ])
+                ]),
+                _vm._v(" "),
+                _c(
+                  "b-col",
+                  { staticClass: "text-right", attrs: { sm: "3" } },
+                  [
+                    _vm.registros.length > 0 &&
+                    !_vm.agregar &&
+                    _vm.entrada.folio.length > 0 &&
+                    _vm.role_id == 3
+                      ? _c(
+                          "b-button",
+                          {
+                            attrs: { variant: "success", disabled: _vm.load },
+                            on: { click: _vm.actRemision }
+                          },
+                          [
+                            _c("i", { staticClass: "fa fa-check" }),
+                            _vm._v(
+                              " " +
+                                _vm._s(!_vm.load ? "Guardar" : "Guardando") +
+                                "\n                "
+                            )
+                          ]
+                        )
+                      : _vm._e(),
+                    _vm._v(" "),
+                    _vm.registros.length > 0 &&
+                    !_vm.agregar &&
+                    _vm.entrada.folio.length > 0 &&
+                    _vm.role_id == 2
+                      ? _c(
+                          "b-button",
+                          {
+                            attrs: { variant: "success", disabled: _vm.load },
+                            on: { click: _vm.actualizarCosto }
+                          },
+                          [
+                            _c("i", { staticClass: "fa fa-check" }),
+                            _vm._v(
+                              " " +
+                                _vm._s(!_vm.load ? "Guardar" : "Guardando") +
+                                "\n                "
+                            )
+                          ]
+                        )
+                      : _vm._e(),
+                    _vm._v(" "),
+                    _vm.registros.length > 0 &&
+                    _vm.agregar &&
+                    _vm.entrada.folio.length > 0
+                      ? _c(
+                          "b-button",
+                          {
+                            attrs: { variant: "success", disabled: _vm.load },
+                            on: { click: _vm.onSubmit }
+                          },
+                          [
+                            _c("i", { staticClass: "fa fa-check" }),
+                            _vm._v(
+                              " " +
+                                _vm._s(!_vm.load ? "Guardar" : "Guardando") +
+                                "\n                "
+                            )
+                          ]
+                        )
+                      : _vm._e()
+                  ],
+                  1
+                )
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c("hr"),
+            _vm._v(" "),
+            _c("b-table", {
+              attrs: { items: _vm.registros, fields: _vm.fieldsRE },
+              scopedSlots: _vm._u(
+                [
+                  {
+                    key: "ISBN",
+                    fn: function(row) {
+                      return [_vm._v(_vm._s(row.item.libro.ISBN))]
+                    }
+                  },
+                  {
+                    key: "titulo",
+                    fn: function(row) {
+                      return [_vm._v(_vm._s(row.item.libro.titulo))]
+                    }
+                  },
+                  {
+                    key: "costo_unitario",
+                    fn: function(row) {
+                      return [
+                        _vm.role_id == 2
+                          ? _c("b-input", {
+                              attrs: {
+                                type: "number",
+                                placeholder: "Costo unitario"
+                              },
                               on: {
-                                click: function($event) {
-                                  return _vm.eliminarRegistro(
-                                    row.item,
+                                change: function($event) {
+                                  return _vm.verificarUnidades(
+                                    row.item.unidades,
+                                    row.item.costo_unitario,
                                     row.index
                                   )
                                 }
-                              }
-                            },
-                            [_c("i", { staticClass: "fa fa-minus-circle" })]
-                          )
-                        ]
-                      }
-                    }
-                  ],
-                  null,
-                  false,
-                  1399380534
-                )
-              }),
-              _vm._v(" "),
-              _c(
-                "b-row",
-                [
-                  _c("b-col", { attrs: { sm: "1" } }),
-                  _vm._v(" "),
-                  _c(
-                    "b-col",
-                    { attrs: { sm: "3" } },
-                    [
-                      _vm.inputISBN
-                        ? _c("b-input", {
-                            on: {
-                              keyup: function($event) {
-                                if (
-                                  !$event.type.indexOf("key") &&
-                                  _vm._k(
-                                    $event.keyCode,
-                                    "enter",
-                                    13,
-                                    $event.key,
-                                    "Enter"
-                                  )
-                                ) {
-                                  return null
-                                }
-                                return _vm.buscarLibroISBN()
-                              }
-                            },
-                            model: {
-                              value: _vm.isbn,
-                              callback: function($$v) {
-                                _vm.isbn = $$v
                               },
-                              expression: "isbn"
-                            }
-                          })
-                        : _vm._e(),
-                      _vm._v(" "),
-                      !_vm.inputISBN
-                        ? _c("b", [_vm._v(_vm._s(_vm.temporal.ISBN))])
-                        : _vm._e()
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "b-col",
-                    { attrs: { sm: "5" } },
-                    [
-                      _vm.inputLibro
-                        ? _c("b-input", {
-                            on: { keyup: _vm.mostrarLibros },
-                            model: {
-                              value: _vm.queryTitulo,
-                              callback: function($$v) {
-                                _vm.queryTitulo = $$v
-                              },
-                              expression: "queryTitulo"
-                            }
-                          })
-                        : _vm._e(),
-                      _vm._v(" "),
-                      _vm.resultslibros.length
-                        ? _c(
-                            "div",
-                            { staticClass: "list-group" },
-                            _vm._l(_vm.resultslibros, function(libro, i) {
-                              return _c(
-                                "a",
-                                {
-                                  key: i,
-                                  staticClass:
-                                    "list-group-item list-group-item-action",
-                                  attrs: { href: "#" },
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.datosLibro(libro)
-                                    }
-                                  }
+                              model: {
+                                value: row.item.costo_unitario,
+                                callback: function($$v) {
+                                  _vm.$set(row.item, "costo_unitario", $$v)
                                 },
-                                [
-                                  _vm._v(
-                                    "\n                        " +
-                                      _vm._s(libro.titulo) +
-                                      "\n                    "
-                                  )
-                                ]
-                              )
-                            }),
-                            0
-                          )
-                        : _vm._e(),
-                      _vm._v(" "),
-                      !_vm.inputLibro
-                        ? _c("b", [_vm._v(_vm._s(_vm.temporal.titulo))])
-                        : _vm._e()
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "b-col",
-                    { attrs: { sm: "2" } },
-                    [
-                      _vm.inputUnidades
-                        ? _c("b-form-input", {
-                            attrs: { type: "number", required: "" },
-                            on: {
-                              keyup: function($event) {
-                                if (
-                                  !$event.type.indexOf("key") &&
-                                  _vm._k(
-                                    $event.keyCode,
-                                    "enter",
-                                    13,
-                                    $event.key,
-                                    "Enter"
-                                  )
-                                ) {
-                                  return null
-                                }
-                                return _vm.guardarRegistro()
+                                expression: "row.item.costo_unitario"
                               }
-                            },
-                            model: {
-                              value: _vm.unidades,
-                              callback: function($$v) {
-                                _vm.unidades = $$v
+                            })
+                          : _vm._e()
+                      ]
+                    }
+                  },
+                  {
+                    key: "total",
+                    fn: function(row) {
+                      return _vm.role_id == 2
+                        ? [_vm._v("$" + _vm._s(row.item.total))]
+                        : undefined
+                    }
+                  },
+                  {
+                    key: "eliminar",
+                    fn: function(row) {
+                      return [
+                        _vm.role_id == 3
+                          ? _c(
+                              "b-button",
+                              {
+                                attrs: { variant: "danger" },
+                                on: {
+                                  click: function($event) {
+                                    return _vm.eliminarRegistro(
+                                      row.item,
+                                      row.index
+                                    )
+                                  }
+                                }
                               },
-                              expression: "unidades"
-                            }
-                          })
-                        : _vm._e()
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "b-col",
-                    { attrs: { sm: "1" } },
-                    [
-                      _vm.inputUnidades
-                        ? _c(
-                            "b-button",
-                            {
-                              attrs: { variant: "secondary" },
-                              on: { click: _vm.eliminarTemporal }
-                            },
-                            [_c("i", { staticClass: "fa fa-minus-circle" })]
-                          )
-                        : _vm._e()
-                    ],
-                    1
-                  )
+                              [_c("i", { staticClass: "fa fa-minus-circle" })]
+                            )
+                          : _vm._e()
+                      ]
+                    }
+                  }
                 ],
-                1
+                null,
+                true
               )
-            ],
-            1
-          )
-        : _vm._e()
-    ],
-    1
-  )
+            }),
+            _vm._v(" "),
+            _vm.role_id == 3
+              ? _c(
+                  "b-row",
+                  [
+                    _c("b-col", { attrs: { sm: "1" } }),
+                    _vm._v(" "),
+                    _c(
+                      "b-col",
+                      { attrs: { sm: "3" } },
+                      [
+                        _vm.inputISBN
+                          ? _c("b-input", {
+                              on: {
+                                keyup: function($event) {
+                                  if (
+                                    !$event.type.indexOf("key") &&
+                                    _vm._k(
+                                      $event.keyCode,
+                                      "enter",
+                                      13,
+                                      $event.key,
+                                      "Enter"
+                                    )
+                                  ) {
+                                    return null
+                                  }
+                                  return _vm.buscarLibroISBN()
+                                }
+                              },
+                              model: {
+                                value: _vm.isbn,
+                                callback: function($$v) {
+                                  _vm.isbn = $$v
+                                },
+                                expression: "isbn"
+                              }
+                            })
+                          : _vm._e(),
+                        _vm._v(" "),
+                        !_vm.inputISBN
+                          ? _c("b", [_vm._v(_vm._s(_vm.temporal.libro.ISBN))])
+                          : _vm._e()
+                      ],
+                      1
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "b-col",
+                      { attrs: { sm: "5" } },
+                      [
+                        _vm.inputLibro
+                          ? _c("b-input", {
+                              on: { keyup: _vm.mostrarLibros },
+                              model: {
+                                value: _vm.queryTitulo,
+                                callback: function($$v) {
+                                  _vm.queryTitulo = $$v
+                                },
+                                expression: "queryTitulo"
+                              }
+                            })
+                          : _vm._e(),
+                        _vm._v(" "),
+                        _vm.resultslibros.length
+                          ? _c(
+                              "div",
+                              { staticClass: "list-group" },
+                              _vm._l(_vm.resultslibros, function(libro, i) {
+                                return _c(
+                                  "a",
+                                  {
+                                    key: i,
+                                    staticClass:
+                                      "list-group-item list-group-item-action",
+                                    attrs: { href: "#" },
+                                    on: {
+                                      click: function($event) {
+                                        return _vm.datosLibro(libro)
+                                      }
+                                    }
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n                        " +
+                                        _vm._s(libro.titulo) +
+                                        "\n                    "
+                                    )
+                                  ]
+                                )
+                              }),
+                              0
+                            )
+                          : _vm._e(),
+                        _vm._v(" "),
+                        !_vm.inputLibro
+                          ? _c("b", [_vm._v(_vm._s(_vm.temporal.libro.titulo))])
+                          : _vm._e()
+                      ],
+                      1
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "b-col",
+                      { attrs: { sm: "2" } },
+                      [
+                        _vm.inputUnidades
+                          ? _c("b-form-input", {
+                              attrs: { type: "number", required: "" },
+                              on: {
+                                keyup: function($event) {
+                                  if (
+                                    !$event.type.indexOf("key") &&
+                                    _vm._k(
+                                      $event.keyCode,
+                                      "enter",
+                                      13,
+                                      $event.key,
+                                      "Enter"
+                                    )
+                                  ) {
+                                    return null
+                                  }
+                                  return _vm.guardarRegistro()
+                                }
+                              },
+                              model: {
+                                value: _vm.unidades,
+                                callback: function($$v) {
+                                  _vm.unidades = $$v
+                                },
+                                expression: "unidades"
+                              }
+                            })
+                          : _vm._e()
+                      ],
+                      1
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "b-col",
+                      { attrs: { sm: "1" } },
+                      [
+                        _vm.inputUnidades
+                          ? _c(
+                              "b-button",
+                              {
+                                attrs: { variant: "secondary" },
+                                on: { click: _vm.eliminarTemporal }
+                              },
+                              [_c("i", { staticClass: "fa fa-minus-circle" })]
+                            )
+                          : _vm._e()
+                      ],
+                      1
+                    )
+                  ],
+                  1
+                )
+              : _vm._e()
+          ],
+          1
+        )
+      : _vm._e()
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -95189,65 +95753,10 @@ var render = function() {
                   )
                 ]
               )
-            : _vm._e(),
-          _vm._v(" "),
-          _vm.mostrarActualizar && _vm.items.length > 0
-            ? _c(
-                "b-button",
-                {
-                  attrs: { variant: "success", disabled: _vm.load },
-                  on: { click: _vm.actRemision }
-                },
-                [
-                  _c("i", { staticClass: "fa fa-check" }),
-                  _vm._v(
-                    " " +
-                      _vm._s(!_vm.load ? "Actualizar" : "Actualizando") +
-                      "\n            "
-                  )
-                ]
-              )
             : _vm._e()
         ],
         1
-      ),
-      _vm._v(" "),
-      _c(
-        "div",
-        { staticClass: "col-md-2" },
-        [
-          _vm.mostrarEditar
-            ? _c(
-                "b-button",
-                {
-                  attrs: { variant: "warning", disabled: _vm.load },
-                  on: { click: _vm.editarTEntrada }
-                },
-                [
-                  _c("i", { staticClass: "fa fa-pencil" }),
-                  _vm._v(" Editar\n            ")
-                ]
-              )
-            : _vm._e()
-        ],
-        1
-      ),
-      _vm._v(" "),
-      _c("div", { staticClass: "col-md-2" }, [
-        _vm.mostrarEditar
-          ? _c(
-              "a",
-              {
-                staticClass: "btn btn-info",
-                attrs: { href: "/imprimirEntrada/" + _vm.bdentrada.id }
-              },
-              [
-                _c("i", { staticClass: "fa fa-download" }),
-                _vm._v(" Descargar\n            ")
-              ]
-            )
-          : _vm._e()
-      ])
+      )
     ]),
     _vm._v(" "),
     _c("hr"),
@@ -95619,6 +96128,33 @@ var render = function() {
             )
           ],
           1
+        ),
+        _vm._v(" "),
+        _c(
+          "div",
+          { staticClass: "col-md-4", attrs: { align: "right" } },
+          [
+            _vm.role_id == 3
+              ? _c(
+                  "b-button",
+                  {
+                    directives: [
+                      {
+                        name: "b-modal",
+                        rawName: "v-b-modal.modal-newLibro",
+                        modifiers: { "modal-newLibro": true }
+                      }
+                    ],
+                    attrs: { variant: "success" }
+                  },
+                  [
+                    _c("i", { staticClass: "fa fa-plus" }),
+                    _vm._v(" Agregar libro\n            ")
+                  ]
+                )
+              : _vm._e()
+          ],
+          1
         )
       ]),
       _vm._v(" "),
@@ -95707,12 +96243,20 @@ var render = function() {
       _vm._v(" "),
       _c(
         "b-modal",
+        { attrs: { id: "modal-newLibro", title: "Agregar libro" } },
+        [
+          _c("new-libro-component", { on: { actualizarLista: _vm.actLista } }),
+          _vm._v(" "),
+          _c("div", { attrs: { slot: "modal-footer" }, slot: "modal-footer" })
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c(
+        "b-modal",
         { attrs: { id: "modal-editar", title: "Editar libro" } },
         [
-          _c("editar-libro-component", {
-            attrs: { formlibro: _vm.formlibro },
-            on: { actualizarLista: _vm.actLista }
-          }),
+          _c("editar-libro-component", { attrs: { formlibro: _vm.formlibro } }),
           _vm._v(" "),
           _c("div", { attrs: { slot: "modal-footer" }, slot: "modal-footer" })
         ],
@@ -97796,14 +98340,48 @@ var render = function() {
                               _c("td", [_vm._v("$ " + _vm._s(remision.total))]),
                               _vm._v(" "),
                               _c("td", [
-                                _vm._v("$ " + _vm._s(remision.total_devolucion))
+                                remision.estado != "Cancelado"
+                                  ? _c("label", [
+                                      _vm._v(
+                                        "$ " + _vm._s(remision.total_devolucion)
+                                      )
+                                    ])
+                                  : _vm._e()
                               ]),
-                              _vm._v(" "),
-                              _c("td", [_vm._v("$ " + _vm._s(remision.pagos))]),
                               _vm._v(" "),
                               _c("td", [
-                                _vm._v("$ " + _vm._s(remision.total_pagar))
+                                remision.estado != "Cancelado"
+                                  ? _c("label", [
+                                      _vm._v("$ " + _vm._s(remision.pagos))
+                                    ])
+                                  : _vm._e()
                               ]),
+                              _vm._v(" "),
+                              _c(
+                                "td",
+                                [
+                                  remision.total_pagar != 0 &&
+                                  remision.estado != "Cancelado"
+                                    ? _c("label", [
+                                        _vm._v(
+                                          "\n                                $ " +
+                                            _vm._s(remision.total_pagar) +
+                                            "\n                            "
+                                        )
+                                      ])
+                                    : _vm._e(),
+                                  _vm._v(" "),
+                                  remision.total_pagar == 0 &&
+                                  remision.estado != "Cancelado"
+                                    ? _c(
+                                        "b-badge",
+                                        { attrs: { variant: "success" } },
+                                        [_vm._v("Pagado")]
+                                      )
+                                    : _vm._e()
+                                ],
+                                1
+                              ),
                               _vm._v(" "),
                               _c("td", [
                                 _c(
@@ -98928,157 +99506,154 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { attrs: { align: "center" } }, [
-    _c("h4", [_vm._v("Agregar libro")]),
-    _vm._v(" "),
-    _c("hr"),
-    _vm._v(" "),
-    _c("div", { staticClass: "card col-md-8" }, [
+  return _c(
+    "div",
+    [
       _c(
-        "div",
-        { staticClass: "card-body" },
+        "b-form",
+        {
+          on: {
+            submit: function($event) {
+              $event.preventDefault()
+              return _vm.onSubmit($event)
+            }
+          }
+        },
         [
+          _c("b-row", { staticClass: "my-1" }, [
+            _c(
+              "label",
+              { staticClass: "col-md-3", attrs: { align: "right" } },
+              [_vm._v("Titulo")]
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: "col-md-9" },
+              [
+                _c("b-form-input", {
+                  attrs: { disabled: _vm.loaded, required: "" },
+                  model: {
+                    value: _vm.form.titulo,
+                    callback: function($$v) {
+                      _vm.$set(_vm.form, "titulo", $$v)
+                    },
+                    expression: "form.titulo"
+                  }
+                }),
+                _vm._v(" "),
+                _vm.errors && _vm.errors.titulo
+                  ? _c("div", { staticClass: "text-danger" }, [
+                      _vm._v(_vm._s(_vm.errors.titulo[0]))
+                    ])
+                  : _vm._e()
+              ],
+              1
+            )
+          ]),
+          _vm._v(" "),
+          _c("b-row", { staticClass: "my-1" }, [
+            _c(
+              "label",
+              { staticClass: "col-md-3", attrs: { align: "right" } },
+              [_vm._v("ISBN")]
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: "col-md-9" },
+              [
+                _c("b-form-input", {
+                  attrs: { disabled: _vm.loaded, required: "" },
+                  model: {
+                    value: _vm.form.ISBN,
+                    callback: function($$v) {
+                      _vm.$set(_vm.form, "ISBN", $$v)
+                    },
+                    expression: "form.ISBN"
+                  }
+                }),
+                _vm._v(" "),
+                _vm.errors && _vm.errors.ISBN
+                  ? _c("div", { staticClass: "text-danger" }, [
+                      _vm._v(_vm._s(_vm.errors.ISBN[0]))
+                    ])
+                  : _vm._e()
+              ],
+              1
+            )
+          ]),
+          _vm._v(" "),
+          _c("b-row", { staticClass: "my-1" }, [
+            _c(
+              "label",
+              { staticClass: "col-md-3", attrs: { align: "right" } },
+              [_vm._v("Autor")]
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: "col-md-9" },
+              [
+                _c("b-form-input", {
+                  attrs: { disabled: _vm.loaded },
+                  model: {
+                    value: _vm.form.autor,
+                    callback: function($$v) {
+                      _vm.$set(_vm.form, "autor", $$v)
+                    },
+                    expression: "form.autor"
+                  }
+                }),
+                _vm._v(" "),
+                _vm.errors && _vm.errors.autor
+                  ? _c("div", { staticClass: "text-danger" }, [
+                      _vm._v(_vm._s(_vm.errors.autor[0]))
+                    ])
+                  : _vm._e()
+              ],
+              1
+            )
+          ]),
+          _vm._v(" "),
+          _c("b-row", { staticClass: "my-1" }, [
+            _c(
+              "label",
+              { staticClass: "col-md-3", attrs: { align: "right" } },
+              [_vm._v("Editorial")]
+            ),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: "col-md-9" },
+              [
+                _c("b-form-input", {
+                  attrs: { disabled: _vm.loaded, required: "" },
+                  model: {
+                    value: _vm.form.editorial,
+                    callback: function($$v) {
+                      _vm.$set(_vm.form, "editorial", $$v)
+                    },
+                    expression: "form.editorial"
+                  }
+                }),
+                _vm._v(" "),
+                _vm.errors && _vm.errors.editorial
+                  ? _c("div", { staticClass: "text-danger" }, [
+                      _vm._v(_vm._s(_vm.errors.editorial[0]))
+                    ])
+                  : _vm._e()
+              ],
+              1
+            )
+          ]),
+          _vm._v(" "),
+          _c("hr"),
+          _vm._v(" "),
           _c(
-            "b-form",
-            {
-              on: {
-                submit: function($event) {
-                  $event.preventDefault()
-                  return _vm.onSubmit($event)
-                }
-              }
-            },
+            "div",
+            { staticClass: "text-right" },
             [
-              _c("b-row", { staticClass: "my-1" }, [
-                _c(
-                  "label",
-                  { staticClass: "col-md-5", attrs: { align: "right" } },
-                  [_vm._v("Titulo")]
-                ),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  { staticClass: "col-md-7" },
-                  [
-                    _c("b-form-input", {
-                      attrs: { disabled: _vm.loaded, required: "" },
-                      model: {
-                        value: _vm.form.titulo,
-                        callback: function($$v) {
-                          _vm.$set(_vm.form, "titulo", $$v)
-                        },
-                        expression: "form.titulo"
-                      }
-                    }),
-                    _vm._v(" "),
-                    _vm.errors && _vm.errors.titulo
-                      ? _c("div", { staticClass: "text-danger" }, [
-                          _vm._v(_vm._s(_vm.errors.titulo[0]))
-                        ])
-                      : _vm._e()
-                  ],
-                  1
-                )
-              ]),
-              _vm._v(" "),
-              _c("b-row", { staticClass: "my-1" }, [
-                _c(
-                  "label",
-                  { staticClass: "col-md-5", attrs: { align: "right" } },
-                  [_vm._v("ISBN")]
-                ),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  { staticClass: "col-md-7" },
-                  [
-                    _c("b-form-input", {
-                      attrs: { disabled: _vm.loaded, required: "" },
-                      model: {
-                        value: _vm.form.ISBN,
-                        callback: function($$v) {
-                          _vm.$set(_vm.form, "ISBN", $$v)
-                        },
-                        expression: "form.ISBN"
-                      }
-                    }),
-                    _vm._v(" "),
-                    _vm.errors && _vm.errors.ISBN
-                      ? _c("div", { staticClass: "text-danger" }, [
-                          _vm._v(_vm._s(_vm.errors.ISBN[0]))
-                        ])
-                      : _vm._e()
-                  ],
-                  1
-                )
-              ]),
-              _vm._v(" "),
-              _c("b-row", { staticClass: "my-1" }, [
-                _c(
-                  "label",
-                  { staticClass: "col-md-5", attrs: { align: "right" } },
-                  [_vm._v("Autor")]
-                ),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  { staticClass: "col-md-7" },
-                  [
-                    _c("b-form-input", {
-                      attrs: { disabled: _vm.loaded },
-                      model: {
-                        value: _vm.form.autor,
-                        callback: function($$v) {
-                          _vm.$set(_vm.form, "autor", $$v)
-                        },
-                        expression: "form.autor"
-                      }
-                    }),
-                    _vm._v(" "),
-                    _vm.errors && _vm.errors.autor
-                      ? _c("div", { staticClass: "text-danger" }, [
-                          _vm._v(_vm._s(_vm.errors.autor[0]))
-                        ])
-                      : _vm._e()
-                  ],
-                  1
-                )
-              ]),
-              _vm._v(" "),
-              _c("b-row", { staticClass: "my-1" }, [
-                _c(
-                  "label",
-                  { staticClass: "col-md-5", attrs: { align: "right" } },
-                  [_vm._v("Editorial")]
-                ),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  { staticClass: "col-md-7" },
-                  [
-                    _c("b-form-input", {
-                      attrs: { disabled: _vm.loaded, required: "" },
-                      model: {
-                        value: _vm.form.editorial,
-                        callback: function($$v) {
-                          _vm.$set(_vm.form, "editorial", $$v)
-                        },
-                        expression: "form.editorial"
-                      }
-                    }),
-                    _vm._v(" "),
-                    _vm.errors && _vm.errors.editorial
-                      ? _c("div", { staticClass: "text-danger" }, [
-                          _vm._v(_vm._s(_vm.errors.editorial[0]))
-                        ])
-                      : _vm._e()
-                  ],
-                  1
-                )
-              ]),
-              _vm._v(" "),
-              _c("hr"),
-              _vm._v(" "),
               _c(
                 "b-button",
                 {
@@ -99101,21 +99676,22 @@ var render = function() {
               )
             ],
             1
-          ),
-          _vm._v(" "),
-          _c("hr"),
-          _vm._v(" "),
-          _vm.success
-            ? _c("b-alert", { attrs: { show: "", dismissible: "" } }, [
-                _c("i", { staticClass: "fa fa-check" }),
-                _vm._v("Libro guardado\n            ")
-              ])
-            : _vm._e()
+          )
         ],
         1
-      )
-    ])
-  ])
+      ),
+      _vm._v(" "),
+      _c("hr"),
+      _vm._v(" "),
+      _vm.success
+        ? _c("b-alert", { attrs: { show: "", dismissible: "" } }, [
+            _c("i", { staticClass: "fa fa-check" }),
+            _vm._v("Libro guardado\n    ")
+          ])
+        : _vm._e()
+    ],
+    1
+  )
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -100535,17 +101111,19 @@ var render = function() {
               "div",
               { attrs: { align: "right" } },
               [
-                _c(
-                  "b-button",
-                  {
-                    attrs: { variant: "success" },
-                    on: { click: _vm.registrarPromocion }
-                  },
-                  [
-                    _c("i", { staticClass: "fa fa-plus" }),
-                    _vm._v(" Registrar promoción\n            ")
-                  ]
-                )
+                _vm.role_id == 3
+                  ? _c(
+                      "b-button",
+                      {
+                        attrs: { variant: "success" },
+                        on: { click: _vm.registrarPromocion }
+                      },
+                      [
+                        _c("i", { staticClass: "fa fa-plus" }),
+                        _vm._v(" Registrar promoción\n            ")
+                      ]
+                    )
+                  : _vm._e()
               ],
               1
             ),
@@ -101972,78 +102550,133 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    [
-      _c(
-        "b-row",
-        { staticClass: "col-md-6" },
-        [
-          _c("b-col", { attrs: { sm: "5" } }, [_vm._v("Seleccionar fecha")]),
-          _vm._v(" "),
-          _c(
-            "b-col",
-            [
-              _c("b-input", {
-                attrs: { type: "date" },
-                on: { change: _vm.porFecha },
-                model: {
-                  value: _vm.fecha,
-                  callback: function($$v) {
-                    _vm.fecha = $$v
+  return _c("div", [
+    _vm.listadoLibros
+      ? _c(
+          "div",
+          [
+            _c(
+              "b-row",
+              { staticClass: "col-md-6" },
+              [
+                _c("b-col", { attrs: { sm: "4" } }, [
+                  _c("b", [_vm._v("Seleccionar fecha")])
+                ]),
+                _vm._v(" "),
+                _c(
+                  "b-col",
+                  { attrs: { sm: "8" } },
+                  [
+                    _c("b-input", {
+                      attrs: { type: "date" },
+                      on: { change: _vm.porFecha },
+                      model: {
+                        value: _vm.fecha,
+                        callback: function($$v) {
+                          _vm.fecha = $$v
+                        },
+                        expression: "fecha"
+                      }
+                    })
+                  ],
+                  1
+                )
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c("hr"),
+            _vm._v(" "),
+            _c("b-table", {
+              attrs: { items: _vm.vendidos, fields: _vm.fields },
+              scopedSlots: _vm._u(
+                [
+                  {
+                    key: "total_vendido",
+                    fn: function(row) {
+                      return [
+                        _vm._v(
+                          "\n                $" +
+                            _vm._s(row.item.total_vendido) +
+                            "\n            "
+                        )
+                      ]
+                    }
                   },
-                  expression: "fecha"
-                }
-              })
+                  {
+                    key: "total_pendiente",
+                    fn: function(row) {
+                      return [
+                        _vm._v(
+                          "\n                $" +
+                            _vm._s(row.item.total_pendiente) +
+                            "\n            "
+                        )
+                      ]
+                    }
+                  },
+                  {
+                    key: "detalles",
+                    fn: function(row) {
+                      return [
+                        _c(
+                          "b-button",
+                          {
+                            attrs: { variant: "info" },
+                            on: {
+                              click: function($event) {
+                                return _vm.func_detalles(row.item)
+                              }
+                            }
+                          },
+                          [_vm._v("Detalles")]
+                        )
+                      ]
+                    }
+                  }
+                ],
+                null,
+                false,
+                4065895793
+              )
+            })
+          ],
+          1
+        )
+      : _vm._e(),
+    _vm._v(" "),
+    _vm.mostrarDetalles
+      ? _c("div", [
+          _c(
+            "div",
+            { staticClass: "text-right" },
+            [
+              _c(
+                "b-button",
+                {
+                  attrs: { variant: "outline-secondary" },
+                  on: {
+                    click: function($event) {
+                      _vm.mostrarDetalles = false
+                      _vm.listadoLibros = true
+                    }
+                  }
+                },
+                [
+                  _c("i", { staticClass: "fa fa-mail-reply" }),
+                  _vm._v(" Regresar\n            ")
+                ]
+              ),
+              _vm._v(" "),
+              _c("hr"),
+              _vm._v(" "),
+              _c("b-table", { attrs: { items: _vm.registros } })
             ],
             1
           )
-        ],
-        1
-      ),
-      _vm._v(" "),
-      _c("hr"),
-      _vm._v(" "),
-      _c("b-table", {
-        attrs: { items: _vm.vendidos, fields: _vm.fields },
-        scopedSlots: _vm._u([
-          {
-            key: "libro_id",
-            fn: function(row) {
-              return [
-                _vm._v(
-                  "\n            " +
-                    _vm._s(row.item.libro.titulo) +
-                    "\n        "
-                )
-              ]
-            }
-          },
-          {
-            key: "total_v",
-            fn: function(row) {
-              return [
-                _vm._v(
-                  "\n            $" + _vm._s(row.item.total_v) + "\n        "
-                )
-              ]
-            }
-          },
-          {
-            key: "total_r",
-            fn: function(row) {
-              return [
-                _vm._v(
-                  "\n            $" + _vm._s(row.item.total_r) + "\n        "
-                )
-              ]
-            }
-          }
         ])
-      })
-    ],
-    1
-  )
+      : _vm._e()
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
