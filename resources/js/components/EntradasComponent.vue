@@ -315,7 +315,10 @@
                     this.eliminarTemporal();
                     this.listadoEntradas = false;
                     this.mostrarEA = true;
-                    this.entrada = response.data.entrada;
+                    this.entrada.folio = response.data.entrada.folio;
+                    this.entrada.editorial = response.data.entrada.editorial;
+                    this.entrada.total = response.data.entrada.total;
+                    this.entrada.unidades = response.data.entrada.unidades;
                     this.total_unidades = this.entrada.unidades;
                     this.registros = response.data.registros;
                 });

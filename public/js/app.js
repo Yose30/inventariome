@@ -3830,7 +3830,10 @@ __webpack_require__.r(__webpack_exports__);
 
         _this5.listadoEntradas = false;
         _this5.mostrarEA = true;
-        _this5.entrada = response.data.entrada;
+        _this5.entrada.folio = response.data.entrada.folio;
+        _this5.entrada.editorial = response.data.entrada.editorial;
+        _this5.entrada.total = response.data.entrada.total;
+        _this5.entrada.unidades = response.data.entrada.unidades;
         _this5.total_unidades = _this5.entrada.unidades;
         _this5.registros = response.data.registros;
       });
