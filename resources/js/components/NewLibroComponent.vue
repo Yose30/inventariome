@@ -36,11 +36,6 @@
             <b-row class="my-1">
                 <label align="right" class="col-md-3">Editorial</label>
                 <div class="col-md-9">
-                    <!-- <b-form-input 
-                        v-model="form.editorial" 
-                        :disabled="loaded"
-                        required>
-                    </b-form-input> -->
                     <b-form-select v-model="form.editorial" :disabled="loaded" :options="options" required></b-form-select>
                     <div v-if="errors && errors.editorial" class="text-danger">{{ errors.editorial[0] }}</div>
                 </div>

@@ -1,34 +1,48 @@
 <template>
     <div>
-        <div align="right" v-if="role_id == 3 && !mostrarDetalles && !mostrarCrearNota && !mostrarNewPago">
-            <b-button variant="success" @click="func_crearNota"><i class="fa fa-plus"></i> Crear nota</b-button>
+        <div v-if="listadoNotas">
+            <div align="right" v-if="role_id == 3">
+                <b-button variant="success" @click="func_crearNota"><i class="fa fa-plus"></i> Crear nota</b-button>
+            </div>
+            <!-- <b-alert v-if="!mostrarDetalles && !mostrarCrearNota && !mostrarNewPago && notes.length == 0" show variant="secondary">
+                <i class="fa fa-exclamation-triangle"></i> No hay notas
+            </b-alert> -->
+            <b-table 
+                v-if="notes.length > 0" 
+                :items="notes" :fields="fieldsN">
+                <template slot="created_at" slot-scope="row">
+                    {{ row.item.created_at | moment }}
+                </template>
+                <template slot="total_salida" slot-scope="row">
+                    ${{ row.item.total_salida }}
+                </template>
+                <template slot="pagos" slot-scope="row">
+                    ${{ row.item.pagos }}
+                </template>
+                <template slot="total_pagar" slot-scope="row">
+                    ${{ row.item.total_pagar }}
+                </template>
+                <template slot="detalles" slot-scope="row">
+                    <b-button variant="outline-info" @click="detallesNota(row.item)">Detalles</b-button>
+                </template>
+                <template slot="pagar" slot-scope="row">
+                    <b-button 
+                        v-if="role_id == 3 && row.item.total_pagar > 0" 
+                        variant="outline-primary" 
+                        @click="registrarPago(row.item, row.index)">Registrar pago
+                    </b-button>
+                </template>
+                <!-- <template slot="devolucion" slot-scope="row">
+                    <b-button
+                        v-if="role_id == 3 && row.item.total_pagar > 0" 
+                        variant="outline-primary"
+                        @click="registrarDevolucion(row.item, row.index)">Registrar devolución</b-button>
+                </template> -->
+            </b-table>
         </div>
-        <b-alert v-if="!mostrarDetalles && !mostrarCrearNota && !mostrarNewPago && notes.length == 0" show variant="secondary">
-            <i class="fa fa-exclamation-triangle"></i> No hay notas
-        </b-alert>
-        <b-table 
-            v-if="!mostrarDetalles && !mostrarCrearNota && !mostrarNewPago && notes.length > 0" 
-            :items="notes" :fields="fieldsN">
-            <template slot="created_at" slot-scope="row">
-                {{ row.item.created_at | moment }}
-            </template>
-            <template slot="total_salida" slot-scope="row">
-                ${{ row.item.total_salida }}
-            </template>
-            <template slot="pagos" slot-scope="row">
-                ${{ row.item.pagos }}
-            </template>
-            <template slot="total_pagar" slot-scope="row">
-                ${{ row.item.total_pagar }}
-            </template>
-            <template slot="detalles" slot-scope="row">
-               <b-button variant="outline-info" @click="detallesNota(row.item)">Detalles</b-button>
-            </template>
-            <template slot="pagar" slot-scope="row">
-               <b-button v-if="role_id == 3 && row.item.total_pagar > 0" variant="outline-primary" @click="registrarPago(row.item, row.index)">Registrar pago</b-button>
-            </template>
-        </b-table>
         <div v-if="mostrarNewPago">
+            <h5>Registrar pago</h5>
+            <hr>
             <b-row>
                 <b-col>
                     <h4>Nota n. {{ nota.id }}</h4>
@@ -42,7 +56,7 @@
                     </div>
                 </b-col>
                 <b-col align="right">
-                    <b-button variant="outline-secondary" @click="mostrarNewPago = false"><i class="fa fa-mail-reply"></i> Regresar</b-button>
+                    <b-button variant="outline-secondary" @click="mostrarNewPago = false; listadoNotas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
                 </b-col>
             </b-row>
             <hr>
@@ -77,7 +91,7 @@
                     <label><b>Total</b>: ${{ nota.total_salida }}</label><br>
                 </b-col>
                 <b-col align="right">
-                    <b-button variant="outline-secondary" @click="mostrarDetalles = false"><i class="fa fa-mail-reply"></i> Regresar</b-button>
+                    <b-button variant="outline-secondary" @click="mostrarDetalles = false; listadoNotas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
                 </b-col>
             </b-row>
             <hr>
@@ -104,13 +118,49 @@
                 </template>
             </b-table>
         </div>
+        <div v-if="mostrarDevolucion">
+            <h5>Registrar devolución</h5>
+            <hr>
+            <b-row>
+                <b-col>
+                    <h4>Nota n. {{ nota.id }}</h4>
+                    <label>Cliente: {{ nota.cliente }}</label>
+                </b-col>
+                <b-col>
+                    <div class="text-right">
+                        <b-button v-if="btnGuardar" variant="success" @click="guardarDevolucion">
+                            <i class="fa fa-check"></i> Guardar
+                        </b-button>
+                    </div>
+                </b-col>
+                <b-col align="right">
+                    <b-button variant="outline-secondary" @click="mostrarDevolucion = false; listadoNotas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
+                </b-col>
+            </b-row>
+            <hr>
+            <b-table :items="nota.registers" :fields="fieldsNP">
+                <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
+                <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
+                <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
+                <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario }}</template>
+                <template slot="unidades" slot-scope="row">
+                    <b-input 
+                        type="number" 
+                        @change="verificarUnidades(row.item.unidades_base, row.item.unidades_pendiente, row.item.costo_unitario, row.index)" 
+                        v-model="row.item.unidades_base">
+                    </b-input>
+                </template>
+                <template slot="total" slot-scope="row">${{ row.item.total_base }}</template>
+            </b-table>
+            <h5 class="text-right">${{ total_vendido }}</h5>
+        </div>
         <div v-if="mostrarCrearNota">
             <b-row>
                 <b-col>
                     <h4>Crear nota</h4>
                 </b-col>
                 <b-col align="right">
-                    <b-button variant="outline-secondary" @click="mostrarCrearNota = false"><i class="fa fa-mail-reply"></i> Regresar</b-button>
+                    <b-button variant="outline-secondary" @click="mostrarCrearNota = false; listadoNotas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
                 </b-col>
             </b-row>
             <hr>
@@ -245,6 +295,7 @@
                     {key: 'total_pagar', label: 'Pagar'},
                     {key: 'detalles', label: ''},
                     {key: 'pagar', label: ''},
+                    {key: 'devolucion', label: ''},
                 ],
                 fieldsD: [
                     {key: 'index', label: 'N.'},
@@ -284,7 +335,9 @@
                 mostrarNewPago: false,
                 total_vendido: 0,
                 btnGuardar: false,
-                posicion: 0
+                posicion: 0,
+                mostrarDevolucion: false,
+                listadoNotas: true,
             }
         },
         created: function(){
@@ -302,6 +355,7 @@
                 });
             },
             func_crearNota(){
+                this.listadoNotas = false;
                 this.mostrarCrearNota = true;
                 this.nota = {};
                 this.cliente = '';
@@ -421,6 +475,7 @@
                     this.nota.registers.forEach(register => {
                         this.total_unidades += register.unidades;
                     });
+                    this.listadoNotas = false;
                     this.mostrarDetalles = true;
                 });
             },
@@ -432,7 +487,20 @@
                     this.nota.cliente = nota.cliente;
                     this.nota.total_salida = nota.total_salida;
                     this.nota.registers = response.data;
+                    this.listadoNotas = false;
                     this.mostrarNewPago = true;
+                });
+            },
+            registrarDevolucion(nota, i){
+                this.nota = {};
+                this.posicion = i;
+                axios.get('/detalles_nota', {params: {note_id: nota.id}}).then(response => {
+                    this.nota.id = nota.id;
+                    this.nota.cliente = nota.cliente;
+                    this.nota.total_salida = nota.total_salida;
+                    this.nota.registers = response.data;
+                    this.listadoNotas = false;
+                    this.mostrarDevolucion = true;
                 });
             },
             verificarUnidades(unidades, pendiente, costo_unitario, i){
@@ -453,6 +521,17 @@
                     this.notes[this.posicion] = response.data;
                     this.makeToast('success', 'El pago se guardo correctamente');
                     this.mostrarNewPago = false;
+                })
+                .catch(error => {
+                    this.makeToast('danger', 'Ocurrio un error, vuelve a intentarlo');
+                });
+            },
+            guardarDevolucion(){
+                axios.post('/guardar_devolucion', this.nota).then(response => {
+                    console.log(response.data);
+                    // this.notes[this.posicion] = response.data;
+                    // this.makeToast('success', 'El pago se guardo correctamente');
+                    // this.mostrarNewPago = false;
                 })
                 .catch(error => {
                     this.makeToast('danger', 'Ocurrio un error, vuelve a intentarlo');

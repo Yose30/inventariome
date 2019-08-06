@@ -151,6 +151,8 @@ Route::post('guardar_nota', 'NoteController@store')->name('guardar_nota');
 Route::get('detalles_nota', 'NoteController@detalles_nota')->name('detalles_nota');
 //Guardar pago de la nota
 Route::post('guardar_pago', 'NoteController@guardar_pago')->name('guardar_pago');
+//Guardar devolucion
+Route::post('guardar_devolucion', 'NoteController@guardar_devolucion')->name('guardar_devolucion');
 
 //ADEUDO
 //Guardar adeudo

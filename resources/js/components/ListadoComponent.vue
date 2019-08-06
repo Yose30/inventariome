@@ -153,18 +153,17 @@
                             <td>{{ remision.cliente.name }}</td>
                             <td>$ {{ remision.total }}</td>
                             <td>
-                                <label v-if="remision.estado != 'Cancelado'">$ {{ remision.total_devolucion }}</label>
+                                <label v-if="remision.estado == 'Proceso' || remision.estado == 'Terminado'">$ {{ remision.total_devolucion }}</label>
                             </td>
                             <td>
-                                <label v-if="remision.estado != 'Cancelado'">$ {{ remision.pagos }}</label>
+                                <label v-if="remision.estado == 'Proceso' || remision.estado == 'Terminado'">$ {{ remision.pagos }}</label>
 
                             </td>
                             <td>
-                                <label 
-                                    v-if="remision.total_pagar != 0 && remision.estado != 'Cancelado'">
+                                <b-badge v-if="remision.total_pagar == 0 && remision.pagos > 0" variant="success">Pagado</b-badge>
+                                <label v-if="remision.total_pagar > 0">
                                     $ {{ remision.total_pagar }}
                                 </label>
-                                <b-badge v-if="remision.total_pagar == 0 && remision.estado != 'Cancelado'" variant="success">Pagado</b-badge>
                             </td>
                             <td>
                                 <button 

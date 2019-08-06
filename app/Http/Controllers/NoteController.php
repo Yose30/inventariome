@@ -117,4 +117,8 @@ class NoteController extends Controller
         }
         return response()->json($nota);
     }
+
+    public function guardar_devolucion(Request $request){
+        return response()->json($request);
+    }
 }
