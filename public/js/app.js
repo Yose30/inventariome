@@ -3636,34 +3636,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 // moment.locale('es');
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['role_id'],
@@ -3697,13 +3669,8 @@ __webpack_require__.r(__webpack_exports__);
       }, {
         key: 'titulo',
         label: 'Libro'
-      }, {
-        key: 'costo_unitario',
-        label: 'Costo unitario'
-      }, 'unidades', {
-        key: 'total',
-        label: 'Subtotal'
-      }],
+      }, // {key: 'costo_unitario', label: 'Costo unitario'},
+      'unidades'],
       fieldsRE: [{
         key: 'id',
         label: 'N.'
@@ -3713,13 +3680,9 @@ __webpack_require__.r(__webpack_exports__);
       }, {
         key: 'titulo',
         label: 'Libro'
-      }, 'unidades', {
-        key: 'costo_unitario',
-        label: ''
-      }, {
-        key: 'total',
-        label: ''
-      }, {
+      }, 'unidades', // {key: 'costo_unitario', label: ''},
+      // {key: 'total', label: ''},
+      {
         key: 'eliminar',
         label: ''
       }],
@@ -3941,16 +3904,7 @@ __webpack_require__.r(__webpack_exports__);
     //Guardar un registro de la entrada
     guardarRegistro: function guardarRegistro() {
       if (this.unidades > 0) {
-        // this.temporal.entrada_id = this.entrada.id;
-        this.temporal.unidades = this.unidades; // axios.post('/registro_entrada', this.temporal).then(response => {
-        //     this.temporal = {
-        //         id: response.data.registro.id,
-        //         libro: {
-        //             ISBN: response.data.libro.ISBN,
-        //             titulo: response.data.libro.titulo,
-        //         },
-        //         unidades: response.data.registro.unidades,
-        //     };
+        this.temporal.unidades = this.unidades;
 
         if (this.agregar == false) {
           this.nuevos.push(this.temporal);
@@ -3963,11 +3917,7 @@ __webpack_require__.r(__webpack_exports__);
         this.isbn = '';
         this.queryTitulo = '', this.inputISBN = true;
         this.inputLibro = true;
-        this.inputUnidades = false; // this.botonEliminar = true;
-        // })
-        // .catch(error => {
-        //     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentarlo');
-        // });
+        this.inputUnidades = false;
       } else {
         this.makeToast('danger', 'Unidades no validas');
       }
@@ -95001,52 +94951,46 @@ var render = function() {
             _c(
               "b-row",
               [
-                _vm.role_id == 1
-                  ? _c(
-                      "b-col",
+                _c(
+                  "b-col",
+                  [
+                    _c(
+                      "b-row",
+                      { staticClass: "my-1" },
                       [
+                        _c("b-col", { attrs: { sm: "3" } }, [
+                          _c("label", { attrs: { for: "input-editorial" } }, [
+                            _vm._v("Editorial")
+                          ])
+                        ]),
+                        _vm._v(" "),
                         _c(
-                          "b-row",
-                          { staticClass: "my-1" },
+                          "b-col",
+                          { attrs: { sm: "9" } },
                           [
-                            _c("b-col", { attrs: { sm: "3" } }, [
-                              _c(
-                                "label",
-                                { attrs: { for: "input-editorial" } },
-                                [_vm._v("Editorial")]
-                              )
-                            ]),
-                            _vm._v(" "),
-                            _c(
-                              "b-col",
-                              { attrs: { sm: "9" } },
-                              [
-                                _c("b-input", {
-                                  on: { keyup: _vm.mostrarEditoriales },
-                                  model: {
-                                    value: _vm.editorial,
-                                    callback: function($$v) {
-                                      _vm.editorial = $$v
-                                    },
-                                    expression: "editorial"
-                                  }
-                                })
-                              ],
-                              1
-                            )
+                            _c("b-input", {
+                              on: { keyup: _vm.mostrarEditoriales },
+                              model: {
+                                value: _vm.editorial,
+                                callback: function($$v) {
+                                  _vm.editorial = $$v
+                                },
+                                expression: "editorial"
+                              }
+                            })
                           ],
                           1
                         )
                       ],
                       1
                     )
-                  : _vm._e(),
+                  ],
+                  1
+                ),
                 _vm._v(" "),
-                _vm.role_id == 1
-                  ? _c("b-col", { attrs: { align: "right" } }, [
-                      _c("label", [_vm._v("Unidades: " + _vm._s(_vm.total))])
-                    ])
-                  : _vm._e(),
+                _c("b-col", { attrs: { align: "right" } }, [
+                  _c("label", [_vm._v("Unidades: " + _vm._s(_vm.total))])
+                ]),
                 _vm._v(" "),
                 _c(
                   "b-col",
@@ -95101,24 +95045,22 @@ var render = function() {
                       {
                         key: "descargar",
                         fn: function(row) {
-                          return _vm.role_id != 2
-                            ? [
-                                _c(
-                                  "b-button",
-                                  {
-                                    attrs: {
-                                      variant: "primary",
-                                      href: "/imprimirEntrada/" + row.item.id
-                                    }
-                                  },
-                                  [
-                                    _vm._v(
-                                      "\n                    Descargar\n                "
-                                    )
-                                  ]
+                          return [
+                            _c(
+                              "b-button",
+                              {
+                                attrs: {
+                                  variant: "primary",
+                                  href: "/imprimirEntrada/" + row.item.id
+                                }
+                              },
+                              [
+                                _vm._v(
+                                  "\n                    Descargar\n                "
                                 )
                               ]
-                            : undefined
+                            )
+                          ]
                         }
                       },
                       {
@@ -95156,34 +95098,14 @@ var render = function() {
                                     _vm._v(" Editar\n                ")
                                   ]
                                 )
-                              : _vm._e(),
-                            _vm._v(" "),
-                            _vm.role_id == 2 && row.item.total == 0
-                              ? _c(
-                                  "b-button",
-                                  {
-                                    attrs: { variant: "warning" },
-                                    on: {
-                                      click: function($event) {
-                                        return _vm.editarEntrada(
-                                          row.item,
-                                          row.index
-                                        )
-                                      }
-                                    }
-                                  },
-                                  [
-                                    _c("i", { staticClass: "fa fa-pencil" }),
-                                    _vm._v(" Editar\n                ")
-                                  ]
-                                )
                               : _vm._e()
                           ]
                         }
                       }
                     ],
                     null,
-                    true
+                    false,
+                    928472133
                   )
                 })
               : _vm._e()
@@ -95337,46 +95259,35 @@ var render = function() {
                   _c("label", [_vm._v("Editorial")])
                 ]),
                 _vm._v(" "),
-                _vm.role_id == 3
-                  ? _c(
-                      "b-col",
-                      { attrs: { sm: "5" } },
-                      [
-                        _c("b-form-input", {
-                          attrs: { state: _vm.stateN },
-                          on: { change: _vm.guardarNum },
-                          model: {
-                            value: _vm.entrada.folio,
-                            callback: function($$v) {
-                              _vm.$set(_vm.entrada, "folio", $$v)
-                            },
-                            expression: "entrada.folio"
-                          }
-                        }),
-                        _vm._v(" "),
-                        _c("b-form-input", {
-                          attrs: { state: _vm.stateE },
-                          model: {
-                            value: _vm.entrada.editorial,
-                            callback: function($$v) {
-                              _vm.$set(_vm.entrada, "editorial", $$v)
-                            },
-                            expression: "entrada.editorial"
-                          }
-                        })
-                      ],
-                      1
-                    )
-                  : _vm._e(),
-                _vm._v(" "),
-                _vm.role_id == 2
-                  ? _c("b-col", { attrs: { sm: "5" } }, [
-                      _c("label", [_vm._v(_vm._s(_vm.entrada.folio))]),
-                      _c("br"),
-                      _vm._v(" "),
-                      _c("label", [_vm._v(_vm._s(_vm.entrada.editorial))])
-                    ])
-                  : _vm._e(),
+                _c(
+                  "b-col",
+                  { attrs: { sm: "5" } },
+                  [
+                    _c("b-form-input", {
+                      attrs: { state: _vm.stateN },
+                      on: { change: _vm.guardarNum },
+                      model: {
+                        value: _vm.entrada.folio,
+                        callback: function($$v) {
+                          _vm.$set(_vm.entrada, "folio", $$v)
+                        },
+                        expression: "entrada.folio"
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c("b-form-input", {
+                      attrs: { state: _vm.stateE },
+                      model: {
+                        value: _vm.entrada.editorial,
+                        callback: function($$v) {
+                          _vm.$set(_vm.entrada, "editorial", $$v)
+                        },
+                        expression: "entrada.editorial"
+                      }
+                    })
+                  ],
+                  1
+                ),
                 _vm._v(" "),
                 _c("b-col", { attrs: { sm: "3", align: "right" } }, [
                   _c("label", [
@@ -95390,9 +95301,8 @@ var render = function() {
                   { staticClass: "text-right", attrs: { sm: "3" } },
                   [
                     _vm.registros.length > 0 &&
-                    !_vm.agregar &&
-                    _vm.entrada.folio.length > 0 &&
-                    _vm.role_id == 3
+                    _vm.agregar == false &&
+                    _vm.entrada.folio.length > 0
                       ? _c(
                           "b-button",
                           {
@@ -95403,7 +95313,9 @@ var render = function() {
                             _c("i", { staticClass: "fa fa-check" }),
                             _vm._v(
                               " " +
-                                _vm._s(!_vm.load ? "Guardar" : "Guardando") +
+                                _vm._s(
+                                  !_vm.load ? "Guardar  cambios" : "Guardando"
+                                ) +
                                 "\n                "
                             )
                           ]
@@ -95411,28 +95323,7 @@ var render = function() {
                       : _vm._e(),
                     _vm._v(" "),
                     _vm.registros.length > 0 &&
-                    !_vm.agregar &&
-                    _vm.entrada.folio.length > 0 &&
-                    _vm.role_id == 2
-                      ? _c(
-                          "b-button",
-                          {
-                            attrs: { variant: "success", disabled: _vm.load },
-                            on: { click: _vm.actualizarCosto }
-                          },
-                          [
-                            _c("i", { staticClass: "fa fa-check" }),
-                            _vm._v(
-                              " " +
-                                _vm._s(!_vm.load ? "Guardar" : "Guardando") +
-                                "\n                "
-                            )
-                          ]
-                        )
-                      : _vm._e(),
-                    _vm._v(" "),
-                    _vm.registros.length > 0 &&
-                    _vm.agregar &&
+                    _vm.agregar == true &&
                     _vm.entrada.folio.length > 0
                       ? _c(
                           "b-button",
@@ -95476,233 +95367,188 @@ var render = function() {
                     }
                   },
                   {
-                    key: "costo_unitario",
-                    fn: function(row) {
-                      return [
-                        _vm.role_id == 2
-                          ? _c("b-input", {
-                              attrs: {
-                                type: "number",
-                                placeholder: "Costo unitario"
-                              },
-                              on: {
-                                change: function($event) {
-                                  return _vm.verificarUnidades(
-                                    row.item.unidades,
-                                    row.item.costo_unitario,
-                                    row.index
-                                  )
-                                }
-                              },
-                              model: {
-                                value: row.item.costo_unitario,
-                                callback: function($$v) {
-                                  _vm.$set(row.item, "costo_unitario", $$v)
-                                },
-                                expression: "row.item.costo_unitario"
-                              }
-                            })
-                          : _vm._e()
-                      ]
-                    }
-                  },
-                  {
-                    key: "total",
-                    fn: function(row) {
-                      return _vm.role_id == 2
-                        ? [_vm._v("$" + _vm._s(row.item.total))]
-                        : undefined
-                    }
-                  },
-                  {
                     key: "eliminar",
                     fn: function(row) {
                       return [
-                        _vm.role_id == 3
-                          ? _c(
-                              "b-button",
-                              {
-                                attrs: { variant: "danger" },
-                                on: {
-                                  click: function($event) {
-                                    return _vm.eliminarRegistro(
-                                      row.item,
-                                      row.index
-                                    )
-                                  }
-                                }
-                              },
-                              [_c("i", { staticClass: "fa fa-minus-circle" })]
-                            )
-                          : _vm._e()
+                        _c(
+                          "b-button",
+                          {
+                            attrs: { variant: "danger" },
+                            on: {
+                              click: function($event) {
+                                return _vm.eliminarRegistro(row.item, row.index)
+                              }
+                            }
+                          },
+                          [_c("i", { staticClass: "fa fa-minus-circle" })]
+                        )
                       ]
                     }
                   }
                 ],
                 null,
-                true
+                false,
+                1399380534
               )
             }),
             _vm._v(" "),
-            _vm.role_id == 3
-              ? _c(
-                  "b-row",
+            _c(
+              "b-row",
+              [
+                _c("b-col", { attrs: { sm: "1" } }),
+                _vm._v(" "),
+                _c(
+                  "b-col",
+                  { attrs: { sm: "3" } },
                   [
-                    _c("b-col", { attrs: { sm: "1" } }),
-                    _vm._v(" "),
-                    _c(
-                      "b-col",
-                      { attrs: { sm: "3" } },
-                      [
-                        _vm.inputISBN
-                          ? _c("b-input", {
-                              on: {
-                                keyup: function($event) {
-                                  if (
-                                    !$event.type.indexOf("key") &&
-                                    _vm._k(
-                                      $event.keyCode,
-                                      "enter",
-                                      13,
-                                      $event.key,
-                                      "Enter"
-                                    )
-                                  ) {
-                                    return null
-                                  }
-                                  return _vm.buscarLibroISBN()
-                                }
-                              },
-                              model: {
-                                value: _vm.isbn,
-                                callback: function($$v) {
-                                  _vm.isbn = $$v
-                                },
-                                expression: "isbn"
-                              }
-                            })
-                          : _vm._e(),
-                        _vm._v(" "),
-                        !_vm.inputISBN
-                          ? _c("b", [_vm._v(_vm._s(_vm.temporal.libro.ISBN))])
-                          : _vm._e()
-                      ],
-                      1
-                    ),
-                    _vm._v(" "),
-                    _c(
-                      "b-col",
-                      { attrs: { sm: "5" } },
-                      [
-                        _vm.inputLibro
-                          ? _c("b-input", {
-                              on: { keyup: _vm.mostrarLibros },
-                              model: {
-                                value: _vm.queryTitulo,
-                                callback: function($$v) {
-                                  _vm.queryTitulo = $$v
-                                },
-                                expression: "queryTitulo"
-                              }
-                            })
-                          : _vm._e(),
-                        _vm._v(" "),
-                        _vm.resultslibros.length
-                          ? _c(
-                              "div",
-                              { staticClass: "list-group" },
-                              _vm._l(_vm.resultslibros, function(libro, i) {
-                                return _c(
-                                  "a",
-                                  {
-                                    key: i,
-                                    staticClass:
-                                      "list-group-item list-group-item-action",
-                                    attrs: { href: "#" },
-                                    on: {
-                                      click: function($event) {
-                                        return _vm.datosLibro(libro)
-                                      }
-                                    }
-                                  },
-                                  [
-                                    _vm._v(
-                                      "\n                        " +
-                                        _vm._s(libro.titulo) +
-                                        "\n                    "
-                                    )
-                                  ]
+                    _vm.inputISBN
+                      ? _c("b-input", {
+                          on: {
+                            keyup: function($event) {
+                              if (
+                                !$event.type.indexOf("key") &&
+                                _vm._k(
+                                  $event.keyCode,
+                                  "enter",
+                                  13,
+                                  $event.key,
+                                  "Enter"
                                 )
-                              }),
-                              0
-                            )
-                          : _vm._e(),
-                        _vm._v(" "),
-                        !_vm.inputLibro
-                          ? _c("b", [_vm._v(_vm._s(_vm.temporal.libro.titulo))])
-                          : _vm._e()
-                      ],
-                      1
-                    ),
+                              ) {
+                                return null
+                              }
+                              return _vm.buscarLibroISBN()
+                            }
+                          },
+                          model: {
+                            value: _vm.isbn,
+                            callback: function($$v) {
+                              _vm.isbn = $$v
+                            },
+                            expression: "isbn"
+                          }
+                        })
+                      : _vm._e(),
                     _vm._v(" "),
-                    _c(
-                      "b-col",
-                      { attrs: { sm: "2" } },
-                      [
-                        _vm.inputUnidades
-                          ? _c("b-form-input", {
-                              attrs: { type: "number", required: "" },
-                              on: {
-                                keyup: function($event) {
-                                  if (
-                                    !$event.type.indexOf("key") &&
-                                    _vm._k(
-                                      $event.keyCode,
-                                      "enter",
-                                      13,
-                                      $event.key,
-                                      "Enter"
-                                    )
-                                  ) {
-                                    return null
+                    !_vm.inputISBN
+                      ? _c("b", [_vm._v(_vm._s(_vm.temporal.libro.ISBN))])
+                      : _vm._e()
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "b-col",
+                  { attrs: { sm: "5" } },
+                  [
+                    _vm.inputLibro
+                      ? _c("b-input", {
+                          on: { keyup: _vm.mostrarLibros },
+                          model: {
+                            value: _vm.queryTitulo,
+                            callback: function($$v) {
+                              _vm.queryTitulo = $$v
+                            },
+                            expression: "queryTitulo"
+                          }
+                        })
+                      : _vm._e(),
+                    _vm._v(" "),
+                    _vm.resultslibros.length
+                      ? _c(
+                          "div",
+                          { staticClass: "list-group" },
+                          _vm._l(_vm.resultslibros, function(libro, i) {
+                            return _c(
+                              "a",
+                              {
+                                key: i,
+                                staticClass:
+                                  "list-group-item list-group-item-action",
+                                attrs: { href: "#" },
+                                on: {
+                                  click: function($event) {
+                                    return _vm.datosLibro(libro)
                                   }
-                                  return _vm.guardarRegistro()
                                 }
                               },
-                              model: {
-                                value: _vm.unidades,
-                                callback: function($$v) {
-                                  _vm.unidades = $$v
-                                },
-                                expression: "unidades"
-                              }
-                            })
-                          : _vm._e()
-                      ],
-                      1
-                    ),
-                    _vm._v(" "),
-                    _c(
-                      "b-col",
-                      { attrs: { sm: "1" } },
-                      [
-                        _vm.inputUnidades
-                          ? _c(
-                              "b-button",
-                              {
-                                attrs: { variant: "secondary" },
-                                on: { click: _vm.eliminarTemporal }
-                              },
-                              [_c("i", { staticClass: "fa fa-minus-circle" })]
+                              [
+                                _vm._v(
+                                  "\n                        " +
+                                    _vm._s(libro.titulo) +
+                                    "\n                    "
+                                )
+                              ]
                             )
-                          : _vm._e()
-                      ],
-                      1
-                    )
+                          }),
+                          0
+                        )
+                      : _vm._e(),
+                    _vm._v(" "),
+                    !_vm.inputLibro
+                      ? _c("b", [_vm._v(_vm._s(_vm.temporal.libro.titulo))])
+                      : _vm._e()
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "b-col",
+                  { attrs: { sm: "2" } },
+                  [
+                    _vm.inputUnidades
+                      ? _c("b-form-input", {
+                          attrs: { type: "number", required: "" },
+                          on: {
+                            keyup: function($event) {
+                              if (
+                                !$event.type.indexOf("key") &&
+                                _vm._k(
+                                  $event.keyCode,
+                                  "enter",
+                                  13,
+                                  $event.key,
+                                  "Enter"
+                                )
+                              ) {
+                                return null
+                              }
+                              return _vm.guardarRegistro()
+                            }
+                          },
+                          model: {
+                            value: _vm.unidades,
+                            callback: function($$v) {
+                              _vm.unidades = $$v
+                            },
+                            expression: "unidades"
+                          }
+                        })
+                      : _vm._e()
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "b-col",
+                  { attrs: { sm: "1" } },
+                  [
+                    _vm.inputUnidades
+                      ? _c(
+                          "b-button",
+                          {
+                            attrs: { variant: "secondary" },
+                            on: { click: _vm.eliminarTemporal }
+                          },
+                          [_c("i", { staticClass: "fa fa-minus-circle" })]
+                        )
+                      : _vm._e()
                   ],
                   1
                 )
-              : _vm._e()
+              ],
+              1
+            )
           ],
           1
         )
