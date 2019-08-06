@@ -19,6 +19,9 @@
                 <template slot="pagos" slot-scope="row">
                     ${{ row.item.pagos }}
                 </template>
+                <template slot="total_devolucion" slot-scope="row">
+                    ${{ row.item.total_devolucion }}
+                </template>
                 <template slot="total_pagar" slot-scope="row">
                     ${{ row.item.total_pagar }}
                 </template>
@@ -32,12 +35,12 @@
                         @click="registrarPago(row.item, row.index)">Registrar pago
                     </b-button>
                 </template>
-                <!-- <template slot="devolucion" slot-scope="row">
+                <template slot="devolucion" slot-scope="row">
                     <b-button
                         v-if="role_id == 3 && row.item.total_pagar > 0" 
                         variant="outline-primary"
                         @click="registrarDevolucion(row.item, row.index)">Registrar devolución</b-button>
-                </template> -->
+                </template>
             </b-table>
         </div>
         <div v-if="mostrarNewPago">
@@ -292,6 +295,7 @@
                     {key: 'created_at', label: 'Fecha de creación'},
                     {key: 'total_salida', label: 'Salida'},
                     'pagos',
+                    {key: 'total_devolucion', label: 'Devolución'},
                     {key: 'total_pagar', label: 'Pagar'},
                     {key: 'detalles', label: ''},
                     {key: 'pagar', label: ''},
@@ -303,8 +307,9 @@
                     {key: 'costo_unitario', label: 'Costo unitario'},
                     'unidades',
                     {key: 'total', label: 'Subtotal'},
-                    {key: 'unidades_pagado', label: 'Unidades vendidas'},
-                    {key: 'unidades_pendiente', label: 'Unidades pendientes'},
+                    {key: 'unidades_pagado', label: 'Unidades vendidas', variant: 'info'},
+                    {key: 'unidades_devuelto', label: 'Unidades devueltas', variant: 'info'},
+                    {key: 'unidades_pendiente', label: 'Unidades pendientes', variant: 'info'},
                     'pagos'
                 ],
                 fieldsNP: [
@@ -439,6 +444,7 @@
                 this.unidades = '';
                 this.costo_unitario = '';
                 this.inputCosto = false;
+                this.isbn = '';
             },
             eliminarRegistro(i){
                 this.registers.splice(i, 1);
@@ -453,6 +459,7 @@
                         this.load = false;
                         this.notes.push(response.data);
                         this.mostrarCrearNota = false;
+                        this.listadoNotas = true;
                     })
                     .catch(error => {
                         this.load = false;
@@ -521,6 +528,7 @@
                     this.notes[this.posicion] = response.data;
                     this.makeToast('success', 'El pago se guardo correctamente');
                     this.mostrarNewPago = false;
+                    this.listadoNotas = true;
                 })
                 .catch(error => {
                     this.makeToast('danger', 'Ocurrio un error, vuelve a intentarlo');
@@ -529,9 +537,10 @@
             guardarDevolucion(){
                 axios.post('/guardar_devolucion', this.nota).then(response => {
                     console.log(response.data);
-                    // this.notes[this.posicion] = response.data;
-                    // this.makeToast('success', 'El pago se guardo correctamente');
-                    // this.mostrarNewPago = false;
+                    this.notes[this.posicion] = response.data;
+                    this.makeToast('success', 'La devolución se guardo correctamente');
+                    this.mostrarDevolucion = false;
+                    this.listadoNotas = true;
                 })
                 .catch(error => {
                     this.makeToast('danger', 'Ocurrio un error, vuelve a intentarlo');

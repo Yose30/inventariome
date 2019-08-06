@@ -119,6 +119,45 @@ class NoteController extends Controller
     }
 
     public function guardar_devolucion(Request $request){
-        return response()->json($request);
+        try{
+            \DB::beginTransaction();
+            
+            $total_devolucion = 0;
+            foreach($request->registers as $register){
+                $unidades = $register['unidades_base'];
+                $total = $register['total_base'];
+
+                $registro = Register::whereId($register['id'])->first();
+                    
+                $unidades_devuelto = $registro->unidades_devuelto + $unidades;
+                $total_devuelto = $registro->total_devuelto + $total;
+                $unidades_pendiente = $registro->unidades_pendiente - $unidades;
+                $total_pendiente = $registro->total_pendiente - $total;
+                
+                $registro->update([
+                    'unidades_devuelto' => $unidades_devuelto,
+                    'total_devuelto' => $total_devuelto,
+                    'unidades_pendiente' => $unidades_pendiente,
+                    'total_pendiente' => $total_pendiente
+                ]);
+
+                $libro = Libro::whereId($registro->libro_id)->first();
+                $libro->update(['piezas' => $libro->piezas + $unidades]);
+
+                $total_devolucion += $total;
+            }
+
+            $nota = Note::whereId($request->id)->first();
+            $total_pagar = $nota->total_pagar - $total_devolucion;
+            $total_devolucion = $nota->total_devolucion + $total_devolucion;
+            $nota->update([
+                'total_pagar' => $total_pagar,
+                'total_devolucion' => $total_devolucion
+            ]);
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+        }
+        return response()->json($nota);
     }
 }

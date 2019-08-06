@@ -96,7 +96,7 @@
             </div>
             <div class="tab-pane fade" id="v-entradas">
                 <br>
-                <entradas-component :role_id="{{ auth()->user()->role_id }}"></entradas-component>
+                <editar-entradas-component :role_id="{{ auth()->user()->role_id }}"></editar-entradas-component>
             </div>
             <div class="tab-pane fade" id="v-adeudos">
                 <br>

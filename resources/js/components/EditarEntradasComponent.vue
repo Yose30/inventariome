@@ -41,7 +41,7 @@
                 <template slot="editar" slot-scope="row">
                     <b-button 
                         @click="editarEntrada(row.item, row.index)"
-                        v-if="row.item.total == 0"
+                        v-if="row.item.total == 0 && role_id == 2"
                         variant="warning">
                         <i class="fa fa-pencil"></i> Editar
                     </b-button>

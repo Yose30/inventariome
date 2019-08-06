@@ -157,13 +157,12 @@
                             </td>
                             <td>
                                 <label v-if="remision.estado == 'Proceso' || remision.estado == 'Terminado'">$ {{ remision.pagos }}</label>
-
                             </td>
                             <td>
-                                <b-badge v-if="remision.total_pagar == 0 && remision.pagos > 0" variant="success">Pagado</b-badge>
                                 <label v-if="remision.total_pagar > 0">
                                     $ {{ remision.total_pagar }}
                                 </label>
+                                <b-badge v-if="remision.total_pagar == 0 && remision.pagos > 0" variant="success">Pagado</b-badge>
                             </td>
                             <td>
                                 <button 
