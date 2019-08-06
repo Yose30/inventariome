@@ -63,7 +63,7 @@
                     {{ __("Promociones") }}
                 </a>
             </li>
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a 
                     class="nav-link" 
                     id="entradas-tab" 
@@ -72,7 +72,7 @@
                     aria-controls="v-entradas">
                     {{ __("Entradas") }}
                 </a>
-            </li>
+            </li> -->
             <li class="nav-item">
                 <a 
                     class="nav-link" 
