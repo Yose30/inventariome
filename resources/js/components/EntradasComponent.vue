@@ -87,7 +87,7 @@
                 </b-col>
                 <b-col sm="5">
                     <b-form-input v-model="entrada.folio" :state="stateN" @change="guardarNum"></b-form-input>
-                    <b-form-input v-model="entrada.editorial" :state="stateE"></b-form-input>
+                    <b-form-input v-model="entrada.editorial"></b-form-input>
                 </b-col>
                 <b-col sm="3" align="right">
                     <label><b>Unidades:</b> {{ total_unidades }}</label>
@@ -315,6 +315,7 @@
                     this.eliminarTemporal();
                     this.listadoEntradas = false;
                     this.mostrarEA = true;
+                    this.entrada.id = response.data.entrada.id;
                     this.entrada.folio = response.data.entrada.folio;
                     this.entrada.editorial = response.data.entrada.editorial;
                     this.entrada.total = response.data.entrada.total;
@@ -397,24 +398,18 @@
             actRemision(){
                 this.entrada.unidades = this.total_unidades;
                 this.entrada.nuevos = this.nuevos;
-                // if(this.entrada.editorial.length > 0){
-                    this.load = true;
-                    this.stateE = null;
-                    axios.put('/actualizar_entrada', this.entrada).then(response => {
-                        this.makeToast('success', 'La entrada se ha actualizado');
-                        this.load = false;
-                        this.entradas[this.posicion] = response.data;
-                        this.mostrarEA = false;
-                        this.listadoEntradas = true;
-                    }).catch(error => {
-                        this.load = false;
-                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                    });
-                // }
-                // else{
-                //     this.stateE = false;
-                //     this.makeToast('danger', 'Definir editorial');
-                // }
+                this.load = true;
+                this.stateE = null;
+                axios.put('/actualizar_entrada', this.entrada).then(response => {
+                    this.makeToast('success', 'La entrada se ha actualizado');
+                    this.load = false;
+                    this.entradas[this.posicion] = response.data;
+                    this.mostrarEA = false;
+                    this.listadoEntradas = true;
+                }).catch(error => {
+                    this.load = false;
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
             },
             eliminarTemporal(){
                 this.temporal = {};

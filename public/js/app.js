@@ -3830,6 +3830,7 @@ __webpack_require__.r(__webpack_exports__);
 
         _this5.listadoEntradas = false;
         _this5.mostrarEA = true;
+        _this5.entrada.id = response.data.entrada.id;
         _this5.entrada.folio = response.data.entrada.folio;
         _this5.entrada.editorial = response.data.entrada.editorial;
         _this5.entrada.total = response.data.entrada.total;
@@ -3929,8 +3930,7 @@ __webpack_require__.r(__webpack_exports__);
       var _this9 = this;
 
       this.entrada.unidades = this.total_unidades;
-      this.entrada.nuevos = this.nuevos; // if(this.entrada.editorial.length > 0){
-
+      this.entrada.nuevos = this.nuevos;
       this.load = true;
       this.stateE = null;
       axios.put('/actualizar_entrada', this.entrada).then(function (response) {
@@ -3944,11 +3944,7 @@ __webpack_require__.r(__webpack_exports__);
         _this9.load = false;
 
         _this9.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-      }); // }
-      // else{
-      //     this.stateE = false;
-      //     this.makeToast('danger', 'Definir editorial');
-      // }
+      });
     },
     eliminarTemporal: function eliminarTemporal() {
       this.temporal = {};
@@ -95278,7 +95274,6 @@ var render = function() {
                     }),
                     _vm._v(" "),
                     _c("b-form-input", {
-                      attrs: { state: _vm.stateE },
                       model: {
                         value: _vm.entrada.editorial,
                         callback: function($$v) {

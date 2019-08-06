@@ -187,7 +187,6 @@ class EntradaController extends Controller
 
     public function actualizar(Request $request){
         $entrada = Entrada::whereId($request->id)->first();
-        
         try {
             \DB::beginTransaction();
             $entrada->folio = $request->folio;
@@ -221,13 +220,14 @@ class EntradaController extends Controller
     public function concluir_registro($id){
         $registros = Registro::where('entrada_id', $id)->where('estado', 'Eliminado')->get();
 
-        foreach($registros as $registro){
-            $libro = Libro::whereId($registro->libro_id)->first();
-            $libro->update(['piezas' => $libro->piezas - $registro->unidades]);
-        }
+        if($registros->count() > 0){
+            foreach($registros as $registro){
+                $libro = Libro::whereId($registro->libro_id)->first();
+                $libro->update(['piezas' => $libro->piezas - $registro->unidades]);
+            }
 
-        Registro::where('entrada_id', $id)->where('estado', 'Eliminado')->delete();
-        // Registro::where('entrada_id', $id)->update(['estado' => 'Terminado']);
+            Registro::where('entrada_id', $id)->where('estado', 'Eliminado')->delete();
+        }
     }
 
     public function actualizar_costos(Request $request){
