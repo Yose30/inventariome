@@ -3929,27 +3929,26 @@ __webpack_require__.r(__webpack_exports__);
       var _this9 = this;
 
       this.entrada.unidades = this.total_unidades;
-      this.entrada.nuevos = this.nuevos;
+      this.entrada.nuevos = this.nuevos; // if(this.entrada.editorial.length > 0){
 
-      if (this.entrada.editorial.length > 0) {
-        this.load = true;
-        this.stateE = null;
-        axios.put('/actualizar_entrada', this.entrada).then(function (response) {
-          _this9.makeToast('success', 'La entrada se ha actualizado');
+      this.load = true;
+      this.stateE = null;
+      axios.put('/actualizar_entrada', this.entrada).then(function (response) {
+        _this9.makeToast('success', 'La entrada se ha actualizado');
 
-          _this9.load = false;
-          _this9.entradas[_this9.posicion] = response.data;
-          _this9.mostrarEA = false;
-          _this9.listadoEntradas = true;
-        })["catch"](function (error) {
-          _this9.load = false;
+        _this9.load = false;
+        _this9.entradas[_this9.posicion] = response.data;
+        _this9.mostrarEA = false;
+        _this9.listadoEntradas = true;
+      })["catch"](function (error) {
+        _this9.load = false;
 
-          _this9.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-        });
-      } else {
-        this.stateE = false;
-        this.makeToast('danger', 'Definir editorial');
-      }
+        _this9.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+      }); // }
+      // else{
+      //     this.stateE = false;
+      //     this.makeToast('danger', 'Definir editorial');
+      // }
     },
     eliminarTemporal: function eliminarTemporal() {
       this.temporal = {};

@@ -397,7 +397,7 @@
             actRemision(){
                 this.entrada.unidades = this.total_unidades;
                 this.entrada.nuevos = this.nuevos;
-                if(this.entrada.editorial.length > 0){
+                // if(this.entrada.editorial.length > 0){
                     this.load = true;
                     this.stateE = null;
                     axios.put('/actualizar_entrada', this.entrada).then(response => {
@@ -410,11 +410,11 @@
                         this.load = false;
                         this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                     });
-                }
-                else{
-                    this.stateE = false;
-                    this.makeToast('danger', 'Definir editorial');
-                }
+                // }
+                // else{
+                //     this.stateE = false;
+                //     this.makeToast('danger', 'Definir editorial');
+                // }
             },
             eliminarTemporal(){
                 this.temporal = {};
