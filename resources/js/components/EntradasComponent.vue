@@ -97,7 +97,7 @@
                         @click="actRemision" 
                         variant="success"
                         :disabled="load"
-                        v-if="registros.length > 0 && agregar == false && entrada.folio.length > 0">
+                        v-if="registros.length > 0 && agregar == false">
                         <i class="fa fa-check"></i> {{ !load ? 'Guardar  cambios' : 'Guardando' }}
                     </b-button>
                     <b-button 
