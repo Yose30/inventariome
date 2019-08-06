@@ -15,12 +15,16 @@
                         </b-col>
                     </b-row>
                 </b-col>
-                <b-col align="right">
-                    <b-button v-if="role_id == 3" variant="success" @click="nuevaEntrada"><i class="fa fa-plus"></i> Registrar entrada</b-button>
+                <!-- <b-col align="right">
+                    <label><b>Unidades:</b> {{ entrada.unidades }}</label>
                 </b-col>
+                <b-col align="right">
+                    <label><b>Total:</b> ${{ entrada.total }}</label>
+                </b-col> -->
             </b-row>
             <hr>
             <b-table v-if="!mostrarDetalles && !mostrarEA && entradas.length > 0" :items="entradas" :fields="fields">
+                <template slot="total" slot-scope="row">${{ row.item.total }}</template>
                 <template slot="detalles" slot-scope="row">
                     <b-button variant="info" @click="detallesEntrada(row.item)">Ver detalles</b-button>
                 </template>
@@ -37,7 +41,7 @@
                 <template slot="editar" slot-scope="row">
                     <b-button 
                         @click="editarEntrada(row.item, row.index)"
-                        v-if="role_id == 3"
+                        v-if="row.item.total == 0"
                         variant="warning">
                         <i class="fa fa-pencil"></i> Editar
                     </b-button>
@@ -54,10 +58,13 @@
                     <label>{{entrada.folio}}</label><br>
                     <label>{{entrada.editorial}}</label>
                 </b-col>
-                <b-col sm="4">
+                <b-col>
                     <label><b>Unidades:</b> {{ entrada.unidades }}</label>
                 </b-col>
-                <b-col sm="3" align="right">
+                <b-col>
+                    <label><b>Total:</b> ${{ entrada.total }}</label>
+                </b-col>
+                <b-col align="right">
                     <b-button 
                         variant="secondary" 
                         @click="mostrarDetalles = false; listadoEntradas = true;">
@@ -73,6 +80,7 @@
                 <template slot="total" slot-scope="row">${{ row.item.total }}</template>
             </b-table>
         </div>
+        
         <div v-if="mostrarEA">
             <div class="text-right">
                 <b-button variant="secondary" @click="mostrarEA = false; listadoEntradas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
@@ -84,91 +92,42 @@
                     <label>Editorial</label>
                 </b-col>
                 <b-col sm="5">
-                    <b-form-input v-model="entrada.folio" :state="stateN" @change="guardarNum"></b-form-input>
-                    <b-form-input v-model="entrada.editorial"></b-form-input>
+                    <label>{{entrada.folio}}</label><br>
+                    <label>{{entrada.editorial}}</label>
                 </b-col>
                 <b-col sm="3" align="right">
                     <label><b>Unidades:</b> {{ total_unidades }}</label>
                 </b-col>
                 <b-col sm="3" class="text-right">
                     <b-button 
-                        @click="actRemision" 
+                        @click="actualizarCosto" 
                         variant="success"
                         :disabled="load"
-                        v-if="registros.length > 0 && agregar == false">
-                        <i class="fa fa-check"></i> {{ !load ? 'Guardar  cambios' : 'Guardando' }}
-                    </b-button>
-                    <b-button 
-                        @click="onSubmit" 
-                        variant="success"
-                        :disabled="load"
-                        v-if="registros.length > 0 && agregar == true && entrada.folio.length > 0">
-                        <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }}
+                        v-if="!agregar">
+                        <i class="fa fa-check"></i> {{ !load ? 'Guardar cambios' : 'Guardando' }}
                     </b-button>
                 </b-col>
             </b-row>
             <hr>
-            <b-table :items="registros" :fields="fieldsRE">
+            <b-table :items="registros" :fields="fieldsR">
                 <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                 <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                <template slot="eliminar" slot-scope="row">
-                    <b-button variant="danger" @click="eliminarRegistro(row.item, row.index)">
-                        <i class="fa fa-minus-circle"></i>
-                    </b-button>
-                </template>
-            </b-table>
-            <b-row>
-                <b-col sm="1"></b-col>
-                <b-col sm="3">
-                    <b-input
-                        v-model="isbn"
-                        @keyup.enter="buscarLibroISBN()"
-                        v-if="inputISBN"
-                    ></b-input>
-                    <b v-if="!inputISBN">{{ temporal.libro.ISBN }}</b>
-                </b-col>
-                <b-col sm="5">
-                    <b-input
-                        v-model="queryTitulo"
-                        @keyup="mostrarLibros"
-                        v-if="inputLibro">
+                <template slot="costo_unitario" slot-scope="row">
+                    <b-input 
+                        type="number" 
+                        placeholder="Costo unitario"
+                        @change="verificarUnidades(row.item.unidades, row.item.costo_unitario, row.index)" 
+                        v-model="row.item.costo_unitario">
                     </b-input>
-                    <div class="list-group" v-if="resultslibros.length">
-                        <a 
-                            href="#" 
-                            v-bind:key="i" 
-                            class="list-group-item list-group-item-action" 
-                            v-for="(libro, i) in resultslibros" 
-                            @click="datosLibro(libro)">
-                            {{ libro.titulo }}
-                        </a>
-                    </div>
-                    <b v-if="!inputLibro">{{ temporal.libro.titulo }}</b>
-                </b-col>
-                <b-col sm="2">
-                    <b-form-input 
-                        @keyup.enter="guardarRegistro()"
-                        v-if="inputUnidades"
-                        v-model="unidades" 
-                        type="number"
-                        required>
-                    </b-form-input>
-                </b-col>
-                <b-col sm="1">
-                    <b-button 
-                        variant="secondary"
-                        @click="eliminarTemporal" 
-                        v-if="inputUnidades">
-                        <i class="fa fa-minus-circle"></i>
-                    </b-button>
-                </b-col>
-            </b-row>
+                </template>
+                <template slot="total" slot-scope="row">${{ row.item.total }}</template>
+            </b-table>
+            
         </div>
     </div>
 </template>
 
 <script>
-    // moment.locale('es');
     export default {
         props: ['role_id'],
         data() {
@@ -181,6 +140,7 @@
                     'folio',
                     'editorial',
                     'unidades',
+                    'total',
                     {key: 'created_at', label: 'Fecha de creación'},
                     {key: 'detalles', label: ''},  
                     {key: 'descargar', label: ''}, 
@@ -190,18 +150,9 @@
                     {key: 'id', label: 'N.'}, 
                     {key: 'isbn', label: 'ISBN'}, 
                     {key: 'titulo', label: 'Libro'}, 
-                    // {key: 'costo_unitario', label: 'Costo unitario'},
+                    {key: 'costo_unitario', label: 'Costo unitario'},
                     'unidades',
-                    // {key: 'total', label: 'Subtotal'},
-                ],
-                fieldsRE: [
-                    {key: 'id', label: 'N.'}, 
-                    {key: 'ISBN', label: 'ISBN'}, 
-                    {key: 'titulo', label: 'Libro'}, 
-                    'unidades', 
-                    // {key: 'costo_unitario', label: ''},
-                    // {key: 'total', label: ''},
-                    {key: 'eliminar', label: ''}
+                    {key: 'total', label: 'Subtotal'},
                 ],
                 mostrarDetalles: false,
                 fechaFinal: '',
@@ -223,7 +174,6 @@
                 resultslibros: [],
                 inputUnidades: false,
                 unidades: 0,
-                total_unidades: 0,
                 stateN: null,
                 stateE: null,
                 load: false,
@@ -231,7 +181,6 @@
                 listadoEntradas: true,
                 agregar: false,
                 nuevos: [],
-                total: 0,
                 estado: false
             }
         },
@@ -264,28 +213,6 @@
                 }).catch(error => {
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
-            },
-            onSubmit(){
-                this.load = true;
-                this.entrada.unidades = this.total_unidades;
-                this.entrada.items = this.registros;
-                if(this.entrada.editorial.length > 0){
-                    this.stateE = null;
-                    axios.post('/crear_entrada', this.entrada).then(response => {
-                        this.entradas.push(response.data);
-                        this.load = false;
-                        this.mostrarEA = false;
-                        this.listadoEntradas = true;
-                        this.makeToast('success', 'La entrada se creo correctamente');
-                    }).catch(error => {
-                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                    });
-                }
-                else{
-                    this.stateE = false;
-                    this.load = false;
-                    this.makeToast('danger', 'Definir editorial');
-                }
             },
             getTodo(){
                 var ffinal = moment();
@@ -453,9 +380,11 @@
                 } 
             },
             acumular(){
-                this.total = 0;
+                this.entrada.unidades = 0;
+                this.entrada.total = 0;
                 this.entradas.forEach(entrada => {
-                    this.total += entrada.unidades;
+                    this.entrada.unidades += entrada.unidades;
+                    this.entrada.total += entrada.total;
                 });
             },
             verificarUnidades(unidades, costo_unitario, i){

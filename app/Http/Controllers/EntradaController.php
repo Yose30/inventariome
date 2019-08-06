@@ -189,10 +189,6 @@ class EntradaController extends Controller
         $entrada = Entrada::whereId($request->id)->first();
         try {
             \DB::beginTransaction();
-            $entrada->folio = $request->folio;
-            $entrada->editorial = $request->editorial;
-            $entrada->unidades = $request->unidades;
-            $entrada->save();
 
             $this->concluir_registro($entrada->id);
             
@@ -208,6 +204,11 @@ class EntradaController extends Controller
                 $libro->update(['piezas' => $libro->piezas + $nuevo['unidades']]);
             }
 
+            $entrada->folio = $request->folio;
+            $entrada->editorial = $request->editorial;
+            $entrada->unidades = $request->unidades;
+            $entrada->save();
+
             \DB::commit();
 
         } catch (Exception $e) {
@@ -219,15 +220,12 @@ class EntradaController extends Controller
 
     public function concluir_registro($id){
         $registros = Registro::where('entrada_id', $id)->where('estado', 'Eliminado')->get();
-
-        if($registros->count() > 0){
-            foreach($registros as $registro){
-                $libro = Libro::whereId($registro->libro_id)->first();
-                $libro->update(['piezas' => $libro->piezas - $registro->unidades]);
-            }
-
-            Registro::where('entrada_id', $id)->where('estado', 'Eliminado')->delete();
+        foreach($registros as $registro){
+            $libro = Libro::whereId($registro->libro_id)->first();
+            $libro->update(['piezas' => $libro->piezas - $registro->unidades]);
         }
+
+        Registro::where('entrada_id', $id)->where('estado', 'Eliminado')->delete();
     }
 
     public function actualizar_costos(Request $request){

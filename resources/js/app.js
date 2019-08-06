@@ -54,6 +54,7 @@ Vue.component('new-nota-component', require('./components/NewNotaComponent.vue')
 Vue.component('vendidos-component', require('./components/VendidosComponent.vue').default);
 Vue.component('adeudos-component', require('./components/AdeudosComponent.vue').default);
 Vue.component('promociones-component', require('./components/PromocionesComponent.vue').default);
+Vue.component('editar-entradas-component', require('./components/EditarEntradasComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
