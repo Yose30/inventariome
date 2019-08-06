@@ -92412,7 +92412,7 @@ var render = function() {
               "div",
               { attrs: { align: "right" } },
               [
-                _vm.role_id == 2 && !_vm.mostrarRegistrar
+                !_vm.mostrarRegistrar
                   ? _c(
                       "b-button",
                       {
@@ -92506,7 +92506,7 @@ var render = function() {
                     key: "registrar_pago",
                     fn: function(row) {
                       return [
-                        _vm.role_id == 2 && row.item.total_pendiente != 0
+                        row.item.total_pendiente != 0
                           ? _c(
                               "b-button",
                               {
@@ -92536,7 +92536,7 @@ var render = function() {
                 ],
                 null,
                 false,
-                2424436098
+                4214676278
               )
             }),
             _vm._v(" "),
