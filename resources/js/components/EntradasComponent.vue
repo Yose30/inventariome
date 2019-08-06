@@ -8,10 +8,7 @@
                             <label for="input-editorial">Editorial</label>
                         </b-col>
                         <b-col sm="9">
-                            <b-input
-                                v-model="editorial"
-                                @keyup="mostrarEditoriales"
-                            ></b-input>
+                            <b-form-select v-model="editorial" :options="options" @change="mostrarEditoriales"></b-form-select>
                         </b-col>
                     </b-row>
                 </b-col>
@@ -175,7 +172,19 @@
             return {
                 entradas: [],
                 registros: [],
-                editorial: '',
+                editorial: null,
+                options: [
+                    { value: null, text: 'Selecciona una opción', disabled: true },
+                    { value: 'CAMBRIDGE', text: 'CAMBRIDGE' },
+                    { value: 'CENGAGE', text: 'CENGAGE' },
+                    { value: 'EMPRESER', text: 'EMPRESER' },
+                    { value: 'EXPRESS PUBLISHING', text: 'EXPRESS PUBLISHING'},
+                    { value: 'HELBLING LANGUAGES', text: 'HELBLING LANGUAGES'},
+                    { value: 'MAJESTIC', text: 'MAJESTIC'},
+                    { value: 'MC GRAW - MAJESTIC', text: 'MC GRAW - MAJESTIC'},
+                    { value: 'MCGRAW HILL', text: 'MCGRAW HILL'},
+                    { value: 'RICHMOND', text: 'RICHMOND'},
+                ],
                 fields: [
                     {key: 'id', label: 'N.'}, 
                     'folio',
