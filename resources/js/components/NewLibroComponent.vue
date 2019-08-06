@@ -36,11 +36,12 @@
             <b-row class="my-1">
                 <label align="right" class="col-md-3">Editorial</label>
                 <div class="col-md-9">
-                    <b-form-input 
+                    <!-- <b-form-input 
                         v-model="form.editorial" 
                         :disabled="loaded"
                         required>
-                    </b-form-input>
+                    </b-form-input> -->
+                    <b-form-select v-model="form.editorial" :disabled="loaded" :options="options" required></b-form-select>
                     <div v-if="errors && errors.editorial" class="text-danger">{{ errors.editorial[0] }}</div>
                 </div>
             </b-row>
@@ -65,7 +66,21 @@
                 form: {},
                 errors: {},
                 success: false,
-                loaded: false
+                loaded: false,
+                options: [
+                    { value: null, text: 'Selecciona una opción', disabled: true },
+                    { value: 'CAMBRIDGE', text: 'CAMBRIDGE' },
+                    { value: 'CENGAGE', text: 'CENGAGE' },
+                    { value: 'EMPRESER', text: 'EMPRESER' },
+                    { value: 'EXPRESS PUBLISHING', text: 'EXPRESS PUBLISHING'},
+                    { value: 'HELBLING LANGUAGES', text: 'HELBLING LANGUAGES'},
+                    { value: 'MAJESTIC', text: 'MAJESTIC'},
+                    { value: 'MC GRAW - MAJESTIC', text: 'MC GRAW - MAJESTIC'},
+                    { value: 'MCGRAW HILL', text: 'MCGRAW HILL'},
+                    { value: 'RICHMOND', text: 'RICHMOND'},
+                    { value: 'IMPRESOS DE CALIDAD', text: 'IMPRESOS DE CALIDAD'},
+                    { value: 'ENGLISH TEXBOOK', text: 'ENGLISH TEXBOOK'},
+                ],
             }
         },
         methods: {

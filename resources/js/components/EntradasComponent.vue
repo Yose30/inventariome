@@ -81,8 +81,8 @@
                     <label>Editorial</label>
                 </b-col>
                 <b-col sm="5">
-                    <b-form-input v-model="entrada.folio" :state="stateN" @change="guardarNum"></b-form-input>
-                    <b-form-input v-model="entrada.editorial"></b-form-input>
+                    <b-form-input v-model="entrada.folio" :disabled="load" :state="stateN" @change="guardarNum"></b-form-input>
+                    <b-form-select v-model="entrada.editorial" :disabled="load" :state="stateE" :options="options"></b-form-select>
                 </b-col>
                 <b-col sm="3" align="right">
                     <label><b>Unidades:</b> {{ total_unidades }}</label>
@@ -184,6 +184,8 @@
                     { value: 'MC GRAW - MAJESTIC', text: 'MC GRAW - MAJESTIC'},
                     { value: 'MCGRAW HILL', text: 'MCGRAW HILL'},
                     { value: 'RICHMOND', text: 'RICHMOND'},
+                    { value: 'IMPRESOS DE CALIDAD', text: 'IMPRESOS DE CALIDAD'},
+                    { value: 'ENGLISH TEXBOOK', text: 'ENGLISH TEXBOOK'},
                 ],
                 fields: [
                     {key: 'id', label: 'N.'}, 
@@ -219,7 +221,7 @@
                     unidades: 0,
                     total: 0,
                     folio: '',
-                    editorial: '',
+                    editorial: null,
                     items: [],
                     nuevos: []
                 },
@@ -278,7 +280,7 @@
                 this.load = true;
                 this.entrada.unidades = this.total_unidades;
                 this.entrada.items = this.registros;
-                if(this.entrada.editorial.length > 0){
+                if(this.entrada.editorial.length > 3){
                     this.stateE = null;
                     axios.post('/crear_entrada', this.entrada).then(response => {
                         this.entradas.push(response.data);
@@ -293,7 +295,7 @@
                 else{
                     this.stateE = false;
                     this.load = false;
-                    this.makeToast('danger', 'Definir editorial');
+                    this.makeToast('danger', 'Seleccionar editorial');
                 }
             },
             getTodo(){
