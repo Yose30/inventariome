@@ -95300,9 +95300,7 @@ var render = function() {
                   "b-col",
                   { staticClass: "text-right", attrs: { sm: "3" } },
                   [
-                    _vm.registros.length > 0 &&
-                    _vm.agregar == false &&
-                    _vm.entrada.folio.length > 0
+                    _vm.registros.length > 0 && _vm.agregar == false
                       ? _c(
                           "b-button",
                           {
