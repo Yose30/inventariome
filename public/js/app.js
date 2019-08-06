@@ -92410,19 +92410,17 @@ var render = function() {
               "div",
               { attrs: { align: "right" } },
               [
-                !_vm.mostrarRegistrar
-                  ? _c(
-                      "b-button",
-                      {
-                        attrs: { variant: "primary" },
-                        on: { click: _vm.registrarAdeudo }
-                      },
-                      [
-                        _c("i", { staticClass: "fa fa-plus" }),
-                        _vm._v(" Registrar adeudo\n            ")
-                      ]
-                    )
-                  : _vm._e()
+                _c(
+                  "b-button",
+                  {
+                    attrs: { variant: "primary" },
+                    on: { click: _vm.registrarAdeudo }
+                  },
+                  [
+                    _c("i", { staticClass: "fa fa-plus" }),
+                    _vm._v(" Registrar adeudo\n            ")
+                  ]
+                )
               ],
               1
             ),

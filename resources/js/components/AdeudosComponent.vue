@@ -2,7 +2,7 @@
     <div>
         <div v-if="listadoAdeudos">
             <div align="right">
-                <b-button v-if="!mostrarRegistrar" variant="primary" @click="registrarAdeudo">
+                <b-button variant="primary" @click="registrarAdeudo">
                     <i class="fa fa-plus"></i> Registrar adeudo
                 </b-button>
             </div>
