@@ -2,7 +2,7 @@
     <div>
         <div v-if="listadoEntradas">
             <b-row>
-                <b-col v-if="role_id == 1">
+                <b-col>
                     <b-row class="my-1">
                         <b-col sm="3">
                             <label for="input-editorial">Editorial</label>
@@ -15,7 +15,7 @@
                         </b-col>
                     </b-row>
                 </b-col>
-                <b-col  v-if="role_id == 1" align="right">
+                <b-col align="right">
                     <label>Unidades: {{ total }}</label>
                 </b-col>
                 <b-col align="right">
@@ -27,7 +27,7 @@
                 <template slot="detalles" slot-scope="row">
                     <b-button variant="info" @click="detallesEntrada(row.item)">Ver detalles</b-button>
                 </template>
-                <template v-if="role_id != 2" slot="descargar" slot-scope="row">
+                <template slot="descargar" slot-scope="row">
                     <b-button 
                         variant="primary"
                         :href="'/imprimirEntrada/' + row.item.id">
@@ -38,17 +38,10 @@
                     {{ row.item.created_at | moment }}
                 </template>
                 <template slot="editar" slot-scope="row">
-                    <!-- fechaFinal.diff(row.item.created_at, 'days') < 5 -->
                     <b-button 
                         @click="editarEntrada(row.item, row.index)"
-                        variant="warning" 
-                        v-if="role_id == 3">
-                        <i class="fa fa-pencil"></i> Editar
-                    </b-button>
-                    <b-button 
-                        @click="editarEntrada(row.item, row.index)"
-                        variant="warning" 
-                        v-if="role_id == 2 && row.item.total == 0">
+                        v-if="role_id == 3"
+                        variant="warning">
                         <i class="fa fa-pencil"></i> Editar
                     </b-button>
                 </template>
@@ -92,13 +85,9 @@
                     <label>Folio</label><br>
                     <label>Editorial</label>
                 </b-col>
-                <b-col sm="5" v-if="role_id == 3">
+                <b-col sm="5">
                     <b-form-input v-model="entrada.folio" :state="stateN" @change="guardarNum"></b-form-input>
                     <b-form-input v-model="entrada.editorial" :state="stateE"></b-form-input>
-                </b-col>
-                <b-col sm="5" v-if="role_id == 2">
-                    <label>{{entrada.folio}}</label><br>
-                    <label>{{entrada.editorial}}</label>
                 </b-col>
                 <b-col sm="3" align="right">
                     <label><b>Unidades:</b> {{ total_unidades }}</label>
@@ -108,21 +97,14 @@
                         @click="actRemision" 
                         variant="success"
                         :disabled="load"
-                        v-if="registros.length > 0 && !agregar && entrada.folio.length > 0 && role_id == 3">
-                        <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }}
-                    </b-button>
-                    <b-button 
-                        @click="actualizarCosto" 
-                        variant="success"
-                        :disabled="load"
-                        v-if="registros.length > 0 && !agregar && entrada.folio.length > 0 && role_id == 2">
-                        <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }}
+                        v-if="registros.length > 0 && agregar == false && entrada.folio.length > 0">
+                        <i class="fa fa-check"></i> {{ !load ? 'Guardar  cambios' : 'Guardando' }}
                     </b-button>
                     <b-button 
                         @click="onSubmit" 
                         variant="success"
                         :disabled="load"
-                        v-if="registros.length > 0 && agregar && entrada.folio.length > 0">
+                        v-if="registros.length > 0 && agregar == true && entrada.folio.length > 0">
                         <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }}
                     </b-button>
                 </b-col>
@@ -131,23 +113,13 @@
             <b-table :items="registros" :fields="fieldsRE">
                 <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                 <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                <template slot="costo_unitario" slot-scope="row">
-                    <b-input 
-                        type="number" 
-                        v-if="role_id == 2"
-                        placeholder="Costo unitario"
-                        @change="verificarUnidades(row.item.unidades, row.item.costo_unitario, row.index)" 
-                        v-model="row.item.costo_unitario">
-                    </b-input>
-                </template>
-                <template v-if="role_id == 2" slot="total" slot-scope="row">${{ row.item.total }}</template>
                 <template slot="eliminar" slot-scope="row">
-                    <b-button v-if="role_id == 3" variant="danger" @click="eliminarRegistro(row.item, row.index)">
+                    <b-button variant="danger" @click="eliminarRegistro(row.item, row.index)">
                         <i class="fa fa-minus-circle"></i>
                     </b-button>
                 </template>
             </b-table>
-            <b-row v-if="role_id == 3">
+            <b-row>
                 <b-col sm="1"></b-col>
                 <b-col sm="3">
                     <b-input
@@ -220,17 +192,17 @@
                     {key: 'id', label: 'N.'}, 
                     {key: 'isbn', label: 'ISBN'}, 
                     {key: 'titulo', label: 'Libro'}, 
-                    {key: 'costo_unitario', label: 'Costo unitario'},
+                    // {key: 'costo_unitario', label: 'Costo unitario'},
                     'unidades',
-                    {key: 'total', label: 'Subtotal'},
+                    // {key: 'total', label: 'Subtotal'},
                 ],
                 fieldsRE: [
                     {key: 'id', label: 'N.'}, 
                     {key: 'ISBN', label: 'ISBN'}, 
                     {key: 'titulo', label: 'Libro'}, 
                     'unidades', 
-                    {key: 'costo_unitario', label: ''},
-                    {key: 'total', label: ''},
+                    // {key: 'costo_unitario', label: ''},
+                    // {key: 'total', label: ''},
                     {key: 'eliminar', label: ''}
                 ],
                 mostrarDetalles: false,
@@ -401,34 +373,19 @@
             //Guardar un registro de la entrada
             guardarRegistro(){
                 if(this.unidades > 0){
-                    // this.temporal.entrada_id = this.entrada.id;
                     this.temporal.unidades = this.unidades;
-                    // axios.post('/registro_entrada', this.temporal).then(response => {
-                    //     this.temporal = {
-                    //         id: response.data.registro.id,
-                    //         libro: {
-                    //             ISBN: response.data.libro.ISBN,
-                    //             titulo: response.data.libro.titulo,
-                    //         },
-                    //         unidades: response.data.registro.unidades,
-                    //     };
-                        if(this.agregar == false){
-                            this.nuevos.push(this.temporal);
-                        }
-                        this.registros.push(this.temporal);
-                        this.total_unidades += parseInt(this.temporal.unidades);
-                        this.unidades = 0;
-                        this.temporal = {};
-                        this.isbn = '';
-                        this.queryTitulo = '',
-                        this.inputISBN = true;
-                        this.inputLibro = true;
-                        this.inputUnidades = false;
-                        // this.botonEliminar = true;
-                    // })
-                    // .catch(error => {
-                    //     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentarlo');
-                    // });
+                    if(this.agregar == false){
+                        this.nuevos.push(this.temporal);
+                    }
+                    this.registros.push(this.temporal);
+                    this.total_unidades += parseInt(this.temporal.unidades);
+                    this.unidades = 0;
+                    this.temporal = {};
+                    this.isbn = '';
+                    this.queryTitulo = '',
+                    this.inputISBN = true;
+                    this.inputLibro = true;
+                    this.inputUnidades = false;
                 }
                 else{
                     this.makeToast('danger', 'Unidades no validas');

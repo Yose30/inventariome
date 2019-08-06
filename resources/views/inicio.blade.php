@@ -73,7 +73,7 @@
                     {{ __("Adeudos") }}
                 </a>
             </li>
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a 
                     class="nav-link" 
                     id="entradas-tab" 
@@ -82,7 +82,7 @@
                     aria-controls="v-entradas">
                     {{ __("Entradas") }}
                 </a>
-            </li>
+            </li> -->
         </ul>
         <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade show active" id="v-movimientos">
