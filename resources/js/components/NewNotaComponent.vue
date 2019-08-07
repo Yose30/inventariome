@@ -41,6 +41,13 @@
                         variant="outline-primary"
                         @click="registrarDevolucion(row.item, row.index)">Registrar devolución</b-button>
                 </template>
+                <template slot="editar" slot-scope="row">
+                    <b-button
+                        v-if="role_id == 3 && row.item.total_pagar ==row.item.total_salida" 
+                        variant="outline-warning"
+                        @click="editarNota(row.item, row.index)"
+                        >Editar</b-button>
+                </template>
             </b-table>
         </div>
         <div v-if="mostrarNewPago">
@@ -160,7 +167,7 @@
         <div v-if="mostrarCrearNota">
             <b-row>
                 <b-col>
-                    <h4>Crear nota</h4>
+                    <h4>{{ editar ? 'Editar' : 'Crear' }} nota</h4>
                 </b-col>
                 <b-col align="right">
                     <b-button variant="outline-secondary" @click="mostrarCrearNota = false; listadoNotas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
@@ -174,11 +181,18 @@
                 </b-col>
                 <b-col sm="3">
                     <b-button 
-                        v-if="registers.length > 0" 
+                        v-if="registers.length > 0 && editar == false" 
                         variant="success" 
                         :disabled="load"
                         @click="guardarNota">
                         {{ !load ? 'Guardar' : 'Guardando' }}
+                    </b-button>
+                    <b-button 
+                        v-if="registers.length > 0 && editar == true" 
+                        variant="success" 
+                        :disabled="load"
+                        @click="actualizarNota">
+                        {{ !load ? 'Guardar cambios' : 'Guardando' }}
                     </b-button>
                 </b-col>
             </b-row>
@@ -186,10 +200,12 @@
             <div v-if="viewForm">
                 <b-table :items="registers" :fields="fields">
                     <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
+                    <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
+                    <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
                     <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario }}</template>
                     <template slot="total" slot-scope="row">${{ row.item.total }}</template>
                     <template slot="eliminar" slot-scope="row">
-                        <b-button variant="danger" @click="eliminarRegistro(row.index)" :disabled="load">
+                        <b-button variant="danger" @click="eliminarRegistro(row.item, row.index)" :disabled="load">
                             <i class="fa fa-minus-circle"></i>
                         </b-button>
                     </template>
@@ -205,7 +221,7 @@
                             v-if="inputISBN"
                             :disabled="load"
                         ></b-input>
-                        <br><b v-if="!inputISBN">{{ temporal.ISBN }}</b>
+                        <br><b v-if="!inputISBN">{{ temporal.libro.ISBN }}</b>
                     </b-col>
                     <b-col sm="4">
                         <label for="input-libro">Libro</label>
@@ -226,7 +242,7 @@
                                 {{ libro.titulo }}
                             </a>
                         </div>
-                        <br><b v-if="!inputLibro">{{ temporal.titulo }}</b>
+                        <br><b v-if="!inputLibro">{{ temporal.libro.titulo }}</b>
                     </b-col>
                     <b-col sm="2">
                         <label for="input-costo">Costo unitario</label>
@@ -300,6 +316,7 @@
                     {key: 'detalles', label: ''},
                     {key: 'pagar', label: ''},
                     {key: 'devolucion', label: ''},
+                    {key: 'editar', label: ''},
                 ],
                 fieldsD: [
                     {key: 'index', label: 'N.'},
@@ -343,6 +360,9 @@
                 posicion: 0,
                 mostrarDevolucion: false,
                 listadoNotas: true,
+                editar: false,
+                eliminados: [],
+                nuevos: []
             }
         },
         created: function(){
@@ -365,6 +385,7 @@
                 this.nota = {};
                 this.cliente = '';
                 this.registers = [];
+                this.editar = false;
             },
             func_viewForm(){
                 if(this.cliente.length > 4){
@@ -378,8 +399,7 @@
             },
             buscarLibroISBN(){
                 axios.get('/buscarISBN', {params: {isbn: this.isbn}}).then(response => {
-                    this.temporal = response.data;
-                    this.ini_1();
+                    this.datosLibro(response.data);
                 }).catch(error => {
                     this.makeToast('danger', 'ISBN incorrecto');
                 });
@@ -394,9 +414,11 @@
             datosLibro(libro){
                 this.temporal = {
                     id: libro.id,
-                    ISBN: libro.ISBN,
-                    titulo: libro.titulo,
-                    piezas: libro.piezas,
+                    libro: {
+                        ISBN: libro.ISBN,
+                        titulo: libro.titulo,
+                        piezas: libro.piezas,
+                    },
                     costo_unitario: 0,
                     unidades: 0,
                     total: 0
@@ -421,14 +443,17 @@
             },
             guardarRegistro(){
                 if(this.unidades > 0){
-                    if(this.unidades <= this.temporal.piezas){
+                    if(this.unidades <= this.temporal.libro.piezas){
                         this.temporal.unidades = this.unidades;
                         this.temporal.total = this.temporal.unidades * this.temporal.costo_unitario;
+                        if(this.editar == true){
+                            this.nuevos.push(this.temporal);
+                        }
                         this.registers.push(this.temporal);
                         this.eliminarTemporal();
                     }
                     else{
-                        this.makeToast('warning', `${this.temporal.piezas} unidades en existencia`);
+                        this.makeToast('warning', `${this.temporal.libro.piezas} unidades en existencia`);
                     }
                 }
                 else{
@@ -446,7 +471,10 @@
                 this.inputCosto = false;
                 this.isbn = '';
             },
-            eliminarRegistro(i){
+            eliminarRegistro(registro, i){
+                if(this.editar == true){
+                    this.eliminados.push(registro);
+                }
                 this.registers.splice(i, 1);
             },
             guardarNota(){
@@ -458,6 +486,33 @@
                     axios.post('/guardar_nota', this.nota).then(response => {
                         this.load = false;
                         this.notes.push(response.data);
+                        this.makeToast('success', 'La nota se creo correctamente');
+                        this.mostrarCrearNota = false;
+                        this.listadoNotas = true;
+                    })
+                    .catch(error => {
+                        this.load = false;
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar');
+                    });
+                }
+                else{
+                    this.state = false;
+                    this.load = false;
+                    this.makeToast('warning', 'Campo obligatorio, mayor a 5 caracteres');
+                }
+            },
+            actualizarNota(){
+                this.load = true;
+                if(this.cliente.length > 4){
+                    this.state = null;
+                    this.nota.cliente = this.cliente;
+                    this.nota.nuevos = this.nuevos;
+                    this.nota.eliminados = this.eliminados;
+                    axios.post('/actualizar_nota', this.nota).then(response => {
+                        this.load = false;
+                        this.makeToast('success', 'La nota se actualizo correctamente');
+                        this.notes[this.posicion].total_salida = response.data.total_salida;
+                        this.notes[this.posicion].total_pagar = response.data.total_pagar;
                         this.mostrarCrearNota = false;
                         this.listadoNotas = true;
                     })
@@ -474,6 +529,7 @@
             },
             detallesNota(nota){
                 this.nota = {};
+                this.total_unidades = 0;
                 axios.get('/detalles_nota', {params: {note_id: nota.id}}).then(response => {
                     this.nota.id = nota.id;
                     this.nota.cliente = nota.cliente;
@@ -544,6 +600,24 @@
                 })
                 .catch(error => {
                     this.makeToast('danger', 'Ocurrio un error, vuelve a intentarlo');
+                });
+            },
+            editarNota(nota, i){
+                this.editar = true;
+                this.cliente = '';
+                this.registers = [];
+                this.nota = {};
+                this.posicion = i;
+                this.nuevos = [];
+                this.eliminados = [];
+                axios.get('/detalles_nota', {params: {note_id: nota.id}}).then(response => {
+                    this.nota.id = nota.id;
+                    this.cliente = nota.cliente;
+                    this.nota.total_salida = nota.total_salida;
+                    this.registers = response.data;
+                    this.listadoNotas = false;
+                    this.mostrarCrearNota = true;
+                    this.viewForm = true;
                 });
             },
             makeToast(variant = null, descripcion) {

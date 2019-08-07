@@ -1,11 +1,37 @@
 <template>
     <div>
         <div v-if="listadoAdeudos">
-            <div align="right">
-                <b-button variant="primary" @click="registrarAdeudo">
-                    <i class="fa fa-plus"></i> Registrar adeudo
-                </b-button>
-            </div>
+            <b-row>
+                <b-col>
+                    <b-row class="my-1">
+                        <b-col sm="3">
+                            <label for="input-cliente">Cliente</label>
+                        </b-col>
+                        <b-col sm="9">
+                            <b-input
+                            v-model="queryCliente"
+                            @change="mostrarClientes"
+                            ></b-input>
+                            <div class="list-group" v-if="resultsClientes.length">
+                                <a 
+                                    href="#" 
+                                    v-bind:key="i" 
+                                    class="list-group-item list-group-item-action" 
+                                    v-for="(result, i) in resultsClientes" 
+                                    @click="adeudosCliente(result)">
+                                    {{ result.name }}
+                                </a>
+                            </div>
+                        </b-col>
+                    </b-row>
+                </b-col>
+                <b-col>
+                    <b-button variant="primary" v-if="role_id == 2" @click="registrarAdeudo">
+                        <i class="fa fa-plus"></i> Registrar adeudo
+                    </b-button>
+                </b-col>
+            </b-row>
+            <hr>
             <b-table :items="adeudos" :fields="fieldsA">
                 <template slot="cliente_id" slot-scope="row">
                     {{ row.item.cliente.name }}
@@ -23,7 +49,7 @@
                     <b-button v-if="row.item.total_abonos != 0" variant="info" @click="detallesAdeudo(row.item)">Detalles</b-button>
                 </template>
                 <template slot="registrar_pago" slot-scope="row">
-                    <b-button v-if="row.item.total_pendiente != 0" v-b-modal.modal-pago variant="primary" @click="registrarAbono(row.item, row.index)">Registrar pago</b-button>
+                    <b-button v-if="row.item.total_pendiente != 0 && role_id == 2" v-b-modal.modal-pago variant="primary" @click="registrarAbono(row.item, row.index)">Registrar pago</b-button>
                 </template>
             </b-table>
             <b-modal id="modal-pago" title="Registrar pago">
@@ -212,6 +238,8 @@
                     pago: 0,
                 },
                 posicion: null,
+                queryCliente: '',
+                resultsClientes: []
             }
         },
         created: function(){
@@ -232,6 +260,10 @@
             },
             registrarAdeudo(){
                 this.clientes = [];
+                this.cliente = {};
+                this.mostrarSeleccionar = true;
+                this.mostrarDatos = false;
+                this.mostrarForm = false;
                 this.ini_adeudo();
                 axios.get('/getTodo').then(response => {
                     this.clientes = response.data;
@@ -311,6 +343,26 @@
                     total_adeudo: 0,
                     total_pendiente: 0
                 };
+            },
+            mostrarClientes(){
+                if(this.queryCliente.length > 0){
+                    axios.get('/mostrarClientes', {params: {queryCliente: this.queryCliente}}).then(response => {
+                        this.resultsClientes = response.data;
+                    }); 
+                }
+                else{
+                    this.obtenerAdeudos();
+                }
+            },
+            adeudosCliente(cliente){
+                this.resultsClientes = [];
+                this.queryCliente = cliente.name;
+                axios.get('/adeudos_cliente', {params: {cliente_id: cliente.id}}).then(response => {
+                    this.adeudos = response.data;
+                }).catch(error => {
+                    this.load = false;
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
             },
             makeToast(variant = null, descripcion) {
                 this.$bvToast.toast(descripcion, {

@@ -147,6 +147,8 @@ Route::get('datos_vendidos', 'PagoController@datos_vendidos')->name('datos_vendi
 Route::get('all_notas', 'NoteController@show')->name('all_notas');
 //Guardar nota
 Route::post('guardar_nota', 'NoteController@store')->name('guardar_nota');
+//Actualizar nota
+Route::post('actualizar_nota', 'NoteController@update')->name('actualizar_nota');
 //Mostrar detalles de nota
 Route::get('detalles_nota', 'NoteController@detalles_nota')->name('detalles_nota');
 //Guardar pago de la nota
@@ -161,6 +163,8 @@ Route::post('guardar_adeudo', 'AdeudoController@store')->name('guardar_adeudo');
 Route::get('obtener_adeudos', 'AdeudoController@show')->name('obtener_adeudos');
 //Guardar abono
 Route::post('guardar_abono', 'AdeudoController@guardar_abono')->name('guardar_abono');
+//Obtener adeudos de un cliente
+Route::get('adeudos_cliente', 'AdeudoController@adeudos_cliente')->name('adeudos_cliente');
 
 //PROMOCION
 //Guardar promocion

@@ -25,7 +25,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    // protected $redirectTo = '/home';
 
     /**
      * Create a new controller instance.
@@ -47,7 +47,7 @@ class LoginController extends Controller
         if(auth()->user()->role_id == 3){
             return '/devolucion';
         }
-    }
+    } 
     //METODOS SOBREESCRITOS
     public function username(){
         return 'user_name';

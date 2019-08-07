@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\Adeudo;
 use App\Abono;
@@ -44,5 +45,11 @@ class AdeudoController extends Controller
             return response()->json($exception->getMessage());
         }
         return response()->json($adeudo);
+    }
+
+    public function adeudos_cliente(){
+        $cliente_id = Input::get('cliente_id');
+        $adeudos = Adeudo::where('cliente_id', $cliente_id)->with('cliente')->with('abonos')->get();
+        return response()->json($adeudos);
     }
 }

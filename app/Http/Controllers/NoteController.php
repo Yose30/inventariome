@@ -57,6 +57,45 @@ class NoteController extends Controller
         return response()->json($note);
     }
 
+    //Actualizar nota
+    public function update(Request $request){
+        $note = Note::whereId($request->id)->first();
+        try{
+            \DB::beginTransaction();
+            //ELIMINADOS
+            $total_eliminado = 0;
+            foreach($request->eliminados as $eliminado){
+                $register = Register::whereId($eliminado['id'])->delete();
+                $libro = Libro::whereId($eliminado['libro_id'])->first();
+                $libro->update(['piezas' => $libro->piezas + $eliminado['unidades']]);
+                $total_eliminado += $eliminado['total'];
+            }
+            //NUEVOS
+            $total = 0;
+            foreach($request->nuevos as $nuevo){
+                Register::create([
+                    'note_id' => $note->id,
+                    'libro_id' => $nuevo['id'],
+                    'costo_unitario' => $nuevo['costo_unitario'],
+                    'unidades' => $nuevo['unidades'],
+                    'total' => $nuevo['total'],
+                    'unidades_pendiente' => $nuevo['unidades'],
+                    'total_pendiente' => $nuevo['total']
+                ]);
+                $libro = Libro::whereId($nuevo['id'])->first();
+                $libro->update(['piezas' => $libro->piezas - $nuevo['unidades']]);
+                $total += $nuevo['total'];
+            }
+
+            $total_nota =( $note->total_salida - $total_eliminado) + $total;
+            $note->update(['total_salida' => $total_nota, 'total_pagar' => $total_nota]);
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+        }
+        return response()->json($note);
+    }
+
     //Mostrar notas
     public function show(){
         $notes = Note::orderBy('folio','desc')->get();
