@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Registro;
-use App\Pago;
+use App\Repayment;
 
 class Entrada extends Model
 {
@@ -13,7 +13,8 @@ class Entrada extends Model
         'folio',
         'editorial',
         'unidades', 
-        'total'
+        'total',
+        'total_pagos'
     ];
 
     //Uno a muchos
@@ -24,7 +25,7 @@ class Entrada extends Model
 
     //Uno a muchos
     //Una entrada puede tener muchos pagos
-    public function pagos(){
-        return $this->hasMany(Pago::class);
+    public function repayments(){
+        return $this->hasMany(Repayment::class);
     }
 }

@@ -27,6 +27,13 @@
                     </b-col>
                 </b-row>
             </div>
+            <!-- <div class="col-md-3" align="center">
+                <b-button 
+                    variant="primary"
+                    :href="'/descargarLibros'">
+                    Descargar
+                </b-button>
+            </div> -->
             <div class="col-md-4" align="right">
                 <b-button 
                     variant="success" 

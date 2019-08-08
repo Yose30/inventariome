@@ -569,6 +569,8 @@
             verificarUnidades(unidades, pendiente, costo_unitario, i){
                 if(unidades > pendiente){
                     this.makeToast('warning', 'Las unidades son mayor a lo pendiente');
+                    this.nota.registers[i].unidades_base = 0;
+                    this.nota.registers[i].total_base = 0;
                 }
                 if(unidades <= pendiente){
                     this.total_vendido = 0;

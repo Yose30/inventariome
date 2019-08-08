@@ -10,7 +10,7 @@
                         <b-col sm="9">
                             <b-input
                             v-model="queryCliente"
-                            @change="mostrarClientes"
+                            @keyup="mostrarClientes"
                             ></b-input>
                             <div class="list-group" v-if="resultsClientes.length">
                                 <a 
@@ -50,6 +50,14 @@
                 </template>
                 <template slot="registrar_pago" slot-scope="row">
                     <b-button v-if="row.item.total_pendiente != 0 && role_id == 2" v-b-modal.modal-pago variant="primary" @click="registrarAbono(row.item, row.index)">Registrar pago</b-button>
+                </template>
+                <template slot="thead-top" slot-scope="data">
+                    <tr>
+                        <th></th>
+                        <th>${{ total_adeudo }}</th>
+                        <th>${{ total_pagos }}</th>
+                        <th>${{ total_pendiente }}</th>
+                    </tr>
                 </template>
             </b-table>
             <b-modal id="modal-pago" title="Registrar pago">
@@ -239,7 +247,10 @@
                 },
                 posicion: null,
                 queryCliente: '',
-                resultsClientes: []
+                resultsClientes: [],
+                total_adeudo: 0,
+                total_pagos: 0,
+                total_pendiente: 0
             }
         },
         created: function(){
@@ -254,6 +265,7 @@
             obtenerAdeudos(){
                 axios.get('/obtener_adeudos').then(response => {
                     this.adeudos = response.data;
+                    this.acumular();
                 }).catch(error => {
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
@@ -330,9 +342,13 @@
             },
             detallesAdeudo(adeudo){
                 this.ini_adeudo();
-                this.adeudo = adeudo;
-                this.listadoAdeudos = false;
-                this.mostrarAbonos = true;
+                axios.get('/detalles_adeudo', {params: {id: adeudo.id}}).then(response => {
+                    this.adeudo = response.data;
+                    this.listadoAdeudos = false;
+                    this.mostrarAbonos = true;
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
             },
             ini_adeudo(){
                 this.adeudo = {
@@ -343,6 +359,16 @@
                     total_adeudo: 0,
                     total_pendiente: 0
                 };
+            },
+            acumular(){
+                this.total_adeudo = 0;
+                this.total_pagos = 0;
+                this.total_pendiente = 0;
+                this.adeudos.forEach(adeudo => {
+                    this.total_adeudo += adeudo.total_adeudo;
+                    this.total_pagos += adeudo.total_abonos;
+                    this.total_pendiente += adeudo.total_pendiente;
+                });
             },
             mostrarClientes(){
                 if(this.queryCliente.length > 0){
@@ -359,6 +385,7 @@
                 this.queryCliente = cliente.name;
                 axios.get('/adeudos_cliente', {params: {cliente_id: cliente.id}}).then(response => {
                     this.adeudos = response.data;
+                    this.acumular();
                 }).catch(error => {
                     this.load = false;
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');

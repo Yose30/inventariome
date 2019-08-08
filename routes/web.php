@@ -111,6 +111,8 @@ Route::get('/mostrarPorEditorial', 'LibroController@porEditorial')->name('mostra
 Route::get('/buscarISBN', 'LibroController@show')->name('buscarISBN'); 
 //Obtener todos los libros
 Route::get('allLibros', 'LibroController@allLibros')->name('allLibros');
+//Descargar formato de todos los libros
+Route::get('descargarLibros', 'LibroController@descargarLibros')->name('descargarLibros');
 
 //ENTRADAS
 //Mostrar todas las entradas
@@ -135,6 +137,10 @@ Route::put('actualizar_entrada', 'EntradaController@actualizar')->name('actualiz
 Route::get('/imprimirEntrada/{id}', 'EntradaController@imprimirEntrada')->name('imprimirEntrada');
 //Actualizar costos unitarios
 Route::put('actualizar_costos', 'EntradaController@actualizar_costos')->name('actualizar_costos');
+//Mostrarentradas por fecha
+Route::get('fecha_entradas', 'EntradaController@fecha_entradas')->name('fecha_entradas');
+//Mostrarentradas por fecha
+Route::get('pago_entrada', 'EntradaController@pago_entrada')->name('pago_entrada');
 
 //PAGOS
 //Guardar pago
@@ -165,6 +171,8 @@ Route::get('obtener_adeudos', 'AdeudoController@show')->name('obtener_adeudos');
 Route::post('guardar_abono', 'AdeudoController@guardar_abono')->name('guardar_abono');
 //Obtener adeudos de un cliente
 Route::get('adeudos_cliente', 'AdeudoController@adeudos_cliente')->name('adeudos_cliente');
+//Detalles de un adeudo
+Route::get('detalles_adeudo', 'AdeudoController@detalles_adeudo')->name('detalles_adeudo');
 
 //PROMOCION
 //Guardar promocion
