@@ -315,8 +315,8 @@
                 this.stateN = null;
                 axios.get('/detalles_entrada', {params: {entrada_id: entrada.id}}).then(response => {
                     this.eliminarTemporal();
-                    this.entrada.id = response.data.entrada.id;
                     this.asignar(response);
+                    this.entrada.id = response.data.entrada.id;
                     this.total_unidades = this.entrada.unidades;
                     this.mostrarEA = true;
                 });
@@ -513,6 +513,7 @@
             registrarPago(entrada, i){
                 this.posicion = i;
                 axios.get('/detalles_entrada', {params: {entrada_id: entrada.id}}).then(response => {
+
                     this.asignar(response);
                     this.total_unidades = this.entrada.unidades;
                     this.mostrarRegistrar = true;
@@ -537,7 +538,7 @@
                     this.load = false;
                     console.log(response.data);
                     // this.mostrarEA = false;
-                    // this.listadoEntradas = true;
+                    // this.listadoEntradas = true; 
                 }).catch(error => {
                     this.load = false;
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');

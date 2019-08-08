@@ -140,7 +140,7 @@ Route::put('actualizar_costos', 'EntradaController@actualizar_costos')->name('ac
 //Mostrarentradas por fecha
 Route::get('fecha_entradas', 'EntradaController@fecha_entradas')->name('fecha_entradas');
 //Mostrarentradas por fecha
-Route::get('pago_entrada', 'EntradaController@pago_entrada')->name('pago_entrada');
+Route::put('pago_entrada', 'EntradaController@pago_entrada')->name('pago_entrada');
 
 //PAGOS
 //Guardar pago

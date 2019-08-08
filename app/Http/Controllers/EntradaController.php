@@ -275,6 +275,12 @@ class EntradaController extends Controller
     }
 
     public function pago_entrada(Request $request){
-        return response()->json($request);
+        $prueba = array();
+        foreach($request->items as $item){
+            // $item['unidades_base']
+            // $item['total_base']
+            array_push($prueba, $item['unidades_base']);
+        }
+        return response()->json($request->id);
     }
 }
