@@ -51,12 +51,12 @@
                         variant="warning">
                         <i class="fa fa-pencil"></i> Editar
                     </b-button>
-                    <b-button 
+                    <!-- <b-button 
                         @click="registrarPago(row.item, row.index)"
                         variant="primary" 
                         v-if="row.item.total > 0 && role_id == 2">
                         Registrar pago
-                    </b-button>
+                    </b-button> -->
                 </template>
             </b-table>
         </div>
