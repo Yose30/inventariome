@@ -200,6 +200,8 @@
             verificarUnidades(base, resta, costo, i){
                 if(base > resta){
                     this.makeToast('warning', 'Las unidades son mayor a las unidades pendientes');
+                    this.remision.vendidos[i].unidades_base =0;
+                    this.remision.vendidos[i].total_base = 0;
                 }
                 if(base <= resta){
                     this.total_vendido = 0;

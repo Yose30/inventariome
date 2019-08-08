@@ -27,6 +27,12 @@ class AdeudoController extends Controller
         return response()->json($adeudos);
     }
 
+    public function detalles_adeudo(){
+        $id = Input::get('id');
+        $adeudo = Adeudo::whereId($id)->with('cliente')->with('abonos')->first();
+        return response()->json($adeudo);
+    }
+
     public function guardar_abono(Request $request){
         try {
             \DB::beginTransaction();

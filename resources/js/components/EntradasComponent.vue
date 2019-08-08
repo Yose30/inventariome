@@ -321,6 +321,7 @@
                 this.posicion = i;
                 this.agregar = false;
                 this.stateN = null;
+                this.entrada.nuevos = [];
                 axios.get('/detalles_entrada', {params: {entrada_id: entrada.id}}).then(response => {
                     this.eliminarTemporal();
                     this.listadoEntradas = false;

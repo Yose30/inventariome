@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Input;
 use App\Libro;
 use App\Entrada;
 use App\Registro;
+use PDF;
 
 class LibroController extends Controller
 {
@@ -63,6 +64,15 @@ class LibroController extends Controller
         // $libros = \DB::table('libros')->select('id', 'ISBN', 'titulo', 'editorial', 'piezas')->get();
         $libros = Libro::all();
         return response()->json($libros);
+    }
+
+    public function descargarLibros(){
+        $libros = Libro::all();
+        $data['libros'] = $libros;
+
+        $pdf = PDF::loadView('inventario.libros', $data); 
+        
+        return $pdf->download('libros.pdf');
     }
 
     //Buscar libros por editorial

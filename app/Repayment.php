@@ -3,20 +3,19 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Register;
-use App\Note;
+use App\Entrada;
 
 class Repayment extends Model
 {
-    //Uno a uno (Inversa)
-    //Un repayment solo puede pertenecer a un register
-    public function register(){
-        return $this->belongsTo(Register::class);
-    }
+    protected $fillable = [
+        'id', 
+        'entrada_id',
+        'pago', 
+    ];
 
     //Uno a muchos (Inversa)
     //Un repayment solo puede pertenecer a una devolución
-    public function note(){
-        return $this->belongsTo(Note::class);
+    public function entrada(){
+        return $this->belongsTo(Enrada::class);
     }
 }

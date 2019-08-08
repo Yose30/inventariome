@@ -9,12 +9,24 @@ use App\Registro;
 use App\Entrada;
 use App\Libro;
 use PDF;
+use Carbon\Carbon;
 
 class EntradaController extends Controller
 {
     //Mostrar todas las entradas
     public function show(){
         $entradas = Entrada::with('registros')->get();
+        return response()->json($entradas);
+    }
+
+    //Mostrar entradas por fecha
+    public function fecha_entradas(){
+        $fecha1 	= new Carbon(Input::get('fecha1'));
+        $fecha1 	= $fecha1->format('Y-m-d 00:00:00');
+        $fecha2 	= new Carbon(Input::get('fecha1'));
+        $fecha2 	= $fecha2->format('Y-m-d 23:59:59');  
+
+        $entradas = Entrada::whereBetween('created_at', [$fecha1, $fecha2])->get();
         return response()->json($entradas);
     }
 
@@ -260,5 +272,9 @@ class EntradaController extends Controller
         $pdf = PDF::loadView('inventario.entrada', $data); 
         
         return $pdf->download('entrada.pdf');
+    }
+
+    public function pago_entrada(Request $request){
+        return response()->json($request);
     }
 }

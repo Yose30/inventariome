@@ -8,17 +8,23 @@
                             <label for="input-editorial">Editorial</label>
                         </b-col>
                         <b-col sm="9">
-                            <b-input
-                                v-model="editorial"
-                                @keyup="mostrarEditoriales"
-                            ></b-input>
+                            <b-form-select v-model="editorial" :options="options" @change="mostrarEditoriales"></b-form-select>
+                        </b-col>
+                    </b-row>
+                </b-col>
+                <b-col align="right">
+                    <b-row class="my-1">
+                        <b-col sm="3">
+                            <label for="input-fecha">De: </label><br>
+                            <label for="input-fecha">A: </label>
+                        </b-col>
+                        <b-col sm="9">
+                            <b-input type="date" v-model="fecha1"/>
+                            <b-input type="date" v-model="fecha2" @change="porFecha"/>
                         </b-col>
                     </b-row>
                 </b-col>
                 <!-- <b-col align="right">
-                    <label><b>Unidades:</b> {{ entrada.unidades }}</label>
-                </b-col>
-                <b-col align="right">
                     <label><b>Total:</b> ${{ entrada.total }}</label>
                 </b-col> -->
             </b-row>
@@ -26,7 +32,7 @@
             <b-table v-if="!mostrarDetalles && !mostrarEA && entradas.length > 0" :items="entradas" :fields="fields">
                 <template slot="total" slot-scope="row">${{ row.item.total }}</template>
                 <template slot="detalles" slot-scope="row">
-                    <b-button variant="info" @click="detallesEntrada(row.item)">Ver detalles</b-button>
+                    <b-button variant="info" @click="detallesEntrada(row.item)">Detalles</b-button>
                 </template>
                 <template slot="descargar" slot-scope="row">
                     <b-button 
@@ -45,9 +51,59 @@
                         variant="warning">
                         <i class="fa fa-pencil"></i> Editar
                     </b-button>
+                    <!-- <b-button 
+                        @click="registrarPago(row.item, row.index)"
+                        variant="primary" 
+                        v-if="row.item.total > 0 && role_id == 2">
+                        Registrar pago
+                    </b-button> -->
                 </template>
             </b-table>
         </div>
+        <div v-if="mostrarRegistrar">
+            <div class="text-right">
+                <b-button variant="secondary" @click="mostrarRegistrar = false; listadoEntradas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
+            </div>
+            <hr>
+            <b-row>
+                <b-col sm="1">
+                    <label>Folio</label><br>
+                    <label>Editorial</label>
+                </b-col>
+                <b-col sm="5">
+                    <label>{{entrada.folio}}</label><br>
+                    <label>{{entrada.editorial}}</label>
+                </b-col>
+                <b-col sm="3" align="right">
+                    <label><b>Unidades:</b> {{ total_unidades }}</label>
+                </b-col>
+                <b-col sm="3" class="text-right">
+                    <b-button 
+                        @click="guardarVendidos" 
+                        variant="success"
+                        :disabled="load">
+                        <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }}
+                    </b-button>
+                </b-col>
+            </b-row>
+            <hr>
+            <b-table :items="registros" :fields="fieldsRP">
+                <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
+                <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
+                <template slot="costo_unitario" slot-scope="row">{{ row.item.costo_unitario }}</template>
+                <template slot="unidades_pendientes" slot-scope="row">
+                    {{ row.item.unidades - row.item.unidades_vendido }}
+                </template>
+                <template slot="unidades_base" slot-scope="row">
+                    <b-input 
+                        type="number" 
+                        @change="obtenerSubtotal(row.item, row.index)"
+                        v-model="row.item.unidades_base">
+                    </b-input>
+                </template>
+                <template slot="total_base" slot-scope="row">${{ row.item.total_base }}</template>
+            </b-table>
+        </div> 
         <div v-if="mostrarDetalles">
             <b-row>
                 <b-col sm="1">
@@ -122,7 +178,6 @@
                 </template>
                 <template slot="total" slot-scope="row">${{ row.item.total }}</template>
             </b-table>
-            
         </div>
     </div>
 </template>
@@ -154,6 +209,29 @@
                     'unidades',
                     {key: 'total', label: 'Subtotal'},
                 ],
+                fieldsRP: [
+                    {key: 'id', label: 'N.'}, 
+                    {key: 'isbn', label: 'ISBN'}, 
+                    {key: 'titulo', label: 'Libro'}, 
+                    {key: 'costo_unitario', label: 'Costo unitario'},
+                    {key: 'unidades_pendientes', label: 'Unidades pendientes'},,
+                    {key: 'unidades_base', label: 'Unidades'},
+                    {key: 'total_base', label: 'Subtotal'},
+                ],
+                options: [
+                    { value: null, text: 'Selecciona una opción', disabled: true },
+                    { value: 'CAMBRIDGE', text: 'CAMBRIDGE' },
+                    { value: 'CENGAGE', text: 'CENGAGE' },
+                    { value: 'EMPRESER', text: 'EMPRESER' },
+                    { value: 'EXPRESS PUBLISHING', text: 'EXPRESS PUBLISHING'},
+                    { value: 'HELBLING LANGUAGES', text: 'HELBLING LANGUAGES'},
+                    { value: 'MAJESTIC', text: 'MAJESTIC'},
+                    { value: 'MC GRAW - MAJESTIC', text: 'MC GRAW - MAJESTIC'},
+                    { value: 'MCGRAW HILL', text: 'MCGRAW HILL'},
+                    { value: 'RICHMOND', text: 'RICHMOND'},
+                    { value: 'IMPRESOS DE CALIDAD', text: 'IMPRESOS DE CALIDAD'},
+                    { value: 'ENGLISH TEXBOOK', text: 'ENGLISH TEXBOOK'},
+                ],
                 mostrarDetalles: false,
                 fechaFinal: '',
                 entrada: {
@@ -181,7 +259,10 @@
                 listadoEntradas: true,
                 agregar: false,
                 nuevos: [],
-                estado: false
+                estado: false,
+                fecha1: '',
+                fecha2: '',
+                mostrarRegistrar: false,
             }
         },
         created: function(){
@@ -224,13 +305,8 @@
             },
             detallesEntrada(entrada){
                 axios.get('/detalles_entrada', {params: {entrada_id: entrada.id}}).then(response => {
-                    this.listadoEntradas = false;
+                    this.asignar(response);
                     this.mostrarDetalles = true;
-                    this.entrada.folio = response.data.entrada.folio;
-                    this.entrada.editorial = response.data.entrada.editorial;
-                    this.entrada.total = response.data.entrada.total;
-                    this.entrada.unidades = response.data.entrada.unidades;
-                    this.registros = response.data.registros;
                 });
             },
             editarEntrada(entrada, i){
@@ -239,16 +315,28 @@
                 this.stateN = null;
                 axios.get('/detalles_entrada', {params: {entrada_id: entrada.id}}).then(response => {
                     this.eliminarTemporal();
-                    this.listadoEntradas = false;
-                    this.mostrarEA = true;
                     this.entrada.id = response.data.entrada.id;
-                    this.entrada.folio = response.data.entrada.folio;
-                    this.entrada.editorial = response.data.entrada.editorial;
-                    this.entrada.total = response.data.entrada.total;
-                    this.entrada.unidades = response.data.entrada.unidades;
+                    this.asignar(response);
                     this.total_unidades = this.entrada.unidades;
-                    this.registros = response.data.registros;
+                    this.mostrarEA = true;
                 });
+            },
+            asignar(response){
+                this.entrada = {
+                    id: 0,
+                    unidades: 0,
+                    total: 0,
+                    folio: '',
+                    editorial: '',
+                    items: [],
+                    nuevos: []
+                };
+                this.entrada.folio = response.data.entrada.folio;
+                this.entrada.editorial = response.data.entrada.editorial;
+                this.entrada.total = response.data.entrada.total;
+                this.entrada.unidades = response.data.entrada.unidades;
+                this.registros = response.data.registros;
+                this.listadoEntradas = false;
             },
             //Eliminar registro de la entrada
             eliminarRegistro(item, i){
@@ -390,6 +478,13 @@
             verificarUnidades(unidades, costo_unitario, i){
                 this.registros[i].total = unidades * costo_unitario;
             },
+            porFecha(){
+                axios.get('/fecha_entradas', {params: {fecha1: this.fecha1, fecha2: this.fecha2}}).then(response => {
+                    this.entradas = response.data;
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
+            },
             actualizarCosto(){
                 this.estado = false;
                 this.registros.forEach(registro => {
@@ -414,6 +509,39 @@
                         this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                     });
                 }
+            },
+            registrarPago(entrada, i){
+                this.posicion = i;
+                axios.get('/detalles_entrada', {params: {entrada_id: entrada.id}}).then(response => {
+                    this.asignar(response);
+                    this.total_unidades = this.entrada.unidades;
+                    this.mostrarRegistrar = true;
+                });
+            },
+            obtenerSubtotal(registro, i){
+                if(registro.unidades_base > (registro.unidades - registro.unidades_vendido)){
+                    this.makeToast('warning', 'Las unidades son mayor a las unidades pendientes');
+                    this.registros[i].unidades_base = 0;
+                    this.registros[i].total_base = 0;
+                }
+                else{
+                    this.registros[i].total_base = registro.unidades_base * registro.costo_unitario;
+                }
+            },
+            guardarVendidos(){
+                this.load = true;
+                this.entrada.items = this.registros;
+                axios.put('/pago_entrada', this.entrada).then(response => {
+                    this.makeToast('success', '');
+                    // this.entradas[this.posicion].total = response.data.total;
+                    this.load = false;
+                    console.log(response.data);
+                    // this.mostrarEA = false;
+                    // this.listadoEntradas = true;
+                }).catch(error => {
+                    this.load = false;
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
             },
             makeToast(variant = null, descripcion) {
                 this.$bvToast.toast(descripcion, {
