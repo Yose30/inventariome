@@ -18,8 +18,8 @@ class CreateEntradasTable extends Migration
             $table->string('folio', 50)->unique();
             $table->string('editorial')->nullable();
             $table->integer('unidades')->default(0);
-            $table->double('total', 12, 2)->default(0);
-            $table->double('total_pagos', 12, 2)->default(0);
+            $table->double('total', 16, 2)->default(0);
+            $table->double('total_pagos', 16, 2)->default(0);
             $table->timestamps();
         }); 
 
@@ -31,11 +31,7 @@ class CreateEntradasTable extends Migration
             $table->foreign('libro_id')->references('id')->on('libros');
             $table->float('costo_unitario', 8, 2)->default(0);
             $table->integer('unidades')->default(0);
-            $table->double('total', 8, 2)->default(0);
-            $table->integer('unidades_vendido')->default(0);
-            $table->double('total_vendido', 8, 2)->default(0);
-            $table->integer('unidades_base')->default(0);
-            $table->double('total_base', 8, 2)->default(0);
+            $table->double('total', 10, 2)->default(0);
             $table->enum('estado', ['Iniciado', 'Eliminado', 'Terminado'])->default('Iniciado');
             $table->timestamps();
         });
@@ -44,7 +40,7 @@ class CreateEntradasTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedInteger('entrada_id');
             $table->foreign('entrada_id')->references('id')->on('entradas');
-            $table->double('pago', 8, 2)->default(0);
+            $table->double('pago', 16, 2)->default(0);
             $table->timestamps();
         });
     }

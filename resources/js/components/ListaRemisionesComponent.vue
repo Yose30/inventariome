@@ -147,7 +147,8 @@
                         </tr>
                     </tbody>
                 </table>
-                <table class="table" v-if="tabla_gral && remisiones.length">
+                <b-table :items="remisiones" v-if="tabla_gral && remisiones.length"></b-table>
+                <!-- <table class="table" v-if="tabla_gral && remisiones.length">
                     <thead>
                         <tr>
                             <th scope="col">Folio</th>
@@ -176,18 +177,11 @@
                             </td>
                             <td>{{ remision.fecha_entrega }}</td>
                             <td>
-                                <!-- v-if="remision.estado != 'Iniciado'" -->
                                 <button 
                                     class="btn btn-primary" 
                                     @click="detallesRemision(remision)">
                                     <i class="fa fa-eye"></i>
                                 </button>
-                                <!-- <button 
-                                    class="btn btn-primary" 
-                                    v-if="remision.estado == 'Iniciado'"
-                                    @click="editarRemision(remision)">
-                                    <i class="fa fa-eye"></i>
-                                </button> -->
                             </td>
                         </tr>
                         <tr>
@@ -197,7 +191,7 @@
                             <td><b>$ {{ total_pagar }}</b></td>
                         </tr>
                     </tbody>
-                </table>
+                </table> -->
             </div>
         </div>
         <div v-if="!mostrar">
@@ -265,7 +259,6 @@
                         <b-list-group class="col-md-6">
                             <b-list-group-item><b>Nombre:</b> {{ dato.name }}</b-list-group-item>
                             <b-list-group-item><b>Dirección:</b> {{dato.direccion  }}</b-list-group-item>
-                            <!-- <b-list-group-item><b>Descuento:</b> {{ dato.descuento }} %</b-list-group-item> -->
                             <b-list-group-item><b>Condiciones de pago:</b> {{ dato.condiciones_pago }}</b-list-group-item>
                         </b-list-group>
                         <b-list-group class="col-md-6">

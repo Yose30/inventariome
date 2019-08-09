@@ -17,10 +17,10 @@ class CreateNotesTable extends Migration
             $table->bigIncrements('id');
             $table->string('folio');
             $table->string('cliente');
-            $table->double('total_salida', 8, 2)->default(0);
-            $table->double('total_devolucion', 8, 2)->default(0);
-            $table->double('total_pagar', 8, 2)->default(0);
-            $table->double('pagos', 8, 2)->default(0);
+            $table->double('total_salida', 16, 2)->default(0);
+            $table->double('total_devolucion', 16, 2)->default(0);
+            $table->double('total_pagar', 16, 2)->default(0);
+            $table->double('pagos', 16, 2)->default(0);
             $table->date('fecha_devolucion')->nullable();
             $table->timestamps();
         }); 
@@ -33,15 +33,15 @@ class CreateNotesTable extends Migration
             $table->foreign('libro_id')->references('id')->on('libros');
             $table->float('costo_unitario', 8, 2);
             $table->integer('unidades')->default(0);
-            $table->double('total', 8, 2)->default(0);
+            $table->double('total', 12, 2)->default(0);
             $table->integer('unidades_pagado')->default(0);
-            $table->double('total_pagado', 8, 2)->default(0);
+            $table->double('total_pagado', 12, 2)->default(0);
             $table->integer('unidades_devuelto')->default(0);
-            $table->double('total_devuelto', 8, 2)->default(0);
+            $table->double('total_devuelto', 12, 2)->default(0);
             $table->integer('unidades_pendiente')->default(0);
-            $table->double('total_pendiente', 8, 2)->default(0);
+            $table->double('total_pendiente', 12, 2)->default(0);
             $table->integer('unidades_base')->default(0);
-            $table->double('total_base', 8, 2)->default(0);
+            $table->double('total_base', 12, 2)->default(0);
             $table->timestamps();
         });
 
@@ -50,7 +50,7 @@ class CreateNotesTable extends Migration
             $table->unsignedInteger('register_id');
             $table->foreign('register_id')->references('id')->on('registers');
             $table->integer('unidades')->default(0);
-            $table->double('pago', 8, 2)->default(0);
+            $table->double('pago', 12, 2)->default(0);
             $table->timestamps();
         });
     }

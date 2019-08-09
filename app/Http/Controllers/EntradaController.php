@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+use App\Repayment;
 use App\Registro;
 use App\Entrada;
 use App\Libro;
 use PDF;
-use Carbon\Carbon;
 
 class EntradaController extends Controller
 {
@@ -40,7 +41,12 @@ class EntradaController extends Controller
     //Mostrar editoriales
     public function mostrarEditoriales(){
         $editorial = Input::get('editorial');
-        $entradas = Entrada::where('editorial','like','%'.$editorial.'%')->get();
+        if($editorial == 'TODAS'){
+            $entradas = Entrada::get();
+        }
+        else{
+            $entradas = Entrada::where('editorial','like','%'.$editorial.'%')->get();
+        }
         return response()->json($entradas);
     }
 
@@ -57,7 +63,7 @@ class EntradaController extends Controller
             \DB::rollBack();
             return response()->json($e->getMessage());
         }
-        $entrada = Entrada::whereId($entrada_id)->first();
+        $entrada = Entrada::whereId($entrada_id)->with('repayments')->first();
         $registros = Registro::where('entrada_id', $entrada->id)->where('estado', '!=', 'Eliminado')->with('libro')->get();
         
         return response()->json(['entrada' => $entrada, 'registros' => $registros]);
@@ -275,12 +281,22 @@ class EntradaController extends Controller
     }
 
     public function pago_entrada(Request $request){
-        $prueba = array();
-        foreach($request->items as $item){
-            // $item['unidades_base']
-            // $item['total_base']
-            array_push($prueba, $item['unidades_base']);
+        try {
+            \DB::beginTransaction();
+            $entrada = Entrada::whereId($request->entrada_id)->first();
+            $repayment = Repayment::create([
+                'entrada_id'    => $entrada->id,
+                'pago'          => $request->pago
+            ]);
+            $entrada->update([
+                'total_pagos' => $entrada->total_pagos + $request->pago
+            ]);
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
         }
-        return response()->json($request->id);
+        
+        return response()->json($entrada);
     }
 }

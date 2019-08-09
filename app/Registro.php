@@ -15,10 +15,6 @@ class Registro extends Model
         'costo_unitario', 
         'unidades', 
         'total',
-        'unidades_vendido', 
-        'total_vendido',
-        'unidades_base', 
-        'total_base',
         'estado'
     ];
 

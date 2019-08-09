@@ -14,8 +14,8 @@ class Repayment extends Model
     ];
 
     //Uno a muchos (Inversa)
-    //Un repayment solo puede pertenecer a una devolución
+    //Un repayment solo puede pertenecer a una entrada
     public function entrada(){
-        return $this->belongsTo(Enrada::class);
+        return $this->belongsTo(Entrada::class);
     }
 }

@@ -594,7 +594,6 @@
             },
             guardarDevolucion(){
                 axios.post('/guardar_devolucion', this.nota).then(response => {
-                    console.log(response.data);
                     this.notes[this.posicion] = response.data;
                     this.makeToast('success', 'La devolución se guardo correctamente');
                     this.mostrarDevolucion = false;

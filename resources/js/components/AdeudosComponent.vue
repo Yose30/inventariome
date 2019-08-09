@@ -25,14 +25,14 @@
                         </b-col>
                     </b-row>
                 </b-col>
-                <b-col>
+                <b-col align="right">
                     <b-button variant="primary" v-if="role_id == 2" @click="registrarAdeudo">
                         <i class="fa fa-plus"></i> Registrar adeudo
                     </b-button>
                 </b-col>
             </b-row>
             <hr>
-            <b-table :items="adeudos" :fields="fieldsA">
+            <b-table :items="adeudos" :fields="fieldsA" :tbody-tr-class="rowClass">
                 <template slot="cliente_id" slot-scope="row">
                     {{ row.item.cliente.name }}
                 </template>
@@ -49,9 +49,13 @@
                     <b-button v-if="row.item.total_abonos != 0" variant="info" @click="detallesAdeudo(row.item)">Detalles</b-button>
                 </template>
                 <template slot="registrar_pago" slot-scope="row">
-                    <b-button v-if="row.item.total_pendiente != 0 && role_id == 2" v-b-modal.modal-pago variant="primary" @click="registrarAbono(row.item, row.index)">Registrar pago</b-button>
+                    <b-button 
+                        v-if="row.item.total_pendiente != 0 && role_id == 2" 
+                        v-b-modal.modal-pago variant="primary" 
+                        @click="registrarAbono(row.item, row.index)">Registrar pago
+                    </b-button>
                 </template>
-                <template slot="thead-top" slot-scope="data">
+                <template slot="thead-top" slot-scope="row">
                     <tr>
                         <th></th>
                         <th>${{ total_adeudo }}</th>
@@ -81,11 +85,16 @@
         </div>
 
         <div v-if="mostrarRegistrar">
-            <div align="right">
-                <b-button variant="success" @click="guardarAdeudo" :disabled="load" v-if="adeudo.total_adeudo != 0">
-                    <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
-                </b-button>
-            </div>
+            <b-row>
+                <b-col align="right">
+                    <b-button variant="success" @click="guardarAdeudo" :disabled="load" v-if="adeudo.total_adeudo != 0">
+                        <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
+                    </b-button>
+                </b-col>
+                <b-col align="right">
+                    <b-button variant="secondary" @click="mostrarRegistrar = false; listadoAdeudos = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
+                </b-col>
+            </b-row>
             <hr>
             <div v-if="mostrarSeleccionar">
                 <b-row>
@@ -262,6 +271,10 @@
             }
         },
         methods: {
+            rowClass(item, type) {
+                if (!item) return
+                if (item.total_pendiente == 0) return 'table-success'
+            },
             obtenerAdeudos(){
                 axios.get('/obtener_adeudos').then(response => {
                     this.adeudos = response.data;
@@ -298,6 +311,7 @@
                 this.adeudo.total_pendiente = this.adeudo.total_adeudo;
                 axios.post('/guardar_adeudo', this.adeudo).then(response => {
                     this.adeudos.push(response.data);
+                    this.acumular();
                     this.load = false;
                     this.mostrarRegistrar = false;
                     this.listadoAdeudos = true;
@@ -324,6 +338,7 @@
                             this.load = false;
                             this.adeudos[this.posicion].total_abonos = response.data.total_abonos;
                             this.adeudos[this.posicion].total_pendiente = response.data.total_pendiente;
+                            this.acumular();
                         })
                         .catch(error => {
                             this.load = false;

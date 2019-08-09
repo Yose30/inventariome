@@ -19,9 +19,9 @@ class CreateAdeudosTable extends Migration
             $table->foreign('cliente_id')->references('id')->on('clientes');
             $table->string('remision_num')->nullable();
             $table->date('fecha_adeudo')->nullable();
-            $table->double('total_adeudo', 8, 2)->default(0);
-            $table->double('total_abonos', 8, 2)->default(0);
-            $table->double('total_pendiente', 8, 2)->default(0);
+            $table->double('total_adeudo', 16, 2)->default(0);
+            $table->double('total_abonos', 16, 2)->default(0);
+            $table->double('total_pendiente', 16, 2)->default(0);
             $table->timestamps();
         });
 
@@ -29,7 +29,7 @@ class CreateAdeudosTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedInteger('adeudo_id');
             $table->foreign('adeudo_id')->references('id')->on('adeudos');
-            $table->double('pago', 8, 2)->default(0);
+            $table->double('pago', 16, 2)->default(0);
             $table->timestamps();
         });
     }

@@ -159,7 +159,7 @@ class RemisionController extends Controller
 
     public function por_numero(){
         $num_remision = Input::get('num_remision');
-        $remision = Remisione::whereId($num_remision)->first();
+        $remision = Remisione::whereId($num_remision)->with('cliente')->first();
         $cliente = Cliente::whereId($remision->cliente_id)->first();
         return response()->json(['remision' => $remision, 'cliente_nombre' => $cliente->name]);
     }

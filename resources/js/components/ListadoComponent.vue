@@ -52,21 +52,20 @@
                 <div class="col-md-5">
                     <b-row class="my-1">
                         <b-col sm="3">
-                            <label for="input-inicio">Inicio</label>
+                            <label for="input-inicio">De:</label>
                         </b-col>
                         <b-col sm="9">
                             <input 
                                 class="form-control" 
                                 type="date" 
-                                v-model="inicio"
-                                @change="porFecha">
+                                v-model="inicio">
                             </input>
                             <div class="text-danger">{{ respuesta_fecha }}</div>
                         </b-col>
                     </b-row>
                     <b-row class="my-1">
                         <b-col sm="3">
-                            <label for="input-final">Final</label>
+                            <label for="input-final">A: </label>
                         </b-col>
                         <b-col sm="9">
                             <input 
@@ -96,91 +95,43 @@
             </div>
             <hr>
             <div>
-                <table class="table" v-if="tabla_numero">
-                    <thead>
+                <b-table 
+                    :items="remisiones" 
+                    :fields="fields" 
+                    v-if="remisiones.length"
+                    :tbody-tr-class="rowClass">
+                    <template slot="cliente_id" slot-scope="row">
+                        {{ row.item.cliente.name }}
+                    </template>
+                    <template slot="total" slot-scope="row">
+                        ${{ row.item.total }}
+                    </template>
+                    <template slot="total_devolucion" slot-scope="row">
+                        ${{ row.item.total_devolucion }}
+                    </template>
+                    <template slot="pagos" slot-scope="row">
+                        ${{ row.item.pagos }}
+                    </template>
+                    <template slot="total_pagar" slot-scope="row">
+                        ${{ row.item.total_pagar }}
+                    </template>
+                    <template slot="detalles" slot-scope="row">
+                        <b-button 
+                            variant="info"
+                            @click="detallesRemision(row.item)">
+                            Detalles
+                        </b-button>
+                    </template>
+                    <template slot="thead-top" slot-scope="row">
                         <tr>
-                            <th scope="col">Folio</th>
-                            <th scope="col">Fecha de creación</th>
-                            <th scope="col">Cliente</th>
-                            <th scope="col">Salida</th>
-                            <th scope="col">Devolución</th>
-                            <th scope="col">Pagos</th>
-                            <th scope="col">Pagar</th>
-                            <th scope="col"></th>
+                            <th colspan="3"></th>
+                            <th>${{ total_salida }}</th>
+                            <th>${{ total_devolucion }}</th>
+                            <th>${{ total_pagos }}</th>
+                            <th>${{ total_pagar }}</th>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{{ remision.id }}</td>
-                            <td>{{ remision.fecha_creacion }}</td>
-                            <td>{{ cliente_nombre }}</td>
-                            <td>$ {{ remision.total }}</td>
-                            <td>$ {{ remision.total_devolucion }}</td>
-                            <td>$ {{ remision.pagos }}</td>
-                            <td>$ {{ remision.total_pagar }}</td>
-                            <td>
-                                <button 
-                                    class="btn btn-primary" 
-                                    @click="detallesRemision(remision)">
-                                    Detalles
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <table class="table" v-if="tabla_gral && remisiones.length">
-                    <thead>
-                        <tr>
-                            <th scope="col">Folio</th>
-                            <th scope="col">Fecha de creación</th>
-                            <th scope="col">Cliente</th>
-                            <th scope="col">Salida</th>
-                            <th scope="col">Devolución</th>
-                            <th scope="col">Pagos</th>
-                            <th scope="col">Pagar</th>
-                            <!-- <th scope="col">Estado</th> -->
-                            <!-- <th scope="col">Fecha de entrega</th> -->
-                            <th scope="col"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr 
-                            v-for="(remision, i) in remisiones" 
-                            v-bind:key="i" 
-                            :class="`${remision.estado == 'Cancelado' ? 'table-danger' : 'null'}`"> 
-                            <td>{{ remision.id }}</td>
-                            <td>{{ remision.fecha_creacion }}</td>
-                            <td>{{ remision.cliente.name }}</td>
-                            <td>$ {{ remision.total }}</td>
-                            <td>
-                                <label v-if="remision.estado == 'Proceso' || remision.estado == 'Terminado'">$ {{ remision.total_devolucion }}</label>
-                            </td>
-                            <td>
-                                <label v-if="remision.estado == 'Proceso' || remision.estado == 'Terminado'">$ {{ remision.pagos }}</label>
-                            </td>
-                            <td>
-                                <label v-if="remision.total_pagar > 0">
-                                    $ {{ remision.total_pagar }}
-                                </label>
-                                <b-badge v-if="remision.total_pagar == 0 && remision.pagos > 0" variant="success">Pagado</b-badge>
-                            </td>
-                            <td>
-                                <button 
-                                    class="btn btn-primary" 
-                                    @click="detallesRemision(remision)">
-                                    Detalles
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td><td></td><td></td>
-                            <td><b>$ {{ total_salida }}</b></td>
-                            <td><b>$ {{ total_devolucion }}</b></td>
-                            <td><b>$ {{ total_pagos }}</b></td>
-                            <td><b>$ {{ total_pagar }}</b></td>
-                        </tr>
-                    </tbody>
-                </table>
+                    </template>
+                </b-table>
             </div>
         </div>
         <div v-if="detalles">
@@ -382,6 +333,16 @@
         props: ['role_id'],
         data() {
             return {
+                fields: [
+                    { key: 'id', label: 'Folio' },
+                    { key: 'fecha_creacion', label: 'Fecha de creación' },
+                    { key: 'cliente_id', label: 'Cliente' },
+                    { key: 'total', label: 'Salida' },
+                    { key: 'total_devolucion', label: 'Devolución' },
+                    'pagos',
+                    { key: 'total_pagar', label: 'Pagar' },
+                    { key: 'detalles', label: '' }
+                ],
                 num_remision: 0,
                 inicio: '',
                 final: '',
@@ -403,7 +364,7 @@
                 selected2: 'Terminado',
                 options: [
                     { value: 'Terminado', text: 'Terminado'},
-                    { value: 'Proceso', text: 'Proceso' },
+                    { value: 'Proceso', text: 'Entregado' },
                     { value: 'Iniciado', text: 'Iniciado' },
                 ],
                 imprimirCliente: false,
@@ -488,14 +449,20 @@
             }
         },
         methods: {
+            rowClass(item, type) {
+                if (!item) return
+                if (item.estado == 'Iniciado') return 'table-secondary'
+                if (item.estado == 'Cancelado') return 'table-danger'
+                if (item.total_pagar == 0 && item.pagos > 0) return 'table-success'
+            },
             porNumero(){
                 if(this.num_remision > 0){
                     this.respuesta_numero = '';
                     axios.get('/buscar_por_numero', {params: {num_remision: this.num_remision}}).then(response => {
                         this.remision = response.data.remision;
-                        this.cliente_nombre = response.data.cliente_nombre;
-                        this.tabla_gral = false;
-                        this.tabla_numero = true;
+                        this.remisiones = [];
+                        this.remisiones.push(this.remision);
+                        this.acumular();
                         this.imprimirCliente = false;
                         this.imprimirEstado = false;
                     }).catch(error => {
@@ -529,7 +496,7 @@
             porCliente(result){
                 axios.get('/buscar_por_cliente', {params: {id: result.id, inicio: this.inicio, final: this.final}}).then(response => {
                     this.cliente_id = result.id;
-                    this.queryCliente = '';
+                    this.queryCliente = result.name;
                     this.resultsClientes = [];
 
                     if(this.inicio == '' || this.final == ''){

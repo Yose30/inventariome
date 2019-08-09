@@ -3,8 +3,8 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Registro;
 use App\Repayment;
+use App\Registro;
 
 class Entrada extends Model
 {
@@ -28,4 +28,5 @@ class Entrada extends Model
     public function repayments(){
         return $this->hasMany(Repayment::class);
     }
+
 }

@@ -88,6 +88,7 @@
                     this.loaded = false;
                     this.success = true;
                     this.$emit('actualizarLista', response.data);
+                    this.$bvModal.hide('modal-newLibro');
                 })
                 .catch(error => {
                     this.errors = {};
