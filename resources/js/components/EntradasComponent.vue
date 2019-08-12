@@ -109,7 +109,7 @@
                 <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                 <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
                 <template slot="eliminar" slot-scope="row">
-                    <b-button variant="danger" @click="eliminarRegistro(row.item, row.index)">
+                    <b-button v-if="row.item.entrada_id != 1" variant="danger" @click="eliminarRegistro(row.item, row.index)">
                         <i class="fa fa-minus-circle"></i>
                     </b-button>
                 </template>
