@@ -66,6 +66,16 @@
             <li class="nav-item">
                 <a 
                     class="nav-link" 
+                    id="adeudos-tab" 
+                    data-toggle="tab" 
+                    href="#v-adeudos" 
+                    aria-controls="v-adeudos">
+                    {{ __("Adeudos") }}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a 
+                    class="nav-link" 
                     id="entradas-tab" 
                     data-toggle="tab" 
                     href="#v-entradas" 
@@ -116,6 +126,10 @@
             <div class="tab-pane fade" id="v-libros">
                 <br>
                 <libros-component :role_id="{{ auth()->user()->role_id }}"></libros-component>
+            </div>
+            <div class="tab-pane fade" id="v-adeudos">
+                <br>
+                <devolucion-adeudos-component :role_id="{{ auth()->user()->role_id }}"></devolucion-adeudos-component>
             </div>
         </div>
     </div>

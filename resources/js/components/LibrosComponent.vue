@@ -27,13 +27,6 @@
                     </b-col>
                 </b-row>
             </div>
-            <!-- <div class="col-md-3" align="center">
-                <b-button 
-                    variant="primary"
-                    :href="'/descargarLibros'">
-                    Descargar
-                </b-button>
-            </div> -->
             <div class="col-md-4" align="right">
                 <b-button 
                     variant="success" 
@@ -92,7 +85,6 @@
         data() {
             return {
                 mostrarNewLibro: false,
-
                 formlibro: {},
                 libros: [],
                 errors: {},
@@ -117,16 +109,10 @@
             this.todosLibros();
 		},
         methods: {
-            //Guardar un libro
-            onSubmit() {
-
-            },
-
             //Mostrar resultados de la busqueda por titulo del libro
             mostrarLibros(){
                 if(this.queryTitulo.length > 0){
                    axios.get('/mostrarLibros', {params: {queryTitulo: this.queryTitulo}}).then(response => {
-                        // this.resultslibros = response.data;
                         this.inicializar(response);
                     });
                 }
@@ -156,7 +142,6 @@
                     this.inicializar(response);
                 });
             },
-
             editarLibro(libro, i){
                 this.formlibro = libro;
                 this.posicion = i;

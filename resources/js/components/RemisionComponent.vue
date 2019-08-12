@@ -31,12 +31,12 @@
                     v-if="mostrarGuardar && !editar && items.length > 0">
                     <i class="fa fa-check"></i> Guardar
                 </b-button>
-                <b-button 
+                <!-- <b-button 
                     @click="actRemision" 
                     variant="success"
                     v-if="mostrarActualizar && items.length > 0">
                     <i class="fa fa-check"></i> Guardar
-                </b-button>
+                </b-button> -->
             </div>
             <div class="col-md-2">
                 <!-- <b-button 
@@ -64,12 +64,6 @@
                     @click="listaClientes = true;">
                     <i class="fa fa-users"></i> Clientes
                 </button>
-                <!-- <button 
-                    class="btn btn-light" 
-                    v-if="listaClientes" 
-                    @click="listaClientes = false;">
-                    <i class="fa fa-pencil"></i> Datos
-                </button> -->
             </div>
             <div align="right">
                 <button 
@@ -80,12 +74,6 @@
                     <i class="fa fa-close"></i>
                 </button>
             </div>
-            <!-- <div class="card col-md-8" v-if="!listaClientes">
-                <h6 class="card-title">Datos del cliente</h6>
-                <div class="card-body">
-                    
-                </div>
-            </div> -->
             <div v-if="listaClientes">
                 <b-alert v-if="clientes.length == 0" show variant="secondary">
                     <i class="fa fa-exclamation-triangle"></i> No hay clientes registrados, ir al apartado de <b>Agregar cliente</b> para poder continuar.
@@ -322,13 +310,11 @@
         methods: {
             //Inicializar valores para crear una nueva remision
             nuevaRemision(){
-                axios.get('/nueva_remision').then(response => {
-                    this.btnEditarInf = false;
-                    this.listaClientes = true;
-                    this.ini_1();
-                    this.ini_2();
-                    this.ini_4();
-                });
+                this.btnEditarInf = false;
+                this.listaClientes = true;
+                this.ini_1();
+                this.ini_2();
+                this.ini_4();
             },
             //Cerrar la remisión
             cancelarRemision(){
@@ -344,7 +330,6 @@
                     this.clientes = response.data;
                 });
             },
-            
             //Buscar libro por ISBN
             buscarLibroISBN(){
                 axios.get('/buscarISBN', {params: {isbn: this.isbn}}).then(response => {
@@ -384,30 +369,11 @@
                 if(this.unidades > 0){
                     if(this.unidades <= this.temporal.piezas){
                         this.mostrarDatos = false;
-                        // this.temporal.remision_id = 0;
                         this.temporal.unidades = this.unidades;
                         this.temporal.total = this.unidades * this.temporal.costo_unitario;
                         this.items.push(this.temporal);
                         this.total_remision += this.temporal.total;
                         this.inicializar_registro();
-                        // if(this.editar){
-                        //     this.temporal.remision_id = this.bdremision.id;
-                        // }  
-                        
-                        // axios.post('/registro_remision', this.temporal).then(response => {
-                        //     this.temporal = {
-                        //         id: response.data.dato.id,
-                        //         ISBN: response.data.libro.ISBN,
-                        //         titulo: response.data.libro.titulo,
-                        //         costo_unitario: response.data.dato.costo_unitario,
-                        //         unidades: response.data.dato.unidades,
-                        //         total: response.data.dato.total
-                        //     };
-                        //     
-                        //     
-                        //     
-                        //     
-                        // }); 
                     }
                     else{
                         this.makeToast('danger', `${this.temporal.piezas} piezas en existencia`);
@@ -422,11 +388,6 @@
                 this.items.splice(i, 1);
                 this.total_remision = this.total_remision - item.total;
                 this.bdremision.total = this.total_remision;
-                // axios.delete('/eliminar_registro', {params: {id: item.id}}).then(response => {
-                //     this.items.splice(i, 1);
-                //     this.total_remision = this.total_remision - item.total;
-                //     this.bdremision.total = this.total_remision;
-                // });
             },
             //Guardar toda la remision
             guardarRemision(){
@@ -446,26 +407,21 @@
                 }
             },
             //Editar la remision
-            editarRemision(){
-                this.ini_1();
-                this.mostrarActualizar = true;
-                this.inputFecha = false;
-                this.botonEliminar = true;
-                this.editar = true;
-            },
+            // editarRemision(){
+            //     this.ini_1();
+            //     this.mostrarActualizar = true;
+            //     this.inputFecha = false;
+            //     this.botonEliminar = true;
+            //     this.editar = true;
+            // },
             //Guardar cambios de la remision
-            actRemision(){
-                this.bdremision.total = this.total_remision;
-                axios.put('/actualizar_remision', this.bdremision).then(response => {
-                    this.mostrarActualizar = false;
-                    this.inicializar_guardar();
-                });
-            },
-            imprimir(){
-                axios.get('/imprimirSalida', {params: {remision_id: this.bdremision.id}}).then(response => {
-                    console.log(response);
-                });
-            }, 
+            // actRemision(){
+            //     this.bdremision.total = this.total_remision;
+            //     axios.put('/actualizar_remision', this.bdremision).then(response => {
+            //         this.mostrarActualizar = false;
+            //         this.inicializar_guardar();
+            //     });
+            // }, 
             eliminarTemporal(){
                 this.ini_1();
                 this.ini_2();
@@ -475,7 +431,6 @@
                 this.respuestaCosto = '';
                 this.costo_unitario = 0;
             },
-
             guardarCosto(){
                 if(this.costo_unitario > 0){
                     this.temporal.costo_unitario = this.costo_unitario;
@@ -488,32 +443,6 @@
                     
                 } 
             },
-            //Función para guardar datos del cliente
-            onSubmit(evt) {
-                this.errors = {};
-                if(this.dato.id == undefined){
-                    axios.post('/new_client', this.form).then(response => {
-                        this.inicializar_editar(response.data);
-                    })
-                    .catch(error => {
-                        if (error.response.status === 422) {
-                            this.errors = error.response.data.errors || {};
-                        }
-                    });
-                }
-                else{
-                    this.form.id = this.dato.id;
-                    axios.put('/editar_cliente', this.form).then(response => {
-                        this.inicializar_editar(response.data);
-                        this.getDescuento();
-                    })
-                    .catch(error => {
-                        if (error.response.status === 422) {
-                            this.errors = error.response.data.errors || {};
-                        }
-                    });
-                }
-            },
             //Editar información del cliente
             editarInformacion(){
                 this.listaClientes = true;
@@ -523,10 +452,6 @@
                 this.form = this.dato;
                 this.mostrarForm = false;
             }, 
-            getDescuento(){
-                this.descuento = (this.total_remision * this.dato.descuento) / 100;
-                this.pagar = this.total_remision - this.descuento;
-            },
             seleccionCliente(cliente){
                 this.inicializar_editar(cliente); 
                 this.listaClientes = false;

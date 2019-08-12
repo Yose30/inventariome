@@ -10,10 +10,14 @@
             <template slot="pagos" slot-scope="row">${{ row.item.pagos }}</template>
             <template slot="total_pagar" slot-scope="row">${{ row.item.total_pagar }}</template>
             <template slot="detalles" slot-scope="row">
-                <b-button v-if="row.item.total_devolucion != 0" variant="info" @click="func_detalles(row.item)">Detalles</b-button>
+                <b-button v-if="row.item.total_devolucion > 0" variant="info" @click="func_detalles(row.item)">Detalles</b-button>
             </template>
             <template slot="registrar_devolucion" slot-scope="row">
-                <b-button v-if="row.item.estado != 'Terminado' && row.item.total_pagar != 0" variant="primary" @click="registrarDevolucion(row.item, row.index)">Registrar devolución</b-button>
+                <b-button 
+                    v-if="row.item.estado != 'Terminado' && row.item.total_pagar != 0" 
+                    variant="primary" 
+                    @click="registrarDevolucion(row.item, row.index)">Registrar devolución
+                </b-button>
             </template>
         </b-table>
         <div v-if="mostrarDevolucion">
@@ -187,15 +191,8 @@
                     this.remisiones[this.posicion].total_pagar = response.data.total_pagar;
                     this.mostrarDevolucion = false;
                 }).catch(error => {
-                    console.log(error.response);
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
-            },
-            acumularSalida(){
-                this.total_salida = 0;
-                this.registros.forEach(registro => {
-                    this.total_salida += registro.total;
-                });
-                
             },
             acumularFinal(){
                 this.total_devolucion = 0;

@@ -173,6 +173,10 @@ Route::post('guardar_abono', 'AdeudoController@guardar_abono')->name('guardar_ab
 Route::get('adeudos_cliente', 'AdeudoController@adeudos_cliente')->name('adeudos_cliente');
 //Detalles de un adeudo
 Route::get('detalles_adeudo', 'AdeudoController@detalles_adeudo')->name('detalles_adeudo');
+//Buscar remision
+Route::get('/buscarRemision', 'AdeudoController@buscarRemision')->name('buscarRemision');
+//Guardar devolucion
+Route::put('guardar_adeudo_devolucion', 'AdeudoController@guardar_adeudo_devolucion')->name('guardar_adeudo_devolucion');
 
 //PROMOCION
 //Guardar promocion

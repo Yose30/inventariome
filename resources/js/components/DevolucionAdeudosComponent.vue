@@ -1,34 +1,25 @@
 <template>
     <div>
         <div v-if="listadoAdeudos">
-            <b-row>
-                <b-col>
-                    <b-row class="my-1">
-                        <b-col sm="3">
-                            <label for="input-cliente">Cliente</label>
-                        </b-col>
-                        <b-col sm="9">
-                            <b-input
-                            v-model="queryCliente"
-                            @keyup="mostrarClientes"
-                            ></b-input>
-                            <div class="list-group" v-if="resultsClientes.length">
-                                <a 
-                                    href="#" 
-                                    v-bind:key="i" 
-                                    class="list-group-item list-group-item-action" 
-                                    v-for="(result, i) in resultsClientes" 
-                                    @click="adeudosCliente(result)">
-                                    {{ result.name }}
-                                </a>
-                            </div>
-                        </b-col>
-                    </b-row>
+            <b-row class="my-1">
+                <b-col sm="3">
+                    <label for="input-cliente">Cliente</label>
                 </b-col>
-                <b-col align="right">
-                    <b-button variant="primary" v-if="role_id == 2" @click="registrarAdeudo">
-                        <i class="fa fa-plus"></i> Registrar adeudo
-                    </b-button>
+                <b-col sm="9">
+                    <b-input
+                    v-model="queryCliente"
+                    @keyup="mostrarClientes"
+                    ></b-input>
+                    <div class="list-group" v-if="resultsClientes.length">
+                        <a 
+                            href="#" 
+                            v-bind:key="i" 
+                            class="list-group-item list-group-item-action" 
+                            v-for="(result, i) in resultsClientes" 
+                            @click="adeudosCliente(result)">
+                            {{ result.name }}
+                        </a>
+                    </div>
                 </b-col>
             </b-row>
             <hr>
@@ -53,9 +44,9 @@
                 </template>
                 <template slot="registrar_pago" slot-scope="row">
                     <b-button 
-                        v-if="row.item.total_pendiente != 0 && role_id == 2" 
-                        v-b-modal.modal-pago variant="primary" 
-                        @click="registrarAbono(row.item, row.index)">Registrar pago
+                        v-if="row.item.total_pendiente != 0 && row.item.total_devolucion == 0" 
+                        @click="registrarDevAdeudo(row.item, row.index)"
+                        variant="primary">Registrar devolución
                     </b-button>
                 </template>
                 <template slot="thead-top" slot-scope="row">
@@ -68,33 +59,16 @@
                     </tr>
                 </template>
             </b-table>
-            <b-modal id="modal-pago" title="Registrar pago">
-                <b-form @submit.prevent="guardarAbono">
-                    <b-row>
-                        <b-col sm="2">
-                            <label>Pago</label>
-                        </b-col>
-                        <b-col sm="5">
-                            <b-form-input v-model="abono.pago" :state="state" :disabled="load" type="number" required></b-form-input>
-                        </b-col>
-                        <b-col>
-                            <b-button type="submit" variant="success" :disabled="load">
-                                <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
-                            </b-button>
-                        </b-col>
-                    </b-row>
-                </b-form>
-                <div slot="modal-footer"></div>
-            </b-modal>
+            
         </div>
+
         <div v-if="mostrarRegistrar">
             <b-row>
                 <b-col align="right">
                     <b-button 
                         variant="success" 
-                        @click="guardarAdeudo" 
-                        :disabled="load" 
-                        v-if="adeudo.remision_num != 0 && datos.length > 0">
+                        @click="guardarDevolucion" 
+                        :disabled="load">
                         <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
                     </b-button>
                 </b-col>
@@ -103,165 +77,30 @@
                 </b-col>
             </b-row>
             <hr>
-            <div v-if="mostrarSeleccionar">
-                <b-row>
-                    <b-col sm="10"><h6>Seleccionar cliente</h6></b-col>
-                    <b-col sm="1">
-                        <b-button 
-                            variant="danger"
-                            @click="mostrarSeleccionar = false; mostrarForm = true;"
-                            v-if="cliente.name"
-                            id="btnCancelar" >
-                            <i class="fa fa-close"></i>
-                        </b-button>
-                    </b-col>
-                </b-row>
-                <b-table :items="clientes" :fields="fieldsC">
-                    <template slot="seleccionar" slot-scope="row">
-                        <b-button variant="success" @click="seleccionCliente(row.item)">
-                            <i class="fa fa-check"></i>
-                        </b-button>
-                    </template>
-                </b-table>
-            </div>
-            <div v-if="mostrarForm">
-                <b-row>
-                    <b-col sm="10"><h6>Datos del cliente</h6></b-col>
-                    <b-col sm="1">
-                        <b-button 
-                            variant="warning" 
-                            @click="mostrarForm = false; mostrarSeleccionar = true;" 
-                            :disabled="load"
-                            id="btnEditar">
-                            <i class="fa fa-pencil"></i>
-                        </b-button>
-                    </b-col>
-                    <b-button 
-                        variant="link" 
-                        :class="mostrarDatos ? 'collapsed' : null"
-                        :aria-expanded="mostrarDatos ? 'true' : 'false'"
-                        aria-controls="collapse-1"
-                        @click="mostrarDatos = !mostrarDatos">
-                        <i class="fa fa-sort-asc"></i>
-                    </b-button>
-                </b-row>
-                <b-collapse id="collapse-1" v-model="mostrarDatos" class="mt-2">
-                    <b-row>
-                        <b-list-group class="col-md-6">
-                            <b-list-group-item><b>Nombre:</b> {{ cliente.name }}</b-list-group-item>
-                            <b-list-group-item><b>Dirección:</b> {{cliente.direccion  }}</b-list-group-item>
-                            <b-list-group-item><b>Condiciones de pago:</b> {{ cliente.condiciones_pago }}</b-list-group-item>
-                        </b-list-group>
-                        <b-list-group class="col-md-6">
-                            <b-list-group-item><b>Correo electrónico:</b> {{ cliente.email }}</b-list-group-item>
-                            <b-list-group-item><b>Teléfono:</b> {{ cliente.telefono }}</b-list-group-item>
-                        </b-list-group>
-                    </b-row>
-                </b-collapse>
-                <hr>
-                <b-row>
-                    <b-col>
-                        <label>Remisión No.: <b id="txtObligatorio">*</b></label><br>
-                        <label>Fecha del adeudo (Opcional):</label>
-                    </b-col>
-                    <b-col>
-                        <b-input 
-                            type="number" 
-                            @change="verificarRemision"
-                            v-model="adeudo.remision_num" 
-                            :state="stateR" 
-                            :disabled="load" 
-                            required>
-                        </b-input>
-                        <b-input type="date" v-model="adeudo.fecha_adeudo" :disabled="load"></b-input>
-                    </b-col>
-                    <b-col align="right">
-                        <label><b>Total adeudo</b>: ${{ adeudo.total_adeudo }}</label>
-                    </b-col>
-                </b-row>
-                <hr>
-                <b-table :items="datos" :fields="fieldsD">
-                    <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
-                    <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
-                    <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                    <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario }}</template>
-                    <template slot="total" slot-scope="row">${{ row.item.total }}</template>
-                    <template slot="eliminar" slot-scope="row">
-                        <b-button variant="danger" @click="eliminarRegistro(row.item, row.index)" :disabled="load">
-                            <i class="fa fa-minus-circle"></i>
-                        </b-button>
-                    </template>
-                    <template slot="thead-top" slot-scope="row">
-                        <tr>
-                            <th colspan="4">Agregar datos del libro</th>
-                        </tr>
-                        <tr>
-                            <th></th>
-                            <th>
-                                <b-input
-                                    id="input-isbn"
-                                    v-model="isbn"
-                                    @keyup.enter="buscarLibroISBN"
-                                    v-if="inputISBN"
-                                    :disabled="load"
-                                ></b-input>
-                                <br><b v-if="!inputISBN">{{ temporal.libro.ISBN }}</b>
-                            </th>
-                            <th>
-                                <b-input
-                                    id="input-libro"
-                                    v-model="queryTitulo"
-                                    @keyup="mostrarLibros"
-                                    v-if="inputLibro"
-                                    :disabled="load">
-                                </b-input>
-                                <div class="list-group" v-if="resultslibros.length">
-                                    <a 
-                                        href="#" 
-                                        v-bind:key="i" 
-                                        class="list-group-item list-group-item-action" 
-                                        v-for="(libro, i) in resultslibros" 
-                                        @click="datosLibro(libro)">
-                                        {{ libro.titulo }}
-                                    </a>
-                                </div>
-                                <br><b v-if="!inputLibro">{{ temporal.libro.titulo }}</b>
-                            </th>
-                            <th>
-                                <b-form-input 
-                                    id="input-costo"
-                                    type="number" 
-                                    v-model="costo_unitario"
-                                    v-if="inputCosto"
-                                    @keyup.enter="guardarCosto"
-                                    :disabled="load">
-                                </b-form-input> 
-                            </th>
-                            <th>
-                                <b-form-input 
-                                    id="input-unidades"
-                                    @keyup.enter="guardarRegistro"
-                                    v-if="inputUnidades"
-                                    v-model="unidades" 
-                                    type="number"
-                                    required
-                                    :disabled="load">
-                                </b-form-input>
-                            </th>
-                            <th></th>
-                            <th>
-                                <b-button 
-                                    variant="secondary"
-                                    @click="eliminarTemporal" 
-                                    v-if="inputCosto"
-                                    :disabled="load">
-                                    <i class="fa fa-minus-circle"></i>
-                                </b-button>
-                            </th>
-                        </tr>
-                    </template>
-                </b-table>
-            </div>
+            <b-row>
+                <b-col>
+                    <label>Remisión No.: {{ adeudo.remision_num }}</label><br>
+                    <label>Fecha del adeudo: {{ adeudo.fecha_adeudo }}</label>
+                </b-col>
+                <b-col align="right">
+                    <label><b>Total adeudo</b>: ${{ adeudo.total_adeudo }}</label>
+                </b-col>
+            </b-row>
+            <hr>
+            <b-table :items="adeudo.devoluciones" :fields="fieldsRD">
+                <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
+                <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
+                <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
+                <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario }}</template>
+                <template slot="unidades" slot-scope="row">
+                    <b-input 
+                        type="number" 
+                        @change="obtenerSubtotal(row.item, row.index)"
+                        v-model="row.item.unidades">
+                    </b-input>
+                </template>
+                <template slot="total" slot-scope="row">${{ row.item.total }}</template>
+            </b-table>
         </div> 
 
         <div v-if="mostrarAbonos">
@@ -270,14 +109,14 @@
                     <label><b>Cliente</b><br>{{ adeudo.cliente.name }}</label>
                 </b-col>
                 <b-col sm="2">
-                    <label><b>Total adeudo</b>: ${{ adeudo.total_adeudo }}</label>
+                    <!-- <label><b>Total adeudo</b> ${{ adeudo.total_adeudo }}</label> -->
                 </b-col>
                 <b-col sm="2">
-                    <label><b>Pagos</b>: ${{ adeudo.total_abonos }}</label>
-                    <label><b>Devolución</b>: ${{ adeudo.total_devolucion }}</label>
+                    <!-- <label><b>Pagos</b> ${{ adeudo.total_abonos }}</label>
+                    <label><b>Devolución</b> ${{ adeudo.total_devolucion }}</label> -->
                 </b-col>
                 <b-col sm="2">
-                    <label><b>Total pendiente</b>: ${{ adeudo.total_pendiente }}</label>
+                    <!-- <label><b>Total pendiente</b> ${{ adeudo.total_pendiente }}</label> -->
                 </b-col>
                 <b-col sm="2" align="right">
                     <b-button variant="secondary" @click="listadoAdeudos = true; mostrarAbonos = false;">
@@ -298,7 +137,7 @@
                 </b-button>
             </div>
             <b-collapse id="collapse-1" v-model="mostrarSalida" class="mt-2">
-                <b-table :items="datos" :fields="fieldsD">
+                <b-table :items="adeudo.datos" :fields="fieldsD">
                     <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
                     <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                     <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
@@ -319,7 +158,7 @@
                 </b-button>
             </div>
             <b-collapse id="collapse-2" v-model="mostrarDevolucion" class="mt-2">
-                <b-table :items="devoluciones" :fields="fieldsD">
+                <b-table :items="adeudo.devoluciones" :fields="fieldsD">
                     <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
                     <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                     <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
@@ -327,7 +166,7 @@
                     <template slot="total" slot-scope="row">${{ row.item.total }}</template>
                 </b-table>
             </b-collapse>
-             <hr>
+            <!-- <hr>
             <div class="row">
                 <h4 class="col-md-10">Pagos</h4>
                 <b-button 
@@ -340,19 +179,8 @@
                 </b-button>
             </div>
             <b-collapse id="collapse-3" v-model="mostrarPagos" class="mt-2">
-                <b-table :items="adeudo.abonos" :fields="fieldsP">
-                    <template slot="index" slot-scope="row">
-                        {{ row.index + 1 }}
-                    </template>
-                    <template slot="pago" slot-scope="row">
-                        ${{ row.item.pago }}
-                    </template>
-                    <template slot="created_at" slot-scope="row">
-                        {{ row.item.created_at | moment }}
-                    </template>
-                </b-table>
+                
             </b-collapse>
-            <!--
             <hr>
             <div class="row">
                 <h4 class="col-md-10">Pagar</h4>
@@ -368,6 +196,17 @@
             <b-collapse id="collapse-3" v-model="mostrarFinal" class="mt-2">
                 
             </b-collapse> -->
+            <!-- <b-table :items="adeudo.abonos" :fields="fieldsP">
+                <template slot="index" slot-scope="row">
+                    {{ row.index + 1 }}
+                </template>
+                <template slot="pago" slot-scope="row">
+                    ${{ row.item.pago }}
+                </template>
+                <template slot="created_at" slot-scope="row">
+                    {{ row.item.created_at | moment }}
+                </template>
+            </b-table> -->
         </div>
     </div>
 </template>
@@ -387,6 +226,15 @@
                     {key: 'total', label: 'Subtotal'},
                     {key: 'eliminar', label: ''}
                 ],
+                fieldsRD: [
+                    {key: 'index', label: 'N.'},
+                    'ISBN',
+                    {key: 'titulo', label: 'Libro'},
+                    {key: 'costo_unitario', label: 'Costo unitario'},
+                    {key: 'unidades_resta', label: 'Unidades pendientes'},
+                    'unidades',
+                    {key: 'total', label: 'Subtotal'}
+                ],
                 listadoAdeudos: true,
                 mostrarRegistrar: false,
                 mostrarSeleccionar: true,
@@ -402,13 +250,15 @@
                 ],
                 cliente: {},
                 adeudo: {
+                    id: 0,
                     cliente_id: 0,
                     cliente: {},
                     remision_num: 0,
                     fecha_adeudo: '',
                     total_adeudo: 0,
                     total_pendiente: 0,
-                    datos: []
+                    datos: [],
+                    devoluciones: []
                 },
                 state: null,
                 load: false,
@@ -577,7 +427,6 @@
             registrarAdeudo(){
                 this.clientes = [];
                 this.cliente = {};
-                this.datos = [];
                 this.mostrarSeleccionar = true;
                 this.mostrarDatos = false;
                 this.mostrarForm = false;
@@ -597,13 +446,32 @@
                 this.mostrarDatos = true;
                 this.mostrarForm = true;
             },
-            guardarAdeudo(){
+            registrarDevAdeudo(adeudo, i){
+                this.posicion = i;
+                this.ini_adeudo();
+                axios.get('/detalles_adeudo', {params: {id: adeudo.id}}).then(response => {
+                    this.adeudo = {
+                        id: response.data.adeudo.id,
+                        cliente_id: response.data.adeudo.cliente_id,
+                        cliente: response.data.adeudo.cliente,
+                        remision_num: response.data.adeudo.remision_num,
+                        fecha_adeudo: response.data.adeudo.fecha_adeudo,
+                        total_adeudo: response.data.adeudo.total_adeudo,
+                        total_pendiente: response.data.adeudo.total_pendiente,
+                        datos: response.data.datos,
+                        devoluciones: response.data.devoluciones
+                    };
+                    this.listadoAdeudos = false;
+                    this.mostrarRegistrar = true;
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
+            },
+            guardarDevolucion(){
                 this.load = true;
-                this.adeudo.cliente_id = this.cliente.id;
-                this.adeudo.total_pendiente = this.adeudo.total_adeudo;
-                this.adeudo.datos = this.datos;
-                axios.post('/guardar_adeudo', this.adeudo).then(response => {
-                    this.adeudos.push(response.data);
+                axios.put('/guardar_adeudo_devolucion', this.adeudo).then(response => {
+                    this.adeudos[this.posicion].total_pendiente = response.data.total_pendiente;
+                    this.adeudos[this.posicion].total_devolucion = response.data.total_devolucion;
                     this.acumular();
                     this.load = false;
                     this.mostrarRegistrar = false;
@@ -654,25 +522,33 @@
                     this.mostrarDevolucion = false;
                     this.mostrarPagos = false;
                     this.mostrarFinal = false;
-                    this.adeudo = response.data.adeudo;
-                    this.datos = response.data.datos;
-                    this.devoluciones = response.data.devoluciones;
+                    this.adeudo = {
+                        cliente_id: response.data.adeudo.cliente_id,
+                        cliente: response.data.adeudo.cliente,
+                        remision_num: response.data.adeudo.remision_num,
+                        fecha_adeudo: response.data.adeudo.fecha_adeudo,
+                        total_adeudo: response.data.adeudo.total_adeudo,
+                        total_pendiente: response.data.adeudo.total_pendiente,
+                        datos: response.data.datos,
+                        devoluciones: response.data.devoluciones
+                    };
                     this.listadoAdeudos = false;
                     this.mostrarAbonos = true;
-                    console.log(response.data);
                 }).catch(error => {
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
             ini_adeudo(){
                 this.adeudo = {
+                    id: 0,
                     cliente_id: 0,
                     cliente: {},
                     remision_num: 0,
                     fecha_adeudo: '',
                     total_adeudo: 0,
                     total_pendiente: 0,
-                    datos: []
+                    datos: [],
+                    devoluciones: []
                 };
             },
             acumular(){
@@ -707,6 +583,21 @@
                     this.load = false;
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
+            },
+            obtenerSubtotal(devolucion, i){
+                if(devolucion.unidades >= 0){
+                    if(devolucion.unidades > devolucion.unidades_resta){
+                        this.makeToast('warning', 'Las unidades son mayor a las unidades pendientes');
+                        this.adeudo.devoluciones[i].unidades = 0;
+                        this.adeudo.devoluciones[i].total = 0;
+                    }
+                    else{
+                        this.adeudo.devoluciones[i].total = devolucion.unidades * devolucion.dato.costo_unitario;
+                    }
+                }
+                else{
+                    this.makeToast('warning', 'Unidades invalidas');
+                }
             },
             makeToast(variant = null, descripcion) {
                 this.$bvToast.toast(descripcion, {

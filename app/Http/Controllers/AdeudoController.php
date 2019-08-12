@@ -4,8 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
+use App\Devolucione;
+use App\Remisione;
+use App\Vendido;
 use App\Adeudo;
+use App\Libro;
 use App\Abono;
+use App\Dato;
 
 class AdeudoController extends Controller
 {
@@ -13,13 +18,37 @@ class AdeudoController extends Controller
         try {
             \DB::beginTransaction();
                 $adeudo = Adeudo::create($request->input());
-                $dato = Adeudo::whereId($adeudo->id)->with('cliente')->first();
+                foreach($request->datos as $dato){
+                    $r_dato = Dato::create([
+                        'remision_id' => $request->remision_num,
+                        'libro_id'  => $dato['id'],
+                        'costo_unitario' => $dato['costo_unitario'],
+                        'unidades'  => $dato['unidades'],
+                        'total'     => $dato['total'], 
+                        'estado'    => 'Terminado'
+                    ]);
+                    // $vendido = Vendido::create([
+                    //     'remision_id' => $request->remision_num,
+                    //     'dato_id'   => $r_dato->id,
+                    //     'libro_id' => $dato['id'], 
+                    //     'unidades_resta' => $dato['unidades'],
+                    //     'total_resta' => $dato['total'],
+                    // ]);
+                    $devolucion = Devolucione::create([
+                        'remision_id' => $request->remision_num,
+                        'dato_id'   => $r_dato->id,
+                        'libro_id' => $dato['id'],
+                        'unidades_resta' => $dato['unidades'],
+                        'total_resta' => $dato['total'],
+                    ]);
+                }
+                $t_adeudo = Adeudo::whereId($adeudo->id)->with('cliente')->first();
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
             return response()->json($exception->getMessage());
         }
-        return response()->json($dato);
+        return response()->json($t_adeudo);
     }
 
     public function show(){
@@ -30,6 +59,47 @@ class AdeudoController extends Controller
     public function detalles_adeudo(){
         $id = Input::get('id');
         $adeudo = Adeudo::whereId($id)->with('cliente')->with('abonos')->first();
+        $datos = Dato::where('remision_id', $adeudo->remision_num)->with('libro')->get();
+        $devoluciones = Devolucione::where('remision_id', $adeudo->remision_num)->with('dato')->with('libro')->get();
+        return response()->json([
+            'adeudo' => $adeudo, 
+            'datos' => $datos, 
+            'devoluciones' => $devoluciones
+        ]);
+    }
+
+    public function guardar_adeudo_devolucion(Request $request){
+        try {
+            \DB::beginTransaction();
+                $total_devolucion = 0;
+                foreach($request->devoluciones as $devolucion){
+                    $costo_unitario = $devolucion['dato']['costo_unitario'];
+                    $unidades = $devolucion['unidades'];
+                    $total = $unidades * $costo_unitario;
+                    
+                    $unidades_resta = $devolucion['unidades_resta'] - $unidades;
+                    $total_resta = $unidades_resta * $costo_unitario;
+                    Devolucione::whereId($devolucion['id'])->update([
+                        'unidades' => $unidades, 
+                        'unidades_resta' => $unidades_resta,
+                        'total' => $total,
+                        'total_resta' => $total_resta
+                    ]);
+                    $libro = Libro::whereId($devolucion['libro']['id'])->first();
+                    $libro->update(['piezas' => $libro->piezas + $unidades]); 
+                    $total_devolucion += $total;
+                }
+                $adeudo = Adeudo::whereId($request->id)->first();
+                $total_pendiente = $adeudo->total_pendiente - $total_devolucion;
+                $adeudo->update([
+                    'total_pendiente' => $total_pendiente,
+                    'total_devolucion' => $total_devolucion, 
+                ]);
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
         return response()->json($adeudo);
     }
 
@@ -45,6 +115,13 @@ class AdeudoController extends Controller
                 ]);
                 $abono = Abono::create($request->input());
 
+                if($total_pendiente == 0){
+                    Devolucione::where('remision_id', $adeudo->remision_num)->update([
+                        'unidades_resta' => 0,
+                        'total_resta' => 0
+                    ]);
+                }
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -57,5 +134,12 @@ class AdeudoController extends Controller
         $cliente_id = Input::get('cliente_id');
         $adeudos = Adeudo::where('cliente_id', $cliente_id)->with('cliente')->with('abonos')->get();
         return response()->json($adeudos);
+    }
+
+    public function buscarRemision(){
+        $remision_num = Input::get('remision_num');
+        $adeudo = Adeudo::where('remision_num', $remision_num)->count();
+        $remision = Remisione::where('id', $remision_num)->count();
+        return response()->json(['adeudo' => $adeudo, 'remision' => $remision]);
     }
 }

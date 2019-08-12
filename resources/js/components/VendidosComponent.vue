@@ -72,7 +72,6 @@
                 });
             },
             func_detalles(vendido){
-                console.log(vendido);
                 this.listadoLibros = false;
                 this.mostrarDetalles = true;
                 axios.get('/detalles_vendidos', {params: {fecha: this.fecha, libro_id: vendido.libro_id}}).then(response => {

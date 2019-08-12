@@ -89,7 +89,7 @@
                 </b-col>
                 <b-col sm="3" class="text-right">
                     <b-button 
-                        @click="actRemision" 
+                        @click="actEntrada" 
                         variant="success"
                         :disabled="load"
                         v-if="registros.length > 0 && agregar == false">
@@ -165,7 +165,6 @@
 </template>
 
 <script>
-    // moment.locale('es');
     export default {
         props: ['role_id'],
         data() {
@@ -201,17 +200,13 @@
                     {key: 'id', label: 'N.'}, 
                     {key: 'isbn', label: 'ISBN'}, 
                     {key: 'titulo', label: 'Libro'}, 
-                    // {key: 'costo_unitario', label: 'Costo unitario'},
                     'unidades',
-                    // {key: 'total', label: 'Subtotal'},
                 ],
                 fieldsRE: [
                     {key: 'id', label: 'N.'}, 
                     {key: 'ISBN', label: 'ISBN'}, 
                     {key: 'titulo', label: 'Libro'}, 
                     'unidades', 
-                    // {key: 'costo_unitario', label: ''},
-                    // {key: 'total', label: ''},
                     {key: 'eliminar', label: ''}
                 ],
                 mostrarDetalles: false,
@@ -256,25 +251,21 @@
         }, 
         methods: {
             nuevaEntrada(){
-                axios.get('/nueva_entrada').then(response => {
-                    this.listadoEntradas = false;
-                    this.agregar = true;
-                    this.mostrarEA = true;
-                    this.entrada = {
-                        id: 0,
-                        unidades: 0,
-                        total: 0,
-                        folio: '',
-                        editorial: '',
-                        items: [],
-                        nuevos: []
-                    };
-                    this.registros = [];
-                    this.eliminarTemporal();
-                    this.total_unidades = 0;
-                }).catch(error => {
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                });
+                this.listadoEntradas = false;
+                this.agregar = true;
+                this.mostrarEA = true;
+                this.entrada = {
+                    id: 0,
+                    unidades: 0,
+                    total: 0,
+                    folio: '',
+                    editorial: '',
+                    items: [],
+                    nuevos: []
+                };
+                this.registros = [];
+                this.eliminarTemporal();
+                this.total_unidades = 0;
             },
             onSubmit(){
                 this.load = true;
@@ -406,7 +397,7 @@
                     this.makeToast('danger', 'Unidades no validas');
                 }
             },
-            actRemision(){
+            actEntrada(){
                 this.entrada.unidades = this.total_unidades;
                 this.entrada.nuevos = this.nuevos;
                 this.load = true;
@@ -469,34 +460,6 @@
                 this.entradas.forEach(entrada => {
                     this.total += entrada.unidades;
                 });
-            },
-            verificarUnidades(unidades, costo_unitario, i){
-                this.registros[i].total = unidades * costo_unitario;
-            },
-            actualizarCosto(){
-                this.estado = false;
-                this.registros.forEach(registro => {
-                    if(registro.costo_unitario == 0){
-                        this.estado = true;
-                    }
-                });
-                if(this.estado == true){
-                    this.makeToast('warning', 'El costo unitario no puede ser 0');
-                }
-                else{
-                    this.load = true;
-                    this.entrada.items = this.registros;
-                    axios.put('/actualizar_costos', this.entrada).then(response => {
-                        this.makeToast('success', 'La entrada se ha actualizado');
-                        this.entradas[this.posicion].total = response.data.total;
-                        this.load = false;
-                        this.mostrarEA = false;
-                        this.listadoEntradas = true;
-                    }).catch(error => {
-                        this.load = false;
-                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                    });
-                }
             },
             makeToast(variant = null, descripcion) {
                 this.$bvToast.toast(descripcion, {

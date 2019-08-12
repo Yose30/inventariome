@@ -20,13 +20,6 @@
                     </b-row>
                 </div>
                 <div class="col-md-4">
-                    <!-- <div class="row">
-                        <label class="col-md-3">Estado</label>
-                        <div class="col-md-9">
-                            <b-form-select v-model="selected" :options="options" @change="porEstado"></b-form-select>
-                        </div>
-                    </div>
-                    <hr> -->
                     <b-row class="my-1">
                         <b-col sm="3">
                             <label for="input-cliente">Cliente</label>
@@ -374,14 +367,9 @@
                 resultslibros: [],
                 tabla_libros: false,
                 libros: [],
-                //ATRIBUTOS EDITAR REMISION
                 mostrar: true,
                 show: false,
-                mostrarActualizar: true,
-                btnInformacion: true,
                 mostrarDatos: false,
-                dato: {},
-                formularioEditar: false,
                 errors: {},
                 fecha: '',
                 inputFecha: true,
@@ -392,23 +380,8 @@
                     fecha_entrega: ''
                 },
                 items: [],
-                botonEliminar: false,
                 total_remision: 0,
-                descuento: 0,
                 pagar: 0,
-                isbn: '',
-                inputISBN: false,
-                respuestaISBN: '',
-                temporal: {},
-                buscarTitulo: '',
-                inputLibro: false,
-                resultadoslibros: [],
-                costo_unitario: 0,
-                inputCosto: false,
-                respuestaCosto: '',
-                unidades: 0,
-                inputUnidades: false,
-                respuestaUnidades: '',
                 detalles: false,
                 mostrarSalida: false,
                 mostrarDevolucion: false,
@@ -535,202 +508,8 @@
             valores(response){
                 this.remisiones = [];
                 this.remisiones = response.data;
-                this.tabla_numero = false;
                 this.tabla_gral = true;
                 this.acumular();
-            },
-            porEstado(){
-                axios.get('/buscar_por_estado', {params: {estado: this.selected}}).then(response => {
-                    this.valores(response);
-                    this.imprimirCliente = false;
-                    this.imprimirEstado = true;
-                    this.estadoRemision = this.selected;
-                });
-            },
-            //Mostrar resultados de la busqueda por titulo del libro
-            mostrarLibros(){
-                if(this.queryTitulo.length > 0){
-                   axios.get('/mostrarLibros', {params: {queryTitulo: this.queryTitulo}}).then(response => {
-                        this.resultslibros = response.data;
-                    });
-                }
-                else{
-                    this.porEstadoLibros();
-                } 
-            },
-            //Mostrar datos del libro seleccionado 
-            datosLibro(libro){
-                this.resultslibros = [];
-                this.queryTitulo = '';
-                this.tabla_libros = true;
-                console.log(libro);
-            },
-            inicializar(response){
-                this.libros = [];
-                this.libros = response.data;
-                this.tabla_libros = true;
-            },
-            //Mostrar resultados de libros con estado
-            porEstadoLibros(){
-                axios.get('/buscar_por_estado_libros', {params: {estado: this.selected2}}).then(response => {
-                    this.inicializar(response);
-                });
-            },
-
-            //EDITAR REMISION
-            editarRemision(remision){
-                this.mostrar = false;
-                this.mostrarActualizar = false;
-                axios.get('/nueva_edicion', {params: {id: remision.id}}).then(response => {
-                    axios.get('/getCliente', {params: {id: remision.cliente_id, remision_id: remision.id}}).then(response => {
-                        this.dato = response.data.cliente;
-                        this.items = response.data.datos;
-                        this.items.forEach(item => {
-                            this.total_remision += item.total;
-                        });
-                        this.bdremision = {
-                            id: remision.id,
-                            fecha_entrega: remision.fecha_entrega,
-                            cliente_id: remision.cliente_id,
-                        };
-                        this.fecha = this.bdremision.fecha_entrega;
-                        // this.getDescuento();
-                        this.bdremision.total = this.total_remision;
-                    });
-                });
-            },
-            getDescuento(){
-                this.descuento = (this.total_remision * this.dato.descuento) / 100;
-                this.pagar = this.total_remision - this.descuento;
-            },
-            cancelarRemision(){
-                this.show = false;
-                this.mostrar = true;
-                this.dato = {};
-                this.form = {};
-                this.errors = {};
-                this.fecha = '';
-                this.bdremision = {id: 0, cliente_id: 0, total: 0, fecha_entrega: ''};
-                this.items = [];
-                this.total_remision = 0;
-                this.descuento = 0;
-                this.pagar = 0;
-                this.mostrarDatos = false;
-                this.temporal = {};
-                this.inputCosto = false;
-                this.inputUnidades = false;
-                this.inputISBN = true;
-                this.inputLibro = true;
-                this.buscarTitulo = '';
-                this.unidades = 0;
-                this.costo_unitario = 0;
-            },
-            actRemision(){
-                this.getDescuento();
-                
-                this.bdremision.total = this.total_remision;
-
-                axios.put('/actualizar_remision', this.bdremision).then(response => {
-                    this.mostrarActualizar = false;
-                    this.botonEliminar = false;
-                    this.eliminarTemporal();
-                    this.inputISBN = false;
-                    this.inputLibro = false;
-                    this.btnInformacion = true;
-                    this.inputFecha = true;
-                });
-            },
-            editar(){
-                this.mostrarActualizar = true;
-                this.botonEliminar = true;
-                this.btnInformacion = false;
-                this.inputFecha = false;
-                this.eliminarTemporal();
-            },
-            editarInformacion(){
-                this.formularioEditar = true;
-            },
-            onSubmit(){
-                axios.put('/editar_cliente', this.form).then(response => {
-                    this.dato = response.data;
-                    this.formularioEditar = false;
-                })
-                .catch(error => {
-                    if (error.response.status === 422) {
-                        this.errors = error.response.data.errors || {};
-                    }
-                });
-            },
-            //Eliminar registro de la remision
-            eliminarRegistro(item, i){
-                axios.delete('/eliminar_registro', {params: {id: item.id}}).then(response => {
-                    this.items.splice(i, 1);
-                    this.total_remision = this.total_remision - item.total;
-                    this.bdremision.total = this.total_remision;
-                    // this.getDescuento();
-                });
-            },
-            //Buscar libro por ISBN
-            buscarLibroISBN(){
-                axios.get('/buscarISBN', {params: {isbn: this.isbn}}).then(response => {
-                    this.temporal = response.data;
-                    this.isbn = '';
-                    this.ini_1();
-                }).catch(error => {
-                    this.respuestaISBN = 'ISBN incorrecto';
-                });
-            },
-            mostrarLibros(){
-                if(this.buscarTitulo.length > 0){
-                   axios.get('/mostrarLibros', {params: {queryTitulo: this.buscarTitulo}}).then(response => {
-                        this.resultadoslibros = response.data;
-                    });
-               } 
-            },
-            //Mostrar datos del libro seleccionado 
-            datosLibro(libro){
-                this.resultadoslibros = [];
-                this.ini_1();
-                this.temporal = {
-                    id: libro.id,
-                    ISBN: libro.ISBN,
-                    titulo: libro.titulo,
-                    costo_unitario: 0,
-                    unidades: 0,
-                    total: 0,
-                    piezas: libro.piezas
-                };
-            },
-            ini_1(){
-                this.inputISBN = false;
-                this.inputLibro = false;
-                this.inputCosto = true;
-            },
-            guardarCosto(){
-                this.respuestaCosto = '';
-                if(this.costo_unitario > 0){
-                    this.temporal.costo_unitario = this.costo_unitario;
-                    this.inputCosto = false;
-                    this.inputUnidades = true;
-                    this.respuestaCosto = '';
-                }
-                else{
-                    // this.respuestaCosto = 'Costo invalido';
-                    this.makeToast('warning', 'Costo invalido');
-                } 
-            },
-            eliminarTemporal(){
-                this.temporal = {};
-                this.inputISBN = true;
-                this.respuestaISBN = '';
-                this.buscarTitulo = '';
-                this.inputLibro = true;
-                this.unidades = 0;
-                this.inputUnidades = false;
-                this.respuestaUnidades = '';
-                this.costo_unitario = 0;
-                this.inputCosto = false;
-                this.respuestaCosto = '';
             },
             cambiarEstado(){
                 axios.put('/cancelar_remision', this.remision).then(response => {
@@ -741,30 +520,6 @@
                 .catch(error => {
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
-            },
-            guardarRegistro(){
-                if(this.unidades > 0){
-                    this.temporal.remision_id = this.bdremision.id;
-                    this.temporal.unidades = this.unidades;
-                    this.temporal.total = this.unidades * this.temporal.costo_unitario;
-                    
-                    axios.post('/registro_remision', this.temporal).then(response => {
-                        this.temporal = {
-                            id: response.data.dato.id,
-                            libro: {
-                                ISBN: response.data.libro.ISBN,
-                                titulo: response.data.libro.titulo,
-                            },
-                            costo_unitario: response.data.dato.costo_unitario,
-                            unidades: response.data.dato.unidades,
-                            total: response.data.dato.total
-                        };
-                        this.items.push(this.temporal);
-                        this.total_remision += response.data.dato.total;
-                        // this.getDescuento();
-                        this.eliminarTemporal();
-                    }); 
-                }
             },
             detallesRemision(remision){
                 this.detalles = true;

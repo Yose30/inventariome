@@ -22,11 +22,11 @@
                         <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
                     </b-button>
                 </b-col>
-                <!-- <b-col align="right">
+                <b-col align="right">
                     <b-button variant="secondary" @click="listadoPromociones = true; mostrarRegistrar = false;">
                         <i class="fa fa-mail-reply"></i> Regresar
                     </b-button>
-                </b-col> -->
+                </b-col>
             </b-row>
             <hr>
             <b-row>

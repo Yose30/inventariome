@@ -151,7 +151,18 @@
                             <th>Pagar</th>
                         </tr>
                         @foreach($remisiones as $remision)
-                            <tr>
+                            @if($remision->estado == 'Iniciado')
+                                <tr class="table-secondary">
+                            @endif
+                            @if($remision->estado == 'Cancelado')
+                                <tr class="table-danger">
+                            @endif
+                            @if($remision->total_pagar == 0 && $remision->pagos > 0)
+                                <tr class="table-success">
+                            @endif
+                            @if($remision->estado == 'Proceso')
+                                <tr>
+                            @endif
                                 <td class="bordesVer" style="width:5%" id="tdder">{{ $remision->id }}</td>
                                 <td class="bordesVer" style="width:13%" id="tdder">{{ $remision->created_at->format('d-m-Y') }}</td>
                                 <td class="bordesVer" style="width:50%">{{ $remision->cliente->name }}</td> 

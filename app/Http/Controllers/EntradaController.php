@@ -55,8 +55,9 @@ class EntradaController extends Controller
         $entrada_id = Input::get('entrada_id');
         try {
             \DB::beginTransaction();
-                $this->func_inicializar_editar($entrada_id);
-                Registro::where('entrada_id', $entrada_id)->where('estado', 'Iniciado')->delete();
+                Registro::where('entrada_id', $entrada_id)
+                ->where('estado', 'Eliminado')
+                ->update(['estado' => 'Terminado']);
             \DB::commit();
         
         } catch (Exception $e) {
@@ -64,7 +65,7 @@ class EntradaController extends Controller
             return response()->json($e->getMessage());
         }
         $entrada = Entrada::whereId($entrada_id)->with('repayments')->first();
-        $registros = Registro::where('entrada_id', $entrada->id)->where('estado', '!=', 'Eliminado')->with('libro')->get();
+        $registros = Registro::where('entrada_id', $entrada->id)->where('estado', 'Terminado')->with('libro')->get();
         
         return response()->json(['entrada' => $entrada, 'registros' => $registros]);
     }
@@ -115,13 +116,13 @@ class EntradaController extends Controller
         ->update(['estado' => 'Terminado']);
 
         //En caso de haber agregado uno nuevo, se recuperan las piezas
-        $noguardados = Registro::where('entrada_id', $entrada)->where('estado', 'Iniciado')->get();
-        if($noguardados->count() > 0){
-            foreach($noguardados as $noguardado){
-                $libro = Libro::whereId($noguardado->libro_id)->first();
-                $libro->update(['piezas' => $libro->piezas - $noguardado->unidades]);
-            }
-        }
+        // $noguardados = Registro::where('entrada_id', $entrada)->where('estado', 'Iniciado')->get();
+        // if($noguardados->count() > 0){
+        //     foreach($noguardados as $noguardado){
+        //         $libro = Libro::whereId($noguardado->libro_id)->first();
+        //         $libro->update(['piezas' => $libro->piezas - $noguardado->unidades]);
+        //     }
+        // }
     }
 
     public function registro(Request $request){

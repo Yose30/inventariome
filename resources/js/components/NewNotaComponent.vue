@@ -409,7 +409,7 @@
                    axios.get('/mostrarLibros', {params: {queryTitulo: this.queryTitulo}}).then(response => {
                         this.resultslibros = response.data;
                     });
-               } 
+                } 
             },
             datosLibro(libro){
                 this.temporal = {

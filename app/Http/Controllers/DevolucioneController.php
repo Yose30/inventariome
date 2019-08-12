@@ -43,36 +43,19 @@ class DevolucioneController extends Controller
         $devolucion = Devolucione::whereId($request->id)->with('libro')->with('dato')->first();
         $remision = Remisione::whereId($devolucion->remision_id)->first();
 
-        // $unidades = $request->unidades;
-        // $unidades_resta = $devolucion->dato->unidades - $unidades;
-        // // $unidades_resta = $devolucion->unidades_resta - $unidades;
-        // $costo_unitario = $devolucion->dato->costo_unitario;
-        // $descuento = $remision->cliente->descuento;
-
-        // //$total = ($unidades * $costo_unitario) - ((($unidades * $costo_unitario) * $descuento) / 100);
-        // $total = $unidades * $costo_unitario;
-        // $total_resta = $devolucion->dato->total - $total;
-
         try {
             \DB::beginTransaction();
             
-            // $devolucion->unidades = $unidades;
-            // $devolucion->unidades_resta = $unidades_resta;
-            // $devolucion->total = $total;
-            // $devolucion->total_resta = $total_resta;
-            // $devolucion->save();
+            
+            // $total_devolucion = 0;
 
-            // $devoluciones = Devolucione::where('remision_id', $devolucion->remision_id)->get();
-
-            $total_devolucion = 0;
-
-            foreach($devoluciones as $d){
-                $total_devolucion += $d->total;            
-            }
-            $con_descuento = ($total_devolucion) - (($total_devolucion * $descuento) / 100);
-            $remision->total_devolucion = $con_descuento;
-            $remision->total_pagar = $remision->total - $con_descuento;
-            $remision->save();
+            // foreach($devoluciones as $d){
+            //     $total_devolucion += $d->total;            
+            // }
+            // $con_descuento = ($total_devolucion) - (($total_devolucion * $descuento) / 100);
+            // $remision->total_devolucion = $con_descuento;
+            // $remision->total_pagar = $remision->total - $con_descuento;
+            // $remision->save();
 
             \DB::commit();
             
@@ -93,7 +76,6 @@ class DevolucioneController extends Controller
             \DB::beginTransaction();
             $total_devolucion = 0;
             foreach($request->devoluciones as $devolucion){
-                
                 $costo_unitario = $devolucion['dato']['costo_unitario'];
                 $unidades = $devolucion['unidades'];
                 $total = $unidades * $costo_unitario;

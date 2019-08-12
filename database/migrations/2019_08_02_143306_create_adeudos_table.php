@@ -22,7 +22,8 @@ class CreateAdeudosTable extends Migration
             $table->double('total_adeudo', 16, 2)->default(0);
             $table->double('total_abonos', 16, 2)->default(0);
             $table->double('total_pendiente', 16, 2)->default(0);
-            $table->timestamps();
+            $table->double('total_devolucion', 16, 2)->default(0);
+            $table->timestamps(); 
         });
 
         Schema::create('abonos', function (Blueprint $table) {

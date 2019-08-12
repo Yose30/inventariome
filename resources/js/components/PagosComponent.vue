@@ -1,8 +1,5 @@
 <template>
     <div>
-        <b-alert v-if="remisiones.length == 0" show variant="secondary">
-            <i class="fa fa-exclamation-triangle"></i> No hay remisones
-        </b-alert>
         <b-table 
             v-if="!mostrarDetalles && !mostrarPagos && remisiones.length > 0" 
             :items="remisiones" :fields="fields">

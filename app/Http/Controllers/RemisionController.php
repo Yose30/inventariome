@@ -18,36 +18,36 @@ use PDF;
 class RemisionController extends Controller
 {
     public function registro(Request $request){
-        if($request->remision_id != 0){
-            $remision = $request->remision_id;
-        }
-        else{
-            $remision = Remisione::all()->count() + 1;
-        }
+        // if($request->remision_id != 0){
+        //     $remision = $request->remision_id;
+        // }
+        // else{
+        //     $remision = Remisione::all()->count() + 1;
+        // }
         
-        try {
+        // try {
 
-            \DB::beginTransaction();
+        //     \DB::beginTransaction();
 
-            $dato = Dato::create([
-                'remision_id' => $remision,
-                'libro_id'  => $request->id,
-                'costo_unitario' => $request->costo_unitario,
-                'unidades'  => $request->unidades,
-                'total'     => $request->total
-            ]);
+        //     $dato = Dato::create([
+        //         'remision_id' => $remision,
+        //         'libro_id'  => $request->id,
+        //         'costo_unitario' => $request->costo_unitario,
+        //         'unidades'  => $request->unidades,
+        //         'total'     => $request->total
+        //     ]);
 
-            $libro = Libro::whereId($dato->libro_id)->first();
-            $libro->update(['piezas' => $libro->piezas - $dato->unidades]);
+        //     $libro = Libro::whereId($dato->libro_id)->first();
+        //     $libro->update(['piezas' => $libro->piezas - $dato->unidades]);
             
-            \DB::commit();
+        //     \DB::commit();
 
-            return response()->json(['dato' => $dato, 'libro' => $dato->libro]);
+        //     return response()->json(['dato' => $dato, 'libro' => $dato->libro]);
 
-        } catch (Exception $e) {
-            \DB::rollBack();
-            return response()->json($exception->getMessage());
-		}
+        // } catch (Exception $e) {
+        //     \DB::rollBack();
+        //     return response()->json($exception->getMessage());
+		// }
     }
 
     public function store(Request $request){
@@ -285,35 +285,35 @@ class RemisionController extends Controller
     public function nueva(){
         $remision = Remisione::all()->count() + 1;
 
-        try {
-            \DB::beginTransaction();
-            $this->comprobar($remision - 1);
-            //Si una remision estab siendo creada pero no se guardo se recuperan los datos en estado Eliminado e Iniciado
-            //Se deshacen los cambios de disminucion de piezas
-            $eliminados = Dato::where('remision_id', $remision)->where('estado', 'Eliminado')->get();
-            if($eliminados->count() > 0){
-                foreach($eliminados as $eliminado){
-                    $libro = Libro::whereId($eliminado->libro_id)->first();
-                    $libro->update(['piezas' => $libro->piezas + $eliminado->unidades]);
-                }
-            }
+        // try {
+        //     \DB::beginTransaction();
+        //     $this->comprobar($remision - 1);
+        //     //Si una remision estab siendo creada pero no se guardo se recuperan los datos en estado Eliminado e Iniciado
+        //     //Se deshacen los cambios de disminucion de piezas
+        //     $eliminados = Dato::where('remision_id', $remision)->where('estado', 'Eliminado')->get();
+        //     if($eliminados->count() > 0){
+        //         foreach($eliminados as $eliminado){
+        //             $libro = Libro::whereId($eliminado->libro_id)->first();
+        //             $libro->update(['piezas' => $libro->piezas + $eliminado->unidades]);
+        //         }
+        //     }
 
-            $datos = Dato::where('remision_id', $remision)->where('estado', 'Iniciado')->get();
-            if($datos->count() > 0){
-                foreach($datos as $dato){
-                    $libro = Libro::whereId($dato->libro_id)->first();
-                    $libro->update(['piezas' => $libro->piezas + $dato->unidades]);
-                }
-            }
+        //     $datos = Dato::where('remision_id', $remision)->where('estado', 'Iniciado')->get();
+        //     if($datos->count() > 0){
+        //         foreach($datos as $dato){
+        //             $libro = Libro::whereId($dato->libro_id)->first();
+        //             $libro->update(['piezas' => $libro->piezas + $dato->unidades]);
+        //         }
+        //     }
 
-            Dato::where('remision_id', $remision)->where('estado', 'Eliminado')->delete();
-            Dato::where('remision_id', $remision)->where('estado', 'Iniciado')->delete();
-            Cliente::where('estado', 'Iniciado')->delete();
-            \DB::commit();
+        //     Dato::where('remision_id', $remision)->where('estado', 'Eliminado')->delete();
+        //     Dato::where('remision_id', $remision)->where('estado', 'Iniciado')->delete();
+        //     Cliente::where('estado', 'Iniciado')->delete();
+        //     \DB::commit();
 
-        } catch (Exception $e) {
-            \DB::rollBack();
-        }
+        // } catch (Exception $e) {
+        //     \DB::rollBack();
+        // }
         
         return response()->json(null, 200);
     }
@@ -510,8 +510,6 @@ class RemisionController extends Controller
                         )
                         ->get();
         }
-        
-
         return response()->json($remisiones);
     }
 }

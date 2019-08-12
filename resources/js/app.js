@@ -7,7 +7,6 @@
 require('./bootstrap');
 
 window.Vue = require('vue');
-// Vue.use(require('vue-moment'));
 window.moment = require('moment');
 Vue.use(require('vue-resource'));
 
@@ -43,8 +42,8 @@ Vue.component('devolucion-component', require('./components/DevolucionComponent.
 Vue.component('listado-component', require('./components/ListadoComponent.vue').default);
 Vue.component('lista-remisiones-component', require('./components/ListaRemisionesComponent.vue').default);
 Vue.component('libros-component', require('./components/LibrosComponent.vue').default);
-Vue.component('editar-r-component', require('./components/EditarRComponent.vue').default);
-Vue.component('inventario-component', require('./components/InventarioComponent.vue').default);
+
+
 Vue.component('new-client-component', require('./components/NewClientComponent.vue').default);
 Vue.component('new-libro-component', require('./components/NewLibroComponent.vue').default);
 Vue.component('pagos-component', require('./components/PagosComponent.vue').default);
@@ -55,6 +54,7 @@ Vue.component('vendidos-component', require('./components/VendidosComponent.vue'
 Vue.component('adeudos-component', require('./components/AdeudosComponent.vue').default);
 Vue.component('promociones-component', require('./components/PromocionesComponent.vue').default);
 Vue.component('editar-entradas-component', require('./components/EditarEntradasComponent.vue').default);
+Vue.component('devolucion-adeudos-component', require('./components/DevolucionAdeudosComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

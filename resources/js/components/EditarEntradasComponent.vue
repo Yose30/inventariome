@@ -388,40 +388,6 @@
                 this.total_unidades = this.total_unidades - item.unidades;
                 this.entrada.unidades = this.total_unidades;
             },
-            //Buscar libro por ISBN
-            buscarLibroISBN(){
-                axios.get('/buscarISBN', {params: {isbn: this.isbn}}).then(response => {
-                    this.datosLibro(response.data);
-                }).catch(error => {
-                    this.makeToast('danger', 'ISBN incorrecto');
-                });
-            }, 
-            mostrarLibros(){
-                if(this.queryTitulo.length > 0){
-                   axios.get('/mostrarLibros', {params: {queryTitulo: this.queryTitulo}}).then(response => {
-                        this.resultslibros = response.data;
-                    });
-               } 
-            },
-            //Mostrar datos del libro seleccionado 
-            datosLibro(libro){
-                this.ini_1();
-                this.temporal = {
-                    id: libro.id,
-                    libro: {
-                        ISBN: libro.ISBN,
-                        titulo: libro.titulo,
-                    },
-                    unidades: 0,
-                };
-            },
-            ini_1(){
-                this.inputLibro = false;
-                this.inputISBN = false;
-                this.inputUnidades = true;
-                this.resultslibros = [];
-            },
-            
             mostrarEditoriales(){
                 if(this.editorial.length > 0){
                     axios.get('/mostrarEditoriales', {params: {editorial: this.editorial}}).then(response => {
@@ -440,10 +406,6 @@
                 this.total = 0;
                 this.total_pagos = 0;
                 this.total_pendiente = 0;
-                // this.entrada.unidades = 0;
-                // this.entrada.total = 0;
-                // this.entrada.total_pagos = 0;
-                // this.entrada.total_pendiente = 0;
                 this.entradas.forEach(entrada => {
                     this.total += entrada.total;
                     this.total_pagos += entrada.total_pagos;

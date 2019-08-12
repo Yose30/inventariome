@@ -30,8 +30,7 @@ class LibroController extends Controller
         $this->validate($request, [
             'titulo' => 'min:5|max:100|required|string',
             'ISBN' => 'min:5|max:100|required|string',
-            'editorial' => 'required|min:5|max:100|string',
-            // 'costo_unitario' => 'required|min:3',
+            'editorial' => 'required|min:5|max:100|string'
         ]);
     }
 
@@ -61,7 +60,6 @@ class LibroController extends Controller
 
     //Obtener todos los libros
     public function allLibros(){
-        // $libros = \DB::table('libros')->select('id', 'ISBN', 'titulo', 'editorial', 'piezas')->get();
         $libros = Libro::all();
         return response()->json($libros);
     }
@@ -69,9 +67,7 @@ class LibroController extends Controller
     public function descargarLibros(){
         $libros = Libro::all();
         $data['libros'] = $libros;
-
         $pdf = PDF::loadView('inventario.libros', $data); 
-        
         return $pdf->download('libros.pdf');
     }
 

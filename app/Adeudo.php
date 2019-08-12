@@ -15,7 +15,9 @@ class Adeudo extends Model
         'fecha_adeudo', 
         'total_adeudo', 
         'total_abonos', 
-        'total_pendiente'
+        'total_pendiente',
+        'total_devolucion'
+
     ];
 
     //Uno a muchos (Inversa)

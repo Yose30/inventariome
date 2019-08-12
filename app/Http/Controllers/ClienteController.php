@@ -13,20 +13,15 @@ class ClienteController extends Controller
     //Nuevo cliente
     public function store(Request $request){
         $this->validacion($request);
-        
         try {
             \DB::beginTransaction();
-            
             $cliente = Cliente::create($request->input());
-
             \DB::commit();
-
-            return response()->json($cliente);
-
         } catch (Exception $e) {
             \DB::rollBack();
             return response()->json($exception->getMessage());
-		}
+        }
+        return response()->json($cliente);
     }
 
     //Editar cliente
@@ -34,7 +29,6 @@ class ClienteController extends Controller
         $cliente = Cliente::whereId($request->id)->first();
         $cliente->name = 'prueba';
         $cliente->save();
-        
         $this->validacion($request);
         try {
             \DB::beginTransaction();
@@ -46,7 +40,6 @@ class ClienteController extends Controller
             $cliente->condiciones_pago = $request->condiciones_pago;
             $cliente->save();
             \DB::commit();
-
         } catch (Exception $e) {
             \DB::rollBack();
             return response()->json($exception->getMessage());
