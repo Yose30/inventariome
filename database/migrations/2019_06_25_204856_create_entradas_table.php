@@ -32,7 +32,8 @@ class CreateEntradasTable extends Migration
             $table->float('costo_unitario', 8, 2)->default(0);
             $table->integer('unidades')->default(0);
             $table->double('total', 10, 2)->default(0);
-            $table->enum('estado', ['Iniciado', 'Eliminado', 'Terminado'])->default('Iniciado');
+            $table->enum('estado', ['Iniciado', 'Eliminado', 'Terminado'])->default('Terminado');
+            $table->softDeletes(); //Nueva línea, para el borrado lógico
             $table->timestamps();
         });
 

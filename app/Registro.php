@@ -2,12 +2,17 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\SoftDeletes; //línea necesaria
 use Illuminate\Database\Eloquent\Model;
 use App\Entrada;
 use App\Libro;
 
 class Registro extends Model
 {
+    use SoftDeletes; //Implementamos 
+
+    protected $dates = ['deleted_at']; //Registramos la nueva columna
+
     protected $fillable = [
         'id', 
         'entrada_id', 
@@ -29,4 +34,5 @@ class Registro extends Model
     public function libro(){
         return $this->belongsTo(Libro::class);
     }
+    
 }

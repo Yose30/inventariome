@@ -37,7 +37,7 @@ class CreateRemisionesTable extends Migration
             $table->float('costo_unitario', 8, 2);
             $table->integer('unidades')->default(0);
             $table->double('total', 12, 2)->default(0);
-            $table->enum('estado', ['Iniciado', 'Eliminado', 'Terminado'])->default('Iniciado');
+            $table->enum('estado', ['Iniciado', 'Eliminado', 'Terminado'])->default('Terminado');
             $table->timestamps();
         });
 
