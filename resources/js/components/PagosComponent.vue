@@ -120,6 +120,7 @@
                 <template slot="created_at" slot-scope="row">
                     {{ row.item.created_at | moment }}
                 </template>
+                <template slot="user" slot-scope="row">Teresa Pérez</template>
             </b-table>
             <b-table v-if="remision.depositos.length == 0" :items="remision.vendidos" :fields="fieldsP">
                 <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
@@ -186,6 +187,7 @@
                     {key: 'index', label: 'No.'},
                     'pago',
                     {key: 'created_at', label: 'Fecha de pago'},
+                    {key: 'user', label: 'Usuario'}
                 ],
                 fieldsD: [
                     {key: 'index', label: 'N.'},
@@ -238,6 +240,14 @@
                 this.deposito.remision_id = remision.id;
                 this.remision.total_pagar = remision.total_pagar;
                 this.deposito.pago = 0;
+                axios.get('/datos_vendidos', {params: {remision_id: remision.id}}).then(response => {
+                    if(response.data.depositos.length > 0){
+                        this.$bvModal.hide('modal-registrar-deposito');
+                        this.makeToast('warning', 'Los registros de pago de la remisión los esta realizando otro usuario');
+                    }
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
             },
             registrarPago(remision, index){
                 this.pos_remision = index;
@@ -245,7 +255,13 @@
                     this.remision.id = remision.id;
                     this.remision.cliente = remision.cliente;
                     this.remision.vendidos = response.data.vendidos;
-                    this.mostrarDetalles = true;
+                    if(response.data.depositos.length == 0){
+                        this.mostrarDetalles = true;
+                    }
+                    else{
+                        this.makeToast('warning', 'Los registros de pago de la remisión los esta realizando otro usuario');
+                    }
+                    
                 }).catch(error => {
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
@@ -313,6 +329,7 @@
                     this.remision.vendidos = response.data.vendidos;
                     this.remision.cliente = remision.cliente;
                     this.remision.depositos = response.data.depositos;
+                    this.remision.total_pagar = remision.total_pagar;
                     this.remision.vendidos.forEach(vendido => {
                         this.remision.unidades += vendido.unidades;
                     });

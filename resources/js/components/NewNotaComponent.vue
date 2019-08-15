@@ -42,8 +42,9 @@
                         @click="registrarDevolucion(row.item, row.index)">Registrar devolución</b-button>
                 </template>
                 <template slot="editar" slot-scope="row">
+                    <!--  && row.item.total_pagar == row.item.total_salida -->
                     <b-button
-                        v-if="role_id == 3 && row.item.total_pagar ==row.item.total_salida" 
+                        v-if="role_id == 3 && row.item.total_pagar > 0" 
                         variant="outline-warning"
                         @click="editarNota(row.item, row.index)"
                         >Editar</b-button>

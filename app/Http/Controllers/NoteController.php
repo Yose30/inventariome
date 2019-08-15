@@ -64,12 +64,12 @@ class NoteController extends Controller
             \DB::beginTransaction();
             //ELIMINADOS
             $total_eliminado = 0;
-            foreach($request->eliminados as $eliminado){
-                $register = Register::whereId($eliminado['id'])->delete();
-                $libro = Libro::whereId($eliminado['libro_id'])->first();
-                $libro->update(['piezas' => $libro->piezas + $eliminado['unidades']]);
-                $total_eliminado += $eliminado['total'];
-            }
+            // foreach($request->eliminados as $eliminado){
+            //     $register = Register::whereId($eliminado['id'])->delete();
+            //     $libro = Libro::whereId($eliminado['libro_id'])->first();
+            //     $libro->update(['piezas' => $libro->piezas + $eliminado['unidades']]);
+            //     $total_eliminado += $eliminado['total'];
+            // }
             //NUEVOS
             $total = 0;
             foreach($request->nuevos as $nuevo){
@@ -86,9 +86,9 @@ class NoteController extends Controller
                 $libro->update(['piezas' => $libro->piezas - $nuevo['unidades']]);
                 $total += $nuevo['total'];
             }
-
-            $total_nota =( $note->total_salida - $total_eliminado) + $total;
-            $note->update(['total_salida' => $total_nota, 'total_pagar' => $total_nota]);
+            $total_salida = ($note->total_salida - $total_eliminado) + $total;
+            $total_pagar = $total_salida - $note->pagos;
+            $note->update(['total_salida' => $total_salida, 'total_pagar' => $total_pagar]);
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();

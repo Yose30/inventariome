@@ -25,9 +25,7 @@
                             <label for="input-cliente">Cliente</label>
                         </b-col>
                         <b-col sm="9">
-                            <b-input
-                            v-model="queryCliente"
-                            @keyup="mostrarClientes"
+                            <b-input v-model="queryCliente" @keyup="mostrarClientes"
                             ></b-input>
                             <div class="list-group" v-if="resultsClientes.length">
                                 <a 
@@ -137,8 +135,7 @@
                     <b-button 
                         variant="outline-danger" 
                         v-b-modal.modal-cancelar 
-                        v-if="remision.estado == 'Iniciado' && role_id == 2"
-                    >
+                        v-if="remision.estado == 'Iniciado' && role_id == 2">
                         <i class="fa fa-close"></i> Cancelar remisión
                     </b-button>
                 </b-col>
@@ -314,7 +311,7 @@
         <b-modal id="modal-cancelar" title="Cancelar remisión">
             <p><b><i class="fa fa-exclamation-triangle"></i> ¿Estas seguro de cancelar la remisión?</b></p>
             <div slot="modal-footer">
-                <b-button @click="cambiarEstado">OK</b-button>
+                <b-button :disabled="load" @click="cambiarEstado">OK</b-button>
             </div>
         </b-modal>
     </div>
@@ -398,7 +395,6 @@
                     {key: 'isbn', label: 'ISBN'}, 
                     'libro', 
                     {key: 'costo_unitario', label: 'Costo unitario'}, 
-                    // {key: 'unidades_resta', label: 'Unidades pendientes'},
                     {key: 'unidades', label: 'Unidades'}, 
                     'subtotal',
                     {key: 'detalles', label: ''}
@@ -411,6 +407,7 @@
                     {key: 'created_at', label: 'Fecha'}, 
                 ],
                 idRemision: 0,
+                load: false,
             }
         },
         created: function(){
@@ -512,12 +509,15 @@
                 this.acumular();
             },
             cambiarEstado(){
+                this.load = true;
                 axios.put('/cancelar_remision', this.remision).then(response => {
                     this.remision.estado = response.data.estado;
                     this.$bvModal.hide('modal-cancelar');
+                    this.load = false;
                     this.makeToast('secondary', 'Remisión cancelada');
                 })
                 .catch(error => {
+                    this.load = false;
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },

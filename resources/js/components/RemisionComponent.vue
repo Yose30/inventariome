@@ -24,12 +24,13 @@
                     </b-modal>
                 </div>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-4">
                 <b-button 
+                    :disabled="load"
                     @click="guardarRemision" 
                     variant="success"
                     v-if="mostrarGuardar && !editar && items.length > 0">
-                    <i class="fa fa-check"></i> Guardar
+                    <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
                 </b-button>
                 <!-- <b-button 
                     @click="actRemision" 
@@ -38,14 +39,14 @@
                     <i class="fa fa-check"></i> Guardar
                 </b-button> -->
             </div>
-            <div class="col-md-2">
-                <!-- <b-button 
+            <!-- <div class="col-md-2">
+                <b-button 
                     variant="warning" 
                     @click="editarRemision"
                     v-if="mostrarOpciones">
                     <i class="fa fa-pencil"></i>
-                </b-button> -->
-            </div>
+                </b-button>
+            </div> -->
             <div class="col-md-2">
                 <a 
                     class="btn btn-info"
@@ -57,7 +58,7 @@
         </div>
         <hr>
         <div align="center" v-if="mostrarBusqueda && !btnNuevo">
-            <div align="left">
+            <!-- <div align="left">
                 <button 
                     class="btn btn-light" 
                     v-if="clientes.length > 0 && !listaClientes" 
@@ -73,7 +74,7 @@
                     @click="mostrarBusqueda = false; mostrarDatos = true; mostrarForm = true;">
                     <i class="fa fa-close"></i>
                 </button>
-            </div>
+            </div> -->
             <div v-if="listaClientes">
                 <b-alert v-if="clientes.length == 0" show variant="secondary">
                     <i class="fa fa-exclamation-triangle"></i> No hay clientes registrados, ir al apartado de <b>Agregar cliente</b> para poder continuar.
@@ -96,10 +97,9 @@
                                 <td>{{ cliente.email }}</td>
                                 <td>{{ cliente.direccion }}</td>
                                 <td>
-                                    <button 
-                                        class="btn btn-success">
-                                        <i class="fa fa-check" @click="seleccionCliente(cliente)"></i>
-                                    </button>
+                                    <b-button variant="success" @click="seleccionCliente(cliente)">
+                                        <i class="fa fa-check"></i>
+                                    </b-button>
                                 </td>
                             </tr>
                         </tbody>
@@ -112,7 +112,12 @@
             <div class="row">
                 <h6 class="col-md-10">Datos del cliente</h6>
                 <div class="col-md-1">
-                    <button id="btnEditar" class="btn btn-warning" :disabled="btnInformacion" @click="editarInformacion"><i class="fa fa-pencil"></i></button>
+                    <b-button 
+                        id="btnEditar" 
+                        variant="warning" 
+                        :disabled="btnInformacion" 
+                        @click="editarInformacion"><i class="fa fa-pencil"></i>
+                    </b-button>
                 </div>
                 <b-button 
                     variant="link" 
@@ -141,13 +146,12 @@
         <div class="row">
             <div class="col-md-6" v-if="mostrarForm">
                 <label><b>Fecha de entrega</b></label>
-                <input 
-                    class="form-control" 
+                <b-form-input 
                     type="date" 
                     v-model="fecha" 
                     :disabled="inputFecha"
                     @change="sel_fecha">
-                </input>
+                </b-form-input>
                 <div class="text-danger">{{ respuestaFecha }}</div>
             </div>
             <div class="col-md-6" align="right" v-if="mostrarTotal">
@@ -175,35 +179,35 @@
                         <td>{{ item.unidades }}</td>
                         <td>$ {{ item.total }}</td>
                         <td>
-                            <button 
-                                class="btn btn-danger" 
+                            <b-button 
+                                variant="danger" 
                                 @click="eliminarRegistro(item, i)" 
                                 v-if="botonEliminar">
                                 <i class="fa fa-minus-circle"></i>
-                            </button>
+                            </b-button>
                         </td>
                     </tr>
                     <tr>
                         <td>
                             <b-input
-                            v-model="isbn"
-                            @keyup.enter="buscarLibroISBN()"
-                            v-if="inputISBN"
+                                v-model="isbn"
+                                @keyup.enter="buscarLibroISBN()"
+                                v-if="inputISBN"
                             ></b-input>
                             <div class="text-danger">{{ respuestaISBN }}</div>
                             <b v-if="!inputISBN">{{ temporal.ISBN }}</b>
                         </td>
                         <td>
                             <b-input
-                            v-model="queryTitulo"
-                            @keyup="mostrarLibros"
-                            v-if="inputLibro"
+                                v-model="queryTitulo"
+                                @keyup="mostrarLibros"
+                                v-if="inputLibro"
                             ></b-input>
                             <div class="list-group" v-if="resultslibros.length">
                                 <a 
+                                    class="list-group-item list-group-item-action" 
                                     href="#" 
                                     v-bind:key="i" 
-                                    class="list-group-item list-group-item-action" 
                                     v-for="(libro, i) in resultslibros" 
                                     @click="datosLibro(libro)">
                                     {{ libro.titulo }}
@@ -212,36 +216,34 @@
                             <b v-if="!inputLibro">{{ temporal.titulo }}</b>
                         </td>
                         <td>
-                            <input 
+                            <b-input 
                                 type="number" 
                                 v-model="costo_unitario"
                                 v-if="inputCosto"
                                 min="1"
                                 max="9999"
-                                @keyup.enter="guardarCosto()">
-                            </input> 
-                            <b v-if="!inputCosto">$ {{ temporal.costo_unitario }}</b>
-                            <div class="text-danger">{{ respuestaCosto }}</div>
+                                @keyup.enter="guardarCosto">
+                            </b-input> 
+                            <!-- <b v-if="!inputCosto">$ {{ temporal.costo_unitario }}</b> -->
                         </td>
                         <td>
-                            <input 
+                            <b-input 
                             type="number" 
                             v-model="unidades"
                             v-if="inputUnidades"
                             min="1"
                             max="9999"
-                            @keyup.enter="guardarRegistro()"
-                            ></input>
-                            <div class="text-danger">{{ respuestaUnidades }}</div>
+                            @keyup.enter="guardarRegistro"
+                            ></b-input>
                         </td>
                         <td></td>
                         <td>
-                            <button 
-                                class="btn btn-secondary" 
+                            <b-button 
+                                variant="secondary"
                                 @click="eliminarTemporal" 
                                 v-if="inputCosto || inputUnidades">
                                 <i class="fa fa-minus-circle"></i>
-                            </button>
+                            </b-button>
                         </td>
                     </tr>
                 </tbody>
@@ -254,6 +256,7 @@
     export default {
         data() {
             return {
+                load: false,
                 btnNuevo: true, //Para determinar si se muestra el boton de nueva remisión
                 show: false, //Para determinar si se muestra el modal de cancelar
                 queryCliente: '', //Buscar cliente por nombre
@@ -345,7 +348,10 @@
                    axios.get('/mostrarLibros', {params: {queryTitulo: this.queryTitulo}}).then(response => {
                         this.resultslibros = response.data;
                     });
-               } 
+                } 
+                else{
+                    this.resultslibros = [];
+                }
             },
             //Mostrar datos del libro seleccionado 
             datosLibro(libro){
@@ -368,12 +374,17 @@
             guardarRegistro(){
                 if(this.unidades > 0){
                     if(this.unidades <= this.temporal.piezas){
-                        this.mostrarDatos = false;
-                        this.temporal.unidades = this.unidades;
-                        this.temporal.total = this.unidades * this.temporal.costo_unitario;
-                        this.items.push(this.temporal);
-                        this.total_remision += this.temporal.total;
-                        this.inicializar_registro();
+                        if(this.costo_unitario > 0){
+                            this.mostrarDatos = false;
+                            this.temporal.unidades = this.unidades;
+                            this.temporal.total = this.unidades * this.temporal.costo_unitario;
+                            this.items.push(this.temporal);
+                            this.total_remision += this.temporal.total;
+                            this.inicializar_registro();
+                        }
+                        else{
+                            this.makeToast('danger', 'El costo debe ser mayor a 0');
+                        } 
                     }
                     else{
                         this.makeToast('danger', `${this.temporal.piezas} piezas en existencia`);
@@ -391,6 +402,7 @@
             },
             //Guardar toda la remision
             guardarRemision(){
+                this.load = true;
                 this.bdremision.total = this.total_remision;
                 this.bdremision.cliente_id = this.dato.id;
                 this.bdremision.registros = this.items;
@@ -399,11 +411,14 @@
                         this.bdremision.id = response.data.id;
                         this.respuestaFecha ='';
                         this.mostrarGuardar = false;
+                        this.load = false;
+                        this.makeToast('success', 'La remisión se creo correctamente');
                         this.inicializar_guardar();
                     });
                 }
                 else{
                     this.makeToast('danger', 'Selecciona fecha de entrega');
+                    this.load = false;
                 }
             },
             //Editar la remision
@@ -434,12 +449,12 @@
             guardarCosto(){
                 if(this.costo_unitario > 0){
                     this.temporal.costo_unitario = this.costo_unitario;
-                    this.inputCosto = false;
+                    // this.inputCosto = false;
                     this.inputUnidades = true;
                     this.respuestaCosto = '';
                 }
                 else{
-                    this.makeToast('danger', 'Costo invalido');
+                    this.makeToast('danger', 'El costo debe ser mayor a 0');
                     
                 } 
             },
@@ -468,6 +483,8 @@
             inicializar_registro(){
                 this.ini_1();
                 this.ini_2();
+                this.costo_unitario = 0;
+                this.inputCosto = false;
                 this.respuestaUnidades = '';
                 this.botonEliminar = true;
                 this.mostrarTotal = true;
