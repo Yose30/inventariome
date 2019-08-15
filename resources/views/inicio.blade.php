@@ -85,7 +85,7 @@
             </div>
             <div class="tab-pane fade" id="v-pagos">
                 <br>
-                <pagos-component></pagos-component>
+                <pagos-component :role_id="{{auth()->user()->role_id}}"></pagos-component>
             </div>
             <div class="tab-pane fade" id="v-libros">
                 <br>

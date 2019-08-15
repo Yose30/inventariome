@@ -93,7 +93,10 @@ class DevolucioneController extends Controller
                 $libro = Libro::whereId($devolucion['libro']['id'])->first();
                 $libro->update(['piezas' => $libro->piezas + $unidades]);     
                 
-                Vendido::where('dato_id', $devolucion['dato']['id'])->update(['unidades_resta' => $unidades_resta]);   
+                Vendido::where('dato_id', $devolucion['dato']['id'])->update([
+                    'unidades_resta' => $unidades_resta,
+                    'total_resta'    => $costo_unitario * $unidades_resta
+                ]);   
                 $total_devolucion += $total;
             }
             

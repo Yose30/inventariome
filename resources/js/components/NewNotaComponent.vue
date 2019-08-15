@@ -205,9 +205,9 @@
                     <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario }}</template>
                     <template slot="total" slot-scope="row">${{ row.item.total }}</template>
                     <template slot="eliminar" slot-scope="row">
-                        <b-button variant="danger" @click="eliminarRegistro(row.item, row.index)" :disabled="load">
+                        <!-- <b-button variant="danger" @click="eliminarRegistro(row.item, row.index)" :disabled="load">
                             <i class="fa fa-minus-circle"></i>
-                        </b-button>
+                        </b-button> -->
                     </template>
                 </b-table>
                 <hr>
@@ -296,8 +296,8 @@
                     {key: 'titulo', label: 'Libro'},
                     {key: 'costo_unitario', label: 'Costo unitario'},
                     'unidades',
-                    {key: 'total', label: 'Subtotal'},
-                    'eliminar'
+                    {key: 'total', label: 'Subtotal'}
+                    // 'eliminar'
                 ],
                 fieldsP: [
                     {key: 'index', label: 'N.'}, 

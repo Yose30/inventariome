@@ -9,12 +9,42 @@
             <template slot="total_pagar" slot-scope="row">${{ row.item.total_pagar }}</template>
             <template slot="pagos" slot-scope="row">${{ row.item.pagos }}</template>
             <template slot="pagar" slot-scope="row">
-                <b-button v-if="row.item.total_pagar > 0" variant="primary" @click="registrarPago(row.item, row.index)">Registrar pago</b-button>
+                <b-button 
+                    v-if="row.item.total_pagar > 0 && role_id == 2"
+                    v-b-modal.modal-registrar-deposito
+                    variant="primary" 
+                    @click="registrarDeposito(row.item, row.index)">Registrar pago
+                </b-button>
+                <b-button 
+                    v-if="row.item.total_pagar > 0 && role_id == 3"
+                    variant="primary" 
+                    @click="registrarPago(row.item, row.index)">Registrar pago
+                </b-button>
             </template>
             <template slot="ver_pagos" slot-scope="row">
                 <b-button v-if="row.item.pagos != 0" variant="info" @click="verPagos(row.item)">Ver pagos</b-button>
             </template>
         </b-table>
+
+        <b-modal id="modal-registrar-deposito" title="Registrar pago">
+            <b-form @submit.prevent="guardarDeposito">
+                <b-row>
+                    <b-col sm="2">
+                        <label>Pago</label>
+                    </b-col>
+                    <b-col sm="5">
+                        <b-form-input v-model="deposito.pago" :state="state" :disabled="load" type="number" required></b-form-input>
+                    </b-col>
+                    <b-col>
+                        <b-button type="submit" variant="success" :disabled="load">
+                            <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
+                        </b-button>
+                    </b-col>
+                </b-row>
+            </b-form>
+            <div slot="modal-footer"></div>
+        </b-modal>
+
         <div v-if="mostrarDetalles">
             <b-row>
                 <b-col>
@@ -23,8 +53,12 @@
                 </b-col>
                 <b-col>
                     <div class="text-right">
-                        <b-button v-if="btnGuardar" variant="success" @click="guardarUnidades">
-                            <i class="fa fa-check"></i> Guardar
+                        <b-button 
+                            v-if="btnGuardar" 
+                            :disabled="load" 
+                            variant="success" 
+                            @click="guardarUnidades">
+                            <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
                         </b-button>
                     </div>
                 </b-col>
@@ -44,6 +78,7 @@
                 <template slot="unidades_base" slot-scope="row">
                     <b-input 
                         type="number" 
+                        :disabled="load"
                         @change="verificarUnidades(row.item.unidades_base, row.item.unidades_resta, row.item.dato.costo_unitario, row.index)" 
                         v-model="row.item.unidades_base">
                     </b-input>
@@ -60,7 +95,7 @@
                 </b-col>
                 <b-col>
                     <br>
-                    <label><b>Unidades vendidas</b>: {{ remision.unidades }}</label>
+                    <label v-if="remision.total_pagar == 0"><b>Unidades vendidas</b>: {{ remision.unidades }}</label>
                 </b-col>
                 <b-col>
                     <br>
@@ -75,7 +110,18 @@
                 </b-col>
             </b-row>
             <hr>
-            <b-table :items="remision.vendidos" :fields="fieldsP">
+            <b-table v-if="remision.depositos.length > 0" :items="remision.depositos" :fields="fieldsDep">
+                <template slot="index" slot-scope="row">
+                    {{ row.index + 1 }}
+                </template>
+                <template slot="pago" slot-scope="row">
+                    ${{ row.item.pago }}
+                </template>
+                <template slot="created_at" slot-scope="row">
+                    {{ row.item.created_at | moment }}
+                </template>
+            </b-table>
+            <b-table v-if="remision.depositos.length == 0" :items="remision.vendidos" :fields="fieldsP">
                 <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                 <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
                 <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario }}</template>
@@ -106,6 +152,7 @@
 
 <script>
     export default {
+        props: ['role_id'],
         data() {
             return {
                 remisiones: [],
@@ -135,6 +182,11 @@
                     'subtotal',
                     'detalles'
                 ],
+                fieldsDep: [
+                    {key: 'index', label: 'No.'},
+                    'pago',
+                    {key: 'created_at', label: 'Fecha de pago'},
+                ],
                 fieldsD: [
                     {key: 'index', label: 'N.'},
                     {key: 'user_id', label: 'Usuario'}, 
@@ -147,14 +199,22 @@
                     id: 0,
                     cliente: {},
                     pagos: 0,
+                    total_pagar: 0,
                     unidades: 0,
                     datos: [],
-                    vendidos: []
+                    vendidos: [],
+                    depositos: []
                 },
                 btnGuardar: false,
                 total_vendido: 0,
                 pos_remision: 0,
                 mostrarPagos: false,
+                state: null,
+                load: false,
+                deposito: {
+                    remision_id: 0,
+                    pago: 0
+                }
             }
         },
         created: function(){
@@ -173,25 +233,61 @@
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
+            registrarDeposito(remision, index){
+                this.pos_remision = index;
+                this.deposito.remision_id = remision.id;
+                this.remision.total_pagar = remision.total_pagar;
+                this.deposito.pago = 0;
+            },
             registrarPago(remision, index){
                 this.pos_remision = index;
                 axios.get('/datos_vendidos', {params: {remision_id: remision.id}}).then(response => {
                     this.remision.id = remision.id;
                     this.remision.cliente = remision.cliente;
-                    this.remision.vendidos = response.data;
+                    this.remision.vendidos = response.data.vendidos;
                     this.mostrarDetalles = true;
                 }).catch(error => {
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
+            guardarDeposito(){
+                if(this.deposito.pago > 0){
+                    if(this.deposito.pago <= this.remision.total_pagar){
+                        this.state = null;
+                        this.load = true;
+                        axios.post('/deposito_remision', this.deposito).then(response => {
+                            this.load = false;
+                            this.remisiones[this.pos_remision].pagos = response.data.pagos;
+                            this.remisiones[this.pos_remision].total_pagar = response.data.total_pagar;
+                            this.makeToast('success', 'El pago se guardo correctamente');
+                            this.$bvModal.hide('modal-registrar-deposito');
+                        })
+                        .catch(error => {
+                            this.load = false;
+                            this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                        });
+                    }
+                    else{
+                        this.state = false;
+                        this.makeToast('warning', 'El pago es mayor al total a pagar');
+                    }
+                }
+                else{
+                    this.state = false;
+                    this.makeToast('warning', 'El pago tiene que ser mayor a 0');
+                }
+            },
             guardarUnidades(){
+                this.load = true;
                 axios.post('/registrar_pago', this.remision).then(response => {
                     this.remisiones[this.pos_remision].pagos = response.data.pagos;
                     this.remisiones[this.pos_remision].total_pagar = response.data.total_pagar;
                     this.makeToast('success', 'El pago se guardo correctamente');
-                     this.mostrarDetalles = false;
+                    this.mostrarDetalles = false;
+                    this.load = false;
                 }).catch(error => {
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    this.load = false;
                 });
             },
             verificarUnidades(base, resta, costo, i){
@@ -214,8 +310,9 @@
                 axios.get('/datos_vendidos', {params: {remision_id: remision.id}}).then(response => {
                     this.remision.id = remision.id;
                     this.remision.pagos = remision.pagos;
-                    this.remision.vendidos = response.data;
+                    this.remision.vendidos = response.data.vendidos;
                     this.remision.cliente = remision.cliente;
+                    this.remision.depositos = response.data.depositos;
                     this.remision.vendidos.forEach(vendido => {
                         this.remision.unidades += vendido.unidades;
                     });

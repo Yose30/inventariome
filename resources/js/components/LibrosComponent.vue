@@ -48,9 +48,9 @@
                 <b-button variant="outline-warning" v-b-modal.modal-editar @click="editarLibro(data.item, data.index)">
                     <i class="fa fa-pencil"></i>
                 </b-button>
-                <b-button variant="outline-danger" v-b-modal.modal-eliminar @click="editarLibro(data.item, data.index)">
+                <!-- <b-button variant="outline-danger" v-b-modal.modal-eliminar @click="editarLibro(data.item, data.index)">
                     <i class="fa fa-trash"></i>
-                </b-button>
+                </b-button> -->
             </template>
         </b-table>
         <b-pagination

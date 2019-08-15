@@ -8,6 +8,7 @@ use NumerosEnLetras;
 use App\Devolucione;
 use Carbon\Carbon;
 use App\Remisione;
+use App\Deposito;
 use App\Vendido;
 use App\Cliente;
 use App\Libro;
@@ -511,5 +512,48 @@ class RemisionController extends Controller
                         ->get();
         }
         return response()->json($remisiones);
+    }
+
+    public function deposito_remision(Request $request){
+        $remision = Remisione::whereId($request->remision_id)->first();
+
+        $pagos = $remision->pagos + $request->pago;
+        $total_pagar = $remision->total_pagar - $request->pago;
+
+        try{
+            \DB::beginTransaction();
+            Deposito::create($request->input());
+
+            if($total_pagar == 0){
+                Devolucione::where('remision_id', $remision->id)->update([
+                    'unidades_resta' => 0,
+                    'total_resta' => 0
+                ]);
+                
+                $vendidos = Vendido::where('remision_id', $remision->id)->get();
+                foreach($vendidos as $vendido){
+                    $unidades = $vendido->unidades + $vendido->unidades_resta;
+                    $total = $vendido->dato->costo_unitario * $unidades;
+                    $vendido->update([
+                        'unidades' => $unidades,
+                        'total' => $total,
+                        'unidades_resta' => 0,
+                        'total_resta' => 0
+                    ]);
+                }
+
+            }
+            
+            $remision->update([
+                'pagos' => $pagos,
+                'total_pagar' => $total_pagar
+            ]);
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
+        
+        return response()->json($remision);
     }
 }

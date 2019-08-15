@@ -54,7 +54,8 @@
                 <template slot="registrar_pago" slot-scope="row">
                     <b-button 
                         v-if="row.item.total_pendiente != 0 && role_id == 2" 
-                        v-b-modal.modal-pago variant="primary" 
+                        v-b-modal.modal-pago 
+                        variant="primary" 
                         @click="registrarAbono(row.item, row.index)">Registrar pago
                     </b-button>
                 </template>

@@ -59,6 +59,8 @@ Route::put('actualizar_remision', 'RemisionController@actualizar')->name('actual
 Route::put('vendidos_remision', 'RemisionController@registrar_vendidos')->name('vendidos_remision');
 //Cancelar remision
 Route::put('cancelar_remision', 'RemisionController@cancelar_remision')->name('cancelar_remision');
+//Guardar deposito de remision
+Route::post('deposito_remision', 'RemisionController@deposito_remision')->name('deposito_remision');
 
 
 //REMISIONES -Listado

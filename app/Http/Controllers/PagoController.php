@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\Devolucione;
 use App\Remisione;
+use App\Deposito;
 use App\Vendido;
 use App\Pago;
 use App\Dato;
@@ -62,6 +63,7 @@ class PagoController extends Controller
     public function datos_vendidos(){
         $remision_id = Input::get('remision_id');
         $vendidos = Vendido::where('remision_id', $remision_id)->with('libro')->with('pagos')->with('dato')->get();
-        return response()->json($vendidos);
+        $depositos = Deposito::where('remision_id', $remision_id)->get();
+        return response()->json(['vendidos' => $vendidos, 'depositos' => $depositos]);
     } 
 }

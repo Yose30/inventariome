@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\SoftDeletes; //línea necesaria
 use Illuminate\Database\Eloquent\Model;
 use App\Devolucione;
 use App\Departure;
@@ -12,6 +13,10 @@ use App\Dato;
 
 class Libro extends Model
 {
+    // use SoftDeletes; //Implementamos 
+
+    // protected $dates = ['deleted_at']; //Registramos la nueva columna
+    
     protected $fillable = [
         'id', 
         'ISBN',  

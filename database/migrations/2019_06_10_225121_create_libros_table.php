@@ -21,6 +21,7 @@ class CreateLibrosTable extends Migration
             $table->string('editorial');
             $table->string('edicion')->nullable();
             $table->integer('piezas')->default(0);
+            $table->softDeletes(); //Nueva línea, para el borrado lógico
             $table->timestamps();
         }); 
     }

@@ -7,6 +7,7 @@ use App\Cliente;
 use App\Dato;
 use App\Devolucione;
 use App\Vendido;
+use App\Deposito;
 
 class Remisione extends Model
 {
@@ -46,5 +47,11 @@ class Remisione extends Model
     //Una remision puede tener muchas vendidos
     public function vendidos(){
         return $this->hasMany(Vendido::class);
+    }
+
+    //Uno a muchos
+    //Una remision puede tener muchos depositos
+    public function depositos(){
+        return $this->hasMany(Deposito::class);
     }
 }
