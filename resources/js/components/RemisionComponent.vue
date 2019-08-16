@@ -414,6 +414,10 @@
                         this.load = false;
                         this.makeToast('success', 'La remisión se creo correctamente');
                         this.inicializar_guardar();
+                    })
+                    .catch(error => {
+                        this.load = false;
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                     });
                 }
                 else{
