@@ -151,7 +151,7 @@
                 <table style="width:100%" >
                     <tr>
                         <th  style="width:33%">CLIENTE</th>
-                        <th  style="width:33%">CONCICIONES DE PAGO:</th> 
+                        <th  style="width:33%">CONDICIONES DE PAGO:</th> 
                         <th  style="width:34%">DIRECCIÓN DE ENTREGA:</th>
                     </tr>
                     <tr>
