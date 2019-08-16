@@ -240,14 +240,14 @@
                 this.deposito.remision_id = remision.id;
                 this.remision.total_pagar = remision.total_pagar;
                 this.deposito.pago = 0;
-                axios.get('/datos_vendidos', {params: {remision_id: remision.id}}).then(response => {
-                    if(response.data.depositos.length > 0){
-                        this.$bvModal.hide('modal-registrar-deposito');
-                        this.makeToast('warning', 'Los registros de pago de la remisión los esta realizando otro usuario');
-                    }
-                }).catch(error => {
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                });
+                // axios.get('/datos_vendidos', {params: {remision_id: remision.id}}).then(response => {
+                //     if(response.data.depositos.length > 0){
+                //         this.$bvModal.hide('modal-registrar-deposito');
+                //         this.makeToast('warning', 'Los registros de pago de la remisión los esta realizando otro usuario');
+                //     }
+                // }).catch(error => {
+                //     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                // });
             },
             registrarPago(remision, index){
                 this.pos_remision = index;

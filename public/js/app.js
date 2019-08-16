@@ -7257,67 +7257,59 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     registrarDeposito: function registrarDeposito(remision, index) {
-      var _this2 = this;
-
       this.pos_remision = index;
       this.deposito.remision_id = remision.id;
       this.remision.total_pagar = remision.total_pagar;
-      this.deposito.pago = 0;
+      this.deposito.pago = 0; // axios.get('/datos_vendidos', {params: {remision_id: remision.id}}).then(response => {
+      //     if(response.data.depositos.length > 0){
+      //         this.$bvModal.hide('modal-registrar-deposito');
+      //         this.makeToast('warning', 'Los registros de pago de la remisión los esta realizando otro usuario');
+      //     }
+      // }).catch(error => {
+      //     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+      // });
+    },
+    registrarPago: function registrarPago(remision, index) {
+      var _this2 = this;
+
+      this.pos_remision = index;
       axios.get('/datos_vendidos', {
         params: {
           remision_id: remision.id
         }
       }).then(function (response) {
-        if (response.data.depositos.length > 0) {
-          _this2.$bvModal.hide('modal-registrar-deposito');
+        _this2.remision.id = remision.id;
+        _this2.remision.cliente = remision.cliente;
+        _this2.remision.vendidos = response.data.vendidos;
 
+        if (response.data.depositos.length == 0) {
+          _this2.mostrarDetalles = true;
+        } else {
           _this2.makeToast('warning', 'Los registros de pago de la remisión los esta realizando otro usuario');
         }
       })["catch"](function (error) {
         _this2.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
-    registrarPago: function registrarPago(remision, index) {
-      var _this3 = this;
-
-      this.pos_remision = index;
-      axios.get('/datos_vendidos', {
-        params: {
-          remision_id: remision.id
-        }
-      }).then(function (response) {
-        _this3.remision.id = remision.id;
-        _this3.remision.cliente = remision.cliente;
-        _this3.remision.vendidos = response.data.vendidos;
-
-        if (response.data.depositos.length == 0) {
-          _this3.mostrarDetalles = true;
-        } else {
-          _this3.makeToast('warning', 'Los registros de pago de la remisión los esta realizando otro usuario');
-        }
-      })["catch"](function (error) {
-        _this3.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-      });
-    },
     guardarDeposito: function guardarDeposito() {
-      var _this4 = this;
+      var _this3 = this;
 
       if (this.deposito.pago > 0) {
         if (this.deposito.pago <= this.remision.total_pagar) {
           this.state = null;
           this.load = true;
           axios.post('/deposito_remision', this.deposito).then(function (response) {
-            _this4.load = false;
-            _this4.remisiones[_this4.pos_remision].pagos = response.data.pagos;
-            _this4.remisiones[_this4.pos_remision].total_pagar = response.data.total_pagar;
+            _this3.load = false;
+            _this3.remisiones[_this3.pos_remision].pagos = response.data.pagos;
+            _this3.remisiones[_this3.pos_remision].total_pagar = response.data.total_pagar;
 
-            _this4.makeToast('success', 'El pago se guardo correctamente');
+            _this3.makeToast('success', 'El pago se guardo correctamente');
 
-            _this4.$bvModal.hide('modal-registrar-deposito');
+            _this3.$bvModal.hide('modal-registrar-deposito');
           })["catch"](function (error) {
-            _this4.load = false;
+            _this3.load = false;
 
-            _this4.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+            _this3.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
           });
         } else {
           this.state = false;
@@ -7329,25 +7321,25 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     guardarUnidades: function guardarUnidades() {
-      var _this5 = this;
+      var _this4 = this;
 
       this.load = true;
       axios.post('/registrar_pago', this.remision).then(function (response) {
-        _this5.remisiones[_this5.pos_remision].pagos = response.data.pagos;
-        _this5.remisiones[_this5.pos_remision].total_pagar = response.data.total_pagar;
+        _this4.remisiones[_this4.pos_remision].pagos = response.data.pagos;
+        _this4.remisiones[_this4.pos_remision].total_pagar = response.data.total_pagar;
 
-        _this5.makeToast('success', 'El pago se guardo correctamente');
+        _this4.makeToast('success', 'El pago se guardo correctamente');
 
-        _this5.mostrarDetalles = false;
-        _this5.load = false;
+        _this4.mostrarDetalles = false;
+        _this4.load = false;
       })["catch"](function (error) {
-        _this5.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+        _this4.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
 
-        _this5.load = false;
+        _this4.load = false;
       });
     },
     verificarUnidades: function verificarUnidades(base, resta, costo, i) {
-      var _this6 = this;
+      var _this5 = this;
 
       if (base > resta) {
         this.makeToast('warning', 'Las unidades son mayor a las unidades pendientes');
@@ -7360,12 +7352,12 @@ __webpack_require__.r(__webpack_exports__);
         this.remision.vendidos[i].total_base = base * costo;
         this.btnGuardar = true;
         this.remision.vendidos.forEach(function (vendido) {
-          _this6.total_vendido += vendido.total_base;
+          _this5.total_vendido += vendido.total_base;
         });
       }
     },
     verPagos: function verPagos(remision) {
-      var _this7 = this;
+      var _this6 = this;
 
       this.remision.unidades = 0;
       axios.get('/datos_vendidos', {
@@ -7373,20 +7365,20 @@ __webpack_require__.r(__webpack_exports__);
           remision_id: remision.id
         }
       }).then(function (response) {
-        _this7.remision.id = remision.id;
-        _this7.remision.pagos = remision.pagos;
-        _this7.remision.vendidos = response.data.vendidos;
-        _this7.remision.cliente = remision.cliente;
-        _this7.remision.depositos = response.data.depositos;
-        _this7.remision.total_pagar = remision.total_pagar;
+        _this6.remision.id = remision.id;
+        _this6.remision.pagos = remision.pagos;
+        _this6.remision.vendidos = response.data.vendidos;
+        _this6.remision.cliente = remision.cliente;
+        _this6.remision.depositos = response.data.depositos;
+        _this6.remision.total_pagar = remision.total_pagar;
 
-        _this7.remision.vendidos.forEach(function (vendido) {
-          _this7.remision.unidades += vendido.unidades;
+        _this6.remision.vendidos.forEach(function (vendido) {
+          _this6.remision.unidades += vendido.unidades;
         });
 
-        _this7.mostrarPagos = true;
+        _this6.mostrarPagos = true;
       })["catch"](function (error) {
-        _this7.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+        _this6.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     makeToast: function makeToast() {
@@ -15463,7 +15455,7 @@ var components = {
 /*!****************************************************************!*\
   !*** ./node_modules/bootstrap-vue/esm/components/index.esm.js ***!
   \****************************************************************/
-/*! exports provided: componentsPlugin, BVModalPlugin, BVToastPlugin, AlertPlugin, BadgePlugin, BreadcrumbPlugin, ButtonPlugin, ButtonGroupPlugin, ButtonToolbarPlugin, InputGroupPlugin, CardPlugin, CarouselPlugin, LayoutPlugin, CollapsePlugin, DropdownPlugin, EmbedPlugin, FormPlugin, FormGroupPlugin, FormCheckboxPlugin, FormRadioPlugin, FormInputPlugin, FormTextareaPlugin, FormFilePlugin, FormSelectPlugin, ImagePlugin, JumbotronPlugin, LinkPlugin, ListGroupPlugin, MediaPlugin, ModalPlugin, NavPlugin, NavbarPlugin, PaginationPlugin, PaginationNavPlugin, PopoverPlugin, ProgressPlugin, SpinnerPlugin, TablePlugin, TabsPlugin, ToastPlugin, TooltipPlugin, BAlert, BBadge, BBreadcrumb, BBreadcrumbItem, BBreadcrumbLink, BButton, BButtonClose, BButtonGroup, BButtonToolbar, BInputGroup, BInputGroupAddon, BInputGroupPrepend, BInputGroupAppend, BInputGroupText, BCard, BCardHeader, BCardBody, BCardTitle, BCardSubTitle, BCardFooter, BCardImg, BCardImgLazy, BCardText, BCardGroup, BCarousel, BCarouselSlide, BContainer, BRow, BCol, BFormRow, BCollapse, BDropdown, BDropdownItem, BDropdownItemButton, BDropdownHeader, BDropdownDivider, BDropdownForm, BDropdownText, BDropdownGroup, BEmbed, BForm, BFormDatalist, BFormText, BFormInvalidFeedback, BFormValidFeedback, BFormGroup, BFormCheckbox, BFormCheckboxGroup, BFormRadio, BFormRadioGroup, BFormInput, BFormTextarea, BFormFile, BFormSelect, BImg, BImgLazy, BJumbotron, BLink, BListGroup, BListGroupItem, BMedia, BMediaAside, BMediaBody, BModal, BNav, BNavItem, BNavText, BNavForm, BNavItemDropdown, BNavbar, BNavbarNav, BNavbarBrand, BNavbarToggle, BPagination, BPaginationNav, BPopover, BProgress, BProgressBar, BSpinner, BTable, BTabs, BTab, BToast, BToaster, BTooltip */
+/*! exports provided: BVModalPlugin, BVToastPlugin, AlertPlugin, BadgePlugin, BreadcrumbPlugin, ButtonPlugin, ButtonGroupPlugin, ButtonToolbarPlugin, InputGroupPlugin, CardPlugin, CarouselPlugin, LayoutPlugin, CollapsePlugin, DropdownPlugin, EmbedPlugin, FormPlugin, FormGroupPlugin, FormCheckboxPlugin, FormRadioPlugin, FormInputPlugin, FormTextareaPlugin, FormFilePlugin, FormSelectPlugin, ImagePlugin, JumbotronPlugin, LinkPlugin, ListGroupPlugin, MediaPlugin, ModalPlugin, NavPlugin, NavbarPlugin, PaginationPlugin, PaginationNavPlugin, PopoverPlugin, ProgressPlugin, SpinnerPlugin, TablePlugin, TabsPlugin, ToastPlugin, TooltipPlugin, BAlert, BBadge, BBreadcrumb, BBreadcrumbItem, BBreadcrumbLink, BButton, BButtonClose, BButtonGroup, BButtonToolbar, BInputGroup, BInputGroupAddon, BInputGroupPrepend, BInputGroupAppend, BInputGroupText, BCard, BCardHeader, BCardBody, BCardTitle, BCardSubTitle, BCardFooter, BCardImg, BCardImgLazy, BCardText, BCardGroup, BCarousel, BCarouselSlide, BContainer, BRow, BCol, BFormRow, BCollapse, BDropdown, BDropdownItem, BDropdownItemButton, BDropdownHeader, BDropdownDivider, BDropdownForm, BDropdownText, BDropdownGroup, BEmbed, BForm, BFormDatalist, BFormText, BFormInvalidFeedback, BFormValidFeedback, BFormGroup, BFormCheckbox, BFormCheckboxGroup, BFormRadio, BFormRadioGroup, BFormInput, BFormTextarea, BFormFile, BFormSelect, BImg, BImgLazy, BJumbotron, BLink, BListGroup, BListGroupItem, BMedia, BMediaAside, BMediaBody, BModal, BNav, BNavItem, BNavText, BNavForm, BNavItemDropdown, BNavbar, BNavbarNav, BNavbarBrand, BNavbarToggle, BPagination, BPaginationNav, BPopover, BProgress, BProgressBar, BSpinner, BTable, BTabs, BTab, BToast, BToaster, BTooltip, componentsPlugin */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -25852,7 +25844,7 @@ var NAME = 'BTooltip'; // @vue/component
 /*!****************************************************************!*\
   !*** ./node_modules/bootstrap-vue/esm/directives/index.esm.js ***!
   \****************************************************************/
-/*! exports provided: directivesPlugin, VBTogglePlugin, VBModalPlugin, VBScrollspyPlugin, VBTooltipPlugin, VBPopoverPlugin, VBToggle, VBModal, VBScrollspy, VBTooltip, VBPopover */
+/*! exports provided: VBTogglePlugin, VBModalPlugin, VBScrollspyPlugin, VBTooltipPlugin, VBPopoverPlugin, VBToggle, VBModal, VBScrollspy, VBTooltip, VBPopover, directivesPlugin */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -27367,7 +27359,7 @@ var removeTooltip = function removeTooltip(el) {
 /*!*************************************************!*\
   !*** ./node_modules/bootstrap-vue/esm/index.js ***!
   \*************************************************/
-/*! exports provided: BVConfigPlugin, BVConfig, BootstrapVue, install, setConfig, default, componentsPlugin, directivesPlugin, BVModalPlugin, BVToastPlugin, AlertPlugin, BadgePlugin, BreadcrumbPlugin, ButtonPlugin, ButtonGroupPlugin, ButtonToolbarPlugin, InputGroupPlugin, CardPlugin, CarouselPlugin, LayoutPlugin, CollapsePlugin, DropdownPlugin, EmbedPlugin, FormPlugin, FormGroupPlugin, FormCheckboxPlugin, FormRadioPlugin, FormInputPlugin, FormTextareaPlugin, FormFilePlugin, FormSelectPlugin, ImagePlugin, JumbotronPlugin, LinkPlugin, ListGroupPlugin, MediaPlugin, ModalPlugin, NavPlugin, NavbarPlugin, PaginationPlugin, PaginationNavPlugin, PopoverPlugin, ProgressPlugin, SpinnerPlugin, TablePlugin, TabsPlugin, ToastPlugin, TooltipPlugin, BAlert, BBadge, BBreadcrumb, BBreadcrumbItem, BBreadcrumbLink, BButton, BButtonClose, BButtonGroup, BButtonToolbar, BInputGroup, BInputGroupAddon, BInputGroupPrepend, BInputGroupAppend, BInputGroupText, BCard, BCardHeader, BCardBody, BCardTitle, BCardSubTitle, BCardFooter, BCardImg, BCardImgLazy, BCardText, BCardGroup, BCarousel, BCarouselSlide, BContainer, BRow, BCol, BFormRow, BCollapse, BDropdown, BDropdownItem, BDropdownItemButton, BDropdownHeader, BDropdownDivider, BDropdownForm, BDropdownText, BDropdownGroup, BEmbed, BForm, BFormDatalist, BFormText, BFormInvalidFeedback, BFormValidFeedback, BFormGroup, BFormCheckbox, BFormCheckboxGroup, BFormRadio, BFormRadioGroup, BFormInput, BFormTextarea, BFormFile, BFormSelect, BImg, BImgLazy, BJumbotron, BLink, BListGroup, BListGroupItem, BMedia, BMediaAside, BMediaBody, BModal, BNav, BNavItem, BNavText, BNavForm, BNavItemDropdown, BNavbar, BNavbarNav, BNavbarBrand, BNavbarToggle, BPagination, BPaginationNav, BPopover, BProgress, BProgressBar, BSpinner, BTable, BTabs, BTab, BToast, BToaster, BTooltip, VBTogglePlugin, VBModalPlugin, VBScrollspyPlugin, VBTooltipPlugin, VBPopoverPlugin, VBToggle, VBModal, VBScrollspy, VBTooltip, VBPopover */
+/*! exports provided: BVConfigPlugin, BVConfig, BootstrapVue, install, setConfig, default, BVModalPlugin, BVToastPlugin, AlertPlugin, BadgePlugin, BreadcrumbPlugin, ButtonPlugin, ButtonGroupPlugin, ButtonToolbarPlugin, InputGroupPlugin, CardPlugin, CarouselPlugin, LayoutPlugin, CollapsePlugin, DropdownPlugin, EmbedPlugin, FormPlugin, FormGroupPlugin, FormCheckboxPlugin, FormRadioPlugin, FormInputPlugin, FormTextareaPlugin, FormFilePlugin, FormSelectPlugin, ImagePlugin, JumbotronPlugin, LinkPlugin, ListGroupPlugin, MediaPlugin, ModalPlugin, NavPlugin, NavbarPlugin, PaginationPlugin, PaginationNavPlugin, PopoverPlugin, ProgressPlugin, SpinnerPlugin, TablePlugin, TabsPlugin, ToastPlugin, TooltipPlugin, BAlert, BBadge, BBreadcrumb, BBreadcrumbItem, BBreadcrumbLink, BButton, BButtonClose, BButtonGroup, BButtonToolbar, BInputGroup, BInputGroupAddon, BInputGroupPrepend, BInputGroupAppend, BInputGroupText, BCard, BCardHeader, BCardBody, BCardTitle, BCardSubTitle, BCardFooter, BCardImg, BCardImgLazy, BCardText, BCardGroup, BCarousel, BCarouselSlide, BContainer, BRow, BCol, BFormRow, BCollapse, BDropdown, BDropdownItem, BDropdownItemButton, BDropdownHeader, BDropdownDivider, BDropdownForm, BDropdownText, BDropdownGroup, BEmbed, BForm, BFormDatalist, BFormText, BFormInvalidFeedback, BFormValidFeedback, BFormGroup, BFormCheckbox, BFormCheckboxGroup, BFormRadio, BFormRadioGroup, BFormInput, BFormTextarea, BFormFile, BFormSelect, BImg, BImgLazy, BJumbotron, BLink, BListGroup, BListGroupItem, BMedia, BMediaAside, BMediaBody, BModal, BNav, BNavItem, BNavText, BNavForm, BNavItemDropdown, BNavbar, BNavbarNav, BNavbarBrand, BNavbarToggle, BPagination, BPaginationNav, BPopover, BProgress, BProgressBar, BSpinner, BTable, BTabs, BTab, BToast, BToaster, BTooltip, componentsPlugin, VBTogglePlugin, VBModalPlugin, VBScrollspyPlugin, VBTooltipPlugin, VBPopoverPlugin, VBToggle, VBModal, VBScrollspy, VBTooltip, VBPopover, directivesPlugin */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -27384,8 +27376,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "BVConfigPlugin", function() { return _bv_config__WEBPACK_IMPORTED_MODULE_4__["default"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "BVConfig", function() { return _bv_config__WEBPACK_IMPORTED_MODULE_4__["default"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "componentsPlugin", function() { return _components_index_esm__WEBPACK_IMPORTED_MODULE_2__["componentsPlugin"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "BVModalPlugin", function() { return _components_index_esm__WEBPACK_IMPORTED_MODULE_2__["BVModalPlugin"]; });
 
@@ -27637,7 +27627,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "BTooltip", function() { return _components_index_esm__WEBPACK_IMPORTED_MODULE_2__["BTooltip"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "directivesPlugin", function() { return _directives_index_esm__WEBPACK_IMPORTED_MODULE_3__["directivesPlugin"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "componentsPlugin", function() { return _components_index_esm__WEBPACK_IMPORTED_MODULE_2__["componentsPlugin"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VBTogglePlugin", function() { return _directives_index_esm__WEBPACK_IMPORTED_MODULE_3__["VBTogglePlugin"]; });
 
@@ -27658,6 +27648,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VBTooltip", function() { return _directives_index_esm__WEBPACK_IMPORTED_MODULE_3__["VBTooltip"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VBPopover", function() { return _directives_index_esm__WEBPACK_IMPORTED_MODULE_3__["VBPopover"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "directivesPlugin", function() { return _directives_index_esm__WEBPACK_IMPORTED_MODULE_3__["directivesPlugin"]; });
 
 /*!
  * BoostrapVue 2.0.0-rc.22
