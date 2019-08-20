@@ -2642,6 +2642,19 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['role_id'],
   data: function data() {
@@ -2677,7 +2690,8 @@ __webpack_require__.r(__webpack_exports__);
       },
       loaded: false,
       errors: {},
-      posicion: null
+      posicion: null,
+      queryCliente: ''
     };
   },
   created: function created() {
@@ -2692,6 +2706,21 @@ __webpack_require__.r(__webpack_exports__);
       })["catch"](function (error) {
         _this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
+    },
+    mostrarClientes: function mostrarClientes() {
+      var _this2 = this;
+
+      if (this.queryCliente.length > 0) {
+        axios.get('/mostrarClientes', {
+          params: {
+            queryCliente: this.queryCliente
+          }
+        }).then(function (response) {
+          _this2.clientes = response.data;
+        });
+      } else {
+        this.getTodo();
+      }
     },
     editarCliente: function editarCliente(cliente, i) {
       this.posicion = i;
@@ -2713,26 +2742,26 @@ __webpack_require__.r(__webpack_exports__);
       this.form.condiciones_pago = cliente.condiciones_pago;
     },
     onUpdate: function onUpdate() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.loaded = true;
       axios.put('/editar_cliente', this.form).then(function (response) {
-        _this2.loaded = false;
-        _this2.clientes[_this2.posicion].name = response.data.name;
-        _this2.clientes[_this2.posicion].contacto = response.data.contacto;
-        _this2.clientes[_this2.posicion].email = response.data.email;
-        _this2.clientes[_this2.posicion].telefono = response.data.telefono;
+        _this3.loaded = false;
+        _this3.clientes[_this3.posicion].name = response.data.name;
+        _this3.clientes[_this3.posicion].contacto = response.data.contacto;
+        _this3.clientes[_this3.posicion].email = response.data.email;
+        _this3.clientes[_this3.posicion].telefono = response.data.telefono;
 
-        _this2.$bvModal.hide('modal-editarCliente');
+        _this3.$bvModal.hide('modal-editarCliente');
 
-        _this2.makeToast('success', 'Cliente actualizado');
+        _this3.makeToast('success', 'Cliente actualizado');
       })["catch"](function (error) {
-        _this2.loaded = false;
+        _this3.loaded = false;
 
         if (error.response.status === 422) {
-          _this2.errors = error.response.data.errors || {};
+          _this3.errors = error.response.data.errors || {};
         } else {
-          _this2.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+          _this3.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
         }
       });
     },
@@ -8026,6 +8055,18 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -8142,25 +8183,40 @@ __webpack_require__.r(__webpack_exports__);
         _this.clientes = response.data;
       });
     },
+    mostrarClientes: function mostrarClientes() {
+      var _this2 = this;
+
+      if (this.queryCliente.length > 0) {
+        axios.get('/mostrarClientes', {
+          params: {
+            queryCliente: this.queryCliente
+          }
+        }).then(function (response) {
+          _this2.clientes = response.data;
+        });
+      } else {
+        this.getTodo();
+      }
+    },
     //Buscar libro por ISBN
     buscarLibroISBN: function buscarLibroISBN() {
-      var _this2 = this;
+      var _this3 = this;
 
       axios.get('/buscarISBN', {
         params: {
           isbn: this.isbn
         }
       }).then(function (response) {
-        _this2.inicializar();
+        _this3.inicializar();
 
-        _this2.temporal = response.data;
+        _this3.temporal = response.data;
       })["catch"](function (error) {
-        _this2.makeToast('danger', 'ISBN incorrecto');
+        _this3.makeToast('danger', 'ISBN incorrecto');
       });
     },
     //Buscar libro por titulo, Mostrar resultados de la busqueda
     mostrarLibros: function mostrarLibros() {
-      var _this3 = this;
+      var _this4 = this;
 
       if (this.queryTitulo.length > 0) {
         axios.get('/mostrarLibros', {
@@ -8168,7 +8224,7 @@ __webpack_require__.r(__webpack_exports__);
             queryTitulo: this.queryTitulo
           }
         }).then(function (response) {
-          _this3.resultslibros = response.data;
+          _this4.resultslibros = response.data;
         });
       } else {
         this.resultslibros = [];
@@ -8220,7 +8276,7 @@ __webpack_require__.r(__webpack_exports__);
     },
     //Guardar toda la remision
     guardarRemision: function guardarRemision() {
-      var _this4 = this;
+      var _this5 = this;
 
       this.load = true;
       this.bdremision.total = this.total_remision;
@@ -8229,18 +8285,18 @@ __webpack_require__.r(__webpack_exports__);
 
       if (this.bdremision.fecha_entrega != '') {
         axios.post('/crear_remision', this.bdremision).then(function (response) {
-          _this4.bdremision.id = response.data.id;
-          _this4.respuestaFecha = '';
-          _this4.mostrarGuardar = false;
-          _this4.load = false;
+          _this5.bdremision.id = response.data.id;
+          _this5.respuestaFecha = '';
+          _this5.mostrarGuardar = false;
+          _this5.load = false;
 
-          _this4.makeToast('success', 'La remisión se creo correctamente');
+          _this5.makeToast('success', 'La remisión se creo correctamente');
 
-          _this4.inicializar_guardar();
+          _this5.inicializar_guardar();
         })["catch"](function (error) {
-          _this4.load = false;
+          _this5.load = false;
 
-          _this4.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+          _this5.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
         });
       } else {
         this.makeToast('danger', 'Selecciona fecha de entrega');
@@ -93234,26 +93290,74 @@ var render = function() {
     "div",
     [
       _c(
-        "div",
-        { attrs: { align: "right" } },
+        "b-row",
         [
           _c(
-            "b-button",
-            {
-              directives: [
+            "b-col",
+            [
+              _c(
+                "b-row",
+                { staticClass: "my-1" },
+                [
+                  _c("b-col", { attrs: { sm: "3" } }, [
+                    _c("label", { attrs: { for: "input-cliente" } }, [
+                      _vm._v("Cliente")
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { attrs: { sm: "9" } },
+                    [
+                      _c("b-input", {
+                        on: { keyup: _vm.mostrarClientes },
+                        model: {
+                          value: _vm.queryCliente,
+                          callback: function($$v) {
+                            _vm.queryCliente = $$v
+                          },
+                          expression: "queryCliente"
+                        }
+                      })
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "b-col",
+            { attrs: { align: "right" } },
+            [
+              _c(
+                "b-button",
                 {
-                  name: "b-modal",
-                  rawName: "v-b-modal.modal-nuevoCliente",
-                  modifiers: { "modal-nuevoCliente": true }
-                }
-              ],
-              attrs: { variant: "success" }
-            },
-            [_c("i", { staticClass: "fa fa-plus" }), _vm._v(" Agregar cliente")]
+                  directives: [
+                    {
+                      name: "b-modal",
+                      rawName: "v-b-modal.modal-nuevoCliente",
+                      modifiers: { "modal-nuevoCliente": true }
+                    }
+                  ],
+                  attrs: { variant: "success" }
+                },
+                [
+                  _c("i", { staticClass: "fa fa-plus" }),
+                  _vm._v(" Agregar cliente")
+                ]
+              )
+            ],
+            1
           )
         ],
         1
       ),
+      _vm._v(" "),
+      _c("hr"),
       _vm._v(" "),
       _c("b-table", {
         attrs: { items: _vm.clientes, fields: _vm.fields },
@@ -100683,50 +100787,111 @@ var render = function() {
                     : _vm._e(),
                   _vm._v(" "),
                   _vm.clientes.length > 0
-                    ? _c("div", [
-                        _c("h6", { attrs: { align: "left" } }, [
-                          _vm._v("Seleccionar cliente")
-                        ]),
-                        _vm._v(" "),
-                        _c("hr"),
-                        _vm._v(" "),
-                        _c("table", { staticClass: "table" }, [
-                          _vm._m(0),
-                          _vm._v(" "),
+                    ? _c(
+                        "div",
+                        [
                           _c(
-                            "tbody",
-                            _vm._l(_vm.clientes, function(cliente, i) {
-                              return _c("tr", { key: i }, [
-                                _c("td", [_vm._v(_vm._s(cliente.name))]),
-                                _vm._v(" "),
-                                _c("td", [_vm._v(_vm._s(cliente.email))]),
-                                _vm._v(" "),
-                                _c("td", [_vm._v(_vm._s(cliente.direccion))]),
-                                _vm._v(" "),
-                                _c(
-                                  "td",
-                                  [
-                                    _c(
-                                      "b-button",
-                                      {
-                                        attrs: { variant: "success" },
-                                        on: {
-                                          click: function($event) {
-                                            return _vm.seleccionCliente(cliente)
+                            "b-row",
+                            [
+                              _c("b-col", { attrs: { sm: "4" } }, [
+                                _c("h6", { attrs: { align: "left" } }, [
+                                  _vm._v("Seleccionar cliente")
+                                ])
+                              ]),
+                              _vm._v(" "),
+                              _c(
+                                "b-col",
+                                [
+                                  _c(
+                                    "b-row",
+                                    [
+                                      _c("b-col", { attrs: { sm: "2" } }, [
+                                        _c(
+                                          "label",
+                                          { attrs: { for: "input-cliente" } },
+                                          [
+                                            _c("i", {
+                                              staticClass: "fa fa-search"
+                                            }),
+                                            _vm._v(" Buscar")
+                                          ]
+                                        )
+                                      ]),
+                                      _vm._v(" "),
+                                      _c(
+                                        "b-col",
+                                        { attrs: { sm: "10" } },
+                                        [
+                                          _c("b-input", {
+                                            on: { keyup: _vm.mostrarClientes },
+                                            model: {
+                                              value: _vm.queryCliente,
+                                              callback: function($$v) {
+                                                _vm.queryCliente = $$v
+                                              },
+                                              expression: "queryCliente"
+                                            }
+                                          })
+                                        ],
+                                        1
+                                      )
+                                    ],
+                                    1
+                                  )
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c("hr"),
+                          _vm._v(" "),
+                          _c("table", { staticClass: "table" }, [
+                            _vm._m(0),
+                            _vm._v(" "),
+                            _c(
+                              "tbody",
+                              _vm._l(_vm.clientes, function(cliente, i) {
+                                return _c("tr", { key: i }, [
+                                  _c("td", [_vm._v(_vm._s(cliente.name))]),
+                                  _vm._v(" "),
+                                  _c("td", [_vm._v(_vm._s(cliente.email))]),
+                                  _vm._v(" "),
+                                  _c("td", [_vm._v(_vm._s(cliente.direccion))]),
+                                  _vm._v(" "),
+                                  _c(
+                                    "td",
+                                    [
+                                      _c(
+                                        "b-button",
+                                        {
+                                          attrs: { variant: "success" },
+                                          on: {
+                                            click: function($event) {
+                                              return _vm.seleccionCliente(
+                                                cliente
+                                              )
+                                            }
                                           }
-                                        }
-                                      },
-                                      [_c("i", { staticClass: "fa fa-check" })]
-                                    )
-                                  ],
-                                  1
-                                )
-                              ])
-                            }),
-                            0
-                          )
-                        ])
-                      ])
+                                        },
+                                        [
+                                          _c("i", {
+                                            staticClass: "fa fa-check"
+                                          })
+                                        ]
+                                      )
+                                    ],
+                                    1
+                                  )
+                                ])
+                              }),
+                              0
+                            )
+                          ])
+                        ],
+                        1
+                      )
                     : _vm._e()
                 ],
                 1

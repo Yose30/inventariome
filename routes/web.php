@@ -39,7 +39,6 @@ Route::get('/getCliente', 'ClienteController@getCliente')->name('getCliente');
 //Obtener todos los cliente
 Route::get('/getTodo', 'ClienteController@getTodo')->name('getTodo');
 
-
 //REMISIONES
 //Borrar los valores si no se concluyo una remision
 Route::get('nueva_remision', 'RemisionController@nueva')->name('nueva_remision');

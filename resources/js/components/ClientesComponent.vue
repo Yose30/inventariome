@@ -1,8 +1,21 @@
 <template>
     <div>
-        <div align="right">
-            <b-button variant="success" v-b-modal.modal-nuevoCliente><i class="fa fa-plus"></i> Agregar cliente</b-button>
-        </div>
+        <b-row>
+            <b-col>
+                <b-row class="my-1">
+                    <b-col sm="3">
+                        <label for="input-cliente">Cliente</label>
+                    </b-col>
+                    <b-col sm="9">
+                        <b-input v-model="queryCliente" @keyup="mostrarClientes"></b-input>
+                    </b-col>
+                </b-row>
+            </b-col>
+            <b-col align="right">
+                <b-button variant="success" v-b-modal.modal-nuevoCliente><i class="fa fa-plus"></i> Agregar cliente</b-button>
+            </b-col>
+        </b-row>
+        <hr>
         <b-table :items="clientes" :fields="fields">
             <template slot="editar" slot-scope="row">
                 <b-button 
@@ -146,6 +159,7 @@
                 loaded: false,
                 errors: {},
                 posicion: null,
+                queryCliente: ''
             }
         },
         created: function(){
@@ -158,6 +172,16 @@
                 }).catch(error => {
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
+            },
+            mostrarClientes(){
+                if(this.queryCliente.length > 0){
+                    axios.get('/mostrarClientes', {params: {queryCliente: this.queryCliente}}).then(response => {
+                        this.clientes = response.data;
+                    }); 
+                }
+                else{
+                    this.getTodo();
+                }
             },
             editarCliente(cliente, i){
                 this.posicion = i;

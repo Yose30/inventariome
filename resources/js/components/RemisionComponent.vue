@@ -80,7 +80,19 @@
                     <i class="fa fa-exclamation-triangle"></i> No hay clientes registrados, ir al apartado de <b>Agregar cliente</b> para poder continuar.
                 </b-alert>
                 <div v-if="clientes.length > 0">
-                    <h6 align="left">Seleccionar cliente</h6>
+                    <b-row>
+                        <b-col sm="4"><h6 align="left">Seleccionar cliente</h6></b-col>
+                        <b-col>
+                            <b-row>
+                                <b-col sm="2">
+                                    <label for="input-cliente"><i class="fa fa-search"></i> Buscar</label>
+                                </b-col>
+                                <b-col sm="10">
+                                    <b-input v-model="queryCliente" @keyup="mostrarClientes"></b-input>
+                                </b-col>
+                            </b-row>
+                        </b-col>
+                    </b-row>
                     <hr>
                     <table class="table">
                         <thead>
@@ -332,6 +344,16 @@
                 axios.get('/getTodo').then(response => {
                     this.clientes = response.data;
                 });
+            },
+            mostrarClientes(){
+                if(this.queryCliente.length > 0){
+                    axios.get('/mostrarClientes', {params: {queryCliente: this.queryCliente}}).then(response => {
+                        this.clientes = response.data;
+                    }); 
+                }
+                else{
+                    this.getTodo();
+                }
             },
             //Buscar libro por ISBN
             buscarLibroISBN(){
