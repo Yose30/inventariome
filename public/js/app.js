@@ -2072,6 +2072,32 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['role_id'],
   data: function data() {
@@ -2185,7 +2211,8 @@ __webpack_require__.r(__webpack_exports__);
       mostrarPagos: false,
       mostrarFinal: false,
       devoluciones: [],
-      vendidos: []
+      vendidos: [],
+      num_remision: null
     };
   },
   created: function created() {
@@ -2220,8 +2247,31 @@ __webpack_require__.r(__webpack_exports__);
         _this.makeToast('danger', 'ISBN incorrecto');
       });
     },
-    mostrarLibros: function mostrarLibros() {
+    porNumero: function porNumero() {
       var _this2 = this;
+
+      if (this.num_remision > 0) {
+        axios.get('/buscar_adeudo', {
+          params: {
+            num_remision: this.num_remision
+          }
+        }).then(function (response) {
+          if (response.data.id != undefined) {
+            _this2.adeudos = [];
+
+            _this2.adeudos.push(response.data);
+
+            _this2.acumular();
+          } else {
+            _this2.makeToast('warning', 'No existe la remisión');
+          }
+        })["catch"](function (error) {
+          _this2.makeToast('danger', 'Ocurrio un problema, vuelve a intentarlo');
+        });
+      }
+    },
+    mostrarLibros: function mostrarLibros() {
+      var _this3 = this;
 
       if (this.queryTitulo.length > 0) {
         axios.get('/mostrarLibros', {
@@ -2229,7 +2279,7 @@ __webpack_require__.r(__webpack_exports__);
             queryTitulo: this.queryTitulo
           }
         }).then(function (response) {
-          _this2.resultslibros = response.data;
+          _this3.resultslibros = response.data;
         });
       }
     },
@@ -2298,7 +2348,7 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     verificarRemision: function verificarRemision() {
-      var _this3 = this;
+      var _this4 = this;
 
       if (this.adeudo.remision_num.length > 0) {
         axios.get('/buscarRemision', {
@@ -2307,14 +2357,14 @@ __webpack_require__.r(__webpack_exports__);
           }
         }).then(function (response) {
           if (response.data.adeudo == 0 && response.data.remision == 0) {
-            _this3.stateR = null;
+            _this4.stateR = null;
           } else {
-            _this3.stateR = false;
+            _this4.stateR = false;
 
-            _this3.makeToast('danger', 'El numero de remisión ya existe');
+            _this4.makeToast('danger', 'El numero de remisión ya existe');
           }
         })["catch"](function (error) {
-          _this3.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+          _this4.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
         });
       } else {
         this.stateR = false;
@@ -2322,33 +2372,54 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     obtenerAdeudos: function obtenerAdeudos() {
-      var _this4 = this;
+      var _this5 = this;
 
       axios.get('/obtener_adeudos').then(function (response) {
-        _this4.adeudos = response.data;
+        _this5.adeudos = response.data;
 
-        _this4.acumular();
+        _this5.acumular();
       })["catch"](function (error) {
-        _this4.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+        _this5.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     registrarAdeudo: function registrarAdeudo() {
-      var _this5 = this;
+      var _this6 = this;
 
       this.clientes = [];
       this.cliente = {};
       this.datos = [];
+      this.queryCliente = '';
       this.mostrarSeleccionar = true;
       this.mostrarDatos = false;
       this.mostrarForm = false;
       this.ini_adeudo();
       axios.get('/getTodo').then(function (response) {
-        _this5.clientes = response.data;
-        _this5.listadoAdeudos = false;
-        _this5.mostrarRegistrar = true;
+        _this6.clientes = response.data;
+        _this6.listadoAdeudos = false;
+        _this6.mostrarRegistrar = true;
       })["catch"](function (error) {
-        _this5.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+        _this6.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
+    },
+    mostrarListaClientes: function mostrarListaClientes() {
+      var _this7 = this;
+
+      if (this.queryCliente.length > 0) {
+        axios.get('/mostrarClientes', {
+          params: {
+            queryCliente: this.queryCliente
+          }
+        }).then(function (response) {
+          _this7.clientes = [];
+          _this7.clientes = response.data;
+        });
+      } else {
+        axios.get('/getTodo').then(function (response) {
+          _this7.clientes = response.data;
+        })["catch"](function (error) {
+          _this7.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+        });
+      }
     },
     seleccionCliente: function seleccionCliente(cliente) {
       this.cliente = {};
@@ -2358,24 +2429,25 @@ __webpack_require__.r(__webpack_exports__);
       this.mostrarForm = true;
     },
     guardarAdeudo: function guardarAdeudo() {
-      var _this6 = this;
+      var _this8 = this;
 
       this.load = true;
       this.adeudo.cliente_id = this.cliente.id;
       this.adeudo.total_pendiente = this.adeudo.total_adeudo;
       this.adeudo.datos = this.datos;
       axios.post('/guardar_adeudo', this.adeudo).then(function (response) {
-        _this6.adeudos.push(response.data);
+        _this8.adeudos.push(response.data);
 
-        _this6.acumular();
+        _this8.acumular();
 
-        _this6.load = false;
-        _this6.mostrarRegistrar = false;
-        _this6.listadoAdeudos = true;
+        _this8.load = false;
+        _this8.mostrarRegistrar = false;
+        _this8.listadoAdeudos = true;
+        _this8.queryCliente = '';
       })["catch"](function (error) {
-        _this6.load = false;
+        _this8.load = false;
 
-        _this6.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+        _this8.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     registrarAbono: function registrarAbono(adeudo, i) {
@@ -2389,24 +2461,24 @@ __webpack_require__.r(__webpack_exports__);
       this.abono.adeudo_id = this.adeudo.id;
     },
     guardarAbono: function guardarAbono() {
-      var _this7 = this;
+      var _this9 = this;
 
       if (this.abono.pago > 0) {
         if (this.abono.pago <= this.adeudo.total_pendiente) {
           this.state = null;
           this.load = true;
           axios.post('/guardar_abono', this.abono).then(function (response) {
-            _this7.$bvModal.hide('modal-pago');
+            _this9.$bvModal.hide('modal-pago');
 
-            _this7.load = false;
-            _this7.adeudos[_this7.posicion].total_abonos = response.data.total_abonos;
-            _this7.adeudos[_this7.posicion].total_pendiente = response.data.total_pendiente;
+            _this9.load = false;
+            _this9.adeudos[_this9.posicion].total_abonos = response.data.total_abonos;
+            _this9.adeudos[_this9.posicion].total_pendiente = response.data.total_pendiente;
 
-            _this7.acumular();
+            _this9.acumular();
           })["catch"](function (error) {
-            _this7.load = false;
+            _this9.load = false;
 
-            _this7.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+            _this9.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
           });
         } else {
           this.state = false;
@@ -2418,7 +2490,7 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     detallesAdeudo: function detallesAdeudo(adeudo) {
-      var _this8 = this;
+      var _this10 = this;
 
       this.ini_adeudo();
       axios.get('/detalles_adeudo', {
@@ -2426,18 +2498,18 @@ __webpack_require__.r(__webpack_exports__);
           id: adeudo.id
         }
       }).then(function (response) {
-        _this8.mostrarSalida = false;
-        _this8.mostrarDevolucion = false;
-        _this8.mostrarPagos = false;
-        _this8.mostrarFinal = false;
-        _this8.adeudo = response.data.adeudo;
-        _this8.datos = response.data.datos;
-        _this8.devoluciones = response.data.devoluciones;
-        _this8.listadoAdeudos = false;
-        _this8.mostrarAbonos = true;
+        _this10.mostrarSalida = false;
+        _this10.mostrarDevolucion = false;
+        _this10.mostrarPagos = false;
+        _this10.mostrarFinal = false;
+        _this10.adeudo = response.data.adeudo;
+        _this10.datos = response.data.datos;
+        _this10.devoluciones = response.data.devoluciones;
+        _this10.listadoAdeudos = false;
+        _this10.mostrarAbonos = true;
         console.log(response.data);
       })["catch"](function (error) {
-        _this8.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+        _this10.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     ini_adeudo: function ini_adeudo() {
@@ -2452,21 +2524,21 @@ __webpack_require__.r(__webpack_exports__);
       };
     },
     acumular: function acumular() {
-      var _this9 = this;
+      var _this11 = this;
 
       this.total_adeudo = 0;
       this.total_pagos = 0;
       this.total_pendiente = 0;
       this.total_devolucion = 0;
       this.adeudos.forEach(function (adeudo) {
-        _this9.total_adeudo += adeudo.total_adeudo;
-        _this9.total_pagos += adeudo.total_abonos;
-        _this9.total_pendiente += adeudo.total_pendiente;
-        _this9.total_devolucion += adeudo.total_devolucion;
+        _this11.total_adeudo += adeudo.total_adeudo;
+        _this11.total_pagos += adeudo.total_abonos;
+        _this11.total_pendiente += adeudo.total_pendiente;
+        _this11.total_devolucion += adeudo.total_devolucion;
       });
     },
     mostrarClientes: function mostrarClientes() {
-      var _this10 = this;
+      var _this12 = this;
 
       if (this.queryCliente.length > 0) {
         axios.get('/mostrarClientes', {
@@ -2474,14 +2546,14 @@ __webpack_require__.r(__webpack_exports__);
             queryCliente: this.queryCliente
           }
         }).then(function (response) {
-          _this10.resultsClientes = response.data;
+          _this12.resultsClientes = response.data;
         });
       } else {
         this.obtenerAdeudos();
       }
     },
     adeudosCliente: function adeudosCliente(cliente) {
-      var _this11 = this;
+      var _this13 = this;
 
       this.resultsClientes = [];
       this.queryCliente = cliente.name;
@@ -2490,13 +2562,13 @@ __webpack_require__.r(__webpack_exports__);
           cliente_id: cliente.id
         }
       }).then(function (response) {
-        _this11.adeudos = response.data;
+        _this13.adeudos = response.data;
 
-        _this11.acumular();
+        _this13.acumular();
       })["catch"](function (error) {
-        _this11.load = false;
+        _this13.load = false;
 
-        _this11.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+        _this13.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     makeToast: function makeToast() {
@@ -7161,6 +7233,47 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['role_id'],
   data: function data() {
@@ -7254,7 +7367,10 @@ __webpack_require__.r(__webpack_exports__);
       deposito: {
         remision_id: 0,
         pago: 0
-      }
+      },
+      queryCliente: '',
+      resultsClientes: [],
+      remision_id: null
     };
   },
   created: function created() {
@@ -7408,6 +7524,55 @@ __webpack_require__.r(__webpack_exports__);
         _this6.mostrarPagos = true;
       })["catch"](function (error) {
         _this6.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+      });
+    },
+    mostrarClientes: function mostrarClientes() {
+      var _this7 = this;
+
+      if (this.queryCliente.length > 0) {
+        axios.get('/mostrarClientes', {
+          params: {
+            queryCliente: this.queryCliente
+          }
+        }).then(function (response) {
+          _this7.resultsClientes = response.data;
+        });
+      } else {
+        this.getTodo();
+      }
+    },
+    pagosCliente: function pagosCliente(cliente) {
+      var _this8 = this;
+
+      axios.get('/all_pagos', {
+        params: {
+          cliente_id: cliente.id
+        }
+      }).then(function (response) {
+        _this8.remisiones = response.data;
+        _this8.resultsClientes = [];
+        _this8.queryCliente = '';
+      })["catch"](function (error) {
+        _this8.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+      });
+    },
+    porNumero: function porNumero() {
+      var _this9 = this;
+
+      axios.get('/num_pagos', {
+        params: {
+          remision_id: this.remision_id
+        }
+      }).then(function (response) {
+        if (response.data.id != undefined) {
+          _this9.remisiones = [];
+
+          _this9.remisiones.push(response.data);
+        } else {
+          _this9.makeToast('warning', 'Numero de remisión incorrecto');
+        }
+      })["catch"](function (error) {
+        _this9.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     makeToast: function makeToast() {
@@ -91942,6 +92107,60 @@ var render = function() {
                       "b-row",
                       { staticClass: "my-1" },
                       [
+                        _c("b-col", { attrs: { sm: "5" } }, [
+                          _c("label", { attrs: { for: "input-numero" } }, [
+                            _vm._v("Remision")
+                          ])
+                        ]),
+                        _vm._v(" "),
+                        _c(
+                          "b-col",
+                          { attrs: { sm: "7" } },
+                          [
+                            _c("b-form-input", {
+                              attrs: { id: "input-numero", type: "number" },
+                              on: {
+                                keyup: function($event) {
+                                  if (
+                                    !$event.type.indexOf("key") &&
+                                    _vm._k(
+                                      $event.keyCode,
+                                      "enter",
+                                      13,
+                                      $event.key,
+                                      "Enter"
+                                    )
+                                  ) {
+                                    return null
+                                  }
+                                  return _vm.porNumero($event)
+                                }
+                              },
+                              model: {
+                                value: _vm.num_remision,
+                                callback: function($$v) {
+                                  _vm.num_remision = $$v
+                                },
+                                expression: "num_remision"
+                              }
+                            })
+                          ],
+                          1
+                        )
+                      ],
+                      1
+                    )
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "b-col",
+                  [
+                    _c(
+                      "b-row",
+                      { staticClass: "my-1" },
+                      [
                         _c("b-col", { attrs: { sm: "3" } }, [
                           _c("label", { attrs: { for: "input-cliente" } }, [
                             _vm._v("Cliente")
@@ -92319,6 +92538,7 @@ var render = function() {
                           click: function($event) {
                             _vm.mostrarRegistrar = false
                             _vm.listadoAdeudos = true
+                            this.queryCliente = ""
                           }
                         }
                       },
@@ -92343,9 +92563,51 @@ var render = function() {
                     _c(
                       "b-row",
                       [
-                        _c("b-col", { attrs: { sm: "10" } }, [
+                        _c("b-col", { attrs: { sm: "3" } }, [
                           _c("h6", [_vm._v("Seleccionar cliente")])
                         ]),
+                        _vm._v(" "),
+                        _c(
+                          "b-col",
+                          { attrs: { sm: "8" } },
+                          [
+                            _c(
+                              "b-row",
+                              [
+                                _c("b-col", { attrs: { sm: "2" } }, [
+                                  _c(
+                                    "label",
+                                    { attrs: { for: "input-cliente" } },
+                                    [
+                                      _c("i", { staticClass: "fa fa-search" }),
+                                      _vm._v(" Buscar")
+                                    ]
+                                  )
+                                ]),
+                                _vm._v(" "),
+                                _c(
+                                  "b-col",
+                                  { attrs: { sm: "10" } },
+                                  [
+                                    _c("b-input", {
+                                      on: { keyup: _vm.mostrarListaClientes },
+                                      model: {
+                                        value: _vm.queryCliente,
+                                        callback: function($$v) {
+                                          _vm.queryCliente = $$v
+                                        },
+                                        expression: "queryCliente"
+                                      }
+                                    })
+                                  ],
+                                  1
+                                )
+                              ],
+                              1
+                            )
+                          ],
+                          1
+                        ),
                         _vm._v(" "),
                         _c(
                           "b-col",
@@ -92375,6 +92637,8 @@ var render = function() {
                       ],
                       1
                     ),
+                    _vm._v(" "),
+                    _c("hr"),
                     _vm._v(" "),
                     _c("b-table", {
                       attrs: { items: _vm.clientes, fields: _vm.fieldsC },
@@ -99458,6 +99722,138 @@ var render = function() {
   return _c(
     "div",
     [
+      _c(
+        "b-row",
+        [
+          _c(
+            "b-col",
+            { attrs: { sm: "4" } },
+            [
+              _c(
+                "b-row",
+                { staticClass: "my-1" },
+                [
+                  _c("b-col", { attrs: { sm: "3" } }, [
+                    _c("label", { attrs: { for: "input-numero" } }, [
+                      _vm._v("Remision")
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { attrs: { sm: "9" } },
+                    [
+                      _c("b-form-input", {
+                        attrs: { id: "input-numero", type: "number" },
+                        on: {
+                          keyup: function($event) {
+                            if (
+                              !$event.type.indexOf("key") &&
+                              _vm._k(
+                                $event.keyCode,
+                                "enter",
+                                13,
+                                $event.key,
+                                "Enter"
+                              )
+                            ) {
+                              return null
+                            }
+                            return _vm.porNumero($event)
+                          }
+                        },
+                        model: {
+                          value: _vm.remision_id,
+                          callback: function($$v) {
+                            _vm.remision_id = $$v
+                          },
+                          expression: "remision_id"
+                        }
+                      })
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "b-col",
+            { attrs: { sm: "8" } },
+            [
+              _c(
+                "b-row",
+                { staticClass: "my-1" },
+                [
+                  _c("b-col", { attrs: { sm: "2" } }, [
+                    _c("label", { attrs: { for: "input-cliente" } }, [
+                      _vm._v("Cliente")
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { attrs: { sm: "10" } },
+                    [
+                      _c("b-input", {
+                        on: { keyup: _vm.mostrarClientes },
+                        model: {
+                          value: _vm.queryCliente,
+                          callback: function($$v) {
+                            _vm.queryCliente = $$v
+                          },
+                          expression: "queryCliente"
+                        }
+                      }),
+                      _vm._v(" "),
+                      _vm.resultsClientes.length
+                        ? _c(
+                            "div",
+                            { staticClass: "list-group" },
+                            _vm._l(_vm.resultsClientes, function(result, i) {
+                              return _c(
+                                "a",
+                                {
+                                  key: i,
+                                  staticClass:
+                                    "list-group-item list-group-item-action",
+                                  attrs: { href: "#" },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.pagosCliente(result)
+                                    }
+                                  }
+                                },
+                                [
+                                  _vm._v(
+                                    "\n                            " +
+                                      _vm._s(result.name) +
+                                      "\n                        "
+                                  )
+                                ]
+                              )
+                            }),
+                            0
+                          )
+                        : _vm._e()
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          )
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c("hr"),
+      _vm._v(" "),
       !_vm.mostrarDetalles && !_vm.mostrarPagos && _vm.remisiones.length > 0
         ? _c("b-table", {
             attrs: { items: _vm.remisiones, fields: _vm.fields },

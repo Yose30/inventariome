@@ -4,14 +4,29 @@
             <b-row>
                 <b-col>
                     <b-row class="my-1">
+                        <b-col sm="5">
+                            <label for="input-numero">Remision</label>
+                        </b-col>
+                        <b-col sm="7">
+                            <b-form-input 
+                                id="input-numero" 
+                                type="number" 
+                                v-model="num_remision" 
+                                @keyup.enter="porNumero">
+                            </b-form-input>
+                        </b-col>
+                    </b-row>
+                </b-col>
+                <b-col>
+                    <b-row class="my-1">
                         <b-col sm="3">
                             <label for="input-cliente">Cliente</label>
                         </b-col>
                         <b-col sm="9">
                             <b-input
                             v-model="queryCliente"
-                            @keyup="mostrarClientes"
-                            ></b-input>
+                            @keyup="mostrarClientes">
+                            </b-input>
                             <div class="list-group" v-if="resultsClientes.length">
                                 <a 
                                     href="#" 
@@ -100,13 +115,23 @@
                     </b-button>
                 </b-col>
                 <b-col align="right">
-                    <b-button variant="secondary" @click="mostrarRegistrar = false; listadoAdeudos = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
+                    <b-button variant="secondary" @click="mostrarRegistrar = false; listadoAdeudos = true; this.queryCliente = '';"><i class="fa fa-mail-reply"></i> Regresar</b-button>
                 </b-col>
             </b-row>
             <hr>
             <div v-if="mostrarSeleccionar">
                 <b-row>
-                    <b-col sm="10"><h6>Seleccionar cliente</h6></b-col>
+                    <b-col sm="3"><h6>Seleccionar cliente</h6></b-col>
+                    <b-col sm="8">
+                        <b-row>
+                            <b-col sm="2">
+                                <label for="input-cliente"><i class="fa fa-search"></i> Buscar</label>
+                            </b-col>
+                            <b-col sm="10">
+                                <b-input v-model="queryCliente" @keyup="mostrarListaClientes"></b-input>
+                            </b-col>
+                        </b-row>     
+                    </b-col> 
                     <b-col sm="1">
                         <b-button 
                             variant="danger"
@@ -117,6 +142,7 @@
                         </b-button>
                     </b-col>
                 </b-row>
+                <hr>
                 <b-table :items="clientes" :fields="fieldsC">
                     <template slot="seleccionar" slot-scope="row">
                         <b-button variant="success" @click="seleccionCliente(row.item)">
@@ -456,7 +482,8 @@
                 mostrarPagos: false,
                 mostrarFinal: false,
                 devoluciones: [],
-                vendidos: []
+                vendidos: [],
+                num_remision: null
             }
         },
         created: function(){
@@ -474,6 +501,22 @@
                 }).catch(error => {
                     this.makeToast('danger', 'ISBN incorrecto');
                 });
+            },
+            porNumero(){
+                if(this.num_remision > 0){
+                    axios.get('/buscar_adeudo', {params: {num_remision: this.num_remision}}).then(response => {
+                        if(response.data.id != undefined){
+                            this.adeudos = [];
+                            this.adeudos.push(response.data);
+                            this.acumular();
+                        }
+                        else{
+                            this.makeToast('warning', 'No existe la remisión');
+                        }
+                    }).catch(error => {
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentarlo');
+                    });
+                }
             },
             mostrarLibros(){
                 if(this.queryTitulo.length > 0){
@@ -579,6 +622,7 @@
                 this.clientes = [];
                 this.cliente = {};
                 this.datos = [];
+                this.queryCliente = '';
                 this.mostrarSeleccionar = true;
                 this.mostrarDatos = false;
                 this.mostrarForm = false;
@@ -590,6 +634,21 @@
                 }).catch(error => {
                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
+            },
+            mostrarListaClientes(){
+                if(this.queryCliente.length > 0){
+                    axios.get('/mostrarClientes', {params: {queryCliente: this.queryCliente}}).then(response => {
+                        this.clientes = [];
+                        this.clientes = response.data;
+                    }); 
+                }
+                else{
+                    axios.get('/getTodo').then(response => {
+                        this.clientes = response.data;
+                    }).catch(error => {
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    });
+                }
             },
             seleccionCliente(cliente){
                 this.cliente = {};
@@ -609,6 +668,7 @@
                     this.load = false;
                     this.mostrarRegistrar = false;
                     this.listadoAdeudos = true;
+                    this.queryCliente = '';
                 }).catch(error => {
                     this.load = false;
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');

@@ -66,4 +66,26 @@ class PagoController extends Controller
         $depositos = Deposito::where('remision_id', $remision_id)->get();
         return response()->json(['vendidos' => $vendidos, 'depositos' => $depositos]);
     } 
+
+    public function all_pagos(){
+        $cliente_id = Input::get('cliente_id');
+        $remisiones = Remisione::where('cliente_id', $cliente_id)
+                        ->where(function ($query) {
+                            $query->where('estado', '=', 'Proceso')
+                                ->orWhere('estado', '=', 'Terminado');
+                        })
+                        ->orderBy('id','desc')
+                        ->with('cliente')->get();
+        return response()->json($remisiones);
+    }
+
+    public function num_pagos(){
+        $remision_id = Input::get('remision_id');
+        $remision = Remisione::whereId($remision_id)
+                        ->where(function ($query) {
+                            $query->where('estado', '=', 'Proceso')
+                                ->orWhere('estado', '=', 'Terminado');
+                        })->with('cliente')->first();
+        return response()->json($remision);
+    }
 }

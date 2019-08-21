@@ -142,4 +142,10 @@ class AdeudoController extends Controller
         $remision = Remisione::where('id', $remision_num)->count();
         return response()->json(['adeudo' => $adeudo, 'remision' => $remision]);
     }
+
+    public function buscar_adeudo(){
+        $num_remision = Input::get('num_remision');
+        $adeudo = Adeudo::where('remision_num', $num_remision)->with('cliente')->with('abonos')->first();
+        return response()->json($adeudo);
+    }
 }

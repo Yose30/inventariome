@@ -148,6 +148,10 @@ Route::put('pago_entrada', 'EntradaController@pago_entrada')->name('pago_entrada
 Route::post('registrar_pago', 'PagoController@store')->name('registrar_pago');
 //Obtener registros de vendidos
 Route::get('datos_vendidos', 'PagoController@datos_vendidos')->name('datos_vendidos');
+//Buscar pagos por cliente
+Route::get('/all_pagos', 'PagoController@all_pagos')->name('all_pagos');
+//Buscar pagos por numero de remision
+Route::get('/num_pagos', 'PagoController@num_pagos')->name('num_pagos');
 
 //NOTA
 //Mostrar notas
@@ -178,6 +182,8 @@ Route::get('detalles_adeudo', 'AdeudoController@detalles_adeudo')->name('detalle
 Route::get('/buscarRemision', 'AdeudoController@buscarRemision')->name('buscarRemision');
 //Guardar devolucion
 Route::put('guardar_adeudo_devolucion', 'AdeudoController@guardar_adeudo_devolucion')->name('guardar_adeudo_devolucion');
+//Buscar adeudo
+Route::get('/buscar_adeudo', 'AdeudoController@buscar_adeudo')->name('buscar_adeudo');
 
 //PROMOCION
 //Guardar promocion
