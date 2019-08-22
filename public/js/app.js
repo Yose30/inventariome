@@ -6939,6 +6939,7 @@ __webpack_require__.r(__webpack_exports__);
         }
       }).then(function (response) {
         _this6.nota.id = nota.id;
+        _this6.nota.folio = nota.folio;
         _this6.nota.cliente = nota.cliente;
         _this6.nota.total_salida = nota.total_salida;
         _this6.nota.registers = response.data;
@@ -6962,6 +6963,7 @@ __webpack_require__.r(__webpack_exports__);
         }
       }).then(function (response) {
         _this7.nota.id = nota.id;
+        _this7.nota.folio = nota.folio;
         _this7.nota.cliente = nota.cliente;
         _this7.nota.total_salida = nota.total_salida;
         _this7.nota.registers = response.data;
@@ -6980,6 +6982,7 @@ __webpack_require__.r(__webpack_exports__);
         }
       }).then(function (response) {
         _this8.nota.id = nota.id;
+        _this8.nota.folio = nota.folio;
         _this8.nota.cliente = nota.cliente;
         _this8.nota.total_salida = nota.total_salida;
         _this8.nota.registers = response.data;
@@ -7049,6 +7052,7 @@ __webpack_require__.r(__webpack_exports__);
         }
       }).then(function (response) {
         _this12.nota.id = nota.id;
+        _this12.nota.folio = nota.folio;
         _this12.cliente = nota.cliente;
         _this12.nota.total_salida = nota.total_salida;
         _this12.registers = response.data;
@@ -98797,7 +98801,7 @@ var render = function() {
               "b-row",
               [
                 _c("b-col", [
-                  _c("h4", [_vm._v("Nota n. " + _vm._s(_vm.nota.id))]),
+                  _c("h4", [_vm._v("Nota " + _vm._s(_vm.nota.folio))]),
                   _vm._v(" "),
                   _c("label", [_vm._v("Cliente: " + _vm._s(_vm.nota.cliente))])
                 ]),
@@ -98938,7 +98942,7 @@ var render = function() {
               "b-row",
               [
                 _c("b-col", [
-                  _c("h4", [_vm._v("Nota n. " + _vm._s(_vm.nota.id))]),
+                  _c("h4", [_vm._v("Nota " + _vm._s(_vm.nota.folio))]),
                   _vm._v(" "),
                   _c("label", [_vm._v("Cliente: " + _vm._s(_vm.nota.cliente))])
                 ]),
@@ -99130,7 +99134,7 @@ var render = function() {
               "b-row",
               [
                 _c("b-col", [
-                  _c("h4", [_vm._v("Nota n. " + _vm._s(_vm.nota.id))]),
+                  _c("h4", [_vm._v("Nota " + _vm._s(_vm.nota.folio))]),
                   _vm._v(" "),
                   _c("label", [_vm._v("Cliente: " + _vm._s(_vm.nota.cliente))])
                 ]),

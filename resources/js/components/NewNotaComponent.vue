@@ -56,7 +56,7 @@
             <hr>
             <b-row>
                 <b-col>
-                    <h4>Nota n. {{ nota.id }}</h4>
+                    <h4>Nota {{ nota.folio }}</h4>
                     <label>Cliente: {{ nota.cliente }}</label>
                 </b-col>
                 <b-col>
@@ -90,7 +90,7 @@
         <div v-if="mostrarDetalles">
             <b-row>
                 <b-col>
-                    <h4>Nota n. {{ nota.id }}</h4>
+                    <h4>Nota {{ nota.folio }}</h4>
                     <label>Cliente: {{ nota.cliente }}</label>
                 </b-col>
                 <b-col>
@@ -134,7 +134,7 @@
             <hr>
             <b-row>
                 <b-col>
-                    <h4>Nota n. {{ nota.id }}</h4>
+                    <h4>Nota {{ nota.folio }}</h4>
                     <label>Cliente: {{ nota.cliente }}</label>
                 </b-col>
                 <b-col>
@@ -533,6 +533,7 @@
                 this.total_unidades = 0;
                 axios.get('/detalles_nota', {params: {note_id: nota.id}}).then(response => {
                     this.nota.id = nota.id;
+                    this.nota.folio = nota.folio;
                     this.nota.cliente = nota.cliente;
                     this.nota.total_salida = nota.total_salida;
                     this.nota.registers = response.data;
@@ -548,6 +549,7 @@
                 this.posicion = i;
                 axios.get('/detalles_nota', {params: {note_id: nota.id}}).then(response => {
                     this.nota.id = nota.id;
+                    this.nota.folio = nota.folio;
                     this.nota.cliente = nota.cliente;
                     this.nota.total_salida = nota.total_salida;
                     this.nota.registers = response.data;
@@ -560,6 +562,7 @@
                 this.posicion = i;
                 axios.get('/detalles_nota', {params: {note_id: nota.id}}).then(response => {
                     this.nota.id = nota.id;
+                    this.nota.folio = nota.folio;
                     this.nota.cliente = nota.cliente;
                     this.nota.total_salida = nota.total_salida;
                     this.nota.registers = response.data;
@@ -614,6 +617,7 @@
                 this.eliminados = [];
                 axios.get('/detalles_nota', {params: {note_id: nota.id}}).then(response => {
                     this.nota.id = nota.id;
+                    this.nota.folio = nota.folio;
                     this.cliente = nota.cliente;
                     this.nota.total_salida = nota.total_salida;
                     this.registers = response.data;
