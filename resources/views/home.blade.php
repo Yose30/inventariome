@@ -9,6 +9,7 @@
                     class="nav-link active" 
                     id="remisiones-tab" 
                     data-toggle="tab" 
+                    style="color:red;" 
                     href="#v-remisiones" 
                     aria-controls="v-remisiones">
                     {{ __("Remisiones") }}
