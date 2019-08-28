@@ -494,7 +494,7 @@
                 this.total_pagos = 0;
                 this.total_pagar = 0;
                 this.remisiones.forEach(remision => {
-                    if(remision.estado != 'Cancelado'){
+                    if(remision.estado == 'Proceso' || remision.estado == 'Terminado'){
                         this.total_salida += remision.total;
                         this.total_devolucion += remision.total_devolucion;
                         this.total_pagos += remision.pagos;
