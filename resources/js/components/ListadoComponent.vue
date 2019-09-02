@@ -73,16 +73,16 @@
             <div align="right">
                 <a 
                     class="btn btn-info"
-                    v-if="imprimirCliente && remisiones.length"
+                    v-if="imprimirCliente && remisiones.length && cliente_id != 0"
                     :href="'/imprimirCliente/' + cliente_id + '/' + inicio + '/' + final">
                     <i class="fa fa-download"></i> Descargar
                 </a>
-                <a 
+                <!-- <a 
                     class="btn btn-info"
                     v-if="imprimirEstado && remisiones.length"
                     :href="'/imprimirEstado/' + estadoRemision">
                     <i class="fa fa-download"></i> Descargar
-                </a>
+                </a> -->
             </div>
             <hr>
             <div>

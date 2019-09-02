@@ -66,7 +66,7 @@ class RemisionController extends Controller
 
             foreach($request->registros as $registro){
                 $dato = Dato::create([
-                    'remision_id' => $remision->id,
+                    'remisione_id' => $remision->id,
                     'libro_id'  => $registro['id'],
                     'costo_unitario' => $registro['costo_unitario'],
                     'unidades'  => $registro['unidades'],
@@ -89,9 +89,9 @@ class RemisionController extends Controller
     public function show(){
         $numero = Input::get('numero');
         $remision = Remisione::whereId($numero)->first();
-        $datos = Dato::where('remision_id', $remision->id)->with('libro')->get();
-        $devoluciones = Devolucione::where('remision_id', $remision->id)->with('libro', 'dato')->get();
-        $vendidos = Vendido::where('remision_id', $remision->id)->with('libro', 'dato', 'pagos')->get();
+        $datos = Dato::where('remisione_id', $remision->id)->with('libro')->get();
+        $devoluciones = Devolucione::where('remisione_id', $remision->id)->with('libro', 'dato')->get();
+        $vendidos = Vendido::where('remisione_id', $remision->id)->with('libro', 'dato', 'pagos')->get();
         return response()->json([
             'remision' => $remision, 
             'datos' => $datos, 
@@ -118,15 +118,15 @@ class RemisionController extends Controller
     }
 
     public function concluir_remision($id){
-        $datos = Dato::where('remision_id', $id)->where('estado', 'Eliminado')->get();
+        $datos = Dato::where('remisione_id', $id)->where('estado', 'Eliminado')->get();
 
         foreach($datos as $dato){
             $libro = Libro::whereId($dato->libro_id)->first();
             $libro->update(['piezas' => $libro->piezas + $dato->unidades]);
         }
 
-        Dato::where('remision_id', $id)->where('estado', 'Eliminado')->delete();
-        Dato::where('remision_id', $id)->update(['estado' => 'Terminado']);
+        Dato::where('remisione_id', $id)->where('estado', 'Eliminado')->delete();
+        Dato::where('remisione_id', $id)->update(['estado' => 'Terminado']);
     }
 
     public function eliminar(Request $request){
@@ -163,7 +163,7 @@ class RemisionController extends Controller
         $remision = Remisione::whereId($num_remision)->with('cliente')->first();
         $cliente = Cliente::whereId($remision->cliente_id)->first();
         return response()->json(['remision' => $remision, 'cliente_nombre' => $cliente->name]);
-    }
+    } 
 
     public function por_cliente(){
         $id = Input::get('id');
@@ -215,13 +215,13 @@ class RemisionController extends Controller
         $data['remision'] = $remision;
 
         if($remision->estado == 'Iniciado'){
-            $datos = Dato::where('remision_id', $remision->id)->with('libro')->get();
+            $datos = Dato::where('remisione_id', $remision->id)->with('libro')->get();
             $data['datos'] = $datos;
             $data['total_salida'] = NumerosEnLetras::convertir($remision->total);
             $pdf = PDF::loadView('remision.nota', $data);    
         }         
         if($remision->estado == 'Terminado'){
-            $devoluciones = Devolucione::where('remision_id', $remision->id)->with('libro')->with('dato')->get();
+            $devoluciones = Devolucione::where('remisione_id', $remision->id)->with('libro')->with('dato')->get();
             $data['devoluciones'] = $devoluciones;
             $data['total_final'] = NumerosEnLetras::convertir($remision->total_pagar);
             $pdf = PDF::loadView('remision.final', $data); 
@@ -231,20 +231,21 @@ class RemisionController extends Controller
     }
 
     public function imprimirCliente($cliente_id, $inicio, $final){
+        $cliente = Cliente::whereId($cliente_id)->first();
         if($cliente_id != 0 && $final == '0000-00-00'){
-            $remisiones = Remisione::where('cliente_id', $cliente_id)->with('cliente')->get();
+            $remisiones = Remisione::where('cliente_id', $cliente->id)->with('datos')->get();
         }
         if($cliente_id == 0 && $final != '0000-00-00'){
-            $remisiones = Remisione::whereBetween('fecha_creacion', [$inicio, $final])->with('cliente')->get();
+            $remisiones = Remisione::whereBetween('fecha_creacion', [$inicio, $final])->with('datos')->get();
         }
         if($cliente_id != 0 && $final != '0000-00-00'){
-            $remisiones = Remisione::where('cliente_id', $cliente_id)->whereBetween('fecha_creacion', [$inicio, $final])->with('cliente')->get();
+            $remisiones = Remisione::where('cliente_id', $cliente->id)->whereBetween('fecha_creacion', [$inicio, $final])->with('datos')->get();
         }
         if($cliente_id == 0 && $final == '0000-00-00'){
-            $remisiones = Remisione::with('cliente')->get();
+            $remisiones = Remisione::with('cliente', 'datos')->get();
         }
         
-        $data = $this->valores($remisiones, $inicio, $final);
+        $data = $this->valores($remisiones, $inicio, $final, $cliente);
 
         $pdf = PDF::loadView('remision.reporte', $data);
         return $pdf->download('reporte.pdf');
@@ -253,13 +254,13 @@ class RemisionController extends Controller
     public function imprimirEstado($estado){
         $remisiones = Remisione::where('estado', $estado)->with('cliente')->get();
 
-        $data = $this->valores($remisiones, '0000-00-00', '0000-00-00');
+        $data = $this->valores($remisiones, '0000-00-00', '0000-00-00', null);
 
         $pdf = PDF::loadView('remision.reporte', $data);
         return $pdf->download('reporte.pdf');
     }
 
-    public function valores($remisiones, $inicio, $final){
+    public function valores($remisiones, $inicio, $final, $cliente){
         $total_salida = 0;
         $total_devolucion = 0;
         $total_pagos = 0;
@@ -279,6 +280,7 @@ class RemisionController extends Controller
         $data['total_pagar'] = $total_pagar;
         $data['fecha_inicio'] = $inicio;
         $data['fecha_final'] = $final;
+        $data['cliente'] = $cliente;
 
         return $data;
     }
@@ -328,11 +330,11 @@ class RemisionController extends Controller
     public function comprobar($remision){
         //En caso de que alguna remision estaba siendo editada y se elimino un dato pero no se guardo, 
         //se cambia el estado de nuevo a Terminado
-        Dato::where('remision_id', $remision)
+        Dato::where('remisione_id', $remision)
             ->where('estado', 'Eliminado')
             ->update(['estado' => 'Terminado']);
         //En caso de haber agregado uno nuevo, se recuperan las piezas
-        $noguardados = Dato::where('remision_id', $remision)->where('estado', 'Iniciado')->get();
+        $noguardados = Dato::where('remisione_id', $remision)->where('estado', 'Iniciado')->get();
         if($noguardados->count() > 0){
             foreach($noguardados as $noguardado){
                 $libro = Libro::whereId($noguardado->libro_id)->first();
@@ -340,7 +342,7 @@ class RemisionController extends Controller
             }
         }
         //Se eliminan dichos datos
-        Dato::where('remision_id', $remision)->where('estado', 'Iniciado')->delete();
+        Dato::where('remisione_id', $remision)->where('estado', 'Iniciado')->delete();
     }
 
     public function por_estado_libros(){
@@ -387,10 +389,10 @@ class RemisionController extends Controller
     //Registrar vendidos
     public function registrar_vendidos(Request $request){
         $remision = Remisione::whereId($request->id)->first();
-        $datos = Dato::where('remision_id', $remision->id)->with('libro')->get();
+        $datos = Dato::where('remisione_id', $remision->id)->with('libro')->get();
         
         try {
-            if(Vendido::where('remision_id', $remision->id)->count() == 0){  
+            if(Vendido::where('remisione_id', $remision->id)->count() == 0){  
                 \DB::beginTransaction();
                 $remision->update(['estado' => 'Proceso']);
                 $total_pagar = 0;
@@ -400,7 +402,7 @@ class RemisionController extends Controller
                 $remision->update(['total_pagar' => $total_pagar]);
                 foreach($datos as $dato){
                     $vendido = Vendido::create([
-                        'remision_id' => $dato->remision_id,
+                        'remisione_id' => $dato->remisione_id,
                         'dato_id'   => $dato->id,
                         'libro_id' => $dato->libro_id, 
                         'unidades_resta' => $dato->unidades,
@@ -408,7 +410,7 @@ class RemisionController extends Controller
                     ]);
 
                     $devolucion = Devolucione::create([
-                        'remision_id' => $dato->remision_id,
+                        'remisione_id' => $dato->remisione_id,
                         'dato_id'   => $dato->id,
                         'libro_id' => $dato->libro_id,
                         'unidades_resta' => $dato->unidades,
@@ -418,7 +420,7 @@ class RemisionController extends Controller
                 \DB::commit();
             }
         
-            $vendidos = Vendido::where('remision_id', $remision->id)->with('libro')->with('dato')->get();
+            $vendidos = Vendido::where('remisione_id', $remision->id)->with('libro')->with('dato')->get();
         } catch (Exception $e) {
             \DB::rollBack();
             return response()->json($exception->getMessage());
@@ -428,7 +430,7 @@ class RemisionController extends Controller
 
     public function cancelar_remision(Request $request){
         $remision = Remisione::whereId($request->id)->first();
-        $datos = Dato::where('remision_id', $remision->id)->get();
+        $datos = Dato::where('remisione_id', $remision->id)->get();
         try{
             \DB::beginTransaction();
             foreach($datos as $dato){
@@ -488,7 +490,7 @@ class RemisionController extends Controller
 
         if($fecha != null){
             $remisiones = \DB::table('vendidos')
-                        ->join('remisiones', 'vendidos.remision_id', '=', 'remisiones.id')
+                        ->join('remisiones', 'vendidos.remisione_id', '=', 'remisiones.id')
                         ->join('clientes', 'remisiones.cliente_id', '=', 'clientes.id')
                         ->whereDate('vendidos.created_at', $fecha)
                         ->where('vendidos.libro_id', $libro_id)
@@ -501,7 +503,7 @@ class RemisionController extends Controller
         }
         else{
             $remisiones = \DB::table('vendidos')
-                        ->join('remisiones', 'vendidos.remision_id', '=', 'remisiones.id')
+                        ->join('remisiones', 'vendidos.remisione_id', '=', 'remisiones.id')
                         ->join('clientes', 'remisiones.cliente_id', '=', 'clientes.id')
                         ->where('vendidos.libro_id', $libro_id)
                         ->select(
@@ -516,21 +518,23 @@ class RemisionController extends Controller
 
     public function deposito_remision(Request $request){
         $remision = Remisione::whereId($request->remision_id)->first();
-
+        
         $pagos = $remision->pagos + $request->pago;
         $total_pagar = $remision->total_pagar - $request->pago;
-
         try{
             \DB::beginTransaction();
-            Deposito::create($request->input());
+            Deposito::create([
+                'remisione_id' => $request->remision_id,
+                'pago' => $request->pago
+            ]);
 
             if($total_pagar == 0){
-                Devolucione::where('remision_id', $remision->id)->update([
+                Devolucione::where('remisione_id', $remision->id)->update([
                     'unidades_resta' => 0,
                     'total_resta' => 0
                 ]);
                 
-                $vendidos = Vendido::where('remision_id', $remision->id)->get();
+                $vendidos = Vendido::where('remisione_id', $remision->id)->get();
                 foreach($vendidos as $vendido){
                     $unidades = $vendido->unidades + $vendido->unidades_resta;
                     $total = $vendido->dato->costo_unitario * $unidades;

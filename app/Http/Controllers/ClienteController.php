@@ -67,7 +67,7 @@ class ClienteController extends Controller
         $id = Input::get('id');
         $remision_id = Input::get('remision_id');
         $cliente = Cliente::whereId($id)->first();
-        $datos = Dato::where('remision_id', $remision_id)->with('libro')->get();
+        $datos = Dato::where('remisione_id', $remision_id)->with('libro')->get();
         return response()->json(['cliente' => $cliente, 'datos' => $datos]);
     }
 

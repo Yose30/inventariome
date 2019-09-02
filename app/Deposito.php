@@ -9,7 +9,7 @@ class Deposito extends Model
 {
     protected $fillable = [
         'id', 
-        'remision_id', 
+        'remisione_id', 
         'pago' 
     ];
 

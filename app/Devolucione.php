@@ -11,7 +11,7 @@ class Devolucione extends Model
 {
     protected $fillable = [
         'id', 
-        'remision_id', 
+        'remisione_id', 
         'dato_id', 
         'libro_id',
         'unidades', 

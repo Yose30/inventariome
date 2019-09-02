@@ -20,7 +20,7 @@ class AdeudoController extends Controller
                 $adeudo = Adeudo::create($request->input());
                 foreach($request->datos as $dato){
                     $r_dato = Dato::create([
-                        'remision_id' => $request->remision_num,
+                        'remisione_id' => $request->remision_num,
                         'libro_id'  => $dato['id'],
                         'costo_unitario' => $dato['costo_unitario'],
                         'unidades'  => $dato['unidades'],
@@ -35,7 +35,7 @@ class AdeudoController extends Controller
                     //     'total_resta' => $dato['total'],
                     // ]);
                     $devolucion = Devolucione::create([
-                        'remision_id' => $request->remision_num,
+                        'remisione_id' => $request->remision_num,
                         'dato_id'   => $r_dato->id,
                         'libro_id' => $dato['id'],
                         'unidades_resta' => $dato['unidades'],
@@ -59,8 +59,8 @@ class AdeudoController extends Controller
     public function detalles_adeudo(){
         $id = Input::get('id');
         $adeudo = Adeudo::whereId($id)->with('cliente')->with('abonos')->first();
-        $datos = Dato::where('remision_id', $adeudo->remision_num)->with('libro')->get();
-        $devoluciones = Devolucione::where('remision_id', $adeudo->remision_num)->with('dato')->with('libro')->get();
+        $datos = Dato::where('remisione_id', $adeudo->remision_num)->with('libro')->get();
+        $devoluciones = Devolucione::where('remisione_id', $adeudo->remision_num)->with('dato')->with('libro')->get();
         return response()->json([
             'adeudo' => $adeudo, 
             'datos' => $datos, 
@@ -116,7 +116,7 @@ class AdeudoController extends Controller
                 $abono = Abono::create($request->input());
 
                 if($total_pendiente == 0){
-                    Devolucione::where('remision_id', $adeudo->remision_num)->update([
+                    Devolucione::where('remisione_id', $adeudo->remision_num)->update([
                         'unidades_resta' => 0,
                         'total_resta' => 0
                     ]);

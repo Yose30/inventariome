@@ -26,8 +26,8 @@ class DevolucioneController extends Controller
     //Obtener los datos de una devolución
     public function datos_devolucion(){
         $remision_id = Input::get('remision_id');
-        $datos = Dato::where('remision_id', $remision_id)->with('libro')->get();
-        $devoluciones = Devolucione::where('remision_id', $remision_id)->with('libro')->with('dato')->get();
+        $datos = Dato::where('remisione_id', $remision_id)->with('libro')->get();
+        $devoluciones = Devolucione::where('remisione_id', $remision_id)->with('libro')->with('dato')->get();
         return response()->json(['datos' => $datos, 'devoluciones' => $devoluciones]);
     }
 
@@ -35,13 +35,13 @@ class DevolucioneController extends Controller
     public function registrar_datos(){
         $remision_id = Input::get('remision_id');
         $remision = Remisione::whereId($remision_id)->first();
-        $devoluciones = Devolucione::where('remision_id', $remision->id)->with('libro')->with('dato')->get();
+        $devoluciones = Devolucione::where('remisione_id', $remision->id)->with('libro')->with('dato')->get();
         return response()->json(['devoluciones' => $devoluciones, 'remision' => $remision]);
     }
 
     public function actualizar(Request $request){
         $devolucion = Devolucione::whereId($request->id)->with('libro')->with('dato')->first();
-        $remision = Remisione::whereId($devolucion->remision_id)->first();
+        $remision = Remisione::whereId($devolucion->remisione_id)->first();
 
         try {
             \DB::beginTransaction();

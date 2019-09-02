@@ -314,7 +314,7 @@
                 if(this.deposito.pago > 0){
                     if(this.deposito.pago <= this.remision.total_pagar){
                         this.state = null;
-                        this.load = true;
+                        this.load = true; 
                         axios.post('/deposito_remision', this.deposito).then(response => {
                             this.load = false;
                             this.remisiones[this.pos_remision].pagos = response.data.pagos;

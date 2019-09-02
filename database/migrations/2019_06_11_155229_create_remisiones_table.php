@@ -30,8 +30,8 @@ class CreateRemisionesTable extends Migration
 
         Schema::create('datos', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('remision_id')->nullable();
-            $table->foreign('remision_id')->references('id')->on('remisiones');
+            $table->unsignedInteger('remisione_id')->nullable();
+            $table->foreign('remisione_id')->references('id')->on('remisiones');
             $table->unsignedInteger('libro_id')->nullable();
             $table->foreign('libro_id')->references('id')->on('libros');
             $table->float('costo_unitario', 8, 2);
@@ -43,8 +43,8 @@ class CreateRemisionesTable extends Migration
 
         Schema::create('devoluciones', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('remision_id')->nullable();
-            $table->foreign('remision_id')->references('id')->on('remisiones');
+            $table->unsignedInteger('remisione_id')->nullable();
+            $table->foreign('remisione_id')->references('id')->on('remisiones');
             $table->unsignedInteger('dato_id')->nullable();
             $table->foreign('dato_id')->references('id')->on('datos');
             $table->unsignedInteger('libro_id')->nullable();

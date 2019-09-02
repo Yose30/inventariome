@@ -114,7 +114,6 @@
                 <div align="center">
                     <table cellpadding="100">
                         <tr>
-                            <!--<img src="{{ asset('img/Globo.png')}}" height="100" width="100" align="right" ></th> -->
                             <th class="sinBorde"></th>
                             <th class="sinBorde">
                                 <h1>Omega Book Company S. A. de C. V.</h1>
@@ -140,7 +139,50 @@
                         @endif
                     </table>
                     <br>
-                    <table style="width:100%">
+                    <label style="font-size: 12px"><b>Cliente:</b> {{ $cliente->name }}</label>
+                    <hr>
+                    @foreach($remisiones as $remision)
+                        <label style="font-size: 11px">
+                            <b>REMISION No. {{ $remision->id }}</b> 
+                                @if($remision->estado == 'Iniciado')
+                                    <span class="badge badge-secondary">No entregado</span>
+                                @endif
+                                @if($remision->estado == 'Cancelado')
+                                    <span class="badge badge-danger">Cancelado</span>
+                                @endif
+                                @if($remision->total_pagar == 0 && $remision->pagos > 0)
+                                    <span class="badge badge-success">Pagado</span>
+                                @endif
+                        </label>
+                        <table style="width:100%">
+                            <tr>
+                                <th >ISBN</th>
+                                <th >TITULO</th> 
+                                <th >UNIDADES</th>
+                                <th >COSTO UNITARIO</th>
+                                <th >COSTO TOTAL</th>
+                            </tr>
+                            @foreach($remision->datos as $dato)
+                            <tr>
+                                <td class="bordesVer" style="width:20%">{{ $dato->libro->ISBN }}</td>
+                                <td class="bordesVer" style="width:25%">{{ $dato->libro->titulo }}</td> 
+                                <td class="bordesVer" style="width:15%" id="tdcent">{{ $dato->unidades }}</td>
+                                <td class="bordesVer" style="width:20%"  id="tdder">$ {{ $dato->costo_unitario }}</td>
+                                <td class="bordesVer" style="width:20%"  id="tdder">$ {{ $dato->total }}</td>
+                            </tr>
+                            @endforeach
+                            <tr>
+                                <td class="sinBorde"class="sinBorde" colspan="2" rowspan="2" id="qr" align="center"><!--<img src="{{ asset('img/QR.jpg')}}" height="150px" width="300px"  >--></td>
+                                <td class="bordesVerTot"colspan="2"  id="total">TOTAL:</td>
+                                <td class="bordesVer"id="total">$ {{$remision->total}}</td>
+                            </tr>
+                            <!-- <tr>
+                                <td class="sinBorde" id="total" colspan="3">{{ $total_salida }} pesos MN</td>       
+                            </tr> -->
+                        </table>
+                        <hr>
+                    @endforeach
+                    <!-- <table style="width:100%">
                         <tr>
                             <th>Folio</th>
                             <th>Fecha de creación</th>
@@ -170,8 +212,6 @@
                                 <td class="bordesVer" style="width:13%" id="tdder">$ {{ $remision->total_devolucion }}</td>
                                 <td class="bordesVer" style="width:13%" id="tdder">$ {{ $remision->pagos }}</td>
                                 <td class="bordesVer" style="width:13%" id="tdder">$ {{ $remision->total_pagar }}</td>
-                                <!-- <td class="bordesVer" style="width:10%" id="tdcent">{{ $remision->estado }}</td>
-                                <td class="bordesVer" style="width:15%" id="tdcent">{{ $remision->fecha_entrega }}</td> -->
                             </tr>
                         @endforeach  
                         <tr>
@@ -181,7 +221,7 @@
                             <td class="sinBorde" id="tdder"><b>$ {{ $total_pagos }}</b></td>
                             <td class="sinBorde" id="tdder"><b>$ {{ $total_pagar }}</b></td>
                         </tr>
-                    </table>
+                    </table> -->
                     <footer>
                         <table>
                             <tr>

@@ -16,8 +16,8 @@ class CreatePagosTable extends Migration
 
         Schema::create('vendidos', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('remision_id')->nullable();
-            $table->foreign('remision_id')->references('id')->on('remisiones');
+            $table->unsignedInteger('remisione_id')->nullable();
+            $table->foreign('remisione_id')->references('id')->on('remisiones');
             $table->unsignedInteger('dato_id')->nullable();
             $table->foreign('dato_id')->references('id')->on('datos');
             $table->unsignedInteger('libro_id')->nullable();
