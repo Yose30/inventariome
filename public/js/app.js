@@ -4202,6 +4202,9 @@ __webpack_require__.r(__webpack_exports__);
         value: 'ENGLISH TEXBOOK',
         text: 'ENGLISH TEXBOOK'
       }, {
+        value: 'BOOKMART MÉXICO',
+        text: 'BOOKMART MÉXICO'
+      }, {
         value: 'TODAS',
         text: 'MOSTRAR TODO'
       }],
@@ -4865,6 +4868,9 @@ __webpack_require__.r(__webpack_exports__);
       }, {
         value: 'ENGLISH TEXBOOK',
         text: 'ENGLISH TEXBOOK'
+      }, {
+        value: 'BOOKMART MÉXICO',
+        text: 'BOOKMART MÉXICO'
       }],
       fields: [{
         key: 'id',
@@ -6397,6 +6403,9 @@ __webpack_require__.r(__webpack_exports__);
       }, {
         value: 'ENGLISH TEXBOOK',
         text: 'ENGLISH TEXBOOK'
+      }, {
+        value: 'BOOKMART MÉXICO',
+        text: 'BOOKMART MÉXICO'
       }]
     };
   },
