@@ -138,6 +138,14 @@
                         v-if="remision.estado == 'Iniciado' && role_id == 2">
                         <i class="fa fa-close"></i> Cancelar remisión
                     </b-button>
+                    <!-- <b-button 
+                        variant="outline-primary" 
+                        v-b-modal.modal-descuento 
+                        v-if="role_id == 2 && 
+                            ((remision.estado == 'Proceso' && remision.total_pagar == remision.total) || remision.estado == 'Iniciado') &&
+                            remision.descuento == 0">
+                        <i class="fa fa-percent"></i> Aplicar descuento
+                    </b-button> -->
                 </b-col>
                 <b-col sm="2" align="left">
                     <b-badge variant="info" v-if="remision.estado == 'Iniciado'">{{ remision.estado }}</b-badge>
@@ -191,6 +199,45 @@
                     </tbody>
                 </table>
             </b-collapse>
+            <!-- <hr> -->
+            <!-- <div class="row" v-if="remision.descuento > 0">
+                <h4 class="col-md-10">Descuento</h4>
+                <b-button 
+                    variant="link" 
+                    :class="mostrarDescuento ? 'collapsed' : null"
+                    :aria-expanded="mostrarDescuento ? 'true' : 'false'"
+                    aria-controls="collapse-1"
+                    @click="mostrarDescuento = !mostrarDescuento">
+                    <i class="fa fa-sort-asc"></i>
+                </b-button>
+            </div> -->
+            <!-- <b-collapse id="collapse-1" v-model="mostrarDescuento" class="mt-2">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">ISBN</th>
+                            <th scope="col">Libro</th>
+                            <th scope="col">Costo unitario</th>
+                            <th scope="col">Unidades</th>
+                            <th scope="col">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(registro, i) in registros" v-bind:key="i">
+                            <td>{{ registro.libro.ISBN }}</td>
+                            <td>{{ registro.libro.titulo }}</td>
+                            <td>$ {{ registro.costo_unitario - ((registro.costo_unitario * remision.descuento) / 100) }}</td>
+                            <td>{{ registro.unidades }}</td>
+                            <td>$ {{ registro.total - ((registro.total * remision.descuento) / 100) }}</td>
+                        </tr>
+                        <tr>
+                            <td></td><td></td>
+                            <td></td><td></td>
+                            <td><h5>$ {{ remision.total_descuento }}</h5></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </b-collapse> -->
             <hr>
             <div class="row" v-if="remision.estado == 'Proceso' || remision.estado == 'Terminado'">
                 <h4 class="col-md-10">Devolución</h4>
@@ -314,6 +361,24 @@
                 <b-button :disabled="load" @click="cambiarEstado">OK</b-button>
             </div>
         </b-modal>
+        <!-- <b-modal id="modal-descuento" title="Aplicar descuento">
+            <b-form @submit.prevent="guardarDescuento">
+                <b-row>
+                    <b-col sm="2">
+                        <label>Descuento</label>
+                    </b-col>
+                    <b-col sm="5">
+                        <b-form-input v-model="descuento" :state="state" :disabled="load" type="number" required></b-form-input>
+                    </b-col>
+                    <b-col>
+                        <b-button type="submit" variant="success" :disabled="load">
+                            <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
+                        </b-button>
+                    </b-col>
+                </b-row>
+            </b-form>
+            <div slot="modal-footer"></div>
+        </b-modal> -->
     </div>
 </template>
 
@@ -382,6 +447,7 @@
                 detalles: false,
                 mostrarSalida: false,
                 mostrarDevolucion: false,
+                // mostrarDescuento: false,
                 mostrarPagos: false,
                 mostrarFinal: false,
                 registros: [],
@@ -408,6 +474,8 @@
                 ],
                 idRemision: 0,
                 load: false,
+                // descuento: null,
+                // state: null,
             }
         },
         created: function(){
@@ -419,6 +487,20 @@
             }
         },
         methods: {
+            // guardarDescuento(){
+            //     if(this.descuento > 0 && this.descuento < 100){
+            //         this.load = true;
+            //         this.remision.descuento = this.descuento;
+            //         axios.put('/aplicar_descuento', this.remision).then(response => {
+            //         this.remision.descuento = response.data.descuento;
+            //         this.$bvModal.hide('modal-descuento');
+            //         this.load = true;
+            //         }).catch(error => {
+            //             this.load = false;
+            //             this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+            //         }); 
+            //     }
+            // },
             rowClass(item, type) {
                 if (!item) return
                 if (item.estado == 'Iniciado') return 'table-secondary'
@@ -526,10 +608,10 @@
                 this.remision = remision;
                 this.mostrarSalida = false;
                 this.mostrarDevolucion = false;
+                // this.mostrarDescuento = false;
                 this.mostrarPagos = false;
                 this.mostrarFinal = false;
                 axios.get('/lista_datos', {params: {numero: remision.id}}).then(response => {
-                    
                     this.registros = response.data.datos;
                     this.devoluciones = response.data.devoluciones;
                     this.vendidos = response.data.vendidos;

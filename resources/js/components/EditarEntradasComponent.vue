@@ -156,6 +156,14 @@
                     </b-input>
                 </template>
                 <template slot="total" slot-scope="row">${{ row.item.total }}</template>
+
+                <template slot="thead-top" slot-scope="row">
+                    <tr>
+                        <th colspan="5">&nbsp;</th>
+                        <th>${{ subtotal }}</th>
+                    </tr>
+                </template>
+
             </b-table>
         </div>
 
@@ -320,7 +328,8 @@
                 mostrarRegistrar: false,
                 state: null,
                 pagosGuardados: false,
-                pagos: []
+                pagos: [],
+                subtotal: 0,
             }
         },
         created: function(){
@@ -413,7 +422,24 @@
                 });
             },
             verificarUnidades(unidades, costo_unitario, i){
-                this.registros[i].total = unidades * costo_unitario;
+                if(costo_unitario > 0){
+                    this.registros[i].total = unidades * costo_unitario;
+                    // SUMAR TODO LO QUE SE VAYA EDITANDO DE LA ENTRADA
+                    this.sumatoriaSubtotal();
+                }
+                else{
+                    this.makeToast('warning', 'Costo unitario invalido');
+                    this.registros[i].costo_unitario = 0;
+                    this.registros[i].total = 0;
+                    // SUMAR TODO LO QUE SE VAYA EDITANDO DE LA ENTRADA
+                    this.sumatoriaSubtotal();
+                }
+            },
+            sumatoriaSubtotal(){
+                this.subtotal = 0;
+                this.registros.forEach(registro => {
+                    this.subtotal += registro.total;
+                });
             },
             porFecha(){
                 axios.get('/fecha_entradas', {params: {fecha1: this.fecha1, fecha2: this.fecha2}}).then(response => {

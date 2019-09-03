@@ -390,7 +390,6 @@ class RemisionController extends Controller
     public function registrar_vendidos(Request $request){
         $remision = Remisione::whereId($request->id)->first();
         $datos = Dato::where('remisione_id', $remision->id)->with('libro')->get();
-        
         try {
             if(Vendido::where('remisione_id', $remision->id)->count() == 0){  
                 \DB::beginTransaction();
@@ -408,7 +407,6 @@ class RemisionController extends Controller
                         'unidades_resta' => $dato->unidades,
                         'total_resta' => $dato->total,
                     ]);
-
                     $devolucion = Devolucione::create([
                         'remisione_id' => $dato->remisione_id,
                         'dato_id'   => $dato->id,
@@ -419,12 +417,12 @@ class RemisionController extends Controller
                 }
                 \DB::commit();
             }
-        
+            
             $vendidos = Vendido::where('remisione_id', $remision->id)->with('libro')->with('dato')->get();
         } catch (Exception $e) {
             \DB::rollBack();
             return response()->json($exception->getMessage());
-		}
+        }
         return response()->json(['vendidos' => $vendidos, 'remision' => $remision]);
     }
 
@@ -560,4 +558,15 @@ class RemisionController extends Controller
         
         return response()->json($remision);
     }
+
+    // public function aplicar_descuento(Request $request){
+    //     $remision = Remisione::whereId($request->id)->first();
+    //     $total_pagar = $remision->total - (($remision->total * $request->descuento) / 100);
+    //     $remision->update([
+    //         'total_descuento' => $total_pagar,
+    //         'descuento' => $request->descuento
+    //     ]);
+        
+    //     return response()->json($remision);
+    // }
 }

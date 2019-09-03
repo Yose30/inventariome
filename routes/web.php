@@ -60,7 +60,8 @@ Route::put('vendidos_remision', 'RemisionController@registrar_vendidos')->name('
 Route::put('cancelar_remision', 'RemisionController@cancelar_remision')->name('cancelar_remision');
 //Guardar deposito de remision
 Route::post('deposito_remision', 'RemisionController@deposito_remision')->name('deposito_remision');
-
+//Aplicar descuento a la remision
+// Route::put('aplicar_descuento', 'RemisionController@aplicar_descuento')->name('aplicar_descuento');
 
 //REMISIONES -Listado
 Route::get('get_iniciados', 'RemisionController@get_iniciados')->name('get_iniciados');

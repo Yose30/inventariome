@@ -297,6 +297,7 @@
                 this.pos_remision = index;
                 axios.get('/datos_vendidos', {params: {remision_id: remision.id}}).then(response => {
                     this.remision.id = remision.id;
+                    this.remision.descuento = remision.descuento;
                     this.remision.cliente = remision.cliente;
                     this.remision.vendidos = response.data.vendidos;
                     if(response.data.depositos.length == 0){
@@ -353,7 +354,7 @@
             verificarUnidades(base, resta, costo, i){
                 if(base > resta){
                     this.makeToast('warning', 'Las unidades son mayor a las unidades pendientes');
-                    this.remision.vendidos[i].unidades_base =0;
+                    this.remision.vendidos[i].unidades_base = 0;
                     this.remision.vendidos[i].total_base = 0;
                 }
                 if(base <= resta){

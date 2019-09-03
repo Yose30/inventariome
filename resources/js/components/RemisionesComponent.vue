@@ -1,15 +1,50 @@
 <template>
     <div>
-        <b-alert v-if="remisiones.length == 0" show variant="secondary">
-            <i class="fa fa-exclamation-triangle"></i> No hay remisones
-        </b-alert>
+       <b-row>
+            <b-col sm="4">
+                <b-row class="my-1">
+                    <b-col sm="3">
+                        <label for="input-numero">Remision</label>
+                    </b-col>
+                    <b-col sm="9">
+                        <b-form-input 
+                            id="input-numero" 
+                            type="number" 
+                            v-model="num_remision" 
+                            @keyup.enter="porNumero">
+                        </b-form-input>
+                    </b-col>
+                </b-row>
+            </b-col>
+            <b-col sm="8">
+                <b-row class="my-1">
+                    <b-col sm="2">
+                        <label for="input-cliente">Cliente</label>
+                    </b-col>
+                    <b-col sm="9">
+                        <b-input v-model="queryCliente" @keyup="mostrarClientes"
+                        ></b-input>
+                        <div class="list-group" v-if="resultsClientes.length">
+                            <a 
+                                href="#" 
+                                v-bind:key="i" 
+                                class="list-group-item list-group-item-action" 
+                                v-for="(result, i) in resultsClientes" 
+                                @click="porCliente(result)">
+                                {{ result.name }}
+                            </a>
+                        </div>
+                    </b-col>
+                </b-row>
+            </b-col>   
+        </b-row> 
+        <hr>
         <b-table v-if="!mostrarDetalles && remisiones.length > 0" :items="remisiones" :fields="fields">
             <template slot="cliente" slot-scope="row">
                 {{ row.item.cliente.name }}
             </template>
-            <template slot="total" slot-scope="row">
-                ${{ row.item.total }}
-            </template><template slot="detalles" slot-scope="row">
+            <template slot="total" slot-scope="row">${{ row.item.total }}</template>
+            <template slot="detalles" slot-scope="row">
                 <b-button 
                     variant="outline-info"
                     @click="viewDetalles(row.item)">
@@ -40,7 +75,8 @@
                 </b-col>
                 <b-col>
                     <br>
-                    <label><b>Total</b>: ${{ remision.total }}</label><br>
+                    <label><b>Total</b>: ${{ remision.total }}</label>
+                    <br>
                 </b-col>
                 <b-col>
                     <div class="text-right">
@@ -65,6 +101,9 @@
     export default {
         data() {
             return {
+                num_remision: null,
+                queryCliente: '',
+                resultsClientes: [],
                 remisiones: [],
                 fields: [
                     {key: 'id', label: 'No.'}, 
@@ -90,6 +129,43 @@
 			this.getTodo();
 		},
         methods: {
+            porNumero(){
+                if(this.num_remision > 0){
+                    axios.get('/buscar_por_numero', {params: {num_remision: this.num_remision}}).then(response => {
+                        if(response.data.remision.estado == 'Cancelado')
+                            this.makeToast('warning', 'No se puede consultar el numero de remisión ingresado');
+                        else{
+                            this.remision = response.data.remision;
+                            this.remisiones = [];
+                            this.remisiones.push(this.remision);
+                        }
+                    }).catch(error => {
+                        this.makeToast('warning', 'El numero de remisión no existe');
+                    });
+                }
+            },
+            mostrarClientes(){
+                if(this.queryCliente.length > 0){
+                    axios.get('/mostrarClientes', {params: {queryCliente: this.queryCliente}}).then(response => {
+                        this.resultsClientes = response.data;
+                    }); 
+                }
+                else{
+                    this.getTodo();
+                }
+            },
+            porCliente(result){
+                axios.get('/buscar_por_cliente', {params: {id: result.id, inicio: this.inicio, final: this.final}}).then(response => {
+                    this.queryCliente = result.name;
+                    this.resultsClientes = [];
+                    this.remisiones = [];
+                    response.data.forEach(data => {
+                        if(data.estado != 'Cancelado'){
+                            this.remisiones.push(data);
+                        }
+                    });
+                });
+            },
             getTodo(){
                 axios.get('/get_iniciados').then(response => {
                     this.remisiones = response.data;

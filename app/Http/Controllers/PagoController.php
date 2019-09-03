@@ -16,6 +16,7 @@ class PagoController extends Controller
     public function store(Request $request){
         try{
             \DB::beginTransaction();
+            $remision = Remisione::whereId($request->id)->first();
             $pagos = 0;
             foreach($request->vendidos as $vendido){
                 $unidades = $vendido['unidades_base'];
@@ -46,7 +47,6 @@ class PagoController extends Controller
                 Devolucione::where('dato_id', $vendido['dato']['id'])->update(['unidades_resta' => $unidades_resta]);
                 $pagos += $total;
             }
-            $remision = Remisione::whereId($request->id)->first();
             $total_pagar = $remision->total - ($pagos + $remision->total_devolucion);
             $remision->update([
                 'pagos' => $pagos,

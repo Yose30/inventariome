@@ -4085,6 +4085,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['role_id'],
   data: function data() {
@@ -4239,7 +4247,8 @@ __webpack_require__.r(__webpack_exports__);
       mostrarRegistrar: false,
       state: null,
       pagosGuardados: false,
-      pagos: []
+      pagos: [],
+      subtotal: 0
     };
   },
   created: function created() {
@@ -4367,10 +4376,28 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     verificarUnidades: function verificarUnidades(unidades, costo_unitario, i) {
-      this.registros[i].total = unidades * costo_unitario;
+      if (costo_unitario > 0) {
+        this.registros[i].total = unidades * costo_unitario; // SUMAR TODO LO QUE SE VAYA EDITANDO DE LA ENTRADA
+
+        this.sumatoriaSubtotal();
+      } else {
+        this.makeToast('warning', 'Costo unitario invalido');
+        this.registros[i].costo_unitario = 0;
+        this.registros[i].total = 0; // SUMAR TODO LO QUE SE VAYA EDITANDO DE LA ENTRADA
+
+        this.sumatoriaSubtotal();
+      }
+    },
+    sumatoriaSubtotal: function sumatoriaSubtotal() {
+      var _this6 = this;
+
+      this.subtotal = 0;
+      this.registros.forEach(function (registro) {
+        _this6.subtotal += registro.total;
+      });
     },
     porFecha: function porFecha() {
-      var _this6 = this;
+      var _this7 = this;
 
       axios.get('/fecha_entradas', {
         params: {
@@ -4378,20 +4405,20 @@ __webpack_require__.r(__webpack_exports__);
           fecha2: this.fecha2
         }
       }).then(function (response) {
-        _this6.entradas = response.data;
+        _this7.entradas = response.data;
 
-        _this6.acumular();
+        _this7.acumular();
       })["catch"](function (error) {
-        _this6.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+        _this7.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     actualizarCosto: function actualizarCosto() {
-      var _this7 = this;
+      var _this8 = this;
 
       this.estado = false;
       this.registros.forEach(function (registro) {
         if (registro.costo_unitario == 0) {
-          _this7.estado = true;
+          _this8.estado = true;
         }
       });
 
@@ -4401,19 +4428,19 @@ __webpack_require__.r(__webpack_exports__);
         this.load = true;
         this.entrada.items = this.registros;
         axios.put('/actualizar_costos', this.entrada).then(function (response) {
-          _this7.makeToast('success', 'La entrada se ha actualizado');
+          _this8.makeToast('success', 'La entrada se ha actualizado');
 
-          _this7.entradas[_this7.posicion].total = response.data.total;
+          _this8.entradas[_this8.posicion].total = response.data.total;
 
-          _this7.acumular();
+          _this8.acumular();
 
-          _this7.load = false;
-          _this7.mostrarEA = false;
-          _this7.listadoEntradas = true;
+          _this8.load = false;
+          _this8.mostrarEA = false;
+          _this8.listadoEntradas = true;
         })["catch"](function (error) {
-          _this7.load = false;
+          _this8.load = false;
 
-          _this7.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+          _this8.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
         });
       }
     },
@@ -4427,7 +4454,7 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     registrarPago: function registrarPago(entrada, i) {
-      var _this8 = this;
+      var _this9 = this;
 
       this.posicion = i;
       axios.get('/detalles_entrada', {
@@ -4435,37 +4462,37 @@ __webpack_require__.r(__webpack_exports__);
           entrada_id: entrada.id
         }
       }).then(function (response) {
-        _this8.asignar(response);
+        _this9.asignar(response);
 
-        _this8.listadoEntradas = true;
-        _this8.repayment.entrada_id = entrada.id;
+        _this9.listadoEntradas = true;
+        _this9.repayment.entrada_id = entrada.id;
       });
     },
     guardarVendidos: function guardarVendidos() {
-      var _this9 = this;
+      var _this10 = this;
 
       if (this.repayment.pago > 0) {
         if (this.repayment.pago <= this.entrada.total - this.entrada.total_pagos) {
           this.state = null;
           this.load = true;
           axios.put('/pago_entrada', this.repayment).then(function (response) {
-            _this9.makeToast('success', 'El pago se guardo correctamente');
+            _this10.makeToast('success', 'El pago se guardo correctamente');
 
-            _this9.load = false;
-            _this9.repayment = {
+            _this10.load = false;
+            _this10.repayment = {
               entrada_id: 0,
               pago: 0
             };
 
-            _this9.$bvModal.hide('modal-registrarPago');
+            _this10.$bvModal.hide('modal-registrarPago');
 
-            _this9.entradas[_this9.posicion].total_pagos = response.data.total_pagos;
+            _this10.entradas[_this10.posicion].total_pagos = response.data.total_pagos;
 
-            _this9.acumular();
+            _this10.acumular();
           })["catch"](function (error) {
-            _this9.load = false;
+            _this10.load = false;
 
-            _this9.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+            _this10.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
           });
         } else {
           this.state = false;
@@ -4477,18 +4504,18 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     mostrarPagos: function mostrarPagos(entrada_id) {
-      var _this10 = this;
+      var _this11 = this;
 
       axios.get('/detalles_entrada', {
         params: {
           entrada_id: entrada_id
         }
       }).then(function (response) {
-        _this10.asignar(response);
+        _this11.asignar(response);
 
-        _this10.pagos = response.data.entrada.repayments;
-        _this10.mostrarDetalles = false;
-        _this10.pagosGuardados = true;
+        _this11.pagos = response.data.entrada.repayments;
+        _this11.mostrarDetalles = false;
+        _this11.pagosGuardados = true;
       });
     },
     makeToast: function makeToast() {
@@ -5730,6 +5757,71 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 moment.locale('es');
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['role_id'],
@@ -5811,6 +5903,7 @@ moment.locale('es');
       detalles: false,
       mostrarSalida: false,
       mostrarDevolucion: false,
+      // mostrarDescuento: false,
       mostrarPagos: false,
       mostrarFinal: false,
       registros: [],
@@ -5844,7 +5937,9 @@ moment.locale('es');
         label: 'Fecha'
       }],
       idRemision: 0,
-      load: false
+      load: false // descuento: null,
+      // state: null,
+
     };
   },
   created: function created() {
@@ -5866,6 +5961,20 @@ moment.locale('es');
     })
   },
   methods: {
+    // guardarDescuento(){
+    //     if(this.descuento > 0 && this.descuento < 100){
+    //         this.load = true;
+    //         this.remision.descuento = this.descuento;
+    //         axios.put('/aplicar_descuento', this.remision).then(response => {
+    //         this.remision.descuento = response.data.descuento;
+    //         this.$bvModal.hide('modal-descuento');
+    //         this.load = true;
+    //         }).catch(error => {
+    //             this.load = false;
+    //             this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+    //         }); 
+    //     }
+    // },
     rowClass: function rowClass(item, type) {
       if (!item) return;
       if (item.estado == 'Iniciado') return 'table-secondary';
@@ -6017,7 +6126,8 @@ moment.locale('es');
       this.detalles = true;
       this.remision = remision;
       this.mostrarSalida = false;
-      this.mostrarDevolucion = false;
+      this.mostrarDevolucion = false; // this.mostrarDescuento = false;
+
       this.mostrarPagos = false;
       this.mostrarFinal = false;
       axios.get('/lista_datos', {
@@ -7428,6 +7538,7 @@ __webpack_require__.r(__webpack_exports__);
         }
       }).then(function (response) {
         _this2.remision.id = remision.id;
+        _this2.remision.descuento = remision.descuento;
         _this2.remision.cliente = remision.cliente;
         _this2.remision.vendidos = response.data.vendidos;
 
@@ -8683,9 +8794,48 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
+      num_remision: null,
+      queryCliente: '',
+      resultsClientes: [],
       remisiones: [],
       fields: [{
         key: 'id',
@@ -8723,30 +8873,85 @@ __webpack_require__.r(__webpack_exports__);
     this.getTodo();
   },
   methods: {
-    getTodo: function getTodo() {
+    porNumero: function porNumero() {
       var _this = this;
 
+      if (this.num_remision > 0) {
+        axios.get('/buscar_por_numero', {
+          params: {
+            num_remision: this.num_remision
+          }
+        }).then(function (response) {
+          if (response.data.remision.estado == 'Cancelado') _this.makeToast('warning', 'No se puede consultar el numero de remisión ingresado');else {
+            _this.remision = response.data.remision;
+            _this.remisiones = [];
+
+            _this.remisiones.push(_this.remision);
+          }
+        })["catch"](function (error) {
+          _this.makeToast('warning', 'El numero de remisión no existe');
+        });
+      }
+    },
+    mostrarClientes: function mostrarClientes() {
+      var _this2 = this;
+
+      if (this.queryCliente.length > 0) {
+        axios.get('/mostrarClientes', {
+          params: {
+            queryCliente: this.queryCliente
+          }
+        }).then(function (response) {
+          _this2.resultsClientes = response.data;
+        });
+      } else {
+        this.getTodo();
+      }
+    },
+    porCliente: function porCliente(result) {
+      var _this3 = this;
+
+      axios.get('/buscar_por_cliente', {
+        params: {
+          id: result.id,
+          inicio: this.inicio,
+          "final": this["final"]
+        }
+      }).then(function (response) {
+        _this3.queryCliente = result.name;
+        _this3.resultsClientes = [];
+        _this3.remisiones = [];
+        response.data.forEach(function (data) {
+          if (data.estado != 'Cancelado') {
+            _this3.remisiones.push(data);
+          }
+        });
+      });
+    },
+    getTodo: function getTodo() {
+      var _this4 = this;
+
       axios.get('/get_iniciados').then(function (response) {
-        _this.remisiones = response.data;
+        _this4.remisiones = response.data;
       })["catch"](function (error) {
-        _this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+        _this4.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     entregaLibros: function entregaLibros(remision, i) {
-      var _this2 = this;
+      var _this5 = this;
 
       this.load = true;
       axios.put('/vendidos_remision', remision).then(function (response) {
-        _this2.load = false;
-        _this2.remisiones[i].estado = response.data.remision.estado;
+        _this5.load = false;
+        _this5.remisiones[i].estado = response.data.remision.estado;
       })["catch"](function (error) {
-        _this2.load = false;
+        _this5.load = false;
 
-        _this2.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+        _this5.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     viewDetalles: function viewDetalles(remision) {
-      var _this3 = this;
+      var _this6 = this;
 
       this.remision.id = remision.id;
       this.remision.cliente = remision.cliente;
@@ -8757,14 +8962,14 @@ __webpack_require__.r(__webpack_exports__);
           numero: remision.id
         }
       }).then(function (response) {
-        _this3.mostrarDetalles = true;
-        _this3.remision.datos = response.data.datos;
+        _this6.mostrarDetalles = true;
+        _this6.remision.datos = response.data.datos;
 
-        _this3.remision.datos.forEach(function (dato) {
-          _this3.total_unidades += dato.unidades;
+        _this6.remision.datos.forEach(function (dato) {
+          _this6.total_unidades += dato.unidades;
         });
       })["catch"](function (error) {
-        _this3.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+        _this6.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
       });
     },
     makeToast: function makeToast() {
@@ -95635,11 +95840,25 @@ var render = function() {
                       fn: function(row) {
                         return [_vm._v("$" + _vm._s(row.item.total))]
                       }
+                    },
+                    {
+                      key: "thead-top",
+                      fn: function(row) {
+                        return [
+                          _c("tr", [
+                            _c("th", { attrs: { colspan: "5" } }, [
+                              _vm._v(" ")
+                            ]),
+                            _vm._v(" "),
+                            _c("th", [_vm._v("$" + _vm._s(_vm.subtotal))])
+                          ])
+                        ]
+                      }
                     }
                   ],
                   null,
                   false,
-                  2882331716
+                  2779424780
                 )
               })
             ],
@@ -101759,12 +101978,137 @@ var render = function() {
   return _c(
     "div",
     [
-      _vm.remisiones.length == 0
-        ? _c("b-alert", { attrs: { show: "", variant: "secondary" } }, [
-            _c("i", { staticClass: "fa fa-exclamation-triangle" }),
-            _vm._v(" No hay remisones\n    ")
-          ])
-        : _vm._e(),
+      _c(
+        "b-row",
+        [
+          _c(
+            "b-col",
+            { attrs: { sm: "4" } },
+            [
+              _c(
+                "b-row",
+                { staticClass: "my-1" },
+                [
+                  _c("b-col", { attrs: { sm: "3" } }, [
+                    _c("label", { attrs: { for: "input-numero" } }, [
+                      _vm._v("Remision")
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { attrs: { sm: "9" } },
+                    [
+                      _c("b-form-input", {
+                        attrs: { id: "input-numero", type: "number" },
+                        on: {
+                          keyup: function($event) {
+                            if (
+                              !$event.type.indexOf("key") &&
+                              _vm._k(
+                                $event.keyCode,
+                                "enter",
+                                13,
+                                $event.key,
+                                "Enter"
+                              )
+                            ) {
+                              return null
+                            }
+                            return _vm.porNumero($event)
+                          }
+                        },
+                        model: {
+                          value: _vm.num_remision,
+                          callback: function($$v) {
+                            _vm.num_remision = $$v
+                          },
+                          expression: "num_remision"
+                        }
+                      })
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "b-col",
+            { attrs: { sm: "8" } },
+            [
+              _c(
+                "b-row",
+                { staticClass: "my-1" },
+                [
+                  _c("b-col", { attrs: { sm: "2" } }, [
+                    _c("label", { attrs: { for: "input-cliente" } }, [
+                      _vm._v("Cliente")
+                    ])
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "b-col",
+                    { attrs: { sm: "9" } },
+                    [
+                      _c("b-input", {
+                        on: { keyup: _vm.mostrarClientes },
+                        model: {
+                          value: _vm.queryCliente,
+                          callback: function($$v) {
+                            _vm.queryCliente = $$v
+                          },
+                          expression: "queryCliente"
+                        }
+                      }),
+                      _vm._v(" "),
+                      _vm.resultsClientes.length
+                        ? _c(
+                            "div",
+                            { staticClass: "list-group" },
+                            _vm._l(_vm.resultsClientes, function(result, i) {
+                              return _c(
+                                "a",
+                                {
+                                  key: i,
+                                  staticClass:
+                                    "list-group-item list-group-item-action",
+                                  attrs: { href: "#" },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.porCliente(result)
+                                    }
+                                  }
+                                },
+                                [
+                                  _vm._v(
+                                    "\n                            " +
+                                      _vm._s(result.name) +
+                                      "\n                        "
+                                  )
+                                ]
+                              )
+                            }),
+                            0
+                          )
+                        : _vm._e()
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          )
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c("hr"),
       _vm._v(" "),
       !_vm.mostrarDetalles && _vm.remisiones.length > 0
         ? _c("b-table", {
@@ -101786,13 +102130,7 @@ var render = function() {
                 {
                   key: "total",
                   fn: function(row) {
-                    return [
-                      _vm._v(
-                        "\n            $" +
-                          _vm._s(row.item.total) +
-                          "\n        "
-                      )
-                    ]
+                    return [_vm._v("$" + _vm._s(row.item.total))]
                   }
                 },
                 {
@@ -101845,7 +102183,7 @@ var render = function() {
               ],
               null,
               false,
-              1098504705
+              1386354986
             )
           })
         : _vm._e(),
@@ -101883,6 +102221,7 @@ var render = function() {
                       _c("b", [_vm._v("Total")]),
                       _vm._v(": $" + _vm._s(_vm.remision.total))
                     ]),
+                    _vm._v(" "),
                     _c("br")
                   ]),
                   _vm._v(" "),
