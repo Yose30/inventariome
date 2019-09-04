@@ -1,72 +1,71 @@
 <template>
     <div>
-        <b-row>
-            <b-col sm="4">
-                <b-row class="my-1">
-                    <b-col sm="3">
-                        <label for="input-numero">Remision</label>
-                    </b-col>
-                    <b-col sm="9">
-                        <b-form-input 
-                            id="input-numero" 
-                            type="number" 
-                            v-model="remision_id" 
-                            @keyup.enter="porNumero">
-                        </b-form-input>
-                    </b-col>
-                </b-row>
-            </b-col>
-            <b-col sm="8">
-                <b-row class="my-1">
-                    <b-col sm="2">
-                        <label for="input-cliente">Cliente</label>
-                    </b-col>
-                    <b-col sm="10">
-                        <b-input
-                        v-model="queryCliente"
-                        @keyup="mostrarClientes">
-                        </b-input>
-                        <div class="list-group" v-if="resultsClientes.length">
-                            <a 
-                                href="#" 
-                                v-bind:key="i" 
-                                class="list-group-item list-group-item-action" 
-                                v-for="(result, i) in resultsClientes" 
-                                @click="pagosCliente(result)">
-                                {{ result.name }}
-                            </a>
-                        </div>
-                    </b-col>
-                </b-row>
-            </b-col>
-        </b-row>
-        <hr>
-        <b-table 
-            v-if="!mostrarDetalles && !mostrarPagos && remisiones.length > 0" 
-            :items="remisiones" :fields="fields">
-            <template slot="cliente" slot-scope="row">{{ row.item.cliente.name }}</template>
-            <template slot="total" slot-scope="row">${{ row.item.total }}</template>
-            <template slot="total_devolucion" slot-scope="row">${{ row.item.total_devolucion }}</template>
-            <template slot="total_pagar" slot-scope="row">${{ row.item.total_pagar }}</template>
-            <template slot="pagos" slot-scope="row">${{ row.item.pagos }}</template>
-            <template slot="pagar" slot-scope="row">
-                <b-button 
-                    v-if="row.item.total_pagar > 0 && role_id == 2"
-                    v-b-modal.modal-registrar-deposito
-                    variant="primary" 
-                    @click="registrarDeposito(row.item, row.index)">Registrar pago
-                </b-button>
-                <b-button 
-                    v-if="row.item.total_pagar > 0 && role_id == 3"
-                    variant="primary" 
-                    @click="registrarPago(row.item, row.index)">Registrar pago
-                </b-button>
-            </template>
-            <template slot="ver_pagos" slot-scope="row">
-                <b-button v-if="row.item.pagos != 0" variant="info" @click="verPagos(row.item)">Ver pagos</b-button>
-            </template>
-        </b-table>
-
+        <div v-if="!mostrarDetalles && !mostrarPagos && remisiones.length > 0">
+            <b-row>
+                <b-col sm="3">
+                    <b-row class="my-1">
+                        <b-col sm="4">
+                            <label for="input-numero">Remision</label>
+                        </b-col>
+                        <b-col sm="8">
+                            <b-form-input 
+                                id="input-numero" 
+                                type="number" 
+                                v-model="remision_id" 
+                                @keyup.enter="porNumero">
+                            </b-form-input>
+                        </b-col>
+                    </b-row>
+                </b-col>
+                <b-col sm="9">
+                    <b-row class="my-1">
+                        <b-col sm="1">
+                            <label for="input-cliente">Cliente</label>
+                        </b-col>
+                        <b-col sm="11">
+                            <b-input
+                            v-model="queryCliente"
+                            @keyup="mostrarClientes">
+                            </b-input>
+                            <div class="list-group" v-if="resultsClientes.length">
+                                <a 
+                                    href="#" 
+                                    v-bind:key="i" 
+                                    class="list-group-item list-group-item-action" 
+                                    v-for="(result, i) in resultsClientes" 
+                                    @click="pagosCliente(result)">
+                                    {{ result.name }}
+                                </a>
+                            </div>
+                        </b-col>
+                    </b-row>
+                </b-col>
+            </b-row>
+            <hr>
+            <b-table :items="remisiones" :fields="fields">
+                <template slot="cliente" slot-scope="row">{{ row.item.cliente.name }}</template>
+                <template slot="total" slot-scope="row">${{ row.item.total }}</template>
+                <template slot="total_devolucion" slot-scope="row">${{ row.item.total_devolucion }}</template>
+                <template slot="total_pagar" slot-scope="row">${{ row.item.total_pagar }}</template>
+                <template slot="pagos" slot-scope="row">${{ row.item.pagos }}</template>
+                <template slot="pagar" slot-scope="row">
+                    <b-button 
+                        v-if="row.item.total_pagar > 0 && role_id == 2"
+                        v-b-modal.modal-registrar-deposito
+                        variant="primary" 
+                        @click="registrarDeposito(row.item, row.index)">Registrar pago
+                    </b-button>
+                    <b-button 
+                        v-if="row.item.total_pagar > 0 && role_id == 3"
+                        variant="primary" 
+                        @click="registrarPago(row.item, row.index)">Registrar pago
+                    </b-button>
+                </template>
+                <template slot="ver_pagos" slot-scope="row">
+                    <b-button v-if="row.item.pagos != 0" variant="info" @click="verPagos(row.item)">Ver pagos</b-button>
+                </template>
+            </b-table>
+        </div>
         <b-modal id="modal-registrar-deposito" title="Registrar pago">
             <b-form @submit.prevent="guardarDeposito">
                 <b-row>
@@ -395,9 +394,10 @@
             },
             pagosCliente(cliente){
                 axios.get('/all_pagos', {params: {cliente_id: cliente.id}}).then(response => {
+                    this.remisiones = [];
                     this.remisiones = response.data;
                     this.resultsClientes = [];
-                    this.queryCliente = '';
+                    this.queryCliente = cliente.name;
                 }).catch(error => {
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
@@ -409,7 +409,7 @@
                         this.remisiones.push(response.data);
                     }
                     else{
-                        this.makeToast('warning', 'Numero de remisión incorrecto');
+                        this.makeToast('warning', 'No se puede consultar el numero de remisión ingresado');
                     }
                 }).catch(error => {
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');

@@ -1,9 +1,40 @@
 <template>
     <div>
         <div v-if="listadoNotas">
-            <div align="right" v-if="role_id == 3">
-                <b-button variant="success" @click="func_crearNota"><i class="fa fa-plus"></i> Crear nota</b-button>
-            </div>
+            <b-row>
+                <b-col sm="4">
+                    <b-row class="my-1">
+                        <b-col sm="2">
+                            <label for="input-folio">Folio</label>
+                        </b-col>
+                        <b-col sm="10">
+                            <b-form-input 
+                                id="input-folio" 
+                                v-model="folio" 
+                                @keyup.enter="porFolio">
+                            </b-form-input>
+                        </b-col>
+                    </b-row>
+                </b-col>
+                <b-col sm="6">
+                    <b-row class="my-1">
+                        <b-col sm="2">
+                            <label for="input-cliente">Cliente</label>
+                        </b-col>
+                        <b-col sm="9">
+                            <b-input v-model="queryCliente" @keyup="porCliente"></b-input>
+                        </b-col>
+                    </b-row>
+                </b-col> 
+                <b-col sm="2">
+                    <div align="right" v-if="role_id == 3">
+                        <b-button variant="success" @click="func_crearNota"><i class="fa fa-plus"></i> Crear nota</b-button>
+                    </div>
+                </b-col>  
+            </b-row> 
+            <hr>
+        </div>
+        <div v-if="listadoNotas">
             <!-- <b-alert v-if="!mostrarDetalles && !mostrarCrearNota && !mostrarNewPago && notes.length == 0" show variant="secondary">
                 <i class="fa fa-exclamation-triangle"></i> No hay notas
             </b-alert> -->
@@ -298,7 +329,6 @@
                     {key: 'costo_unitario', label: 'Costo unitario'},
                     'unidades',
                     {key: 'total', label: 'Subtotal'}
-                    // 'eliminar'
                 ],
                 fieldsP: [
                     {key: 'index', label: 'N.'}, 
@@ -363,7 +393,9 @@
                 listadoNotas: true,
                 editar: false,
                 eliminados: [],
-                nuevos: []
+                nuevos: [],
+                folio: null,
+                queryCliente: '',
             }
         },
         created: function(){
@@ -375,6 +407,32 @@
             }
         },
         methods: {
+            porFolio(){
+                axios.get('/buscar_folio_note', {params: {folio: this.folio}}).then(response => {
+                    if(response.data.id != undefined){
+                        this.notes = [];
+                        this.notes.push(response.data);
+                    }
+                    else{
+                        this.makeToast('warning', 'El folio no existe');
+                    }
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
+            },
+            porCliente(){
+                if(this.queryCliente != ''){
+                    axios.get('/buscar_cliente_notes', {params: {queryCliente: this.queryCliente}}).then(response => {
+                        this.notes = [];
+                        this.notes = response.data;
+                    }).catch(error => {
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    });
+                }
+                else{
+                    this.getTodo();
+                }
+            },
             getTodo(){
                 axios.get('/all_notas').then(response => {
                     this.notes = response.data;

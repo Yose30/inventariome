@@ -1,11 +1,43 @@
 <template>
     <div>
         <div v-if="listadoPromociones">
-            <div align="right">
-                <b-button v-if="role_id == 3" variant="success" @click="registrarPromocion">
-                    <i class="fa fa-plus"></i> Registrar promoción
-                </b-button>
-            </div>
+            <b-row>
+                <b-col sm="3">
+                    <b-row class="my-1">
+                        <b-col sm="2">
+                            <label for="input-folio">Folio</label>
+                        </b-col>
+                        <b-col sm="10">
+                            <b-form-input 
+                                id="input-folio" 
+                                v-model="folio" 
+                                @keyup.enter="porFolio">
+                            </b-form-input>
+                        </b-col>
+                    </b-row>
+                </b-col>
+                <b-col sm="6">
+                    <b-row class="my-1">
+                        <b-col sm="2">
+                            <label for="input-plantel">Plantel</label>
+                        </b-col>
+                        <b-col sm="9">
+                            <b-input v-model="queryPlantel" @keyup="porPlantel"></b-input>
+                        </b-col>
+                    </b-row>
+                </b-col> 
+                <b-col sm="3">
+                    <div align="right">
+                        <b-button v-if="role_id == 3" variant="success" @click="registrarPromocion">
+                            <i class="fa fa-plus"></i> Registrar promoción
+                        </b-button>
+                    </div>
+                </b-col>  
+            </b-row> 
+            <hr>
+        </div>
+
+        <div v-if="listadoPromociones">
             <b-table :items="promotions" :fields="fields">
                 <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
                 <template slot="created_at" slot-scope="row">{{ row.item.created_at | moment }}</template>
@@ -175,7 +207,10 @@
                 inputUnidades: false,
                 resultslibros: [],
                 state: null,
-                mostrarDetalles: false
+                mostrarDetalles: false,
+                folio: null,
+                queryPlantel: ''
+
             }
         },
         created: function(){
@@ -187,6 +222,32 @@
             }
         },
         methods: {
+            porFolio(){
+                axios.get('/buscar_folio_promo', {params: {folio: this.folio}}).then(response => {
+                    if(response.data.id != undefined){
+                        this.promotions = [];
+                        this.promotions.push(response.data);
+                    }
+                    else{
+                        this.makeToast('warning', 'El folio no existe');
+                    }
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
+            },
+            porPlantel(){
+                if(this.queryPlantel != ''){
+                    axios.get('/buscar_plantel', {params: {queryPlantel: this.queryPlantel}}).then(response => {
+                        this.promotions = [];
+                        this.promotions = response.data;
+                    }).catch(error => {
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    });
+                }
+                else{
+                    this.obtenerPromotions();
+                }
+            },
             obtenerPromotions(){
                 axios.get('/obtener_promociones').then(response => {
                     this.promotions = response.data;

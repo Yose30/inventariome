@@ -1,8 +1,46 @@
 <template>
     <div>
-        <b-alert v-if="remisiones.length == 0" show variant="secondary">
-            <i class="fa fa-exclamation-triangle"></i> No hay remisones
-        </b-alert>
+        <div v-if="remisiones.length > 0 && !mostrarDevolucion && !mostrarDetalles">
+            <b-row>
+                <b-col sm="3">
+                    <b-row class="my-1">
+                        <b-col sm="4">
+                            <label for="input-numero">Remision</label>
+                        </b-col>
+                        <b-col sm="8">
+                            <b-form-input 
+                                id="input-numero" 
+                                type="number" 
+                                v-model="num_remision" 
+                                @keyup.enter="porNumero">
+                            </b-form-input>
+                        </b-col>
+                    </b-row>
+                </b-col>
+                <b-col sm="9">
+                    <b-row class="my-1">
+                        <b-col sm="1">
+                            <label for="input-cliente">Cliente</label>
+                        </b-col>
+                        <b-col sm="11">
+                            <b-input v-model="queryCliente" @keyup="mostrarClientes"
+                            ></b-input>
+                            <div class="list-group" v-if="resultsClientes.length">
+                                <a 
+                                    href="#" 
+                                    v-bind:key="i" 
+                                    class="list-group-item list-group-item-action" 
+                                    v-for="(result, i) in resultsClientes" 
+                                    @click="porCliente(result)">
+                                    {{ result.name }}
+                                </a>
+                            </div>
+                        </b-col>
+                    </b-row>
+                </b-col>   
+            </b-row> 
+            <hr>
+        </div>
         <b-table v-if="remisiones.length > 0 && !mostrarDevolucion && !mostrarDetalles" :items="remisiones" :fields="fields">
             <template slot="cliente" slot-scope="row">{{ row.item.cliente.name }}</template>
             <template slot="total" slot-scope="row">${{ row.item.total }}</template>
@@ -144,12 +182,48 @@
                 total_devolucion: 0,
                 remisiones: [],
                 posicion: 0,
+                num_remision: null,
+                queryCliente: '',
+                resultsClientes: []
             }
         },
         created: function(){
 			this.getTodo();
 		},
         methods: {
+            porNumero(){
+                axios.get('/num_pagos', {params: {remision_id: this.num_remision}}).then(response => {
+                    if(response.data.id != undefined){
+                        this.remisiones = [];
+                        this.remisiones.push(response.data);
+                    }
+                    else{
+                        this.makeToast('warning', 'No se puede consultar el numero de remisión ingresado');
+                    }
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
+            },
+            mostrarClientes(){
+                if(this.queryCliente.length > 0){
+                    axios.get('/mostrarClientes', {params: {queryCliente: this.queryCliente}}).then(response => {
+                        this.resultsClientes = response.data;
+                    }); 
+                }
+                else{
+                    this.getTodo();
+                }
+            },
+            porCliente(cliente){
+                axios.get('/all_pagos', {params: {cliente_id: cliente.id}}).then(response => {
+                    this.remisiones = [];
+                    this.remisiones = response.data;
+                    this.resultsClientes = [];
+                    this.queryCliente = cliente.name;
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
+            },
             getTodo(){
                 axios.get('/all_devoluciones').then(response => {
                     this.remisiones = response.data;

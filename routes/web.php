@@ -122,7 +122,7 @@ Route::get('all_entradas', 'EntradaController@show')->name('all_entradas');
 //Buscar editorial
 Route::get('/mostrarEditoriales', 'EntradaController@mostrarEditoriales')->name('mostrarEditoriales');
 //Buscar folio
-Route::get('/buscarFolio', 'EntradaController@buscarFolio')->name('buscarFolio');
+Route::get('/buscarFolio', 'EntradaController@buscarFolio')->name('buscarFolio'); 
 //Mostrar todas las entradas
 Route::get('detalles_entrada', 'EntradaController@detalles_entrada')->name('detalles_entrada');
 //Borrar los valores si no se concluyo una remision
@@ -167,6 +167,10 @@ Route::get('detalles_nota', 'NoteController@detalles_nota')->name('detalles_nota
 Route::post('guardar_pago', 'NoteController@guardar_pago')->name('guardar_pago');
 //Guardar devolucion
 Route::post('guardar_devolucion', 'NoteController@guardar_devolucion')->name('guardar_devolucion');
+// Buscar nota por folio
+Route::get('buscar_folio_note', 'NoteController@buscar_folio')->name('buscar_folio_note');
+// Buscar por cliente
+Route::get('buscar_cliente_notes', 'NoteController@buscar_cliente_notes')->name('buscar_cliente_notes');
 
 //ADEUDO
 //Guardar adeudo
@@ -193,3 +197,7 @@ Route::post('guardar_promocion', 'PromotionController@store')->name('guardar_pro
 Route::get('obtener_promociones', 'PromotionController@show')->name('obtener_promociones');
 //Mostrar departures
 Route::get('obtener_departures', 'PromotionController@obtener_departures')->name('obtener_departures');
+// Buscar promocion por folio
+Route::get('buscar_folio_promo', 'PromotionController@buscar_folio')->name('buscar_folio_promo');
+// Buscar promocion por plantel
+Route::get('buscar_plantel', 'PromotionController@buscar_plantel')->name('buscar_plantel');

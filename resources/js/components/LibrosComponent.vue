@@ -1,12 +1,12 @@
 <template>
     <div>
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-5">
                 <b-row class="my-1">
-                    <b-col sm="3">
+                    <b-col sm="2">
                         <label for="input-cliente">Libro</label>
                     </b-col>
-                    <b-col sm="9">
+                    <b-col sm="10">
                         <b-input
                             v-model="queryTitulo"
                             @keyup="mostrarLibros"
@@ -20,14 +20,15 @@
                         <label for="input-cliente">Editorial</label>
                     </b-col>
                     <b-col sm="9">
-                        <b-input
+                        <!-- <b-input
                             v-model="queryEditorial"
                             @keyup="mostrarPorEditorial"
-                        ></b-input>
+                        ></b-input> -->
+                        <b-form-select v-model="queryEditorial" :options="options" @change="mostrarPorEditorial"></b-form-select>
                     </b-col>
                 </b-row>
             </div>
-            <div class="col-md-4" align="right">
+            <div class="col-md-3" align="right">
                 <b-button 
                     variant="success" 
                     v-if="role_id == 3" 
@@ -94,7 +95,7 @@
                 success: false,
                 currentPage: 1,
                 queryTitulo: '',
-                queryEditorial: '',
+                queryEditorial: null,
                 tabla_libros: false,
                 fields: [
                     {key:'id', label:'N.'}, 
@@ -102,7 +103,24 @@
                     'titulo', 
                     'editorial', 
                     'piezas', 
-                    {key:'accion', label:''}]
+                    {key:'accion', label:''}
+                ],
+                options: [
+                    { value: null, text: 'Selecciona una opción', disabled: true },
+                    { value: 'CAMBRIDGE', text: 'CAMBRIDGE' },
+                    { value: 'CENGAGE', text: 'CENGAGE' },
+                    { value: 'EMPRESER', text: 'EMPRESER' },
+                    { value: 'EXPRESS PUBLISHING', text: 'EXPRESS PUBLISHING'},
+                    { value: 'HELBLING LANGUAGES', text: 'HELBLING LANGUAGES'},
+                    { value: 'MAJESTIC', text: 'MAJESTIC'},
+                    { value: 'MC GRAW - MAJESTIC', text: 'MC GRAW - MAJESTIC'},
+                    { value: 'MCGRAW HILL', text: 'MCGRAW HILL'},
+                    { value: 'RICHMOND', text: 'RICHMOND'},
+                    { value: 'IMPRESOS DE CALIDAD', text: 'IMPRESOS DE CALIDAD'},
+                    { value: 'ENGLISH TEXBOOK', text: 'ENGLISH TEXBOOK'},
+                    { value: 'BOOKMART MÉXICO', text: 'BOOKMART MÉXICO' },
+                    { value: '', text: 'TODOS LOS LIBROS'},
+                ],
             }
         },
         created: function(){

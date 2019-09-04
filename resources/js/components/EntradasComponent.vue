@@ -2,17 +2,31 @@
     <div>
         <div v-if="listadoEntradas">
             <b-row>
-                <b-col>
+                <b-col sm="4">
+                    <b-row class="my-1">
+                        <b-col sm="2">
+                            <label for="input-folio">Folio</label>
+                        </b-col>
+                        <b-col sm="10">
+                            <b-form-input 
+                                id="input-folio" 
+                                v-model="folio" 
+                                @keyup.enter="porFolio">
+                            </b-form-input>
+                        </b-col>
+                    </b-row>
+                </b-col>
+                <b-col sm="5">
                     <b-row class="my-1">
                         <b-col sm="3">
                             <label for="input-editorial">Editorial</label>
                         </b-col>
                         <b-col sm="9">
                             <b-form-select v-model="editorial" :options="options" @change="mostrarEditoriales"></b-form-select>
-                        </b-col>
+                        </b-col> 
                     </b-row>
                 </b-col>
-                <b-col align="right">
+                <b-col sm="3">
                     <b-button v-if="role_id == 3" variant="success" @click="nuevaEntrada"><i class="fa fa-plus"></i> Registrar entrada</b-button>
                 </b-col>
             </b-row>
@@ -185,7 +199,8 @@
                     { value: 'RICHMOND', text: 'RICHMOND'},
                     { value: 'IMPRESOS DE CALIDAD', text: 'IMPRESOS DE CALIDAD'},
                     { value: 'ENGLISH TEXBOOK', text: 'ENGLISH TEXBOOK'},
-                    { value: 'BOOKMART MÉXICO', text: 'BOOKMART MÉXICO' }
+                    { value: 'BOOKMART MÉXICO', text: 'BOOKMART MÉXICO' },
+                    { value: 'TODAS', text: 'MOSTRAR TODO'},
                 ],
                 fields: [
                     {key: 'id', label: 'N.'}, 
@@ -239,7 +254,8 @@
                 agregar: false,
                 nuevos: [],
                 total: 0,
-                estado: false
+                estado: false,
+                folio: '',
             }
         },
         created: function(){
@@ -251,6 +267,19 @@
             }
         }, 
         methods: {
+            porFolio(){
+                axios.get('/buscarFolio', {params: {folio: this.folio}}).then(response => {
+                    if(response.data.id != undefined){
+                        this.entradas = [];
+                        this.entradas.push(response.data);
+                    }
+                    else{
+                        this.makeToast('warning', 'El folio no existe');
+                    }
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
+            },
             nuevaEntrada(){
                 this.listadoEntradas = false;
                 this.agregar = true;

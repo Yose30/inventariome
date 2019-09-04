@@ -61,4 +61,16 @@ class PromotionController extends Controller
         $departures = Departure::where('promotion_id', $promotion_id)->with('libro')->get();
         return response()->json($departures);
     }
+
+    public function buscar_folio(){
+        $folio = Input::get('folio');
+        $promotion = Promotion::where('folio', $folio)->first();
+        return response()->json($promotion);
+    }
+
+    public function buscar_plantel(){
+        $queryPlantel = Input::get('queryPlantel');
+        $promotions = Promotion::where('plantel','like','%'.$queryPlantel.'%')->get();
+        return response()->json($promotions);
+    }
 }

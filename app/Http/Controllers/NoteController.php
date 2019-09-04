@@ -199,4 +199,16 @@ class NoteController extends Controller
         }
         return response()->json($nota);
     }
+
+    public function buscar_folio(){
+        $folio = Input::get('folio');
+        $note = Note::where('folio', $folio)->first();
+        return response()->json($note);
+    }
+
+    public function buscar_cliente_notes(){
+        $queryCliente = Input::get('queryCliente');
+        $notes = Note::where('cliente','like','%'.$queryCliente.'%')->get();
+        return response()->json($notes);
+    }
 }

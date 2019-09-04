@@ -1,25 +1,44 @@
 <template>
     <div>
         <div v-if="listadoAdeudos">
-            <b-row class="my-1">
+            <b-row>
                 <b-col sm="3">
-                    <label for="input-cliente">Cliente</label>
+                    <b-row class="my-1">
+                        <b-col sm="4">
+                            <label for="input-numero">Remision</label>
+                        </b-col> 
+                        <b-col sm="8">
+                            <b-form-input 
+                                id="input-numero" 
+                                type="number" 
+                                v-model="num_remision" 
+                                @keyup.enter="porNumero">
+                            </b-form-input>
+                        </b-col>
+                    </b-row>
                 </b-col>
                 <b-col sm="9">
-                    <b-input
-                    v-model="queryCliente"
-                    @keyup="mostrarClientes"
-                    ></b-input>
-                    <div class="list-group" v-if="resultsClientes.length">
-                        <a 
-                            href="#" 
-                            v-bind:key="i" 
-                            class="list-group-item list-group-item-action" 
-                            v-for="(result, i) in resultsClientes" 
-                            @click="adeudosCliente(result)">
-                            {{ result.name }}
-                        </a>
-                    </div>
+                    <b-row class="my-1">
+                        <b-col sm="1" align="right">
+                            <label for="input-cliente">Cliente</label>
+                        </b-col>
+                        <b-col sm="11">
+                            <b-input
+                            v-model="queryCliente"
+                            @keyup="mostrarClientes"
+                            ></b-input>
+                            <div class="list-group" v-if="resultsClientes.length">
+                                <a 
+                                    href="#" 
+                                    v-bind:key="i" 
+                                    class="list-group-item list-group-item-action" 
+                                    v-for="(result, i) in resultsClientes" 
+                                    @click="adeudosCliente(result)">
+                                    {{ result.name }}
+                                </a>
+                            </div>
+                        </b-col>
+                    </b-row>
                 </b-col>
             </b-row>
             <hr>
@@ -305,7 +324,9 @@
                 mostrarPagos: false,
                 mostrarFinal: false,
                 devoluciones: [],
-                vendidos: []
+                vendidos: [],
+                num_remision: null,
+
             }
         },
         created: function(){
@@ -317,6 +338,22 @@
             }
         },
         methods: {
+            porNumero(){
+                if(this.num_remision > 0){
+                    axios.get('/buscar_adeudo', {params: {num_remision: this.num_remision}}).then(response => {
+                        if(response.data.id != undefined){
+                            this.adeudos = [];
+                            this.adeudos.push(response.data);
+                            this.acumular();
+                        }
+                        else{
+                            this.makeToast('warning', 'Numero de remisión incorrecto');
+                        }
+                    }).catch(error => {
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentarlo');
+                    });
+                }
+            },
             buscarLibroISBN(){
                 axios.get('/buscarISBN', {params: {isbn: this.isbn}}).then(response => {
                     this.datosLibro(response.data);

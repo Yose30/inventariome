@@ -6,7 +6,7 @@
                     <b-row class="my-1">
                         <b-col sm="5">
                             <label for="input-numero">Remision</label>
-                        </b-col>
+                        </b-col> 
                         <b-col sm="7">
                             <b-form-input 
                                 id="input-numero" 

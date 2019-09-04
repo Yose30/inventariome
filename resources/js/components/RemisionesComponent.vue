@@ -1,68 +1,69 @@
 <template>
     <div>
-       <b-row>
-            <b-col sm="4">
-                <b-row class="my-1">
-                    <b-col sm="3">
-                        <label for="input-numero">Remision</label>
-                    </b-col>
-                    <b-col sm="9">
-                        <b-form-input 
-                            id="input-numero" 
-                            type="number" 
-                            v-model="num_remision" 
-                            @keyup.enter="porNumero">
-                        </b-form-input>
-                    </b-col>
-                </b-row>
-            </b-col>
-            <b-col sm="8">
-                <b-row class="my-1">
-                    <b-col sm="2">
-                        <label for="input-cliente">Cliente</label>
-                    </b-col>
-                    <b-col sm="9">
-                        <b-input v-model="queryCliente" @keyup="mostrarClientes"
-                        ></b-input>
-                        <div class="list-group" v-if="resultsClientes.length">
-                            <a 
-                                href="#" 
-                                v-bind:key="i" 
-                                class="list-group-item list-group-item-action" 
-                                v-for="(result, i) in resultsClientes" 
-                                @click="porCliente(result)">
-                                {{ result.name }}
-                            </a>
-                        </div>
-                    </b-col>
-                </b-row>
-            </b-col>   
-        </b-row> 
-        <hr>
-        <b-table v-if="!mostrarDetalles && remisiones.length > 0" :items="remisiones" :fields="fields">
-            <template slot="cliente" slot-scope="row">
-                {{ row.item.cliente.name }}
-            </template>
-            <template slot="total" slot-scope="row">${{ row.item.total }}</template>
-            <template slot="detalles" slot-scope="row">
-                <b-button 
-                    variant="outline-info"
-                    @click="viewDetalles(row.item)">
-                    Detalles
-                </b-button>
-            </template>
-            <template slot="registrar_entrega" slot-scope="row">
-                <b-button 
-                    variant="success" 
-                    v-if="row.item.estado == 'Iniciado'"
-                    :disabled="load"
-                    v-on:click="entregaLibros(row.item, row.index)">
-                    <i class="fa fa-check"></i> Marcar entrega
-                    <b-spinner v-if="load" small></b-spinner>
-                </b-button>
-            </template>
-        </b-table>
-
+        <div v-if="!mostrarDetalles && remisiones.length > 0">
+            <b-row>
+                <b-col sm="3">
+                    <b-row class="my-1">
+                        <b-col sm="4">
+                            <label for="input-numero">Remision</label>
+                        </b-col>
+                        <b-col sm="8">
+                            <b-form-input 
+                                id="input-numero" 
+                                type="number" 
+                                v-model="num_remision" 
+                                @keyup.enter="porNumero">
+                            </b-form-input>
+                        </b-col>
+                    </b-row>
+                </b-col>
+                <b-col sm="9">
+                    <b-row class="my-1">
+                        <b-col sm="1" align="right">
+                            <label for="input-cliente">Cliente</label>
+                        </b-col>
+                        <b-col sm="11">
+                            <b-input v-model="queryCliente" @keyup="mostrarClientes"
+                            ></b-input>
+                            <div class="list-group" v-if="resultsClientes.length">
+                                <a 
+                                    href="#" 
+                                    v-bind:key="i" 
+                                    class="list-group-item list-group-item-action" 
+                                    v-for="(result, i) in resultsClientes" 
+                                    @click="porCliente(result)">
+                                    {{ result.name }}
+                                </a>
+                            </div>
+                        </b-col>
+                    </b-row>
+                </b-col>   
+            </b-row> 
+            <hr>
+            <b-table :items="remisiones" :fields="fields">
+                <template slot="cliente" slot-scope="row">
+                    {{ row.item.cliente.name }}
+                </template>
+                <template slot="total" slot-scope="row">${{ row.item.total }}</template>
+                <template slot="detalles" slot-scope="row">
+                    <b-button 
+                        variant="outline-info"
+                        @click="viewDetalles(row.item)">
+                        Detalles
+                    </b-button>
+                </template>
+                <template slot="registrar_entrega" slot-scope="row">
+                    <b-button 
+                        variant="success" 
+                        v-if="row.item.estado == 'Iniciado'"
+                        :disabled="load"
+                        v-on:click="entregaLibros(row.item, row.index)">
+                        <i class="fa fa-check"></i> Marcar entrega
+                        <b-spinner v-if="load" small></b-spinner>
+                    </b-button>
+                </template>
+            </b-table>
+        </div>
         <div v-if="mostrarDetalles">
             <b-row>
                 <b-col>
