@@ -115,6 +115,8 @@ Route::get('/buscarISBN', 'LibroController@show')->name('buscarISBN');
 Route::get('allLibros', 'LibroController@allLibros')->name('allLibros');
 //Descargar formato de todos los libros
 Route::get('descargarLibros', 'LibroController@descargarLibros')->name('descargarLibros');
+//Mostrar libros vendidos buscados por editorial
+Route::get('porEditorialVendidos', 'LibroController@porEditorialVendidos')->name('porEditorialVendidos');
 
 //ENTRADAS
 //Mostrar todas las entradas

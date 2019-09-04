@@ -494,22 +494,25 @@ class RemisionController extends Controller
                         ->where('vendidos.libro_id', $libro_id)
                         ->select(
                             'clientes.name as cliente', 
-                            'vendidos.unidades as unidades_vendidas',
-                            'vendidos.unidades_resta as unidades_pendientes'
+                            \DB::raw('SUM(vendidos.unidades) as unidades_vendidas'),
+                            \DB::raw('SUM(vendidos.unidades_resta) as unidades_pendientes')
                         )
+                        ->groupBy('clientes.name')
                         ->get();
         }
         else{
             $remisiones = \DB::table('vendidos')
-                        ->join('remisiones', 'vendidos.remisione_id', '=', 'remisiones.id')
-                        ->join('clientes', 'remisiones.cliente_id', '=', 'clientes.id')
-                        ->where('vendidos.libro_id', $libro_id)
-                        ->select(
-                            'clientes.name as cliente', 
-                            'vendidos.unidades as unidades_vendidas',
-                            'vendidos.unidades_resta as unidades_pendientes'
-                        )
-                        ->get();
+                ->join('remisiones', 'vendidos.remisione_id', '=', 'remisiones.id')
+                ->join('clientes', 'remisiones.cliente_id', '=', 'clientes.id')
+                ->where('vendidos.libro_id', $libro_id)
+                ->select(
+                    'clientes.name as cliente', 
+                    \DB::raw('SUM(vendidos.unidades) as unidades_vendidas'),
+                    \DB::raw('SUM(vendidos.unidades_resta) as unidades_pendientes')
+                )
+                ->groupBy('clientes.name')
+                ->get();
+
         }
         return response()->json($remisiones);
     }

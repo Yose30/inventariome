@@ -1,12 +1,26 @@
 <template>
     <div>
        <div v-if="listadoLibros"> 
-            <b-row class="col-md-6">
-                <b-col sm="4">
-                    <b>Seleccionar fecha</b>
+            <b-row>
+                <b-col sm="5">
+                    <b-row>
+                        <b-col sm="2">
+                            <label for="input-editorial">Editorial</label>
+                        </b-col>
+                        <b-col sm="10">
+                            <b-form-select v-model="editorial" :options="options" @change="mostrarEditoriales"></b-form-select>
+                        </b-col> 
+                    </b-row>
                 </b-col>
-                <b-col sm="8">
-                    <b-input type="date" v-model="fecha" @change="porFecha"/>
+                <b-col sm="7">
+                    <b-row>
+                        <b-col align="right" sm="4">
+                            Seleccionar fecha
+                        </b-col>
+                        <b-col sm="8">
+                            <b-input type="date" v-model="fecha" @change="porFecha"/>
+                        </b-col>
+                    </b-row>
                 </b-col>
             </b-row>
             <hr>
@@ -50,7 +64,24 @@
                 ],
                 listadoLibros: true,
                 mostrarDetalles: false,
-                registros: []
+                registros: [],
+                editorial: null,
+                options: [
+                    { value: null, text: 'Selecciona una opción', disabled: true },
+                    { value: 'CAMBRIDGE', text: 'CAMBRIDGE' },
+                    { value: 'CENGAGE', text: 'CENGAGE' },
+                    { value: 'EMPRESER', text: 'EMPRESER' },
+                    { value: 'EXPRESS PUBLISHING', text: 'EXPRESS PUBLISHING'},
+                    { value: 'HELBLING LANGUAGES', text: 'HELBLING LANGUAGES'},
+                    { value: 'MAJESTIC', text: 'MAJESTIC'},
+                    { value: 'MC GRAW - MAJESTIC', text: 'MC GRAW - MAJESTIC'},
+                    { value: 'MCGRAW HILL', text: 'MCGRAW HILL'},
+                    { value: 'RICHMOND', text: 'RICHMOND'},
+                    { value: 'IMPRESOS DE CALIDAD', text: 'IMPRESOS DE CALIDAD'},
+                    { value: 'ENGLISH TEXBOOK', text: 'ENGLISH TEXBOOK'},
+                    { value: 'BOOKMART MÉXICO', text: 'BOOKMART MÉXICO' },
+                    { value: '', text: 'MOSTRAR TODO'},
+                ],
             }
         },
         created: function(){
@@ -63,6 +94,19 @@
                 }).catch(error => {
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
+            },
+            mostrarEditoriales(){
+                if(this.editorial.length > 0){
+                    axios.get('/porEditorialVendidos', {params: {editorial: this.editorial}}).then(response => {
+                        this.vendidos = [];
+                        this.vendidos = response.data
+                    }).catch(error => {
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    });
+                }
+                else{
+                    this.getTodo();
+                } 
             },
             porFecha(){
                 axios.get('/obtener_por_fecha', {params: {fecha: this.fecha}}).then(response => {

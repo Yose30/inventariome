@@ -12,7 +12,7 @@
                 </b-row>
             </b-col>
             <b-col align="right">
-                <b-button variant="success" v-b-modal.modal-nuevoCliente><i class="fa fa-plus"></i> Agregar cliente</b-button>
+                <b-button v-if="role_id == 2" variant="success" v-b-modal.modal-nuevoCliente><i class="fa fa-plus"></i> Agregar cliente</b-button>
             </b-col>
         </b-row>
         <hr>

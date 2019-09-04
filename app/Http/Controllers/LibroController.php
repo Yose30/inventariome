@@ -28,8 +28,8 @@ class LibroController extends Controller
     //Función para validar los libros
     public function func_validar($request){
         $this->validate($request, [
-            'titulo' => 'min:5|max:100|required|string',
-            'ISBN' => 'min:5|max:100|required|string',
+            'titulo' => 'min:5|max:100|required|string|unique:libros',
+            'ISBN' => 'min:5|max:100|required|string|unique:libros',
             'editorial' => 'required|min:5|max:100|string'
         ]);
     }
@@ -76,6 +76,25 @@ class LibroController extends Controller
         $queryEditorial = Input::get('queryEditorial');
         $libros = Libro::where('editorial','like','%'.$queryEditorial.'%')->get();
         return response()->json($libros);
+    }
+
+    //Buscar libros por editorial
+    public function porEditorialVendidos(){
+        $editorial = Input::get('editorial');
+        $datos = \DB::table('vendidos')
+            ->join('libros', 'vendidos.libro_id', '=', 'libros.id')
+            ->where('libros.editorial', $editorial)
+            ->select(
+                'libros.id as libro_id',
+                'libros.titulo as libro',
+                \DB::raw('SUM(unidades) as unidades_vendido'),
+                \DB::raw('SUM(total) as total_vendido'),
+                \DB::raw('SUM(unidades_resta) as unidades_pendiente'),
+                \DB::raw('SUM(total_resta) as total_pendiente')
+            )
+            ->groupBy('libros.titulo', 'libros.id')
+            ->get();
+        return response()->json($datos);
     }
 
     //Actualizar libro
