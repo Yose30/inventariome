@@ -44,10 +44,10 @@
             <hr>
             <b-table :items="remisiones" :fields="fields">
                 <template slot="cliente" slot-scope="row">{{ row.item.cliente.name }}</template>
-                <template slot="total" slot-scope="row">${{ row.item.total }}</template>
-                <template slot="total_devolucion" slot-scope="row">${{ row.item.total_devolucion }}</template>
-                <template slot="total_pagar" slot-scope="row">${{ row.item.total_pagar }}</template>
-                <template slot="pagos" slot-scope="row">${{ row.item.pagos }}</template>
+                <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
+                <template slot="total_devolucion" slot-scope="row">${{ row.item.total_devolucion | formatNumber }}</template>
+                <template slot="total_pagar" slot-scope="row">${{ row.item.total_pagar | formatNumber }}</template>
+                <template slot="pagos" slot-scope="row">${{ row.item.pagos | formatNumber }}</template>
                 <template slot="pagar" slot-scope="row">
                     <b-button 
                         v-if="row.item.total_pagar > 0 && role_id == 2"
@@ -114,7 +114,7 @@
             <b-table :items="remision.vendidos" :fields="fieldsRP">
                 <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                 <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario }}</template>
+                <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario | formatNumber }}</template>
                 <template slot="unidades_base" slot-scope="row">
                     <b-input 
                         type="number" 
@@ -123,9 +123,9 @@
                         v-model="row.item.unidades_base">
                     </b-input>
                 </template>
-                <template slot="subtotal" slot-scope="row">${{ row.item.total_base }}</template>
+                <template slot="subtotal" slot-scope="row">${{ row.item.total_base | formatNumber }}</template>
             </b-table>
-            <h5 class="text-right">${{ total_vendido }}</h5>
+            <h5 class="text-right">${{ total_vendido | formatNumber }}</h5>
         </div>
         <div v-if="mostrarPagos">
             <b-row>
@@ -135,11 +135,11 @@
                 </b-col>
                 <b-col>
                     <br>
-                    <label v-if="remision.total_pagar == 0"><b>Unidades vendidas</b>: {{ remision.unidades }}</label>
+                    <label v-if="remision.total_pagar == 0"><b>Unidades vendidas</b>: {{ remision.unidades | formatNumber }}</label>
                 </b-col>
                 <b-col>
                     <br>
-                    <label><b>Total</b>: ${{ remision.pagos }}</label><br>
+                    <label><b>Total</b>: ${{ remision.pagos | formatNumber }}</label><br>
                 </b-col>
                 <b-col>
                     <div class="text-right">
@@ -155,7 +155,7 @@
                     {{ row.index + 1 }}
                 </template>
                 <template slot="pago" slot-scope="row">
-                    ${{ row.item.pago }}
+                    ${{ row.item.pago | formatNumber }}
                 </template>
                 <template slot="created_at" slot-scope="row">
                     {{ row.item.created_at | moment }}
@@ -165,8 +165,8 @@
             <b-table v-if="remision.depositos.length == 0" :items="remision.vendidos" :fields="fieldsP">
                 <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                 <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario }}</template>
-                <template slot="subtotal" slot-scope="row">${{ row.item.total }}</template>
+                <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario | formatNumber }}</template>
+                <template slot="subtotal" slot-scope="row">${{ row.item.total | formatNumber }}</template>
                 <template slot="detalles" slot-scope="row">
                     <b-button v-if="row.item.pagos.length > 0" variant="outline-info" @click="row.toggleDetails">
                         {{ row.detailsShowing ? 'Ocultar' : 'Mostrar'}}
@@ -180,8 +180,8 @@
                                 <label v-if="row.item.user_id == 2">Teresa Pérez</label>
                                 <label v-if="row.item.user_id == 3">Almacén</label>
                             </template>
-                            <template slot="unidades" slot-scope="row">{{ row.item.unidades }}</template>
-                            <template slot="pago" slot-scope="row">$ {{ row.item.pago }}</template>
+                            <template slot="unidades" slot-scope="row">{{ row.item.unidades | formatNumber }}</template>
+                            <template slot="pago" slot-scope="row">$ {{ row.item.pago | formatNumber }}</template>
                             <template slot="created_at" slot-scope="row">{{ row.created_at | moment }}</template>
                         </b-table>
                     </b-card>
@@ -268,6 +268,9 @@
         filters: {
             moment: function (date) {
                 return moment(date).format('DD-MM-YYYY');
+            },
+            formatNumber: function (value) {
+                return numeral(value).format("0,0[.]00"); 
             }
         },
         methods: {

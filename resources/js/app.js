@@ -8,6 +8,8 @@ require('./bootstrap');
 
 window.Vue = require('vue');
 window.moment = require('moment');
+window.numeral = require('numeral');
+
 Vue.use(require('vue-resource'));
 
 import Vue from 'vue'
@@ -61,14 +63,4 @@ Vue.component('devolucion-adeudos-component', require('./components/DevolucionAd
 
 const app = new Vue({
     el: '#app',
-    // data() {
-    //     return {
-    //         libros: [],
-    //     }
-    // },
-    // methods: {
-    //     newLibro(libro){
-    //         console.log(libro);
-    //     }
-    // }
 });

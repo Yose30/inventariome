@@ -42,6 +42,7 @@
                         Descargar
                     </b-button>
                 </template>
+                <template slot="unidades" slot-scope="row">{{ row.item.unidades | formatNumber }}</template>
                 <template slot="created_at" slot-scope="row">
                     {{ row.item.created_at | moment }}
                 </template>
@@ -66,7 +67,7 @@
                     <label>{{entrada.editorial}}</label>
                 </b-col>
                 <b-col sm="4">
-                    <label><b>Unidades:</b> {{ entrada.unidades }}</label>
+                    <label><b>Unidades:</b> {{ entrada.unidades | formatNumber }}</label>
                 </b-col>
                 <b-col sm="3" align="right">
                     <b-button 
@@ -80,8 +81,9 @@
             <b-table v-if="registros.length > 0" :items="registros" :fields="fieldsR">
                 <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                 <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario }}</template>
-                <template slot="total" slot-scope="row">${{ row.item.total }}</template>
+                <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
+                <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
+                <template slot="unidades" slot-scope="row">{{ row.item.unidades | formatNumber }}</template>
             </b-table>
         </div>
         <div v-if="mostrarEA">
@@ -99,7 +101,7 @@
                     <b-form-select v-model="entrada.editorial" :disabled="load" :state="stateE" :options="options"></b-form-select>
                 </b-col>
                 <b-col sm="3" align="right">
-                    <label><b>Unidades:</b> {{ total_unidades }}</label>
+                    <label><b>Unidades:</b> {{ total_unidades | formatNumber }}</label>
                 </b-col>
                 <b-col sm="3" class="text-right">
                     <b-button 
@@ -122,6 +124,7 @@
             <b-table :items="registros" :fields="fieldsRE">
                 <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                 <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
+                <template slot="unidades" slot-scope="row">{{ row.item.unidades | formatNumber }}</template>
                 <template slot="eliminar" slot-scope="row">
                     <b-button v-if="row.item.entrada_id != 1" variant="danger" @click="eliminarRegistro(row.item, row.index)">
                         <i class="fa fa-minus-circle"></i>
@@ -264,6 +267,9 @@
         filters: {
             moment: function (date) {
                 return moment(date).format('DD-MM-YYYY');
+            },
+            formatNumber: function (value) {
+                return numeral(value).format("0,0[.]00"); 
             }
         }, 
         methods: {

@@ -20,6 +20,15 @@
                     </b-row>
                 </div>
                 <div class="col-md-4">
+                    <!-- <b-row class="my-1">
+                        <b-col sm="3">
+                            <label for="input-estado">Estado</label>
+                        </b-col>
+                        <b-col sm="9">
+                            <b-form-select v-model="estadoRemision" :options="estados" @change="porEstado"></b-form-select>
+                        </b-col>
+                    </b-row>
+                    <hr> -->
                     <b-row class="my-1">
                         <b-col sm="3">
                             <label for="input-cliente">Cliente</label>
@@ -95,16 +104,16 @@
                         {{ row.item.cliente.name }}
                     </template>
                     <template slot="total" slot-scope="row">
-                        ${{ row.item.total }}
+                        ${{ row.item.total | formatNumber }}
                     </template>
                     <template slot="total_devolucion" slot-scope="row">
-                        ${{ row.item.total_devolucion }}
+                        ${{ row.item.total_devolucion | formatNumber }}
                     </template>
                     <template slot="pagos" slot-scope="row">
-                        ${{ row.item.pagos }}
+                        ${{ row.item.pagos | formatNumber }}
                     </template>
                     <template slot="total_pagar" slot-scope="row">
-                        ${{ row.item.total_pagar }}
+                        ${{ row.item.total_pagar | formatNumber }}
                     </template>
                     <template slot="detalles" slot-scope="row">
                         <b-button 
@@ -116,10 +125,10 @@
                     <template slot="thead-top" slot-scope="row">
                         <tr>
                             <th colspan="3"></th>
-                            <th>${{ total_salida }}</th>
-                            <th>${{ total_devolucion }}</th>
-                            <th>${{ total_pagos }}</th>
-                            <th>${{ total_pagar }}</th>
+                            <th>${{ total_salida | formatNumber }}</th>
+                            <th>${{ total_devolucion | formatNumber }}</th>
+                            <th>${{ total_pagos | formatNumber }}</th>
+                            <th>${{ total_pagar | formatNumber }}</th>
                         </tr>
                     </template>
                 </b-table>
@@ -187,14 +196,14 @@
                         <tr v-for="(registro, i) in registros" v-bind:key="i">
                             <td>{{ registro.libro.ISBN }}</td>
                             <td>{{ registro.libro.titulo }}</td>
-                            <td>$ {{ registro.costo_unitario }}</td>
+                            <td>$ {{ registro.costo_unitario | formatNumber }}</td>
                             <td>{{ registro.unidades }}</td>
-                            <td>$ {{ registro.total }}</td>
+                            <td>$ {{ registro.total | formatNumber }}</td>
                         </tr>
                         <tr>
                             <td></td><td></td>
                             <td></td><td></td>
-                            <td><h5>$ {{ remision.total }}</h5></td>
+                            <td><h5>$ {{ remision.total | formatNumber }}</h5></td>
                         </tr>
                     </tbody>
                 </table>
@@ -265,14 +274,14 @@
                         <tr v-for="(devolucion, i) in devoluciones" v-bind:key="i">
                             <td>{{ devolucion.libro.ISBN }}</td>
                             <td>{{ devolucion.libro.titulo }}</td>
-                            <td>$ {{ devolucion.dato.costo_unitario }}</td>
+                            <td>$ {{ devolucion.dato.costo_unitario | formatNumber }}</td>
                             <td>{{ devolucion.unidades }}</td>
-                            <td>$ {{ devolucion.total }}</td>
+                            <td>$ {{ devolucion.total | formatNumber }}</td>
                         </tr>
                         <tr>
                             <td></td><td></td>
                             <td></td><td></td>
-                            <td><h5>$ {{ remision.total_devolucion }}</h5></td>
+                            <td><h5>$ {{ remision.total_devolucion | formatNumber }}</h5></td>
                         </tr>
                     </tbody>
                 </table>
@@ -293,8 +302,8 @@
                 <b-table :items="vendidos" :fields="fieldsP">
                     <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                     <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                    <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario }}</template>
-                    <template slot="subtotal" slot-scope="row">${{ row.item.total }}</template>
+                    <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario | formatNumber }}</template>
+                    <template slot="subtotal" slot-scope="row">${{ row.item.total | formatNumber }}</template>
                     <template slot="detalles" slot-scope="row">
                         <b-button v-if="row.item.pagos.length > 0" variant="outline-info" @click="row.toggleDetails">
                             {{ row.detailsShowing ? 'Ocultar' : 'Mostrar'}} detalles
@@ -309,7 +318,7 @@
                                     <label v-if="row.item.user_id == 3">Almacén</label>
                                 </template>
                                 <template slot="unidades" slot-scope="row">{{ row.item.unidades }}</template>
-                                <template slot="pago" slot-scope="row">$ {{ row.item.pago }}</template>
+                                <template slot="pago" slot-scope="row">$ {{ row.item.pago | formatNumber }}</template>
                                 <template slot="created_at" slot-scope="row">{{ row.created_at | moment }}</template>
                             </b-table>
                         </b-card>
@@ -343,13 +352,13 @@
                         <tr v-for="(devolucion, i) in devoluciones" v-bind:key="i">
                             <td>{{ devolucion.libro.ISBN }}</td>
                             <td>{{ devolucion.libro.titulo }}</td>
-                            <td>$ {{ devolucion.dato.costo_unitario }}</td>
+                            <td>$ {{ devolucion.dato.costo_unitario | formatNumber }}</td>
                             <td>{{ devolucion.unidades_resta }}</td>
-                            <td>$ {{ devolucion.total_resta }}</td>
+                            <td>$ {{ devolucion.total_resta | formatNumber }}</td>
                         </tr>
                         <tr>
                             <td></td><td></td><td></td><td></td>
-                            <td><h5>$ {{ remision.total_pagar }}</h5></td>
+                            <td><h5>$ {{ remision.total_pagar | formatNumber }}</h5></td>
                         </tr>
                     </tbody>
                 </table>
@@ -418,13 +427,14 @@
                 selected: null,
                 selected2: 'Terminado',
                 options: [
+                    { value: null, text: 'Selecciona una opción', disabled: true },
                     { value: 'Terminado', text: 'Terminado'},
                     { value: 'Proceso', text: 'Entregado' },
                     { value: 'Iniciado', text: 'Iniciado' },
                 ],
                 imprimirCliente: false,
                 imprimirEstado:false,
-                estadoRemision: '',
+                estadoRemision: null,
                 queryTitulo: '',
                 resultslibros: [],
                 tabla_libros: false,
@@ -474,6 +484,14 @@
                 ],
                 idRemision: 0,
                 load: false,
+                estados: [
+                    { value: null, text: 'Selecciona una opción', disabled: true },
+                    { value: 'no_entregado', text: 'NO ENTREGADO' },
+                    { value: 'entregado', text: 'ENTREGADO' },
+                    { value: 'pagado', text: 'PAGADO'},
+                    { value: 'cancelado', text: 'CANCELADO' },
+                    { value: '', text: 'MOSTRAR TODO'}
+                ]
                 // descuento: null,
                 // state: null,
             }
@@ -484,6 +502,9 @@
         filters: {
             moment: function (date) {
                 return moment(date).format('DD-MM-YYYY');
+            },
+            formatNumber: function (value) {
+                return numeral(value).format("0,0[.]00"); 
             }
         },
         methods: {
@@ -501,6 +522,20 @@
             //         }); 
             //     }
             // },
+            porEstado(){
+                // if(this.estadoRemision != ''){
+                    axios.get('/buscar_por_estado', {params: {estado: this.estadoRemision}}).then(response => {
+                        this.remisiones = [];
+                        this.remisiones = response.data;
+                        console.log(response.data);
+                    }).catch(error => {
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    });
+                // }
+                // else{
+                //     this.getTodo();
+                // }
+            },
             rowClass(item, type) {
                 if (!item) return
                 if (item.estado == 'Iniciado') return 'table-secondary'

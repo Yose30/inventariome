@@ -52,16 +52,16 @@
                     {{ row.item.cliente.name }}
                 </template>
                 <template slot="total_devolucion" slot-scope="row">
-                    ${{ row.item.total_devolucion }}
+                    ${{ row.item.total_devolucion | formatNumber }}
                 </template>
                 <template slot="total_adeudo" slot-scope="row">
-                    ${{ row.item.total_adeudo }}
+                    ${{ row.item.total_adeudo | formatNumber }}
                 </template>
                 <template slot="total_abonos" slot-scope="row">
-                    ${{ row.item.total_abonos }}
+                    ${{ row.item.total_abonos | formatNumber }}
                 </template>
                 <template slot="total_pendiente" slot-scope="row">
-                    ${{ row.item.total_pendiente }}
+                    ${{ row.item.total_pendiente | formatNumber }}
                 </template>
                 <template slot="detalles" slot-scope="row">
                     <b-button variant="info" @click="detallesAdeudo(row.item)">Detalles</b-button>
@@ -77,10 +77,10 @@
                 <template slot="thead-top" slot-scope="row">
                     <tr>
                         <th colspan="2"></th>
-                        <th>${{ total_adeudo }}</th>
-                        <th>${{ total_devolucion }}</th>
-                        <th>${{ total_pagos }}</th>
-                        <th>${{ total_pendiente }}</th>
+                        <th>${{ total_adeudo | formatNumber }}</th>
+                        <th>${{ total_devolucion | formatNumber }}</th>
+                        <th>${{ total_pagos | formatNumber }}</th>
+                        <th>${{ total_pendiente | formatNumber }}</th>
                     </tr>
                 </template>
             </b-table>
@@ -203,7 +203,7 @@
                         <b-input type="date" v-model="adeudo.fecha_adeudo" :disabled="load"></b-input>
                     </b-col>
                     <b-col align="right">
-                        <label><b>Total adeudo</b>: ${{ adeudo.total_adeudo }}</label>
+                        <label><b>Total adeudo</b>: ${{ adeudo.total_adeudo | formatNumber }}</label>
                     </b-col>
                 </b-row>
                 <hr>
@@ -211,8 +211,8 @@
                     <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
                     <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                     <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                    <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario }}</template>
-                    <template slot="total" slot-scope="row">${{ row.item.total }}</template>
+                    <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
+                    <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
                     <template slot="eliminar" slot-scope="row">
                         <b-button variant="danger" @click="eliminarRegistro(row.item, row.index)" :disabled="load">
                             <i class="fa fa-minus-circle"></i>
@@ -297,14 +297,14 @@
                     <label><b>Cliente</b><br>{{ adeudo.cliente.name }}</label>
                 </b-col>
                 <b-col sm="2">
-                    <label><b>Total adeudo</b>: ${{ adeudo.total_adeudo }}</label>
+                    <label><b>Total adeudo</b>: ${{ adeudo.total_adeudo | formatNumber }}</label>
                 </b-col>
                 <b-col sm="2">
-                    <label><b>Pagos</b>: ${{ adeudo.total_abonos }}</label>
-                    <label><b>Devolución</b>: ${{ adeudo.total_devolucion }}</label>
+                    <label><b>Pagos</b>: ${{ adeudo.total_abonos | formatNumber }}</label>
+                    <label><b>Devolución</b>: ${{ adeudo.total_devolucion | formatNumber }}</label>
                 </b-col>
                 <b-col sm="2">
-                    <label><b>Total pendiente</b>: ${{ adeudo.total_pendiente }}</label>
+                    <label><b>Total pendiente</b>: ${{ adeudo.total_pendiente | formatNumber }}</label>
                 </b-col>
                 <b-col sm="2" align="right">
                     <b-button variant="secondary" @click="listadoAdeudos = true; mostrarAbonos = false;">
@@ -329,8 +329,8 @@
                     <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
                     <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                     <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                    <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario }}</template>
-                    <template slot="total" slot-scope="row">${{ row.item.total }}</template>
+                    <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
+                    <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
                 </b-table>
             </b-collapse>
             <hr>
@@ -350,8 +350,8 @@
                     <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
                     <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                     <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                    <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario }}</template>
-                    <template slot="total" slot-scope="row">${{ row.item.total }}</template>
+                    <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario | formatNumber }}</template>
+                    <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
                 </b-table>
             </b-collapse>
              <hr>
@@ -372,7 +372,7 @@
                         {{ row.index + 1 }}
                     </template>
                     <template slot="pago" slot-scope="row">
-                        ${{ row.item.pago }}
+                        ${{ row.item.pago | formatNumber }}
                     </template>
                     <template slot="created_at" slot-scope="row">
                         {{ row.item.created_at | moment }}
@@ -492,6 +492,9 @@
         filters: {
             moment: function (date) {
                 return moment(date).format('DD-MM-YYYY');
+            },
+            formatNumber: function (value) {
+                return numeral(value).format("0,0[.]00"); 
             }
         },
         methods: {

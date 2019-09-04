@@ -43,10 +43,10 @@
         </div>
         <b-table v-if="remisiones.length > 0 && !mostrarDevolucion && !mostrarDetalles" :items="remisiones" :fields="fields">
             <template slot="cliente" slot-scope="row">{{ row.item.cliente.name }}</template>
-            <template slot="total" slot-scope="row">${{ row.item.total }}</template>
-            <template slot="total_devolucion" slot-scope="row">${{ row.item.total_devolucion }}</template>
-            <template slot="pagos" slot-scope="row">${{ row.item.pagos }}</template>
-            <template slot="total_pagar" slot-scope="row">${{ row.item.total_pagar }}</template>
+            <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
+            <template slot="total_devolucion" slot-scope="row">${{ row.item.total_devolucion | formatNumber }}</template>
+            <template slot="pagos" slot-scope="row">${{ row.item.pagos | formatNumber }}</template>
+            <template slot="total_pagar" slot-scope="row">${{ row.item.total_pagar | formatNumber }}</template>
             <template slot="detalles" slot-scope="row">
                 <b-button v-if="row.item.total_devolucion > 0" variant="info" @click="func_detalles(row.item)">Detalles</b-button>
             </template>
@@ -95,8 +95,8 @@
                     <tr v-for="(devolucion, i) in devoluciones" v-bind:key="i">
                         <td>{{ devolucion.libro.ISBN }}</td>
                         <td>{{ devolucion.libro.titulo }}</td>
-                        <td>$ {{ devolucion.dato.costo_unitario }}</td>
-                        <td>{{ devolucion.unidades_resta }}</td>
+                        <td>$ {{ devolucion.dato.costo_unitario | formatNumber }}</td>
+                        <td>{{ devolucion.unidades_resta | formatNumber }}</td>
                         <td>
                             <input 
                             type="number" 
@@ -106,12 +106,12 @@
                             :disabled="inputUnidades"
                             @keyup.enter="guardarUnidades(devolucion, i)"/>
                         </td>
-                        <td>$ {{ devolucion.total }}</td>
+                        <td>$ {{ devolucion.total | formatNumber }}</td>
                     </tr>
                     <tr>
                         <td></td><td></td>
                         <td></td><td></td><td></td>
-                        <td><h5>$ {{ total_devolucion }}</h5></td>
+                        <td><h5>$ {{ total_devolucion | formatNumber }}</h5></td>
                     </tr>
                 </tbody>
             </table>
@@ -143,14 +143,14 @@
                     <tr v-for="(devolucion, i) in devoluciones" v-bind:key="i">
                         <td>{{ devolucion.libro.ISBN }}</td>
                         <td>{{ devolucion.libro.titulo }}</td>
-                        <td>$ {{ devolucion.dato.costo_unitario }}</td>
-                        <td>{{ devolucion.unidades }}</td>
-                        <td>$ {{ devolucion.total }}</td>
+                        <td>$ {{ devolucion.dato.costo_unitario | formatNumber }}</td>
+                        <td>{{ devolucion.unidades | formatNumber }}</td>
+                        <td>$ {{ devolucion.total | formatNumber }}</td>
                     </tr>
                     <tr>
                         <td></td><td></td>
                         <td></td><td></td>
-                        <td><h5>$ {{ total_devolucion }}</h5></td>
+                        <td><h5>$ {{ total_devolucion | formatNumber }}</h5></td>
                     </tr>
                 </tbody>
             </table>
@@ -189,7 +189,12 @@
         },
         created: function(){
 			this.getTodo();
-		},
+        },
+        filters: {
+            formatNumber: function (value) {
+                return numeral(value).format("0,0[.]00"); 
+            }
+        },
         methods: {
             porNumero(){
                 axios.get('/num_pagos', {params: {remision_id: this.num_remision}}).then(response => {

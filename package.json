@@ -26,6 +26,7 @@
   "dependencies": {
     "bootstrap-vue": "^2.0.0-rc.22",
     "laravel-vue-pagination": "^2.3.0",
+    "numeral": "^2.0.6",
     "vue-bootstrap-typeahead": "^0.2.6",
     "vue-moment": "^4.0.0",
     "vue-resource": "^1.5.1",

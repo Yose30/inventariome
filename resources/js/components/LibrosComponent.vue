@@ -45,6 +45,9 @@
             :items="libros"
             :per-page="perPage"
             :current-page="currentPage">
+            <template  slot="piezas" slot-scope="data">
+                {{ data.item.piezas | formatNumber }}
+            </template>
             <template v-if="role_id == 3" slot="accion" slot-scope="data">
                 <b-button variant="outline-warning" v-b-modal.modal-editar @click="editarLibro(data.item, data.index)">
                     <i class="fa fa-pencil"></i>
@@ -125,7 +128,12 @@
         },
         created: function(){
             this.todosLibros();
-		},
+        },
+        filters: {
+            formatNumber: function (value) {
+                return numeral(value).format("0,0[.]00"); 
+            }
+        },
         methods: {
             //Mostrar resultados de la busqueda por titulo del libro
             mostrarLibros(){

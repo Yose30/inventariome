@@ -11,7 +11,7 @@ use App\Libro;
 class PromotionController extends Controller
 {
     public function show(){
-        $promotions = Promotion::with('departures')->get();
+        $promotions = Promotion::with('departures')->orderBy('folio','desc')->get();
         return response()->json($promotions);
     }
 
@@ -70,7 +70,7 @@ class PromotionController extends Controller
 
     public function buscar_plantel(){
         $queryPlantel = Input::get('queryPlantel');
-        $promotions = Promotion::where('plantel','like','%'.$queryPlantel.'%')->get();
+        $promotions = Promotion::where('plantel','like','%'.$queryPlantel.'%')->orderBy('folio','desc')->get();
         return response()->json($promotions);
     }
 }

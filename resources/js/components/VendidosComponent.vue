@@ -25,11 +25,17 @@
             </b-row>
             <hr>
             <b-table :items="vendidos" :fields="fields">
+                <template slot="unidades_vendido" slot-scope="row">
+                    {{ row.item.unidades_vendido | formatNumber }}
+                </template>
                 <template slot="total_vendido" slot-scope="row">
-                    ${{ row.item.total_vendido }}
+                    ${{ row.item.total_vendido | formatNumber }}
+                </template>
+                <template slot="unidades_pendiente" slot-scope="row">
+                    {{ row.item.unidades_pendiente | formatNumber }}
                 </template>
                 <template slot="total_pendiente" slot-scope="row">
-                    ${{ row.item.total_pendiente }}
+                    ${{ row.item.total_pendiente | formatNumber }}
                 </template>
                 <template slot="detalles" slot-scope="row">
                     <b-button variant="info" @click="func_detalles(row.item)">Detalles</b-button>
@@ -86,6 +92,11 @@
         },
         created: function(){
 			this.getTodo();
+        },
+        filters: {
+            formatNumber: function (value) {
+                return numeral(value).format("0,0[.]00"); 
+            }
         },
         methods: {
             getTodo(){

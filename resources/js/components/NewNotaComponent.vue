@@ -45,16 +45,16 @@
                     {{ row.item.created_at | moment }}
                 </template>
                 <template slot="total_salida" slot-scope="row">
-                    ${{ row.item.total_salida }}
+                    ${{ row.item.total_salida | formatNumber }}
                 </template>
                 <template slot="pagos" slot-scope="row">
-                    ${{ row.item.pagos }}
+                    ${{ row.item.pagos | formatNumber }}
                 </template>
                 <template slot="total_devolucion" slot-scope="row">
-                    ${{ row.item.total_devolucion }}
+                    ${{ row.item.total_devolucion | formatNumber }}
                 </template>
                 <template slot="total_pagar" slot-scope="row">
-                    ${{ row.item.total_pagar }}
+                    ${{ row.item.total_pagar | formatNumber }}
                 </template>
                 <template slot="detalles" slot-scope="row">
                     <b-button variant="outline-info" @click="detallesNota(row.item)">Detalles</b-button>
@@ -106,7 +106,7 @@
                 <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
                 <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                 <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario }}</template>
+                <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
                 <template slot="unidades" slot-scope="row">
                     <b-input 
                         type="number" 
@@ -114,9 +114,9 @@
                         v-model="row.item.unidades_base">
                     </b-input>
                 </template>
-                <template slot="total" slot-scope="row">${{ row.item.total_base }}</template>
+                <template slot="total" slot-scope="row">${{ row.item.total_base | formatNumber }}</template>
             </b-table>
-            <h5 class="text-right">${{ total_vendido }}</h5>
+            <h5 class="text-right">${{ total_vendido | formatNumber }}</h5>
         </div>
         <div v-if="mostrarDetalles">
             <b-row>
@@ -126,11 +126,11 @@
                 </b-col>
                 <b-col>
                     <br>
-                    <label><b>Unidades</b>: {{ total_unidades }}</label>
+                    <label><b>Unidades</b>: {{ total_unidades | formatNumber }}</label>
                 </b-col>
                 <b-col>
                     <br>
-                    <label><b>Total</b>: ${{ nota.total_salida }}</label><br>
+                    <label><b>Total</b>: ${{ nota.total_salida | formatNumber }}</label><br>
                 </b-col>
                 <b-col align="right">
                     <b-button variant="outline-secondary" @click="mostrarDetalles = false; listadoNotas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
@@ -141,8 +141,8 @@
                 <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
                 <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                 <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario }}</template>
-                <template slot="total" slot-scope="row">${{ row.item.total }}</template>
+                <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
+                <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
                 <template slot="pagos" slot-scope="row">
                     <b-button v-if="row.item.payments.length > 0" variant="outline-info" @click="row.toggleDetails">
                         {{ row.detailsShowing ? 'Ocultar' : 'Mostrar'}}
@@ -152,8 +152,8 @@
                     <b-card>
                         <b-table :items="row.item.payments" :fields="fieldsP">
                             <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
-                            <template slot="unidades" slot-scope="row">{{ row.item.unidades }}</template>
-                            <template slot="pago" slot-scope="row">$ {{ row.item.pago }}</template>
+                            <template slot="unidades" slot-scope="row">{{ row.item.unidades | formatNumber }}</template>
+                            <template slot="pago" slot-scope="row">$ {{ row.item.pago | formatNumber }}</template>
                             <template slot="created_at" slot-scope="row">{{ row.created_at | moment }}</template>
                         </b-table>
                     </b-card>
@@ -184,7 +184,7 @@
                 <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
                 <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                 <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario }}</template>
+                <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
                 <template slot="unidades" slot-scope="row">
                     <b-input 
                         type="number" 
@@ -192,9 +192,9 @@
                         v-model="row.item.unidades_base">
                     </b-input>
                 </template>
-                <template slot="total" slot-scope="row">${{ row.item.total_base }}</template>
+                <template slot="total" slot-scope="row">${{ row.item.total_base | formatNumber }}</template>
             </b-table>
-            <h5 class="text-right">${{ total_vendido }}</h5>
+            <h5 class="text-right">${{ total_vendido | formatNumber }}</h5>
         </div>
         <div v-if="mostrarCrearNota">
             <b-row>
@@ -234,8 +234,8 @@
                     <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
                     <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                     <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                    <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario }}</template>
-                    <template slot="total" slot-scope="row">${{ row.item.total }}</template>
+                    <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
+                    <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
                     <template slot="eliminar" slot-scope="row">
                         <!-- <b-button variant="danger" @click="eliminarRegistro(row.item, row.index)" :disabled="load">
                             <i class="fa fa-minus-circle"></i>
@@ -404,6 +404,9 @@
         filters: {
             moment: function (date) {
                 return moment(date).format('DD-MM-YYYY');
+            },
+            formatNumber: function (value) {
+                return numeral(value).format("0,0[.]00"); 
             }
         },
         methods: {

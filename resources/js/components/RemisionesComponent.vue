@@ -44,7 +44,7 @@
                 <template slot="cliente" slot-scope="row">
                     {{ row.item.cliente.name }}
                 </template>
-                <template slot="total" slot-scope="row">${{ row.item.total }}</template>
+                <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
                 <template slot="detalles" slot-scope="row">
                     <b-button 
                         variant="outline-info"
@@ -72,11 +72,11 @@
                 </b-col>
                 <b-col>
                     <br>
-                    <label><b>Unidades</b>: {{ total_unidades }}</label>
+                    <label><b>Unidades</b>: {{ total_unidades | formatNumber }}</label>
                 </b-col>
                 <b-col>
                     <br>
-                    <label><b>Total</b>: ${{ remision.total }}</label>
+                    <label><b>Total</b>: ${{ remision.total | formatNumber }}</label>
                     <br>
                 </b-col>
                 <b-col>
@@ -91,8 +91,9 @@
             <b-table :items="remision.datos" :fields="fieldsD">
                 <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                 <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario }}</template>
-                <template slot="subtotal" slot-scope="row">${{ row.item.total }}</template>
+                <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
+                <template slot="subtotal" slot-scope="row">${{ row.item.total | formatNumber }}</template>
+                <template slot="unidades" slot-scope="row">{{ row.item.unidades | formatNumber }}</template>
             </b-table>
         </div>
     </div>
@@ -124,6 +125,11 @@
                 remision: {},
                 total_unidades: 0,
                 load: false,
+            }
+        },
+        filters: {
+            formatNumber: function (value) {
+                return numeral(value).format("0,0[.]00"); 
             }
         },
         created: function(){

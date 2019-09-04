@@ -208,7 +208,7 @@ class NoteController extends Controller
 
     public function buscar_cliente_notes(){
         $queryCliente = Input::get('queryCliente');
-        $notes = Note::where('cliente','like','%'.$queryCliente.'%')->get();
+        $notes = Note::where('cliente','like','%'.$queryCliente.'%')->orderBy('folio','desc')->get();
         return response()->json($notes);
     }
 }

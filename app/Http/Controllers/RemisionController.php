@@ -206,7 +206,18 @@ class RemisionController extends Controller
 
     public function por_estado(){
         $estado = Input::get('estado');
-        $remisiones = Remisione::where('estado', $estado)->with('cliente')->get();
+        if($estado == 'cancelado'){
+            $remisiones = Remisione::where('estado',4)->orderBy('id','desc')->with('cliente')->get();
+        }
+        if($estado == 'no_entregado'){
+            $remisiones = Remisione::where('estado',1)->orderBy('id','desc')->with('cliente')->get();
+        }
+        if($estado == 'entregado'){
+            $remisiones = Remisione::where('estado',2)->where('total_pagar', '>', 0)->orderBy('id','desc')->with('cliente')->get();
+        }
+        if($estado == 'pagado'){
+            $remisiones = Remisione::where('total_pagar', '=', 0)->where('pagos', '>', 0)->orderBy('id','desc')->with('cliente')->get();
+        }
         return response()->json($remisiones);
     }
 

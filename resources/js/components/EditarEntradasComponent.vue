@@ -36,9 +36,9 @@
                 :fields="fields"
                 :tbody-tr-class="rowClass">
                 <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
-                <template v-if="row.item.folio != '05'" slot="total" slot-scope="row">${{ row.item.total }}</template>
-                <template v-if="row.item.folio != '05'" slot="total_pagos" slot-scope="row">${{ row.item.total_pagos }}</template>
-                <template v-if="row.item.folio != '05'" slot="total_pendiente" slot-scope="row">${{ row.item.total - row.item.total_pagos }}</template>
+                <template v-if="row.item.folio != '05'" slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
+                <template v-if="row.item.folio != '05'" slot="total_pagos" slot-scope="row">${{ row.item.total_pagos | formatNumber }}</template>
+                <template v-if="row.item.folio != '05'" slot="total_pendiente" slot-scope="row">${{ row.item.total - row.item.total_pagos | formatNumber }}</template>
                 <template slot="detalles" slot-scope="row">
                     <b-button variant="info" @click="detallesEntrada(row.item)">Detalles</b-button>
                 </template>
@@ -62,9 +62,9 @@
                 <template slot="thead-top" slot-scope="row">
                     <tr>
                         <th colspan="4"></th>
-                        <th>${{ total }}</th>
-                        <th>${{ total_pagos }}</th>
-                        <th>${{ total_pendiente }}</th>
+                        <th>${{ total | formatNumber }}</th>
+                        <th>${{ total_pagos | formatNumber }}</th>
+                        <th>${{ total_pendiente | formatNumber }}</th>
                     </tr>
                 </template>
             </b-table>
@@ -105,13 +105,14 @@
             <b-table v-if="registros.length > 0" :items="registros" :fields="fieldsR">
                 <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                 <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario }}</template>
-                <template slot="total" slot-scope="row">${{ row.item.total }}</template>
+                <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
+                <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
+                <template slot="unidades" slot-scope="row">{{ row.item.unidades | formatNumber }}</template>
                 <template slot="thead-top" slot-scope="data">
                     <tr>
                         <th colspan="4"></th>
-                        <th>{{ entrada.unidades }}</th>
-                        <th>${{ entrada.total }}</th>
+                        <th>{{ entrada.unidades | formatNumber }}</th>
+                        <th>${{ entrada.total | formatNumber }}</th>
                     </tr>
                 </template>
             </b-table>
@@ -131,7 +132,7 @@
                     <label>{{entrada.editorial}}</label>
                 </b-col>
                 <b-col sm="3" align="right">
-                    <label><b>Unidades:</b> {{ total_unidades }}</label>
+                    <label><b>Unidades:</b> {{ total_unidades | formatNumber }}</label>
                 </b-col>
                 <b-col sm="3" class="text-right">
                     <b-button 
@@ -155,12 +156,12 @@
                         v-model="row.item.costo_unitario">
                     </b-input>
                 </template>
-                <template slot="total" slot-scope="row">${{ row.item.total }}</template>
+                <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
 
                 <template slot="thead-top" slot-scope="row">
                     <tr>
                         <th colspan="5">&nbsp;</th>
-                        <th>${{ subtotal }}</th>
+                        <th>${{ subtotal | formatNumber }}</th>
                     </tr>
                 </template>
 
@@ -197,13 +198,13 @@
                     <label>{{entrada.editorial}}</label>
                 </b-col>
                 <b-col>
-                    <label><b>Total:</b> ${{ entrada.total }}</label>
+                    <label><b>Total:</b> ${{ entrada.total | formatNumber }}</label>
                 </b-col>
                 <b-col>
-                    <label><b>Pagos:</b> ${{ entrada.total_pagos }}</label>
+                    <label><b>Pagos:</b> ${{ entrada.total_pagos | formatNumber }}</label>
                 </b-col>
                 <b-col>
-                    <label><b>Total pendiente:</b> ${{ entrada.total - entrada.total_pagos }}</label>
+                    <label><b>Total pendiente:</b> ${{ entrada.total - entrada.total_pagos | formatNumber }}</label>
                 </b-col>
                 <b-col align="right">
                     <b-button 
@@ -219,7 +220,7 @@
                     {{ row.index + 1 }}
                 </template>
                 <template slot="pago" slot-scope="row">
-                    ${{ row.item.pago }}
+                    ${{ row.item.pago | formatNumber }}
                 </template>
                 <template slot="created_at" slot-scope="row">
                     {{ row.item.created_at | moment }}
@@ -339,6 +340,9 @@
         filters: {
             moment: function (date) {
                 return moment(date).format('DD-MM-YYYY');
+            },
+            formatNumber: function (value) {
+                return numeral(value).format("0,0[.]00"); 
             }
         }, 
         methods: {
