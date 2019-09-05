@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-if="remisiones.length > 0 && !mostrarDevolucion && !mostrarDetalles">
+        <div v-if="!mostrarDevolucion && !mostrarDetalles">
             <b-row>
                 <b-col sm="3">
                     <b-row class="my-1">
@@ -17,12 +17,12 @@
                         </b-col>
                     </b-row>
                 </b-col>
-                <b-col sm="9">
+                <b-col sm="6">
                     <b-row class="my-1">
-                        <b-col sm="1">
+                        <b-col sm="2">
                             <label for="input-cliente">Cliente</label>
                         </b-col>
-                        <b-col sm="11">
+                        <b-col sm="10">
                             <b-input v-model="queryCliente" @keyup="mostrarClientes"
                             ></b-input>
                             <div class="list-group" v-if="resultsClientes.length">
@@ -37,27 +37,44 @@
                             </div>
                         </b-col>
                     </b-row>
-                </b-col>   
+                </b-col> 
+                <b-col sm="3" align="right">
+                    <b-button variant="info" @click="getTodo">Mostrar todo</b-button>
+                </b-col>  
             </b-row> 
             <hr>
+        
+            <b-table 
+                v-if="remisiones.length > 0 && !mostrarDevolucion && !mostrarDetalles" 
+                :items="remisiones" 
+                :fields="fields"
+                id="my-table" 
+                :per-page="perPage" 
+                :current-page="currentPage">
+                <template slot="cliente" slot-scope="row">{{ row.item.cliente.name }}</template>
+                <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
+                <template slot="total_devolucion" slot-scope="row">${{ row.item.total_devolucion | formatNumber }}</template>
+                <template slot="pagos" slot-scope="row">${{ row.item.pagos | formatNumber }}</template>
+                <template slot="total_pagar" slot-scope="row">${{ row.item.total_pagar | formatNumber }}</template>
+                <template slot="detalles" slot-scope="row">
+                    <b-button v-if="row.item.total_devolucion > 0" variant="info" @click="func_detalles(row.item)">Detalles</b-button>
+                </template>
+                <template slot="registrar_devolucion" slot-scope="row">
+                    <b-button 
+                        v-if="row.item.estado != 'Terminado' && row.item.total_pagar != 0" 
+                        variant="primary" 
+                        @click="registrarDevolucion(row.item, row.index)">Registrar devolución
+                    </b-button>
+                </template>
+            </b-table>
+            <b-pagination
+                v-model="currentPage"
+                :total-rows="remisiones.length"
+                :per-page="perPage"
+                aria-controls="my-table"
+                v-if="remisiones.length > 0"
+            ></b-pagination>
         </div>
-        <b-table v-if="remisiones.length > 0 && !mostrarDevolucion && !mostrarDetalles" :items="remisiones" :fields="fields">
-            <template slot="cliente" slot-scope="row">{{ row.item.cliente.name }}</template>
-            <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
-            <template slot="total_devolucion" slot-scope="row">${{ row.item.total_devolucion | formatNumber }}</template>
-            <template slot="pagos" slot-scope="row">${{ row.item.pagos | formatNumber }}</template>
-            <template slot="total_pagar" slot-scope="row">${{ row.item.total_pagar | formatNumber }}</template>
-            <template slot="detalles" slot-scope="row">
-                <b-button v-if="row.item.total_devolucion > 0" variant="info" @click="func_detalles(row.item)">Detalles</b-button>
-            </template>
-            <template slot="registrar_devolucion" slot-scope="row">
-                <b-button 
-                    v-if="row.item.estado != 'Terminado' && row.item.total_pagar != 0" 
-                    variant="primary" 
-                    @click="registrarDevolucion(row.item, row.index)">Registrar devolución
-                </b-button>
-            </template>
-        </b-table>
         <div v-if="mostrarDevolucion">
             <div class="row">
                 <div class="col-md-6">
@@ -184,12 +201,14 @@
                 posicion: 0,
                 num_remision: null,
                 queryCliente: '',
-                resultsClientes: []
+                resultsClientes: [],
+                perPage: 15,
+                currentPage: 1,
             }
         },
-        created: function(){
-			this.getTodo();
-        },
+        // created: function(){
+		// 	this.getTodo();
+        // },
         filters: {
             formatNumber: function (value) {
                 return numeral(value).format("0,0[.]00"); 

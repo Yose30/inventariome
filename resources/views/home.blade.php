@@ -1,7 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+    <div class="container">
+        <home-component :role_id="{{auth()->user()->role_id}}"></home-component>
+    </div>
+<!-- <div class="container">
     <div class="container">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item">
@@ -120,5 +123,5 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
 @endsection

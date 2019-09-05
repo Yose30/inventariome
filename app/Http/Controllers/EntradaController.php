@@ -16,7 +16,7 @@ class EntradaController extends Controller
 {
     //Mostrar todas las entradas
     public function show(){
-        $entradas = Entrada::with('registros')->get();
+        $entradas = Entrada::with('registros')->orderBy('id','desc')->get();
         return response()->json($entradas);
     }
 
@@ -42,10 +42,10 @@ class EntradaController extends Controller
     public function mostrarEditoriales(){
         $editorial = Input::get('editorial');
         if($editorial == 'TODAS'){
-            $entradas = Entrada::get();
+            $entradas = Entrada::orderBy('id','desc')->get();
         }
         else{
-            $entradas = Entrada::where('editorial','like','%'.$editorial.'%')->get();
+            $entradas = Entrada::where('editorial','like','%'.$editorial.'%')->orderBy('id','desc')->get();
         }
         return response()->json($entradas);
     }

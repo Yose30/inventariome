@@ -2,6 +2,9 @@
 
 @section('content')
     <div class="container">
+        <almacen-component :role_id="{{auth()->user()->role_id}}"></almacen-component>
+    </div>
+    <!-- <div class="container">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item">
                 <a 
@@ -132,5 +135,5 @@
                 <devolucion-adeudos-component :role_id="{{ auth()->user()->role_id }}"></devolucion-adeudos-component>
             </div>
         </div>
-    </div>
+    </div> -->
 @endsection

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-if="!mostrarDetalles && !mostrarPagos && remisiones.length > 0">
+        <div v-if="!mostrarDetalles && !mostrarPagos">
             <b-row>
                 <b-col sm="3">
                     <b-row class="my-1">
@@ -17,12 +17,12 @@
                         </b-col>
                     </b-row>
                 </b-col>
-                <b-col sm="9">
+                <b-col sm="6">
                     <b-row class="my-1">
-                        <b-col sm="1">
+                        <b-col sm="2">
                             <label for="input-cliente">Cliente</label>
                         </b-col>
-                        <b-col sm="11">
+                        <b-col sm="10">
                             <b-input
                             v-model="queryCliente"
                             @keyup="mostrarClientes">
@@ -40,9 +40,18 @@
                         </b-col>
                     </b-row>
                 </b-col>
+                <b-col sm="3" align="right">
+                    <b-button variant="info" @click="getTodo">Mostrar todo</b-button>
+                </b-col>
             </b-row>
             <hr>
-            <b-table :items="remisiones" :fields="fields">
+            <b-table 
+                :items="remisiones" 
+                :fields="fields" 
+                id="my-table" 
+                :per-page="perPage" 
+                :current-page="currentPage"
+                v-if="remisiones.length > 0">
                 <template slot="cliente" slot-scope="row">{{ row.item.cliente.name }}</template>
                 <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
                 <template slot="total_devolucion" slot-scope="row">${{ row.item.total_devolucion | formatNumber }}</template>
@@ -65,6 +74,13 @@
                     <b-button v-if="row.item.pagos != 0" variant="info" @click="verPagos(row.item)">Ver pagos</b-button>
                 </template>
             </b-table>
+            <b-pagination
+                v-model="currentPage"
+                :total-rows="remisiones.length"
+                :per-page="perPage"
+                aria-controls="my-table"
+                v-if="remisiones.length > 0"
+            ></b-pagination>
         </div>
         <b-modal id="modal-registrar-deposito" title="Registrar pago">
             <b-form @submit.prevent="guardarDeposito">
@@ -260,11 +276,13 @@
                 queryCliente: '',
                 resultsClientes: [],
                 remision_id: null,
+                perPage: 15,
+                currentPage: 1,
             }
         },
-        created: function(){
-			this.getTodo();
-        },
+        // created: function(){
+		// 	this.getTodo();
+        // },
         filters: {
             moment: function (date) {
                 return moment(date).format('DD-MM-YYYY');

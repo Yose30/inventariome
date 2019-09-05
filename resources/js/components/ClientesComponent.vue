@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-row>
-            <b-col>
+            <b-col sm="6">
                 <b-row class="my-1">
                     <b-col sm="3">
                         <label for="input-cliente">Cliente</label>
@@ -11,12 +11,21 @@
                     </b-col>
                 </b-row>
             </b-col>
-            <b-col align="right">
+            <b-col sm="3">
                 <b-button v-if="role_id == 2" variant="success" v-b-modal.modal-nuevoCliente><i class="fa fa-plus"></i> Agregar cliente</b-button>
+            </b-col>
+            <b-col sm="3" align="right">
+                <b-button variant="info" @click="getTodo">Mostrar todo</b-button>
             </b-col>
         </b-row>
         <hr>
-        <b-table :items="clientes" :fields="fields">
+        <b-table 
+            :items="clientes" 
+            :fields="fields"
+            id="my-table" 
+            :per-page="perPage" 
+            :current-page="currentPage"
+            v-if="clientes.length > 0">
             <template slot="editar" slot-scope="row">
                 <b-button 
                     v-if="role_id == 2" 
@@ -30,6 +39,13 @@
                 <b-button variant="info" v-b-modal.modal-detalles @click="form = row.item">Detalles</b-button>
             </template>
         </b-table>
+        <b-pagination
+            v-model="currentPage"
+            :total-rows="clientes.length"
+            :per-page="perPage"
+            aria-controls="my-table"
+            v-if="clientes.length > 0"
+        ></b-pagination>
 
         <b-modal id="modal-nuevoCliente" title="Agregar cliente">
             <new-client-component @actualizarClientes="actClientes"></new-client-component>
@@ -159,12 +175,14 @@
                 loaded: false,
                 errors: {},
                 posicion: null,
-                queryCliente: ''
+                queryCliente: '',
+                perPage: 15,
+                currentPage: 1,
             }
         },
-        created: function(){
-			this.getTodo();
-		},
+        // created: function(){
+		// 	this.getTodo();
+		// },
         methods: {
             getTodo(){
                 axios.get('/getTodo').then(response => {

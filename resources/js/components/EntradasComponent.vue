@@ -2,7 +2,7 @@
     <div>
         <div v-if="listadoEntradas">
             <b-row>
-                <b-col sm="4">
+                <b-col sm="3">
                     <b-row class="my-1">
                         <b-col sm="2">
                             <label for="input-folio">Folio</label>
@@ -16,7 +16,7 @@
                         </b-col>
                     </b-row>
                 </b-col>
-                <b-col sm="5">
+                <b-col sm="3">
                     <b-row class="my-1">
                         <b-col sm="3">
                             <label for="input-editorial">Editorial</label>
@@ -29,9 +29,18 @@
                 <b-col sm="3">
                     <b-button v-if="role_id == 3" variant="success" @click="nuevaEntrada"><i class="fa fa-plus"></i> Registrar entrada</b-button>
                 </b-col>
+                <b-col sm="3" align="right">
+                    <b-button variant="info" @click="getTodo">Mostrar todo</b-button>
+                </b-col>
             </b-row>
             <hr>
-            <b-table v-if="!mostrarDetalles && !mostrarEA && entradas.length > 0" :items="entradas" :fields="fields">
+            <b-table 
+                v-if="!mostrarDetalles && !mostrarEA && entradas.length > 0" 
+                :items="entradas" 
+                :fields="fields"
+                id="my-table" 
+                :per-page="perPage" 
+                :current-page="currentPage">
                 <template slot="detalles" slot-scope="row">
                     <b-button variant="info" @click="detallesEntrada(row.item)">Ver detalles</b-button>
                 </template>
@@ -55,6 +64,13 @@
                     </b-button>
                 </template>
             </b-table>
+            <b-pagination
+                v-model="currentPage"
+                :total-rows="entradas.length"
+                :per-page="perPage"
+                aria-controls="my-table"
+                v-if="entradas.length > 0"
+            ></b-pagination>
         </div>
         <div v-if="mostrarDetalles">
             <b-row>
@@ -259,11 +275,13 @@
                 total: 0,
                 estado: false,
                 folio: '',
+                perPage: 15,
+                currentPage: 1,
             }
         },
-        created: function(){
-            this.getTodo();
-        },
+        // created: function(){
+        //     this.getTodo();
+        // },
         filters: {
             moment: function (date) {
                 return moment(date).format('DD-MM-YYYY');

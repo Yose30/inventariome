@@ -76,9 +76,9 @@
                 </button>
             </div> -->
             <div v-if="listaClientes">
-                <b-alert v-if="clientes.length == 0" show variant="secondary">
+                <!-- <b-alert v-if="clientes.length == 0" show variant="secondary">
                     <i class="fa fa-exclamation-triangle"></i> No hay clientes registrados, ir al apartado de <b>Agregar cliente</b> para poder continuar.
-                </b-alert>
+                </b-alert> -->
                 <div v-if="clientes.length > 0">
                     <b-row>
                         <b-col sm="4"><h6 align="left">Seleccionar cliente</h6></b-col>
@@ -94,28 +94,24 @@
                         </b-col>
                     </b-row>
                     <hr>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">Nombre</th>
-                                <th scope="col">Correo</th>
-                                <th scope="col">Dirección</th>
-                                <th scope="col"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(cliente, i) in clientes" v-bind:key="i">
-                                <td>{{ cliente.name }}</td>
-                                <td>{{ cliente.email }}</td>
-                                <td>{{ cliente.direccion }}</td>
-                                <td>
-                                    <b-button variant="success" @click="seleccionCliente(cliente)">
-                                        <i class="fa fa-check"></i>
-                                    </b-button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <b-table 
+                        :items="clientes" 
+                        :fields="fieldsClientes" 
+                        id="my-table" 
+                        :per-page="perPage" 
+                        :current-page="currentPage">
+                        <template slot="seleccion" slot-scope="row">
+                            <b-button variant="success" @click="seleccionCliente(row.item)">
+                                <i class="fa fa-check"></i>
+                            </b-button>
+                        </template>
+                    </b-table>
+                    <b-pagination
+                        v-model="currentPage"
+                        :total-rows="clientes.length"
+                        :per-page="perPage"
+                        aria-controls="my-table"
+                    ></b-pagination>
                 </div>
             </div>
         </div>
@@ -317,11 +313,16 @@
                 pagar: 0,
                 clientes: [],
                 listaClientes: false,
+                fieldsClientes: [
+                    {key: 'name', label: 'Nombre'},
+                    // {key: 'email', label: 'Correo'}, 
+                    {key: 'direccion', label: 'Dirección'}, 
+                    {key: 'seleccion', label: ''}
+                ],
+                perPage: 15,
+                currentPage: 1,
             }
         },
-        created: function(){
-			this.getTodo();
-		},
         methods: {
             //Inicializar valores para crear una nueva remision
             nuevaRemision(){
@@ -330,6 +331,7 @@
                 this.ini_1();
                 this.ini_2();
                 this.ini_4();
+                this.getTodo();
             },
             //Cerrar la remisión
             cancelarRemision(){

@@ -16,9 +16,9 @@
                         </b-col>
                     </b-row>
                 </b-col>
-                <b-col sm="6">
+                <b-col sm="3">
                     <b-row class="my-1">
-                        <b-col sm="2">
+                        <b-col sm="3">
                             <label for="input-plantel">Plantel</label>
                         </b-col>
                         <b-col sm="9">
@@ -27,26 +27,39 @@
                     </b-row>
                 </b-col> 
                 <b-col sm="3">
-                    <div align="right">
-                        <b-button v-if="role_id == 3" variant="success" @click="registrarPromocion">
-                            <i class="fa fa-plus"></i> Registrar promoción
-                        </b-button>
-                    </div>
+                    <b-button v-if="role_id == 3" variant="success" @click="registrarPromocion">
+                        <i class="fa fa-plus"></i> Registrar promoción
+                    </b-button>
                 </b-col>  
+                <b-col sm="3" align="right">
+                    <b-button variant="info" @click="obtenerPromotions">Mostrar todo</b-button>
+                </b-col>
             </b-row> 
             <hr>
         </div>
 
         <div v-if="listadoPromociones">
-            <b-table :items="promotions" :fields="fields">
+            <b-table 
+                :items="promotions" 
+                :fields="fields"
+                id="my-table" 
+                :per-page="perPage" 
+                :current-page="currentPage"
+                v-if="promotions.length > 0">
                 <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
                 <template slot="created_at" slot-scope="row">{{ row.item.created_at | moment }}</template>
                 <template slot="detalles" slot-scope="row">
                     <b-button variant="info" @click="detallesPromotion(row.item)">Detalles</b-button>
                 </template>
             </b-table>
+            <b-pagination
+                v-model="currentPage"
+                :total-rows="promotions.length"
+                :per-page="perPage"
+                aria-controls="my-table"
+                v-if="promotions.length > 0">
+            </b-pagination>
         </div>
-
         <div v-if="mostrarRegistrar">
             <b-row>
                 <b-col align="right">
@@ -209,13 +222,14 @@
                 state: null,
                 mostrarDetalles: false,
                 folio: null,
-                queryPlantel: ''
-
+                queryPlantel: '',
+                perPage: 15,
+                currentPage: 1,
             }
         },
-        created: function(){
-			this.obtenerPromotions();
-        },
+        // created: function(){
+		// 	this.obtenerPromotions();
+        // },
         filters: {
             moment: function (date) {
                 return moment(date).format('DD-MM-YYYY');

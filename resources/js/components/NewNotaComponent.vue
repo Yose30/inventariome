@@ -16,7 +16,7 @@
                         </b-col>
                     </b-row>
                 </b-col>
-                <b-col sm="6">
+                <b-col sm="4">
                     <b-row class="my-1">
                         <b-col sm="2">
                             <label for="input-cliente">Cliente</label>
@@ -27,10 +27,13 @@
                     </b-row>
                 </b-col> 
                 <b-col sm="2">
-                    <div align="right" v-if="role_id == 3">
+                    <div v-if="role_id == 3">
                         <b-button variant="success" @click="func_crearNota"><i class="fa fa-plus"></i> Crear nota</b-button>
                     </div>
                 </b-col>  
+                <b-col sm="2" align="right">
+                    <b-button variant="info" @click="getTodo">Mostrar todo</b-button>
+                </b-col> 
             </b-row> 
             <hr>
         </div>
@@ -40,7 +43,10 @@
             </b-alert> -->
             <b-table 
                 v-if="notes.length > 0" 
-                :items="notes" :fields="fieldsN">
+                :items="notes" :fields="fieldsN"
+                id="my-table" 
+                :per-page="perPage" 
+                :current-page="currentPage">
                 <template slot="created_at" slot-scope="row">
                     {{ row.item.created_at | moment }}
                 </template>
@@ -81,6 +87,13 @@
                         >Editar</b-button>
                 </template>
             </b-table>
+            <b-pagination
+                v-model="currentPage"
+                :total-rows="notes.length"
+                :per-page="perPage"
+                aria-controls="my-table"
+                v-if="notes.length > 0"
+            ></b-pagination>
         </div>
         <div v-if="mostrarNewPago">
             <h5>Registrar pago</h5>
@@ -396,11 +409,13 @@
                 nuevos: [],
                 folio: null,
                 queryCliente: '',
+                perPage: 15,
+                currentPage: 1,
             }
         },
-        created: function(){
-			this.getTodo();
-        },
+        // created: function(){
+		// 	this.getTodo();
+        // },
         filters: {
             moment: function (date) {
                 return moment(date).format('DD-MM-YYYY');

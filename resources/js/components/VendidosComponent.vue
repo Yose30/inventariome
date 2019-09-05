@@ -24,7 +24,13 @@
                 </b-col>
             </b-row>
             <hr>
-            <b-table :items="vendidos" :fields="fields">
+            <b-table 
+                :items="vendidos" 
+                :fields="fields" 
+                v-if="vendidos.length > 0" 
+                :per-page="perPage"
+                :current-page="currentPage"
+                id="my-table">
                 <template slot="unidades_vendido" slot-scope="row">
                     {{ row.item.unidades_vendido | formatNumber }}
                 </template>
@@ -41,6 +47,13 @@
                     <b-button variant="info" @click="func_detalles(row.item)">Detalles</b-button>
                 </template>
             </b-table>
+            <b-pagination
+                v-model="currentPage"
+                :total-rows="vendidos.length"
+                :per-page="perPage"
+                aria-controls="my-table"
+                v-if="vendidos.length > 0">
+            </b-pagination>
         </div>
         <div v-if="mostrarDetalles">
             <div class="text-right">
@@ -88,11 +101,13 @@
                     { value: 'BOOKMART MÉXICO', text: 'BOOKMART MÉXICO' },
                     { value: '', text: 'MOSTRAR TODO'},
                 ],
+                perPage: 15,
+                currentPage: 1,
             }
         },
-        created: function(){
-			this.getTodo();
-        },
+        // created: function(){
+		// 	this.getTodo();
+        // },
         filters: {
             formatNumber: function (value) {
                 return numeral(value).format("0,0[.]00"); 

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-if="!mostrarDetalles && remisiones.length > 0">
+        <div v-if="!mostrarDetalles">
             <b-row>
                 <b-col sm="3">
                     <b-row class="my-1">
@@ -17,12 +17,12 @@
                         </b-col>
                     </b-row>
                 </b-col>
-                <b-col sm="9">
+                <b-col sm="6">
                     <b-row class="my-1">
-                        <b-col sm="1" align="right">
+                        <b-col sm="2" align="right">
                             <label for="input-cliente">Cliente</label>
                         </b-col>
-                        <b-col sm="11">
+                        <b-col sm="10">
                             <b-input v-model="queryCliente" @keyup="mostrarClientes"
                             ></b-input>
                             <div class="list-group" v-if="resultsClientes.length">
@@ -37,10 +37,19 @@
                             </div>
                         </b-col>
                     </b-row>
+                </b-col>
+                <b-col sm="3" align="right">
+                    <b-button variant="info" @click="getTodo">Mostrar todo</b-button>
                 </b-col>   
             </b-row> 
             <hr>
-            <b-table :items="remisiones" :fields="fields">
+            <b-table 
+                :items="remisiones" 
+                :fields="fields"
+                v-if="remisiones.length > 0"
+                id="my-table" 
+                :per-page="perPage" 
+                :current-page="currentPage">
                 <template slot="cliente" slot-scope="row">
                     {{ row.item.cliente.name }}
                 </template>
@@ -63,6 +72,13 @@
                     </b-button>
                 </template>
             </b-table>
+            <b-pagination
+                v-model="currentPage"
+                :total-rows="remisiones.length"
+                :per-page="perPage"
+                aria-controls="my-table"
+                v-if="remisiones.length > 0"
+            ></b-pagination>
         </div>
         <div v-if="mostrarDetalles">
             <b-row>
@@ -125,6 +141,8 @@
                 remision: {},
                 total_unidades: 0,
                 load: false,
+                perPage: 15,
+                currentPage: 1,
             }
         },
         filters: {
@@ -132,9 +150,9 @@
                 return numeral(value).format("0,0[.]00"); 
             }
         },
-        created: function(){
-			this.getTodo();
-		},
+        // created: function(){
+		// 	this.getTodo();
+		// },
         methods: {
             porNumero(){
                 if(this.num_remision > 0){

@@ -2,6 +2,9 @@
 
 @section('content')
     <div class="container">
+        <inicio-component :role_id="{{auth()->user()->role_id}}"></inicio-component>
+    </div>
+    <!-- <div class="container">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item">
                 <a 
@@ -104,5 +107,5 @@
                 <editar-entradas-component :role_id="{{ auth()->user()->role_id }}"></editar-entradas-component>
             </div>
         </div>
-    </div>
+    </div> -->
 @endsection

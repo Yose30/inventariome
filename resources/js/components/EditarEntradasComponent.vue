@@ -28,13 +28,19 @@
                         </b-col>
                     </b-row>
                 </b-col>
+                <b-col sm="3" align="right">
+                    <b-button variant="info" @click="getTodo">Mostrar todo</b-button>
+                </b-col>
             </b-row>
             <hr>
             <b-table 
                 v-if="!mostrarDetalles && !mostrarEA && entradas.length > 0" 
                 :items="entradas" 
                 :fields="fields"
-                :tbody-tr-class="rowClass">
+                :tbody-tr-class="rowClass"
+                :per-page="perPage"
+                :current-page="currentPage"
+                id="my-table">
                 <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
                 <template v-if="row.item.folio != '05'" slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
                 <template v-if="row.item.folio != '05'" slot="total_pagos" slot-scope="row">${{ row.item.total_pagos | formatNumber }}</template>
@@ -68,6 +74,13 @@
                     </tr>
                 </template>
             </b-table>
+            <b-pagination
+                v-model="currentPage"
+                :total-rows="entradas.length"
+                :per-page="perPage"
+                aria-controls="my-table"
+                v-if="entradas.length > 0">
+            </b-pagination>
         </div> 
         <div v-if="mostrarDetalles">
             <b-row>
@@ -332,11 +345,13 @@
                 pagosGuardados: false,
                 pagos: [],
                 subtotal: 0,
+                perPage: 15,
+                currentPage: 1,
             }
         },
-        created: function(){
-            this.getTodo();
-        },
+        // created: function(){
+        //     this.getTodo();
+        // },
         filters: {
             moment: function (date) {
                 return moment(date).format('DD-MM-YYYY');

@@ -37,7 +37,7 @@ Route::put('editar_cliente', 'ClienteController@editar')->name('editar_cliente')
 //Obtener datos de un cliente
 Route::get('/getCliente', 'ClienteController@getCliente')->name('getCliente');
 //Obtener todos los cliente
-Route::get('/getTodo', 'ClienteController@getTodo')->name('getTodo');
+Route::get('/getTodo', 'ClienteController@getTodo')->name('getTodo'); 
 
 //REMISIONES
 //Borrar los valores si no se concluyo una remision

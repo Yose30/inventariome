@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="row">
-            <div class="col-md-5">
+            <div class="col-md-3">
                 <b-row class="my-1">
                     <b-col sm="2">
                         <label for="input-cliente">Libro</label>
@@ -14,7 +14,7 @@
                     </b-col>
                 </b-row>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <b-row class="my-1">
                     <b-col sm="3">
                         <label for="input-cliente">Editorial</label>
@@ -36,6 +36,7 @@
                     <i class="fa fa-plus"></i> Agregar libro
                 </b-button>
             </div>
+            <div class="col-md-3" align="right"><b-button variant="info" @click="todosLibros">Mostrar todo</b-button></div>
         </div>
         <hr>
         <b-table 
@@ -58,6 +59,7 @@
             </template>
         </b-table>
         <b-pagination
+            v-if="tabla_libros"
             v-model="currentPage"
             :total-rows="libros.length"
             :per-page="perPage"
@@ -126,9 +128,9 @@
                 ],
             }
         },
-        created: function(){
-            this.todosLibros();
-        },
+        // created: function(){
+        //     this.todosLibros();
+        // },
         filters: {
             formatNumber: function (value) {
                 return numeral(value).format("0,0[.]00"); 

@@ -4,10 +4,10 @@
             <b-row>
                 <b-col>
                     <b-row class="my-1">
-                        <b-col sm="5">
+                        <b-col sm="4">
                             <label for="input-numero">Remision</label>
                         </b-col> 
-                        <b-col sm="7">
+                        <b-col sm="8">
                             <b-form-input 
                                 id="input-numero" 
                                 type="number" 
@@ -40,14 +40,24 @@
                         </b-col>
                     </b-row>
                 </b-col>
-                <b-col align="right">
+                <b-col>
                     <b-button variant="primary" v-if="role_id == 2" @click="registrarAdeudo">
                         <i class="fa fa-plus"></i> Registrar adeudo
                     </b-button>
                 </b-col>
+                <b-col align="right">
+                    <b-button variant="info" @click="obtenerAdeudos">Mostrar todo</b-button>
+                </b-col>
             </b-row>
             <hr>
-            <b-table :items="adeudos" :fields="fieldsA" :tbody-tr-class="rowClass">
+            <b-table 
+                :items="adeudos" 
+                :fields="fieldsA" 
+                :tbody-tr-class="rowClass"
+                :per-page="perPage"
+                :current-page="currentPage"
+                id="my-table"
+                v-if="adeudos.length > 0">
                 <template slot="cliente_id" slot-scope="row">
                     {{ row.item.cliente.name }}
                 </template>
@@ -84,6 +94,13 @@
                     </tr>
                 </template>
             </b-table>
+            <b-pagination
+                v-model="currentPage"
+                :total-rows="adeudos.length"
+                :per-page="perPage"
+                aria-controls="my-table"
+                v-if="adeudos.length > 0">
+            </b-pagination>
             <b-modal id="modal-pago" title="Registrar pago">
                 <b-form @submit.prevent="guardarAbono">
                     <b-row>
@@ -483,12 +500,14 @@
                 mostrarFinal: false,
                 devoluciones: [],
                 vendidos: [],
-                num_remision: null
+                num_remision: null,
+                perPage: 15,
+                currentPage: 1,
             }
         },
-        created: function(){
-			this.obtenerAdeudos();
-        },
+        // created: function(){
+		// 	this.obtenerAdeudos();
+        // },
         filters: {
             moment: function (date) {
                 return moment(date).format('DD-MM-YYYY');
