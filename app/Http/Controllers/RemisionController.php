@@ -146,7 +146,7 @@ class RemisionController extends Controller
     }
 
     public function todos(){
-        $remisiones = Remisione::with('cliente')->orderBy('id','desc')->get();
+        $remisiones = Remisione::with('cliente:id,name')->orderBy('id','desc')->get();
         return response()->json($remisiones);
     } 
 
@@ -207,16 +207,24 @@ class RemisionController extends Controller
     public function por_estado(){
         $estado = Input::get('estado');
         if($estado == 'cancelado'){
-            $remisiones = Remisione::where('estado',4)->orderBy('id','desc')->with('cliente')->get();
+            $remisiones = Remisione::where('estado',4)
+                                    ->orderBy('id','desc')
+                                    ->with('cliente:id,name')->get();
         }
         if($estado == 'no_entregado'){
-            $remisiones = Remisione::where('estado',1)->orderBy('id','desc')->with('cliente')->get();
+            $remisiones = Remisione::where('estado',1)
+                                    ->orderBy('id','desc')
+                                    ->with('cliente:id,name')->get();
         }
         if($estado == 'entregado'){
-            $remisiones = Remisione::where('estado',2)->where('total_pagar', '>', 0)->orderBy('id','desc')->with('cliente')->get();
+            $remisiones = Remisione::where('estado',2)->where('total_pagar', '>', 0)
+                                    ->orderBy('id','desc')
+                                    ->with('cliente:id,name')->get();
         }
         if($estado == 'pagado'){
-            $remisiones = Remisione::where('total_pagar', '=', 0)->where('pagos', '>', 0)->orderBy('id','desc')->with('cliente')->get();
+            $remisiones = Remisione::where('total_pagar', '=', 0)->where('pagos', '>', 0)
+                                    ->orderBy('id','desc')
+                                    ->with('cliente:id,name')->get();
         }
         return response()->json($remisiones);
     }

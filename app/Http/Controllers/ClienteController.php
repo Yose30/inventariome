@@ -59,7 +59,7 @@ class ClienteController extends Controller
     
     public function show(){
         $queryCliente = Input::get('queryCliente');
-        $clientes = Cliente::where('name','like','%'.$queryCliente.'%')->get();
+        $clientes = Cliente::where('name','like','%'.$queryCliente.'%')->select('id', 'name')->get();
         return response()->json($clientes);
     }
 

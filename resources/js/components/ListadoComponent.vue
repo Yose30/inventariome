@@ -20,7 +20,7 @@
                     </b-row>
                 </div>
                 <div class="col-md-4">
-                    <!-- <b-row class="my-1">
+                    <b-row class="my-1">
                         <b-col sm="3">
                             <label for="input-estado">Estado</label>
                         </b-col>
@@ -28,7 +28,7 @@
                             <b-form-select v-model="estadoRemision" :options="estados" @change="porEstado"></b-form-select>
                         </b-col>
                     </b-row>
-                    <hr> -->
+                    <hr>
                     <b-row class="my-1">
                         <b-col sm="3">
                             <label for="input-cliente">Cliente</label>
@@ -95,11 +95,21 @@
             </div>
             <hr>
             <div>
+                <b-pagination
+                    v-model="currentPage"
+                    :total-rows="remisiones.length"
+                    :per-page="perPage"
+                    aria-controls="my-table">
+                </b-pagination>
+                
                 <b-table 
                     :items="remisiones" 
                     :fields="fields" 
                     v-if="remisiones.length"
-                    :tbody-tr-class="rowClass">
+                    :tbody-tr-class="rowClass"
+                    :per-page="perPage"
+                    :current-page="currentPage"
+                    id="my-table">
                     <template slot="cliente_id" slot-scope="row">
                         {{ row.item.cliente.name }}
                     </template>
@@ -421,7 +431,6 @@
                 total_salida: 0,
                 total_devolucion: 0,
                 total_pagar: 0,
-                tabla_gral: true,
                 currentTime: null,
                 cliente_id: 0,
                 selected: null,
@@ -491,7 +500,9 @@
                     { value: 'pagado', text: 'PAGADO'},
                     { value: 'cancelado', text: 'CANCELADO' },
                     { value: '', text: 'MOSTRAR TODO'}
-                ]
+                ],
+                currentPage: 1,
+                perPage: 10,
                 // descuento: null,
                 // state: null,
             }
@@ -523,18 +534,16 @@
             //     }
             // },
             porEstado(){
-                // if(this.estadoRemision != ''){
+                if(this.estadoRemision != ''){
                     axios.get('/buscar_por_estado', {params: {estado: this.estadoRemision}}).then(response => {
-                        this.remisiones = [];
-                        this.remisiones = response.data;
-                        console.log(response.data);
+                        this.valores(response);
                     }).catch(error => {
                         this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                     });
-                // }
-                // else{
-                //     this.getTodo();
-                // }
+                }
+                else{
+                    this.getTodo();
+                }
             },
             rowClass(item, type) {
                 if (!item) return
@@ -622,7 +631,6 @@
             valores(response){
                 this.remisiones = [];
                 this.remisiones = response.data;
-                this.tabla_gral = true;
                 this.acumular();
             },
             cambiarEstado(){

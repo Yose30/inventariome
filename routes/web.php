@@ -69,7 +69,7 @@ Route::get('todos_los_clientes', 'RemisionController@todos')->name('todos_los_cl
 Route::get('buscar_por_numero', 'RemisionController@por_numero')->name('buscar_por_numero');
 Route::get('buscar_por_cliente', 'RemisionController@por_cliente')->name('buscar_por_cliente');
 Route::get('buscar_por_fecha', 'RemisionController@por_fecha')->name('buscar_por_fecha');
-Route::get('buscar_por_estado', 'RemisionController@por_estado')->name('buscar_por_estado');
+Route::get('buscar_por_estado', 'RemisionController@por_estado')->name('buscar_por_estado'); 
 Route::get('buscar_por_estado_libros', 'RemisionController@por_estado_libros')->name('buscar_por_estado_libros');
 
 //Obtener todas las unidades pendientes
