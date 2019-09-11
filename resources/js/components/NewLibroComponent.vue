@@ -77,6 +77,7 @@
                     { value: 'IMPRESOS DE CALIDAD', text: 'IMPRESOS DE CALIDAD'},
                     { value: 'ENGLISH TEXBOOK', text: 'ENGLISH TEXBOOK'},
                     { value: 'BOOKMART MÉXICO', text: 'BOOKMART MÉXICO' },
+                    { value: 'ANGLO PUBLISHING', text: 'ANGLO PUBLISHING' }
                 ],
             }
         },
