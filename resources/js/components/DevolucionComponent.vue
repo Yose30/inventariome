@@ -25,7 +25,7 @@
                         <b-col sm="10">
                             <b-input v-model="queryCliente" @keyup="mostrarClientes"
                             ></b-input>
-                            <div class="list-group" v-if="resultsClientes.length">
+                            <div class="list-group" v-if="resultsClientes.length" id="listaD">
                                 <a 
                                     href="#" 
                                     v-bind:key="i" 
@@ -39,7 +39,9 @@
                     </b-row>
                 </b-col> 
                 <b-col sm="3" align="right">
-                    <b-button variant="info" @click="getTodo">Mostrar todo</b-button>
+                    <b-button variant="info" :disabled="loadRegisters" @click="getTodo">
+                        <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
+                    </b-button>
                 </b-col>  
             </b-row> 
             <hr>
@@ -116,6 +118,7 @@
                         <td>{{ devolucion.unidades_resta | formatNumber }}</td>
                         <td>
                             <input 
+                            :id="`inpDev-${i}`"
                             type="number" 
                             v-model="devolucion.unidades"
                             min="1"
@@ -204,6 +207,7 @@
                 resultsClientes: [],
                 perPage: 15,
                 currentPage: 1,
+                loadRegisters: false
             }
         },
         // created: function(){
@@ -235,7 +239,7 @@
                     }); 
                 }
                 else{
-                    this.getTodo();
+                    this.resultsClientes = [];
                 }
             },
             porCliente(cliente){
@@ -249,8 +253,13 @@
                 });
             },
             getTodo(){
+                this.loadRegisters = true;
                 axios.get('/all_devoluciones').then(response => {
                     this.remisiones = response.data;
+                    this.loadRegisters = false;
+                }).catch(error => {
+                    this.loadRegisters = false;
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
             registrarDevolucion(remision, i){
@@ -271,6 +280,10 @@
                         this.devoluciones[i].total = devolucion.dato.costo_unitario * devolucion.unidades;
                         this.acumularFinal();
                         this.btnGuardar = true;
+                        if(i + 1 < this.devoluciones.length){
+                            document.getElementById('inpDev-'+(i+1)).focus();
+                            document.getElementById('inpDev-'+(i+1)).select();
+                        }
                     }
                     else{
                         this.item = devolucion.id;
@@ -321,3 +334,10 @@
         },
     }
 </script>
+
+<style>
+    #listaD{
+        position: absolute;
+        z-index: 100
+    }
+</style>

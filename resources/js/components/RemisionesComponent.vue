@@ -23,9 +23,8 @@
                             <label for="input-cliente">Cliente</label>
                         </b-col>
                         <b-col sm="10">
-                            <b-input v-model="queryCliente" @keyup="mostrarClientes"
-                            ></b-input>
-                            <div class="list-group" v-if="resultsClientes.length">
+                            <b-input v-model="queryCliente" @keyup="mostrarClientes"></b-input>
+                            <div class="list-group" v-if="resultsClientes.length" id="listR">
                                 <a 
                                     href="#" 
                                     v-bind:key="i" 
@@ -38,9 +37,11 @@
                         </b-col>
                     </b-row>
                 </b-col>
-                <b-col sm="3" align="right">
-                    <b-button variant="info" @click="getTodo">Mostrar todo</b-button>
-                </b-col>   
+                <b-col sm="3" align="right"> 
+                    <b-button variant="info" :disabled="loadRegisters" @click="getTodo">
+                        <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
+                    </b-button>
+                </b-col>  
             </b-row> 
             <hr>
             <b-table 
@@ -143,6 +144,7 @@
                 load: false,
                 perPage: 15,
                 currentPage: 1,
+                loadRegisters: false
             }
         },
         filters: {
@@ -176,7 +178,8 @@
                     }); 
                 }
                 else{
-                    this.getTodo();
+                    this.resultsClientes = [];
+                    // this.getTodo();
                 }
             },
             porCliente(result){
@@ -192,9 +195,13 @@
                 });
             },
             getTodo(){
+                this.loadRegisters = true;
                 axios.get('/get_iniciados').then(response => {
+                    this.resultsClientes = [];
                     this.remisiones = response.data;
+                    this.loadRegisters = false;
                 }).catch(error => {
+                    this.loadRegisters = false;
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
@@ -233,3 +240,10 @@
         }
     }
 </script>
+
+<style>
+    #listR{
+        position: absolute;
+        z-index: 100
+    }
+</style>

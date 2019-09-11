@@ -36,7 +36,11 @@
                     <i class="fa fa-plus"></i> Agregar libro
                 </b-button>
             </div>
-            <div class="col-md-3" align="right"><b-button variant="info" @click="todosLibros">Mostrar todo</b-button></div>
+            <div class="col-md-3" align="right">
+                <b-button variant="info" :disabled="loadRegisters" @click="todosLibros">
+                    <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
+                </b-button>
+            </div>
         </div>
         <hr>
         <b-table 
@@ -126,6 +130,7 @@
                     { value: 'BOOKMART MÉXICO', text: 'BOOKMART MÉXICO' },
                     { value: '', text: 'TODOS LOS LIBROS'},
                 ],
+                loadRegisters: false
             }
         },
         // created: function(){
@@ -144,15 +149,17 @@
                         this.inicializar(response);
                     });
                 }
-                else{
-                    this.todosLibros();
-                } 
+                // else{
+                //     this.todosLibros();
+                // } 
             },
             //Mostrar libros por la editorial
             mostrarPorEditorial(){
                 if(this.queryEditorial.length > 0){
                    axios.get('/mostrarPorEditorial', {params: {queryEditorial: this.queryEditorial}}).then(response => {
                         this.inicializar(response);
+                    }).catch(error => {
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                     });
                 }
                 else{
@@ -166,8 +173,13 @@
             },
             //Mostrar resultados de libros con estado
             todosLibros(){
+                this.loadRegisters = true;
                 axios.get('/allLibros').then(response => {
                     this.inicializar(response);
+                    this.loadRegisters = false;
+                }).catch(error => {
+                    this.loadRegisters = false;
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
             editarLibro(libro, i){
@@ -183,11 +195,14 @@
                 })
                 .catch(error => {
                     this.loaded = false;
-                    this.$bvToast.toast('Ocurrio un error, vuelve a intentar', {
-                        title: 'Error',
-                        variant: 'danger',
-                        solid: true
-                    });
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
+            },
+            makeToast(variante, descripcion){
+                this.$bvToast.toast('Ocurrio un error, vuelve a intentar', {
+                    title: 'Error',
+                    variant: 'danger',
+                    solid: true
                 });
             }
         }

@@ -5,6 +5,7 @@
                 <label align="right" class="col-md-3">Titulo</label>
                 <div class="col-md-9">
                     <b-form-input 
+                        autofocus
                         v-model="form.titulo"
                         :disabled="loaded"
                         required>

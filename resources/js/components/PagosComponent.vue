@@ -23,11 +23,9 @@
                             <label for="input-cliente">Cliente</label>
                         </b-col>
                         <b-col sm="10">
-                            <b-input
-                            v-model="queryCliente"
-                            @keyup="mostrarClientes">
+                            <b-input v-model="queryCliente" @keyup="mostrarClientes">
                             </b-input>
-                            <div class="list-group" v-if="resultsClientes.length">
+                            <div class="list-group" v-if="resultsClientes.length" id="listP">
                                 <a 
                                     href="#" 
                                     v-bind:key="i" 
@@ -41,7 +39,9 @@
                     </b-row>
                 </b-col>
                 <b-col sm="3" align="right">
-                    <b-button variant="info" @click="getTodo">Mostrar todo</b-button>
+                    <b-button variant="info" :disabled="loadRegisters" @click="getTodo">
+                        <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
+                    </b-button>
                 </b-col>
             </b-row>
             <hr>
@@ -89,7 +89,7 @@
                         <label>Pago</label>
                     </b-col>
                     <b-col sm="5">
-                        <b-form-input v-model="deposito.pago" :state="state" :disabled="load" type="number" required></b-form-input>
+                        <b-form-input v-model="deposito.pago" autofocus :state="state" :disabled="load" type="number" required></b-form-input>
                     </b-col>
                     <b-col>
                         <b-button type="submit" variant="success" :disabled="load">
@@ -133,10 +133,11 @@
                 <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario | formatNumber }}</template>
                 <template slot="unidades_base" slot-scope="row">
                     <b-input 
+                        :id="`inpVend-${row.index}`"
                         type="number" 
                         :disabled="load"
                         @change="verificarUnidades(row.item.unidades_base, row.item.unidades_resta, row.item.dato.costo_unitario, row.index)" 
-                        v-model="row.item.unidades_base">
+                        v-model="row.item.unidades_base"> 
                     </b-input>
                 </template>
                 <template slot="subtotal" slot-scope="row">${{ row.item.total_base | formatNumber }}</template>
@@ -271,13 +272,14 @@
                 load: false,
                 deposito: {
                     remision_id: 0,
-                    pago: 0
+                    pago: null
                 },
                 queryCliente: '',
                 resultsClientes: [],
                 remision_id: null,
                 perPage: 15,
                 currentPage: 1,
+                loadRegisters: false
             }
         },
         // created: function(){
@@ -293,9 +295,12 @@
         },
         methods: {
             getTodo(){
+                this.loadRegisters = true;
                 axios.get('/all_devoluciones').then(response => {
                     this.remisiones = response.data;
+                    this.loadRegisters = false;
                 }).catch(error => {
+                    this.loadRegisters = false;
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
@@ -303,7 +308,7 @@
                 this.pos_remision = index;
                 this.deposito.remision_id = remision.id;
                 this.remision.total_pagar = remision.total_pagar;
-                this.deposito.pago = 0;
+                this.deposito.pago = null;
                 // axios.get('/datos_vendidos', {params: {remision_id: remision.id}}).then(response => {
                 //     if(response.data.depositos.length > 0){
                 //         this.$bvModal.hide('modal-registrar-deposito');
@@ -384,6 +389,10 @@
                     this.remision.vendidos.forEach(vendido => {
                         this.total_vendido += vendido.total_base;
                     });
+                    if(i + 1 < this.remision.vendidos.length){
+                        document.getElementById('inpVend-'+(i+1)).focus();
+                        document.getElementById('inpVend-'+(i+1)).select();
+                    }
                 }
             },
             verPagos(remision){
@@ -410,7 +419,8 @@
                     }); 
                 }
                 else{
-                    this.getTodo();
+                    // this.getTodo();
+                    this.resultsClientes = [];
                 }
             },
             pagosCliente(cliente){
@@ -446,3 +456,10 @@
         }
     }
 </script>
+
+<style>
+    #listP{
+        position: absolute;
+        z-index: 100
+    }
+</style>

@@ -30,7 +30,9 @@
                     <b-button v-if="role_id == 3" variant="success" @click="nuevaEntrada"><i class="fa fa-plus"></i> Registrar entrada</b-button>
                 </b-col>
                 <b-col sm="3" align="right">
-                    <b-button variant="info" @click="getTodo">Mostrar todo</b-button>
+                    <b-button variant="info" :disabled="loadRegisters" @click="getTodo">
+                        <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
+                    </b-button>
                 </b-col>
             </b-row>
             <hr>
@@ -113,8 +115,8 @@
                     <label>Editorial</label>
                 </b-col>
                 <b-col sm="5">
-                    <b-form-input v-model="entrada.folio" :disabled="load" :state="stateN" @change="guardarNum"></b-form-input>
-                    <b-form-select v-model="entrada.editorial" :disabled="load" :state="stateE" :options="options"></b-form-select>
+                    <b-form-input v-model="entrada.folio" autofocus :disabled="load" :state="stateN" @change="guardarNum"></b-form-input>
+                    <b-form-select v-model="entrada.editorial" autofocus :disabled="load" :state="stateE" :options="options"></b-form-select>
                 </b-col>
                 <b-col sm="3" align="right">
                     <label><b>Unidades:</b> {{ total_unidades | formatNumber }}</label>
@@ -151,6 +153,7 @@
                 <b-col sm="1"></b-col>
                 <b-col sm="3">
                     <b-input
+                        autofocus
                         v-model="isbn"
                         @keyup.enter="buscarLibroISBN()"
                         v-if="inputISBN"
@@ -159,6 +162,7 @@
                 </b-col>
                 <b-col sm="5">
                     <b-input
+                        autofocus
                         v-model="queryTitulo"
                         @keyup="mostrarLibros"
                         v-if="inputLibro">
@@ -177,6 +181,7 @@
                 </b-col>
                 <b-col sm="2">
                     <b-form-input 
+                        autofocus
                         @keyup.enter="guardarRegistro()"
                         v-if="inputUnidades"
                         v-model="unidades" 
@@ -263,7 +268,7 @@
                 inputLibro: true,
                 resultslibros: [],
                 inputUnidades: false,
-                unidades: 0,
+                unidades: null,
                 total_unidades: 0,
                 stateN: null,
                 stateE: null,
@@ -277,6 +282,7 @@
                 folio: '',
                 perPage: 15,
                 currentPage: 1,
+                loadRegisters: false
             }
         },
         // created: function(){
@@ -346,9 +352,14 @@
             getTodo(){
                 var ffinal = moment();
                 this.fechaFinal = ffinal;
+                this.loadRegisters = true;
                 axios.get('/all_entradas').then(response => {
                     this.entradas = response.data;
+                    this.loadRegisters = false;
                     this.acumular();
+                }).catch(error => {
+                    this.loadRegisters = false;
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
             detallesEntrada(entrada){
@@ -439,7 +450,7 @@
                     }
                     this.registros.push(this.temporal);
                     this.total_unidades += parseInt(this.temporal.unidades);
-                    this.unidades = 0;
+                    this.unidades = null;
                     this.temporal = {};
                     this.isbn = '';
                     this.queryTitulo = '',
@@ -473,7 +484,7 @@
                 this.inputLibro = true;
                 this.inputUnidades = false;
                 this.queryTitulo = '';
-                this.unidades = 0;
+                this.unidades = null;
                 this.isbn = '';
             },
             guardarNum(){

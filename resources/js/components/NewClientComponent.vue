@@ -6,6 +6,7 @@
                 <div class="col-md-7">
                     <b-form-input 
                         id="input-name"
+                        autofocus
                         v-model="form.name"
                         :disabled="loaded"
                         required>

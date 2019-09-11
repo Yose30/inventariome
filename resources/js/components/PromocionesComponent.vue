@@ -32,7 +32,9 @@
                     </b-button>
                 </b-col>  
                 <b-col sm="3" align="right">
-                    <b-button variant="info" @click="obtenerPromotions">Mostrar todo</b-button>
+                    <b-button variant="info" :disabled="loadRegisters" @click="obtenerPromotions">
+                        <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
+                    </b-button>
                 </b-col>
             </b-row> 
             <hr>
@@ -80,7 +82,7 @@
                     <label><b>Descripción (Opcional)</b>:</label><br>
                 </b-col>
                 <b-col>
-                    <b-input type="text" v-model="promocion.plantel" :state="state"></b-input>
+                    <b-input type="text" autofocus v-model="promocion.plantel" :state="state"></b-input>
                     <b-input type="text" v-model="promocion.descripcion"></b-input>
                 </b-col>
             </b-row>
@@ -100,6 +102,7 @@
                     <label for="input-isbn">ISBN</label>
                     <b-input
                         id="input-isbn"
+                        autofocus
                         v-model="temporal.ISBN"
                         @keyup.enter="buscarLibroISBN"
                         v-if="inputISBN"
@@ -111,6 +114,7 @@
                     <label for="input-libro">Libro</label>
                     <b-input
                         id="input-libro"
+                        autofocus
                         v-model="temporal.titulo"
                         @keyup="mostrarLibros"
                         v-if="inputLibro"
@@ -132,6 +136,7 @@
                     <label for="input-unidades">Unidades</label>
                     <b-form-input 
                         id="input-unidades"
+                        autofocus
                         @keyup.enter="guardarRegistro"
                         v-if="inputUnidades"
                         v-model="temporal.unidades" 
@@ -206,7 +211,7 @@
                     id: 0,
                     ISBN: '',
                     titulo: '',
-                    unidades: 0,
+                    unidades: null,
                     piezas: 0
                 },
                 promocion: {
@@ -225,6 +230,7 @@
                 queryPlantel: '',
                 perPage: 15,
                 currentPage: 1,
+                loadRegisters: false
             }
         },
         // created: function(){
@@ -258,14 +264,17 @@
                         this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                     });
                 }
-                else{
-                    this.obtenerPromotions();
-                }
+                // else{
+                //     this.obtenerPromotions();
+                // }
             },
             obtenerPromotions(){
+                this.loadRegisters = true;
                 axios.get('/obtener_promociones').then(response => {
                     this.promotions = response.data;
+                    this.loadRegisters = false;
                 }).catch(error => {
+                    this.loadRegisters = false;
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
@@ -332,7 +341,7 @@
                     id: libro.id,
                     ISBN: libro.ISBN,
                     titulo: libro.titulo,
-                    unidades: 0,
+                    unidades: null,
                     piezas: libro.piezas
                 };
                 this.resultslibros = [];
@@ -359,7 +368,7 @@
                     id: 0,
                     ISBN: '',
                     titulo: '',
-                    unidades: 0,
+                    unidades: null,
                     piezas: 0
                 };
                 this.inputUnidades = false;

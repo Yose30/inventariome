@@ -29,7 +29,9 @@
                     </b-row>
                 </b-col>
                 <b-col sm="3" align="right">
-                    <b-button variant="info" @click="getTodo">Mostrar todo</b-button>
+                    <b-button variant="info" :disabled="loadRegisters" @click="getTodo">
+                        <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
+                    </b-button>
                 </b-col>
             </b-row>
             <hr>
@@ -163,6 +165,7 @@
                 <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
                 <template slot="costo_unitario" slot-scope="row">
                     <b-input 
+                        :id="`input-${row.index}`"
                         type="number" 
                         placeholder="Costo unitario"
                         @change="verificarUnidades(row.item.unidades, row.item.costo_unitario, row.index)" 
@@ -188,7 +191,7 @@
                         <label>Monto</label>
                     </b-col>
                     <b-col sm="5">
-                        <b-form-input v-model="repayment.pago" :state="state" :disabled="load" type="number" required></b-form-input>
+                        <b-form-input v-model="repayment.pago" autofocus :state="state" :disabled="load" type="number" required></b-form-input>
                     </b-col>
                     <b-col>
                         <b-button type="submit" variant="success" :disabled="load">
@@ -319,7 +322,7 @@
                 total_pendiente: 0,
                 repayment: {
                     entrada_id: 0,
-                    pago: 0
+                    pago: null
                 },
                 mostrarEA: false,
                 isbn: '',
@@ -347,6 +350,7 @@
                 subtotal: 0,
                 perPage: 15,
                 currentPage: 1,
+                loadRegisters: false
             }
         },
         // created: function(){
@@ -369,9 +373,14 @@
             getTodo(){
                 var ffinal = moment();
                 this.fechaFinal = ffinal;
+                this.loadRegisters = true;
                 axios.get('/all_entradas').then(response => {
                     this.entradas = response.data;
+                    this.loadRegisters = false;
                     this.acumular();
+                }).catch(error => {
+                    this.loadRegisters = false;
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
             detallesEntrada(entrada){
@@ -446,6 +455,10 @@
                     this.registros[i].total = unidades * costo_unitario;
                     // SUMAR TODO LO QUE SE VAYA EDITANDO DE LA ENTRADA
                     this.sumatoriaSubtotal();
+                    if(i + 1 < this.registros.length){
+                        document.getElementById('input-'+(i+1)).focus();
+                        document.getElementById('input-'+(i+1)).select();
+                    }
                 }
                 else{
                     this.makeToast('warning', 'Costo unitario invalido');
@@ -523,7 +536,7 @@
                             this.load = false;
                             this.repayment = {
                                 entrada_id: 0,
-                                pago: 0
+                                pago: null
                             };
                             this.$bvModal.hide('modal-registrarPago');
                             this.entradas[this.posicion].total_pagos = response.data.total_pagos;

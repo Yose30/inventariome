@@ -27,7 +27,7 @@
                             v-model="queryCliente"
                             @keyup="mostrarClientes"
                             ></b-input>
-                            <div class="list-group" v-if="resultsClientes.length">
+                            <div class="list-group" v-if="resultsClientes.length" id="listaAD">
                                 <a 
                                     href="#" 
                                     v-bind:key="i" 
@@ -41,7 +41,9 @@
                     </b-row>
                 </b-col>
                 <b-col sm="3" align="right">
-                    <b-button variant="info" @click="obtenerAdeudos">Mostrar todo</b-button>
+                    <b-button variant="info" :disabled="loadRegisters" @click="obtenerAdeudos">
+                        <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
+                    </b-button>
                 </b-col>
             </b-row>
             <hr>
@@ -129,6 +131,7 @@
                 <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario | formatNumber }}</template>
                 <template slot="unidades" slot-scope="row">
                     <b-input 
+                        :id="`inpAdeuDev-${row.index}`"
                         type="number" 
                         @change="obtenerSubtotal(row.item, row.index)"
                         v-model="row.item.unidades">
@@ -344,6 +347,7 @@
                 num_remision: null,
                 perPage: 15,
                 currentPage: 1,
+                loadRegisters: false
             }
         },
         // created: function(){
@@ -474,10 +478,13 @@
                 }
             },
             obtenerAdeudos(){
+                this.loadRegisters = true;
                 axios.get('/obtener_adeudos').then(response => {
                     this.adeudos = response.data;
+                    this.loadRegisters = false;
                     this.acumular();
                 }).catch(error => {
+                    this.loadRegisters = false;
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
@@ -627,7 +634,8 @@
                     }); 
                 }
                 else{
-                    this.obtenerAdeudos();
+                    this.resultsClientes = [];
+                    // this.obtenerAdeudos();
                 }
             },
             adeudosCliente(cliente){
@@ -650,6 +658,10 @@
                     }
                     else{
                         this.adeudo.devoluciones[i].total = devolucion.unidades * devolucion.dato.costo_unitario;
+                        if(i + 1 < this.adeudo.devoluciones.length){
+                            document.getElementById('inpAdeuDev-'+(i+1)).focus();
+                            document.getElementById('inpAdeuDev-'+(i+1)).select();
+                        }
                     }
                 }
                 else{
@@ -682,5 +694,9 @@
     }
     #txtObligatorio {
         color: red;
+    }
+    #listaAD{
+        position: absolute;
+        z-index: 100
     }
 </style>

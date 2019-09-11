@@ -27,7 +27,7 @@
                             v-model="queryCliente"
                             @keyup="mostrarClientes">
                             </b-input>
-                            <div class="list-group" v-if="resultsClientes.length">
+                            <div class="list-group" v-if="resultsClientes.length" id="listaA">
                                 <a 
                                     href="#" 
                                     v-bind:key="i" 
@@ -46,7 +46,9 @@
                     </b-button>
                 </b-col>
                 <b-col align="right">
-                    <b-button variant="info" @click="obtenerAdeudos">Mostrar todo</b-button>
+                    <b-button variant="info" :disabled="loadRegisters" @click="obtenerAdeudos">
+                        <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
+                    </b-button>
                 </b-col>
             </b-row>
             <hr>
@@ -108,7 +110,7 @@
                             <label>Pago</label>
                         </b-col>
                         <b-col sm="5">
-                            <b-form-input v-model="abono.pago" :state="state" :disabled="load" type="number" required></b-form-input>
+                            <b-form-input v-model="abono.pago" autofocus :state="state" :disabled="load" type="number" required></b-form-input>
                         </b-col>
                         <b-col>
                             <b-button type="submit" variant="success" :disabled="load">
@@ -132,7 +134,7 @@
                     </b-button>
                 </b-col>
                 <b-col align="right">
-                    <b-button variant="secondary" @click="mostrarRegistrar = false; listadoAdeudos = true; this.queryCliente = '';"><i class="fa fa-mail-reply"></i> Regresar</b-button>
+                    <b-button variant="secondary" @click="mostrarRegistrar = false; listadoAdeudos = true; queryCliente = '';"><i class="fa fa-mail-reply"></i> Regresar</b-button>
                 </b-col>
             </b-row>
             <hr>
@@ -145,7 +147,7 @@
                                 <label for="input-cliente"><i class="fa fa-search"></i> Buscar</label>
                             </b-col>
                             <b-col sm="10">
-                                <b-input v-model="queryCliente" @keyup="mostrarListaClientes"></b-input>
+                                <b-input v-model="queryCliente" autofocus @keyup="mostrarListaClientes"></b-input>
                             </b-col>
                         </b-row>     
                     </b-col> 
@@ -244,6 +246,7 @@
                             <th>
                                 <b-input
                                     id="input-isbn"
+                                    autofocus 
                                     v-model="isbn"
                                     @keyup.enter="buscarLibroISBN"
                                     v-if="inputISBN"
@@ -254,6 +257,7 @@
                             <th>
                                 <b-input
                                     id="input-libro"
+                                    autofocus 
                                     v-model="queryTitulo"
                                     @keyup="mostrarLibros"
                                     v-if="inputLibro"
@@ -275,6 +279,7 @@
                                 <b-form-input 
                                     id="input-costo"
                                     type="number" 
+                                    autofocus 
                                     v-model="costo_unitario"
                                     v-if="inputCosto"
                                     @keyup.enter="guardarCosto"
@@ -284,6 +289,7 @@
                             <th>
                                 <b-form-input 
                                     id="input-unidades"
+                                    autofocus 
                                     @keyup.enter="guardarRegistro"
                                     v-if="inputUnidades"
                                     v-model="unidades" 
@@ -474,7 +480,7 @@
                 ],
                 abono: {
                     adeudo_id: 0,
-                    pago: 0,
+                    pago: null,
                 },
                 posicion: null,
                 queryCliente: '',
@@ -503,6 +509,7 @@
                 num_remision: null,
                 perPage: 15,
                 currentPage: 1,
+                loadRegisters: false,
             }
         },
         // created: function(){
@@ -633,10 +640,13 @@
                 }
             },
             obtenerAdeudos(){
+                this.loadRegisters = true;
                 axios.get('/obtener_adeudos').then(response => {
                     this.adeudos = response.data;
+                    this.loadRegisters = false;
                     this.acumular();
                 }).catch(error => {
+                    this.loadRegisters = false;
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
@@ -698,7 +708,7 @@
             },
             registrarAbono(adeudo, i){
                 this.ini_adeudo();
-                this.abono = { adeudo_id: 0, pago: 0, };
+                this.abono = { adeudo_id: 0, pago: null, };
                 this.posicion = i;
                 this.adeudo = adeudo;
                 this.abono.adeudo_id = this.adeudo.id;
@@ -742,7 +752,6 @@
                     this.devoluciones = response.data.devoluciones;
                     this.listadoAdeudos = false;
                     this.mostrarAbonos = true;
-                    console.log(response.data);
                 }).catch(error => {
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
@@ -777,7 +786,8 @@
                     }); 
                 }
                 else{
-                    this.obtenerAdeudos();
+                    // this.obtenerAdeudos();
+                    this.resultsClientes = [];
                 }
             },
             adeudosCliente(cliente){
@@ -817,5 +827,9 @@
     }
     #txtObligatorio {
         color: red;
+    }
+    #listaA{
+        position: absolute;
+        z-index: 100
     }
 </style>

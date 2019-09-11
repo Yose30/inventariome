@@ -88,7 +88,7 @@
                                     <label for="input-cliente"><i class="fa fa-search"></i> Buscar</label>
                                 </b-col>
                                 <b-col sm="10">
-                                    <b-input v-model="queryCliente" @keyup="mostrarClientes"></b-input>
+                                    <b-input v-model="queryCliente" autofocus @keyup="mostrarClientes"></b-input>
                                 </b-col>
                             </b-row>
                         </b-col>
@@ -145,7 +145,7 @@
                     </b-list-group>
                     <b-list-group class="col-md-6">
                         <b-list-group-item><b>Correo electrónico:</b> {{ dato.email }}</b-list-group-item>
-                        <b-list-group-item><b>Teléfono:</b></b> {{ dato.telefono }}</b-list-group-item>
+                        <b-list-group-item><b>Teléfono:</b> {{ dato.telefono }}</b-list-group-item>
                     </b-list-group>
                 </div>
             </b-collapse>
@@ -199,6 +199,7 @@
                         <td>
                             <b-input
                                 v-model="isbn"
+                                autofocus
                                 @keyup.enter="buscarLibroISBN()"
                                 v-if="inputISBN"
                             ></b-input>
@@ -208,6 +209,7 @@
                         <td>
                             <b-input
                                 v-model="queryTitulo"
+                                autofocus
                                 @keyup="mostrarLibros"
                                 v-if="inputLibro"
                             ></b-input>
@@ -226,6 +228,7 @@
                         <td>
                             <b-input 
                                 type="number" 
+                                autofocus
                                 v-model="costo_unitario"
                                 v-if="inputCosto"
                                 min="1"
@@ -236,6 +239,7 @@
                         </td>
                         <td>
                             <b-input 
+                            autofocus
                             type="number" 
                             v-model="unidades"
                             v-if="inputUnidades"
@@ -291,8 +295,8 @@
                 editar: false, //Indicar si la remision esta en forma de edicion
                 items: [], //Registros guardados de la remision
                 total_remision: 0, //Mostrar el total de la remision
-                unidades: 0, //Asignar el numero de unidades
-                costo_unitario: 0, //Asignar el costo unitario
+                unidades: null, //Asignar el numero de unidades
+                costo_unitario: null, //Asignar el costo unitario
                 botonEliminar: false, //Boton para poder eliminar un registro
                 mostrarGuardar: false, //Para mostrar el boton de guardar
                 mostrarTotal: false, //Para mostrar el total de la remision
@@ -362,6 +366,7 @@
                 axios.get('/buscarISBN', {params: {isbn: this.isbn}}).then(response => {
                     this.inicializar();
                     this.temporal = response.data;
+                    
                 }).catch(error => {
                    this.makeToast('danger', 'ISBN incorrecto');
                 });
@@ -384,8 +389,8 @@
                     id: libro.id,
                     ISBN: libro.ISBN,
                     titulo: libro.titulo,
-                    costo_unitario: 0,
-                    unidades: 0,
+                    costo_unitario: null,
+                    unidades: null,
                     total: 0,
                     piezas: libro.piezas
                 };
@@ -472,7 +477,7 @@
                 this.queryTitulo = '';
                 this.respuestaUnidades = '';
                 this.respuestaCosto = '';
-                this.costo_unitario = 0;
+                this.costo_unitario = null;
             },
             guardarCosto(){
                 if(this.costo_unitario > 0){
@@ -504,14 +509,15 @@
                 this.ini_3();
                 this.respuestaISBN = '';
                 this.resultslibros = [];
-                this.costo_unitario = 0;
+                this.costo_unitario = null;
                 this.inputCosto = true;
+                
             },
             //Inicializar los valores
             inicializar_registro(){
                 this.ini_1();
                 this.ini_2();
-                this.costo_unitario = 0;
+                this.costo_unitario = null;
                 this.inputCosto = false;
                 this.respuestaUnidades = '';
                 this.botonEliminar = true;
@@ -548,7 +554,7 @@
             ini_2(){
                 this.temporal = {};
                 this.inputUnidades = false;
-                this.unidades = 0;
+                this.unidades = null;
             },
             ini_3(){
                 this.isbn = '';

@@ -32,7 +32,9 @@
                     </div>
                 </b-col>  
                 <b-col sm="2" align="right">
-                    <b-button variant="info" @click="getTodo">Mostrar todo</b-button>
+                    <b-button variant="info" :disabled="loadRegisters" @click="getTodo">
+                        <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
+                    </b-button>
                 </b-col> 
             </b-row> 
             <hr>
@@ -122,6 +124,7 @@
                 <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
                 <template slot="unidades" slot-scope="row">
                     <b-input 
+                        :id="`inpPago-${row.index}`"
                         type="number" 
                         @change="verificarUnidades(row.item.unidades_base, row.item.unidades_pendiente, row.item.costo_unitario, row.index)" 
                         v-model="row.item.unidades_base">
@@ -200,6 +203,7 @@
                 <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
                 <template slot="unidades" slot-scope="row">
                     <b-input 
+                        :id="`inpPago-${row.index}`"
                         type="number" 
                         @change="verificarUnidades(row.item.unidades_base, row.item.unidades_pendiente, row.item.costo_unitario, row.index)" 
                         v-model="row.item.unidades_base">
@@ -222,7 +226,7 @@
             <b-row class="col-md-8">
                 <b-col sm="3">Cliente</b-col>
                 <b-col sm="6">
-                    <b-form-input v-model="cliente" :disabled="load" :state="state" @keyup.enter="func_viewForm"></b-form-input>
+                    <b-form-input v-model="cliente" autofocus :disabled="load" :state="state" @keyup.enter="func_viewForm"></b-form-input>
                 </b-col>
                 <b-col sm="3">
                     <b-button 
@@ -261,6 +265,7 @@
                         <label for="input-isbn">ISBN</label>
                         <b-input
                             id="input-isbn"
+                            autofocus
                             v-model="isbn"
                             @keyup.enter="buscarLibroISBN"
                             v-if="inputISBN"
@@ -272,6 +277,7 @@
                         <label for="input-libro">Libro</label>
                         <b-input
                             id="input-libro"
+                            autofocus
                             v-model="queryTitulo"
                             @keyup="mostrarLibros"
                             v-if="inputLibro"
@@ -294,6 +300,7 @@
                         <b-form-input 
                             id="input-costo"
                             type="number" 
+                            autofocus
                             v-model="costo_unitario"
                             v-if="inputCosto"
                             @keyup.enter="guardarCosto"
@@ -303,6 +310,7 @@
                     <b-col sm="2">
                         <label for="input-unidades">Unidades</label>
                         <b-form-input 
+                            autofocus
                             id="input-unidades"
                             @keyup.enter="guardarRegistro"
                             v-if="inputUnidades"
@@ -411,6 +419,7 @@
                 queryCliente: '',
                 perPage: 15,
                 currentPage: 1,
+                loadRegisters: false
             }
         },
         // created: function(){
@@ -447,13 +456,18 @@
                         this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                     });
                 }
-                else{
-                    this.getTodo();
-                }
+                // else{
+                //     this.getTodo();
+                // }
             },
             getTodo(){
+                this.loadRegisters = true;
                 axios.get('/all_notas').then(response => {
                     this.notes = response.data;
+                    this.loadRegisters = false;
+                }).catch(error => {
+                    this.loadRegisters = false;
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
             func_crearNota(){
@@ -659,6 +673,10 @@
                     this.nota.registers.forEach(register => {
                         this.total_vendido += register.total_base;
                     });
+                    if(i + 1 < this.nota.registers.length){
+                        document.getElementById('inpPago-'+(i+1)).focus();
+                        document.getElementById('inpPago-'+(i+1)).select();
+                    }
                 }
             },
             guardarPagosNota(){

@@ -15,7 +15,9 @@
                 <b-button v-if="role_id == 2" variant="success" v-b-modal.modal-nuevoCliente><i class="fa fa-plus"></i> Agregar cliente</b-button>
             </b-col>
             <b-col sm="3" align="right">
-                <b-button variant="info" @click="getTodo">Mostrar todo</b-button>
+                <b-button variant="info" :disabled="loadRegisters" @click="getTodo">
+                    <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
+                </b-button>
             </b-col>
         </b-row>
         <hr>
@@ -178,6 +180,7 @@
                 queryCliente: '',
                 perPage: 15,
                 currentPage: 1,
+                loadRegisters: false
             }
         },
         // created: function(){
@@ -185,9 +188,12 @@
 		// },
         methods: {
             getTodo(){
+                this.loadRegisters = true;
                 axios.get('/getTodo').then(response => {
                     this.clientes = response.data;
+                    this.loadRegisters = false;
                 }).catch(error => {
+                    this.loadRegisters = false;
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
@@ -197,9 +203,9 @@
                         this.clientes = response.data;
                     }); 
                 }
-                else{
-                    this.getTodo();
-                }
+                // else{
+                //     this.getTodo();
+                // }
             },
             editarCliente(cliente, i){
                 this.posicion = i;
