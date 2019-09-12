@@ -117,6 +117,8 @@ Route::get('allLibros', 'LibroController@allLibros')->name('allLibros');
 Route::get('descargarLibros', 'LibroController@descargarLibros')->name('descargarLibros');
 //Mostrar libros vendidos buscados por editorial
 Route::get('porEditorialVendidos', 'LibroController@porEditorialVendidos')->name('porEditorialVendidos');
+// Descargar en formato excel todos los libros
+Route::get('/downloadExcel', 'LibroController@downloadExcel')->name('downloadExcel');
 
 //ENTRADAS
 //Mostrar todas las entradas

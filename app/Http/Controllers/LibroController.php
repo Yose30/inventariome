@@ -8,6 +8,8 @@ use App\Libro;
 use App\Entrada;
 use App\Registro;
 use PDF;
+use App\Exports\LibrosExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LibroController extends Controller
 {
@@ -130,5 +132,10 @@ class LibroController extends Controller
             return response()->json($exception->getMessage());
         }
         return response()->json(null, 200);
+    }
+
+    // Descargar en formato excel todos los libros
+    public function downloadExcel(){
+        return Excel::download(new LibrosExport, 'libros.xlsx');
     }
 }

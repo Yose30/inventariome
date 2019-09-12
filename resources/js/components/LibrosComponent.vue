@@ -40,6 +40,10 @@
                 <b-button variant="info" :disabled="loadRegisters" @click="todosLibros">
                     <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
                 </b-button>
+                <hr>
+                <b-button variant="primary" :disabled="loadRegisters" href="/downloadExcel">
+                    <b-spinner small v-if="loadRegisters"></b-spinner> Descargar Excel
+                </b-button>
             </div>
         </div>
         <hr>
