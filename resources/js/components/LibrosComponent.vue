@@ -139,6 +139,7 @@
                 loadRegisters: false
             }
         },
+        // COMENTARIO
         // created: function(){
         //     this.todosLibros();
         // },
