@@ -100,6 +100,7 @@
                     { value: 'ENGLISH TEXBOOK', text: 'ENGLISH TEXBOOK'},
                     { value: 'BOOKMART MÉXICO', text: 'BOOKMART MÉXICO' },
                     { value: 'ANGLO PUBLISHING', text: 'ANGLO PUBLISHING' },
+                    { value: 'LAROUSSE', text: 'LAROUSSE' },
                     { value: '', text: 'MOSTRAR TODO'},
                 ],
                 perPage: 15,

@@ -225,6 +225,7 @@
                     { value: 'ENGLISH TEXBOOK', text: 'ENGLISH TEXBOOK'},
                     { value: 'BOOKMART MÉXICO', text: 'BOOKMART MÉXICO' },
                     { value: 'ANGLO PUBLISHING', text: 'ANGLO PUBLISHING' },
+                    { value: 'LAROUSSE', text: 'LAROUSSE' },
                     { value: 'TODAS', text: 'MOSTRAR TODO'},
                 ],
                 fields: [
