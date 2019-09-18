@@ -159,7 +159,7 @@
             porNumero(){
                 if(this.num_remision > 0){
                     axios.get('/buscar_por_numero', {params: {num_remision: this.num_remision}}).then(response => {
-                        if(response.data.remision.estado == 'Cancelado')
+                        if(response.data.remision.estado == 'Cancelado' || response.data.remision.total_pagar == 0)
                             this.makeToast('warning', 'No se puede consultar el numero de remisión ingresado');
                         else{
                             this.remision = response.data.remision;
@@ -188,7 +188,11 @@
                     this.resultsClientes = [];
                     this.remisiones = [];
                     response.data.forEach(data => {
-                        if(data.estado != 'Cancelado'){
+                        // if(data.estado != 'Cancelado'){
+                        //     this.remisiones.push(data);
+                        // }
+                        if(data.estado == 'Cancelado' || data.total_pagar == 0){}    
+                        else{
                             this.remisiones.push(data);
                         }
                     });

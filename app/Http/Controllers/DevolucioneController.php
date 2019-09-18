@@ -16,10 +16,12 @@ class DevolucioneController extends Controller
 {
     //Mostrar todas las devoluciones
     public function all_devoluciones(){
-        $remisiones = Remisione::where('estado', 'Proceso')
-                                ->orWhere('estado', 'Terminado')
-                                ->orderBy('id','desc')
-                                ->with('cliente')->get();
+        $remisiones = Remisione::where('total_pagar', '>', '0')
+                                ->where(function ($query) {
+                                    $query->where('estado', 'Proceso')
+                                            ->orWhere('estado', 'Terminado');
+                                })->orderBy('id','desc')
+                                ->with('cliente')->get(); 
         return response()->json($remisiones);
     }
 

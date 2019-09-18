@@ -152,6 +152,7 @@ class RemisionController extends Controller
 
     public function get_iniciados(){
         $remisiones = Remisione::where('estado', '!=', 'Cancelado')
+                            ->where('total_pagar', '>', 0)
                             ->orderBy('id','desc')
                             ->with('cliente')
                             ->get();

@@ -4,9 +4,9 @@
             <b-tab title="Remisiones" active>
                 <remisiones-component></remisiones-component>
             </b-tab>
-            <b-tab title="Vendidos">
+            <!-- <b-tab title="Vendidos">
                 <vendidos-component></vendidos-component>
-            </b-tab>
+            </b-tab> -->
             <b-tab title="Pagos">
                 <pagos-component :role_id="role_id"></pagos-component>
             </b-tab>

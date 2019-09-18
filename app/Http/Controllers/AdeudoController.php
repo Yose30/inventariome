@@ -52,8 +52,13 @@ class AdeudoController extends Controller
     }
 
     public function show(){
-        $adeudos = Adeudo::with('cliente')->with('abonos')->get();
-        return response()->json($adeudos);
+        if(auth()->user()->role_id == 3){
+            $adeudos = Adeudo::where('total_pendiente', '>', 0)->with('cliente')->with('abonos')->get();
+        }
+        else{
+            $adeudos = Adeudo::with('cliente')->with('abonos')->get();
+        }
+        return response()->json($adeudos);  
     }
 
     public function detalles_adeudo(){
@@ -132,7 +137,15 @@ class AdeudoController extends Controller
 
     public function adeudos_cliente(){
         $cliente_id = Input::get('cliente_id');
-        $adeudos = Adeudo::where('cliente_id', $cliente_id)->with('cliente')->with('abonos')->get();
+        if(auth()->user()->role_id == 3){
+            $adeudos = Adeudo::where('cliente_id', $cliente_id)
+                            ->where('total_pendiente', '>', 0)
+                            ->with('cliente')->with('abonos')->get();
+        }
+        else{
+            $adeudos = Adeudo::where('cliente_id', $cliente_id)->with('cliente')->with('abonos')->get();
+        }
+        
         return response()->json($adeudos);
     }
 
@@ -145,7 +158,14 @@ class AdeudoController extends Controller
 
     public function buscar_adeudo(){
         $num_remision = Input::get('num_remision');
-        $adeudo = Adeudo::where('remision_num', $num_remision)->with('cliente')->with('abonos')->first();
+        if(auth()->user()->role_id == 3){
+            $adeudo = Adeudo::where('remision_num', $num_remision)
+                            ->where('total_pendiente', '>', 0)
+                            ->with('cliente')->with('abonos')->first();
+        }
+        else{
+            $adeudo = Adeudo::where('remision_num', $num_remision)->with('cliente')->with('abonos')->first();
+        }
         return response()->json($adeudo);
     }
 }
