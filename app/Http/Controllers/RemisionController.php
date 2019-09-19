@@ -151,8 +151,12 @@ class RemisionController extends Controller
     } 
 
     public function get_iniciados(){
-        $remisiones = Remisione::where('estado', '!=', 'Cancelado')
-                            ->where('total_pagar', '>', 0)
+        $remisiones = Remisione::where('estado', 'Iniciado')
+                            ->orWhere('total_pagar', '>', 0)
+                            ->where(function ($query) {
+                                $query->where('estado', '=', 'Proceso')
+                                    ->orWhere('estado', '=', 'Terminado');
+                            })
                             ->orderBy('id','desc')
                             ->with('cliente')
                             ->get();
@@ -405,7 +409,7 @@ class RemisionController extends Controller
         
         return response()->json($remisiones);
     }
-
+ 
     //Registrar vendidos
     public function registrar_vendidos(Request $request){
         $remision = Remisione::whereId($request->id)->first();
