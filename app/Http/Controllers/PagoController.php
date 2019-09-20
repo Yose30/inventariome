@@ -82,8 +82,14 @@ class PagoController extends Controller
 
     public function num_pagos(){
         $remision_id = Input::get('remision_id');
+        // $remision = Remisione::whereId($remision_id)
+        //                 ->where('total_pagar', '>', 0)
+        //                 ->where(function ($query) {
+        //                     $query->where('estado', '=', 'Proceso')
+        //                         ->orWhere('estado', '=', 'Terminado');
+        //                 })->with('cliente')->first();
         $remision = Remisione::whereId($remision_id)
-                        ->where('total_pagar', '>', 0)
+                        // ->where('total_pagar', '>', 0)
                         ->where(function ($query) {
                             $query->where('estado', '=', 'Proceso')
                                 ->orWhere('estado', '=', 'Terminado');

@@ -151,12 +151,21 @@ class RemisionController extends Controller
     } 
 
     public function get_iniciados(){
+        // $remisiones = Remisione::where('estado', 'Iniciado')
+        //                     ->orWhere('total_pagar', '>', 0)
+        //                     ->where(function ($query) {
+        //                         $query->where('estado', '=', 'Proceso')
+        //                             ->orWhere('estado', '=', 'Terminado');
+        //                     })
+        //                     ->orderBy('id','desc')
+        //                     ->with('cliente')
+        //                     ->get();
         $remisiones = Remisione::where('estado', 'Iniciado')
-                            ->orWhere('total_pagar', '>', 0)
-                            ->where(function ($query) {
-                                $query->where('estado', '=', 'Proceso')
-                                    ->orWhere('estado', '=', 'Terminado');
-                            })
+                            // ->orWhere('total_pagar', '>', 0)
+                            // ->where(function ($query) {
+                            //     $query->where('estado', '=', 'Proceso')
+                            //         ->orWhere('estado', '=', 'Terminado');
+                            // })
                             ->orderBy('id','desc')
                             ->with('cliente')
                             ->get();
