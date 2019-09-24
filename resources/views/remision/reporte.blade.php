@@ -139,7 +139,12 @@
                         @endif
                     </table>
                     <br>
-                    <label style="font-size: 12px"><b>Cliente:</b> {{ $cliente->name }}</label>
+                    <table>
+                        <tr>
+                            <td class="sinBorde"><b>Cliente:</b> {{ $cliente->name }}</td>
+                            <td class="sinBorde"><b>SALIDA:</b> ${{ $total_salida }}</td>
+                        </tr>
+                    </table>
                     <hr>
                     @foreach($remisiones as $remision)
                         <label style="font-size: 11px">

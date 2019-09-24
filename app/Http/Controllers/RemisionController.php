@@ -279,7 +279,6 @@ class RemisionController extends Controller
         }
         
         $data = $this->valores($remisiones, $inicio, $final, $cliente);
-
         $pdf = PDF::loadView('remision.reporte', $data);
         return $pdf->download('reporte.pdf');
     }
@@ -300,10 +299,12 @@ class RemisionController extends Controller
         $total_pagar = 0;
 
         foreach($remisiones as $r){
-            $total_salida += $r->total;
-            $total_devolucion += $r->total_devolucion;
-            $total_pagos += $r->pagos;
-            $total_pagar += $r->total_pagar;            
+            if($r->estado != 'Iniciado' && $r->estado != 'Cancelado'){
+                $total_salida += $r->total;
+                $total_devolucion += $r->total_devolucion;
+                $total_pagos += $r->pagos;
+                $total_pagar += $r->total_pagar;
+            }            
         }
 
         $data['remisiones'] = $remisiones;
