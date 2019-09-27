@@ -191,7 +191,7 @@
                         <label>Monto</label>
                     </b-col>
                     <b-col sm="5">
-                        <b-form-input v-model="repayment.pago" autofocus :state="state" :disabled="load" type="number" required></b-form-input>
+                        <b-form-input v-model="repayment.pago" autofocus :state="state" :disabled="load" required></b-form-input>
                     </b-col>
                     <b-col>
                         <b-button type="submit" variant="success" :disabled="load">

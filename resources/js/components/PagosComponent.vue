@@ -91,7 +91,7 @@
                     <b-col sm="5">
                         <b-form-input v-model="deposito.pago" autofocus :state="state" :disabled="load" required></b-form-input>
                     </b-col>
-                    <b-col>
+                    <b-col> 
                         <b-button type="submit" variant="success" :disabled="load">
                             <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
                         </b-button>
