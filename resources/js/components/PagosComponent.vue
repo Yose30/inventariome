@@ -199,7 +199,7 @@
                             </template>
                             <template slot="unidades" slot-scope="row">{{ row.item.unidades | formatNumber }}</template>
                             <template slot="pago" slot-scope="row">$ {{ row.item.pago | formatNumber }}</template>
-                            <template slot="created_at" slot-scope="row">{{ row.created_at | moment }}</template>
+                            <template slot="created_at" slot-scope="row">{{ row.item.created_at | moment }}</template>
                         </b-table>
                     </b-card>
                 </template>
