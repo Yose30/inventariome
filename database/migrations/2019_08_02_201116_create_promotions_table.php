@@ -25,9 +25,9 @@ class CreatePromotionsTable extends Migration
 
         Schema::create('departures', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('promotion_id')->nullable();
+            $table->unsignedBigInteger('promotion_id')->nullable();
             $table->foreign('promotion_id')->references('id')->on('promotions');
-            $table->unsignedInteger('libro_id')->nullable();
+            $table->unsignedBigInteger('libro_id')->nullable();
             $table->foreign('libro_id')->references('id')->on('libros');
             $table->integer('unidades')->default(0);
             $table->integer('unidades_pendientes')->default(0);
@@ -36,7 +36,7 @@ class CreatePromotionsTable extends Migration
 
         Schema::create('devueltas', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('departure_id')->nullable();
+            $table->unsignedBigInteger('departure_id')->nullable();
             $table->foreign('departure_id')->references('id')->on('departures');
             $table->integer('unidades')->default(0);
             $table->timestamps();

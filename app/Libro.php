@@ -9,6 +9,7 @@ use App\Departure;
 use App\Register;
 use App\Registro;
 use App\Vendido;
+use App\Fecha;
 use App\Dato;
 
 class Libro extends Model
@@ -61,5 +62,11 @@ class Libro extends Model
     //Un libro puede tener muchas salidas
     public function departures(){
         return $this->hasMany(Departure::class);
+    }
+
+    //Uno a muchos
+    //Un libro puede pertenecer a muchas fechas 
+    public function fechas(){
+        return $this->hasMany(Fecha::class);
     }
 }

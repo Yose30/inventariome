@@ -12,6 +12,7 @@ use App\Deposito;
 use App\Vendido;
 use App\Cliente;
 use App\Libro;
+use App\Fecha;
 use App\Dato;
 use App\Pago;
 use PDF;
@@ -91,12 +92,14 @@ class RemisionController extends Controller
         $remision = Remisione::whereId($numero)->first();
         $datos = Dato::where('remisione_id', $remision->id)->with('libro')->get();
         $devoluciones = Devolucione::where('remisione_id', $remision->id)->with('libro', 'dato')->get();
+        $fechas = Fecha::where('remisione_id', $remision->id)->with('libro')->get();
         $vendidos = Vendido::where('remisione_id', $remision->id)->with('libro', 'dato', 'pagos')->get();
         return response()->json([
             'remision' => $remision, 
             'datos' => $datos, 
             'devoluciones' => $devoluciones, 
-            'vendidos' => $vendidos
+            'vendidos' => $vendidos,
+            'fechas' => $fechas
         ]);
     }
 

@@ -15,7 +15,7 @@ class CreateRemisionesTable extends Migration
     {
         Schema::create('remisiones', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('cliente_id');
+            $table->unsignedBigInteger('cliente_id');
             $table->foreign('cliente_id')->references('id')->on('clientes');
             $table->double('total', 16, 2)->default(0);
             $table->double('total_devolucion', 16, 2)->default(0);
@@ -30,9 +30,9 @@ class CreateRemisionesTable extends Migration
 
         Schema::create('datos', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('remisione_id')->nullable();
+            $table->unsignedBigInteger('remisione_id')->nullable();
             $table->foreign('remisione_id')->references('id')->on('remisiones');
-            $table->unsignedInteger('libro_id')->nullable();
+            $table->unsignedBigInteger('libro_id')->nullable();
             $table->foreign('libro_id')->references('id')->on('libros');
             $table->float('costo_unitario', 8, 2);
             $table->integer('unidades')->default(0);
@@ -43,11 +43,11 @@ class CreateRemisionesTable extends Migration
 
         Schema::create('devoluciones', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('remisione_id')->nullable();
+            $table->unsignedBigInteger('remisione_id')->nullable();
             $table->foreign('remisione_id')->references('id')->on('remisiones');
-            $table->unsignedInteger('dato_id')->nullable();
+            $table->unsignedBigInteger('dato_id')->nullable();
             $table->foreign('dato_id')->references('id')->on('datos');
-            $table->unsignedInteger('libro_id')->nullable();
+            $table->unsignedBigInteger('libro_id')->nullable();
             $table->foreign('libro_id')->references('id')->on('libros');
             $table->integer('unidades')->default(0);
             $table->integer('unidades_resta')->default(0);

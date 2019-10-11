@@ -8,6 +8,7 @@ use App\Dato;
 use App\Devolucione;
 use App\Vendido;
 use App\Deposito;
+use App\Fecha;
 
 class Remisione extends Model
 {
@@ -53,5 +54,12 @@ class Remisione extends Model
     //Una remision puede tener muchos depositos
     public function depositos(){
         return $this->hasMany(Deposito::class);
+    }
+
+    // 10 - 10- 19
+    //Uno a muchos
+    //Una remision puede tener muchas fechas de devolucion
+    public function fechas(){
+        return $this->hasMany(Fecha::class);
     }
 }

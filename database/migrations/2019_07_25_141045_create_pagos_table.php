@@ -16,11 +16,11 @@ class CreatePagosTable extends Migration
 
         Schema::create('vendidos', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('remisione_id')->nullable();
+            $table->unsignedBigInteger('remisione_id')->nullable();
             $table->foreign('remisione_id')->references('id')->on('remisiones');
-            $table->unsignedInteger('dato_id')->nullable();
+            $table->unsignedBigInteger('dato_id')->nullable();
             $table->foreign('dato_id')->references('id')->on('datos');
-            $table->unsignedInteger('libro_id')->nullable();
+            $table->unsignedBigInteger('libro_id')->nullable();
             $table->foreign('libro_id')->references('id')->on('libros');
             $table->integer('unidades')->default(0);
             $table->double('total', 12, 2)->default(0);
@@ -33,9 +33,9 @@ class CreatePagosTable extends Migration
 
         Schema::create('pagos', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('user_id');
+            $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
-            $table->unsignedInteger('vendido_id');
+            $table->unsignedBigInteger('vendido_id');
             $table->foreign('vendido_id')->references('id')->on('vendidos');
             $table->integer('unidades')->default(0);
             $table->double('pago', 12, 2)->default(0);

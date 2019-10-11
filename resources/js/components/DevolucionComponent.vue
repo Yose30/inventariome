@@ -120,7 +120,7 @@
                             <input 
                             :id="`inpDev-${i}`"
                             type="number" 
-                            v-model="devolucion.unidades"
+                            v-model="devolucion.unidades_base"
                             min="1"
                             max="9999"
                             :disabled="inputUnidades"
@@ -174,6 +174,18 @@
                     </tr>
                 </tbody>
             </table>
+            <hr>
+            <div v-if="fechas.length > 0">
+                <h5>Detalles</h5>
+                <b-table :items="fechas" :fields="fieldsFechas">
+                    <template  slot="isbn" slot-scope="data">
+                        {{ data.item.libro.ISBN}}
+                    </template>
+                    <template  slot="titulo" slot-scope="data">
+                        {{ data.item.libro.titulo}}
+                    </template>
+                </b-table>
+            </div>
         </div>
     </div>
 </template>
@@ -207,7 +219,16 @@
                 resultsClientes: [],
                 perPage: 15,
                 currentPage: 1,
-                loadRegisters: false
+                loadRegisters: false,
+                fechas: [],
+                fieldsFechas: [
+                    { key: 'isbn', label: 'ISBN' },
+                    { key: 'titulo', label: 'Libro' },
+                    // { key: 'costo_unitario', label: 'Costo unitario' },
+                    { key: 'unidades', label: 'Unidades devueltas' },
+                    // { key: 'total', label: 'Subtotal' },
+                    { key: 'fecha_devolucion', label: 'Fecha' }
+                ]
             }
         },
         // created: function(){
@@ -275,9 +296,9 @@
                 });
             },
             guardarUnidades(devolucion, i){
-                if(devolucion.unidades > 0){
-                    if(devolucion.unidades <= devolucion.unidades_resta){
-                        this.devoluciones[i].total = devolucion.dato.costo_unitario * devolucion.unidades;
+                if(devolucion.unidades_base > 0){
+                    if(devolucion.unidades_base <= devolucion.unidades_resta){
+                        this.devoluciones[i].total = devolucion.dato.costo_unitario * devolucion.unidades_base;
                         this.acumularFinal();
                         this.btnGuardar = true;
                         if(i + 1 < this.devoluciones.length){
@@ -300,7 +321,7 @@
                     this.remisiones[this.posicion].estado = response.data.estado;
                     this.remisiones[this.posicion].total_devolucion = response.data.total_devolucion;
                     this.remisiones[this.posicion].total_pagar = response.data.total_pagar;
-                    this.mostrarDevolucion = false;
+                    this.mostrarDevolucion = false; 
                 }).catch(error => {
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
@@ -317,6 +338,7 @@
                 this.devoluciones = [];
                 axios.get('/lista_datos', {params: {numero: remision.id}}).then(response => {
                     this.devoluciones = response.data.devoluciones;
+                    this.fechas = response.data.fechas;
                     this.mostrarDetalles = true;
                     this.remision = remision;
                     this.acumularFinal();

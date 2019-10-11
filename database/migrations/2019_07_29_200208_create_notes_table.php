@@ -27,9 +27,9 @@ class CreateNotesTable extends Migration
 
         Schema::create('registers', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('note_id')->nullable();
+            $table->unsignedBigInteger('note_id')->nullable();
             $table->foreign('note_id')->references('id')->on('notes');
-            $table->unsignedInteger('libro_id')->nullable();
+            $table->unsignedBigInteger('libro_id')->nullable();
             $table->foreign('libro_id')->references('id')->on('libros');
             $table->float('costo_unitario', 8, 2);
             $table->integer('unidades')->default(0);
@@ -47,7 +47,7 @@ class CreateNotesTable extends Migration
 
         Schema::create('payments', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('register_id');
+            $table->unsignedBigInteger('register_id');
             $table->foreign('register_id')->references('id')->on('registers');
             $table->integer('unidades')->default(0);
             $table->double('pago', 12, 2)->default(0);

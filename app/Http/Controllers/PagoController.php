@@ -52,6 +52,9 @@ class PagoController extends Controller
                 'pagos' => $pagos,
                 'total_pagar'   => $total_pagar
             ]);
+            if ((int) $total_pagar === 0) {
+                $remision->update(['estado' => 'Terminado']);
+            }
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();

@@ -15,7 +15,7 @@ class CreateAdeudosTable extends Migration
     {
         Schema::create('adeudos', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('cliente_id');
+            $table->unsignedBigInteger('cliente_id');
             $table->foreign('cliente_id')->references('id')->on('clientes');
             $table->string('remision_num')->nullable();
             $table->date('fecha_adeudo')->nullable();
@@ -28,7 +28,7 @@ class CreateAdeudosTable extends Migration
 
         Schema::create('abonos', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('adeudo_id');
+            $table->unsignedBigInteger('adeudo_id');
             $table->foreign('adeudo_id')->references('id')->on('adeudos');
             $table->double('pago', 16, 2)->default(0);
             $table->timestamps();

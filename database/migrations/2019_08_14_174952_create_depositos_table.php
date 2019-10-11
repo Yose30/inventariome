@@ -15,7 +15,7 @@ class CreateDepositosTable extends Migration
     {
         Schema::create('depositos', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('remisione_id');
+            $table->unsignedBigInteger('remisione_id');
             $table->foreign('remisione_id')->references('id')->on('remisiones');
             $table->double('pago', 16, 2)->default(0);
             $table->timestamps();

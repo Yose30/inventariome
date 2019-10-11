@@ -25,9 +25,9 @@ class CreateEntradasTable extends Migration
 
         Schema::create('registros', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('entrada_id')->nullable();
+            $table->unsignedBigInteger('entrada_id')->nullable();
             $table->foreign('entrada_id')->references('id')->on('entradas');
-            $table->unsignedInteger('libro_id')->nullable();
+            $table->unsignedBigInteger('libro_id')->nullable();
             $table->foreign('libro_id')->references('id')->on('libros');
             $table->float('costo_unitario', 8, 2)->default(0);
             $table->integer('unidades')->default(0);
@@ -39,7 +39,7 @@ class CreateEntradasTable extends Migration
 
         Schema::create('repayments', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('entrada_id');
+            $table->unsignedBigInteger('entrada_id');
             $table->foreign('entrada_id')->references('id')->on('entradas');
             $table->double('pago', 16, 2)->default(0);
             $table->timestamps();
