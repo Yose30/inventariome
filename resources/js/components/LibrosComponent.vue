@@ -1,54 +1,64 @@
 <template>
     <div>
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-4">
+                <!-- BUSCAR LIBRO POR TITULO -->
                 <b-row class="my-1">
                     <b-col sm="2">
-                        <label for="input-cliente">Libro</label>
+                        <label for="input-cliente">Titulo</label>
                     </b-col>
                     <b-col sm="10">
                         <b-input
                             v-model="queryTitulo"
-                            @keyup="mostrarLibros"
+                            @keyup="mostrarLibros()"
                         ></b-input>
                     </b-col>
                 </b-row>
-            </div>
-            <div class="col-md-3">
+                <hr>
+                <!-- BUSCAR LIBRO POR ISBN -->
                 <b-row class="my-1">
-                    <b-col sm="3">
+                    <b-col sm="2">
+                        <label>ISBN</label>
+                    </b-col>
+                    <b-col sm="10">
+                        <b-input
+                            v-model="isbn"
+                            @keyup.enter="buscarLibroISBN()">
+                        </b-input>
+                    </b-col>
+                </b-row>
+            </div>
+            <!-- BUSCAR LIBROS POR EDITORIAL -->
+            <div class="col-md-5">
+                <b-row class="my-1">
+                    <b-col sm="2">
                         <label for="input-cliente">Editorial</label>
                     </b-col>
-                    <b-col sm="9">
-                        <!-- <b-input
-                            v-model="queryEditorial"
-                            @keyup="mostrarPorEditorial"
-                        ></b-input> -->
-                        <b-form-select v-model="queryEditorial" :options="options" @change="mostrarPorEditorial"></b-form-select>
+                    <b-col sm="10">
+                        <b-form-select v-model="queryEditorial" :options="options" @change="mostrarPorEditorial()"></b-form-select>
                     </b-col>
                 </b-row>
             </div>
             <div class="col-md-3" align="right">
+                <!-- AGREGAR UN NUEVO LIBRO -->
                 <b-button 
                     variant="success" 
                     v-if="role_id == 3" 
                     v-b-modal.modal-newLibro>
                     <i class="fa fa-plus"></i> Agregar libro
                 </b-button>
-            </div>
-            <div class="col-md-3" align="right">
-                <b-button variant="info" :disabled="loadRegisters" @click="todosLibros">
-                    <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
-                </b-button>
                 <hr>
-                <b-button variant="primary" :disabled="loadRegisters" href="/downloadExcel">
+                <!-- DESCARGAR LIBROS downloadExcel -->
+                <b-button variant="primary" :disabled="loadRegisters" :href="'/downloadExcel/' + queryEditorial"> 
                     <b-spinner small v-if="loadRegisters"></b-spinner> Descargar Excel
                 </b-button>
             </div>
         </div>
         <hr>
-        <b-table 
-            v-if="tabla_libros" 
+        <!-- v-if="tabla_libros" -->
+        <!-- LISTADO DE LIBROS -->
+        <b-table  
+            responsive
             id="my-table"
             :fields="fields"
             :items="libros"
@@ -61,46 +71,36 @@
                 <b-button variant="outline-warning" v-b-modal.modal-editar @click="editarLibro(data.item, data.index)">
                     <i class="fa fa-pencil"></i>
                 </b-button>
-                <!-- <b-button variant="outline-danger" v-b-modal.modal-eliminar @click="editarLibro(data.item, data.index)">
-                    <i class="fa fa-trash"></i>
-                </b-button> -->
             </template>
         </b-table>
+        <!-- PAGINACIÓN -->
         <b-pagination
-            v-if="tabla_libros"
             v-model="currentPage"
             :total-rows="libros.length"
             :per-page="perPage"
             aria-controls="my-table"
         ></b-pagination>
-
+        <!-- MODAL PARA AGREGAR UN LIBRO -->
         <b-modal id="modal-newLibro" title="Agregar libro">
             <new-libro-component @actualizarLista="actLista"></new-libro-component>
             <div slot="modal-footer"></div>
         </b-modal>
-
+        <!-- MODAL PARA EDITAR UN LIBRO -->
         <b-modal id="modal-editar" title="Editar libro">
             <editar-libro-component :formlibro="formlibro"></editar-libro-component>
             <div slot="modal-footer"></div>
-        </b-modal>
-
-        <b-modal id="modal-eliminar" title="">
-            <label>¿Seguro que deseas eliminar el libro?</label>
-            <div slot="modal-footer" class="text-right">
-                <b-button variant="danger" @click="eliminarLibro"><i class="fa fa-trash"></i> Eliminar</b-button>
-            </div>
         </b-modal>
     </div>
 </template>
 
 <script>
     export default {
-        props: ['role_id'],
+        props: ['role_id', 'registersall'],
         data() {
             return {
                 mostrarNewLibro: false,
                 formlibro: {},
-                libros: [],
+                libros: this.registersall,
                 errors: {},
                 posicion: 0,
                 perPage: 15,
@@ -108,7 +108,7 @@
                 success: false,
                 currentPage: 1,
                 queryTitulo: '',
-                queryEditorial: null,
+                queryEditorial: 'TODO',
                 tabla_libros: false,
                 fields: [
                     {key:'id', label:'N.'}, 
@@ -134,44 +134,54 @@
                     { value: 'BOOKMART MÉXICO', text: 'BOOKMART MÉXICO' },
                     { value: 'ANGLO PUBLISHING', text: 'ANGLO PUBLISHING' },
                     { value: 'LAROUSSE', text: 'LAROUSSE' },
-                    { value: '', text: 'TODOS LOS LIBROS'},
+                    { value: 'TODO', text: 'TODOS LOS LIBROS'},
                 ],
-                loadRegisters: false
+                loadRegisters: false,
+                isbn: '',
+                libro: {}
             }
         },
-        // COMENTARIO
-        // created: function(){
-        //     this.todosLibros();
-        // },
         filters: {
             formatNumber: function (value) {
                 return numeral(value).format("0,0[.]00"); 
             }
         },
         methods: {
-            //Mostrar resultados de la busqueda por titulo del libro
+            // MOSTRAR LIBROS POR COINCIDENCIA DE TITULO
             mostrarLibros(){
                 if(this.queryTitulo.length > 0){
                    axios.get('/mostrarLibros', {params: {queryTitulo: this.queryTitulo}}).then(response => {
                         this.inicializar(response);
                     });
                 }
-                // else{
-                //     this.todosLibros();
-                // } 
             },
-            //Mostrar libros por la editorial
+            // BUSCAR LIBRO POR ISBN
+            buscarLibroISBN () {
+                axios.get('/buscarISBN', {params: {isbn: this.isbn}}).then(response => {
+                    this.libros = [];
+                    this.libro = response.data;
+                    this.libros.push(this.libro);  
+                }).catch(error => {
+                   this.makeToast('danger', 'ISBN incorrecto');
+                });
+            },
+            // MOSTRAR LIBROS POR EDITORIAL
             mostrarPorEditorial(){
-                if(this.queryEditorial.length > 0){
-                   axios.get('/mostrarPorEditorial', {params: {queryEditorial: this.queryEditorial}}).then(response => {
+                if(this.queryEditorial === 'TODO'){
+                    this.todosLibros();
+                }
+                else{
+                    axios.get('/mostrarPorEditorial', {params: {queryEditorial: this.queryEditorial}}).then(response => {
                         this.inicializar(response);
                     }).catch(error => {
                         this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                     });
-                }
-                else{
-                    this.todosLibros();
                 } 
+            },
+            // INICIALIZAR PARA EDITAR LIBRO
+            editarLibro(libro, i){
+                this.formlibro = libro;
+                this.posicion = i;
             },
             inicializar(response){
                 this.libros = [];
@@ -189,13 +199,11 @@
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
-            editarLibro(libro, i){
-                this.formlibro = libro;
-                this.posicion = i;
-            },
+            // AGREGAR LIBRO AL LISTADO (EVENTO)
             actLista(libro){
                 this.libros.push(libro);
             },
+            // ELIMINAR LIBRO (FUNCIÓN NO UTILIZADA)
             eliminarLibro(){
                 axios.delete('/eliminar_libro', {params: {id: this.formlibro.id}}).then(response => {
                     this.$bvModal.hide('modal-eliminar');

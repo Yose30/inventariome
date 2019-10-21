@@ -3,6 +3,7 @@
         <div v-if="!mostrarDetalles && !mostrarPagos">
             <b-row>
                 <b-col sm="3">
+                    <!-- BUSCAR REMISIÓN POR NUMERO -->
                     <b-row class="my-1">
                         <b-col sm="4">
                             <label for="input-numero">Remision</label>
@@ -12,18 +13,19 @@
                                 id="input-numero" 
                                 type="number" 
                                 v-model="remision_id" 
-                                @keyup.enter="porNumero">
+                                @keyup.enter="porNumero()">
                             </b-form-input>
                         </b-col>
                     </b-row>
                 </b-col>
                 <b-col sm="6">
+                    <!-- BUSCAR REMISIÓN POR CLIENTE -->
                     <b-row class="my-1">
                         <b-col sm="2">
                             <label for="input-cliente">Cliente</label>
                         </b-col>
                         <b-col sm="10">
-                            <b-input v-model="queryCliente" @keyup="mostrarClientes">
+                            <b-input v-model="queryCliente" @keyup="mostrarClientes()">
                             </b-input>
                             <div class="list-group" v-if="resultsClientes.length" id="listP">
                                 <a 
@@ -38,14 +40,16 @@
                         </b-col>
                     </b-row>
                 </b-col>
-                <b-col sm="3" align="right">
+                <!-- <b-col sm="3" align="right">
                     <b-button variant="info" :disabled="loadRegisters" @click="getTodo">
                         <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
                     </b-button>
-                </b-col>
+                </b-col> -->
             </b-row>
             <hr>
+            <!-- LISTADO DE REMISIONES -->
             <b-table 
+                responsive
                 :items="remisiones" 
                 :fields="fields" 
                 id="my-table" 
@@ -64,16 +68,12 @@
                         variant="primary" 
                         @click="registrarDeposito(row.item, row.index)">Registrar pago
                     </b-button>
-                    <b-button 
-                        v-if="row.item.total_pagar > 0 && role_id == 3"
-                        variant="primary" 
-                        @click="registrarPago(row.item, row.index)">Registrar pago
-                    </b-button>
                 </template>
                 <template slot="ver_pagos" slot-scope="row">
                     <b-button v-if="row.item.pagos != 0" variant="info" @click="verPagos(row.item)">Ver pagos</b-button>
                 </template>
             </b-table>
+            <!-- PAGINACIÓN -->
             <b-pagination
                 v-model="currentPage"
                 :total-rows="remisiones.length"
@@ -82,8 +82,9 @@
                 v-if="remisiones.length > 0"
             ></b-pagination>
         </div>
+        <!-- MODADL PARA REGISTRAR DEPOSITO -->
         <b-modal id="modal-registrar-deposito" title="Registrar pago">
-            <b-form @submit.prevent="guardarDeposito">
+            <b-form @submit.prevent="guardarDeposito()">
                 <b-row>
                     <b-col sm="2">
                         <label>Pago</label>
@@ -100,63 +101,10 @@
             </b-form>
             <div slot="modal-footer"></div>
         </b-modal>
-
-        <div v-if="mostrarDetalles">
-            <b-row>
-                <b-col>
-                    <h4>Remisión No. {{ remision.id }}</h4>
-                    <label>Cliente: {{ remision.cliente.name }}</label>
-                </b-col>
-                <b-col>
-                    <div class="text-right">
-                        <b-button 
-                            v-if="btnGuardar" 
-                            :disabled="load" 
-                            variant="success" 
-                            @click="guardarUnidades">
-                            <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
-                        </b-button>
-                    </div>
-                </b-col>
-                <b-col>
-                    <div class="text-right">
-                        <b-button variant="outline-secondary" @click="mostrarDetalles = false">
-                            <i class="fa fa-mail-reply"></i> Regresar
-                        </b-button>
-                    </div>
-                </b-col>
-            </b-row>
-            <hr>
-            <b-table :items="remision.vendidos" :fields="fieldsRP">
-                <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
-                <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario | formatNumber }}</template>
-                <template slot="unidades_base" slot-scope="row">
-                    <b-input 
-                        :id="`inpVend-${row.index}`"
-                        type="number" 
-                        :disabled="load"
-                        @change="verificarUnidades(row.item.unidades_base, row.item.unidades_resta, row.item.dato.costo_unitario, row.index)" 
-                        v-model="row.item.unidades_base"> 
-                    </b-input>
-                </template>
-                <template slot="subtotal" slot-scope="row">${{ row.item.total_base | formatNumber }}</template>
-            </b-table>
-            <h5 class="text-right">${{ total_vendido | formatNumber }}</h5>
-        </div>
         <div v-if="mostrarPagos">
             <b-row>
                 <b-col>
-                    <h4>Remisión No. {{ remision.id }}</h4>
-                    <label>Cliente: {{ remision.cliente.name }}</label>
-                </b-col>
-                <b-col>
-                    <br>
-                    <label v-if="remision.total_pagar == 0"><b>Unidades vendidas</b>: {{ remision.unidades | formatNumber }}</label>
-                </b-col>
-                <b-col>
-                    <br>
-                    <label><b>Total</b>: ${{ remision.pagos | formatNumber }}</label><br>
+                    <h5><b>Remisión No. {{ remision.id }}</b></h5>
                 </b-col>
                 <b-col>
                     <div class="text-right">
@@ -166,6 +114,7 @@
                     </div>
                 </b-col>
             </b-row>
+            <label><b>Cliente:</b> {{ remision.cliente.name }}</label>
             <hr>
             <b-table v-if="remision.depositos.length > 0" :items="remision.depositos" :fields="fieldsDep">
                 <template slot="index" slot-scope="row">
@@ -189,6 +138,12 @@
                         {{ row.detailsShowing ? 'Ocultar' : 'Mostrar'}}
                     </b-button>
                 </template>
+                <template slot="thead-top" slot-scope="row">
+                    <tr>
+                        <th colspan="5"></th>
+                        <th>${{ remision.pagos | formatNumber }}</th>
+                    </tr>
+                </template>
                 <template slot="row-details" slot-scope="row">
                     <b-card>
                         <b-table :items="row.item.pagos" :fields="fieldsD">
@@ -210,10 +165,10 @@
 
 <script>
     export default {
-        props: ['role_id'],
+        props: ['role_id', 'registersall'],
         data() {
             return {
-                remisiones: [],
+                remisiones: this.registersall,
                 fields: [
                     {key: 'id', label: 'Remisión No.'}, 
                     'cliente', 
@@ -294,48 +249,71 @@
             }
         },
         methods: {
-            getTodo(){
-                this.loadRegisters = true;
-                axios.get('/all_devoluciones').then(response => {
+            // BUSCAR REMISIÓN POR NUMERO
+            porNumero(){
+                if(this.remision_id > 0){
+                    axios.get('/buscar_por_numero', {params: {num_remision: this.remision_id}}).then(response => {
+                        if(response.data.remision.estado == 'Cancelado')
+                            this.makeToast('warning', 'La remisión esta cancelada');
+                        if(response.data.remision.total_pagar == 0 && (response.data.remision.estado == 'Proceso' || response.data.remision.estado == 'Terminado'))
+                            this.makeToast('warning', 'La remisión ya se encuentra pagada. Consultar en el apartado de remisiones');
+                        if(response.data.remision.total_pagar > 0){
+                            this.remisiones = [];
+                            this.remisiones.push(response.data.remision);
+                        }
+                    }).catch(error => {
+                        this.makeToast('danger', 'Error al consultar el numero de remisión ingresado');
+                    });
+                }
+            },
+            // MOSTRAR CLIENTES POR COINCIDENCIA
+            mostrarClientes(){
+                if(this.queryCliente.length > 0){
+                    axios.get('/mostrarClientes', {params: {queryCliente: this.queryCliente}}).then(response => {
+                        this.resultsClientes = response.data;
+                    }); 
+                }
+                else{
+                    this.resultsClientes = [];
+                }
+            },
+            // MOSTRAR PAGOS DEL CLIENTE
+            pagosCliente(cliente){
+                axios.get('/all_pagos', {params: {cliente_id: cliente.id}}).then(response => {
+                    this.remisiones = [];
                     this.remisiones = response.data;
-                    this.loadRegisters = false;
+                    this.resultsClientes = [];
+                    this.queryCliente = cliente.name;
                 }).catch(error => {
-                    this.loadRegisters = false;
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
+            // INICIALIZAR PARA REGISTRAR PAGO
             registrarDeposito(remision, index){
                 this.pos_remision = index;
                 this.deposito.remision_id = remision.id;
                 this.remision.total_pagar = remision.total_pagar;
                 this.deposito.pago = null;
-                // axios.get('/datos_vendidos', {params: {remision_id: remision.id}}).then(response => {
-                //     if(response.data.depositos.length > 0){
-                //         this.$bvModal.hide('modal-registrar-deposito');
-                //         this.makeToast('warning', 'Los registros de pago de la remisión los esta realizando otro usuario');
-                //     }
-                // }).catch(error => {
-                //     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                // });
             },
-            registrarPago(remision, index){
-                this.pos_remision = index;
+            // LISTAR TODOS LOS PAGOS REALIZADOS
+            verPagos(remision){
+                this.remision.unidades = 0;
                 axios.get('/datos_vendidos', {params: {remision_id: remision.id}}).then(response => {
                     this.remision.id = remision.id;
-                    this.remision.descuento = remision.descuento;
-                    this.remision.cliente = remision.cliente;
+                    this.remision.pagos = remision.pagos;
                     this.remision.vendidos = response.data.vendidos;
-                    if(response.data.depositos.length == 0){
-                        this.mostrarDetalles = true;
-                    }
-                    else{
-                        this.makeToast('warning', 'Los registros de pago de la remisión los esta realizando otro usuario');
-                    }
-                    
+                    this.remision.cliente = remision.cliente;
+                    this.remision.depositos = response.data.depositos;
+                    this.remision.total_pagar = remision.total_pagar;
+                    this.remision.vendidos.forEach(vendido => {
+                        this.remision.unidades += vendido.unidades;
+                    });
+                    this.mostrarPagos = true;
                 }).catch(error => {
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
+            // GIUARDAR DEPOSITO
             guardarDeposito(){
                 if(this.deposito.pago > 0){
                     if(this.deposito.pago <= this.remision.total_pagar){
@@ -362,89 +340,6 @@
                     this.state = false;
                     this.makeToast('warning', 'El pago tiene que ser mayor a 0');
                 }
-            },
-            guardarUnidades(){
-                this.load = true;
-                axios.post('/registrar_pago', this.remision).then(response => {
-                    this.remisiones[this.pos_remision].pagos = response.data.pagos;
-                    this.remisiones[this.pos_remision].total_pagar = response.data.total_pagar;
-                    this.makeToast('success', 'El pago se guardo correctamente');
-                    this.mostrarDetalles = false;
-                    this.load = false;
-                }).catch(error => {
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                    this.load = false;
-                });
-            },
-            verificarUnidades(base, resta, costo, i){
-                if(base > resta){
-                    this.makeToast('warning', 'Las unidades son mayor a las unidades pendientes');
-                    this.remision.vendidos[i].unidades_base = 0;
-                    this.remision.vendidos[i].total_base = 0;
-                }
-                if(base <= resta){
-                    this.total_vendido = 0;
-                    this.remision.vendidos[i].total_base = base * costo;
-                    this.btnGuardar = true;
-                    this.remision.vendidos.forEach(vendido => {
-                        this.total_vendido += vendido.total_base;
-                    });
-                    if(i + 1 < this.remision.vendidos.length){
-                        document.getElementById('inpVend-'+(i+1)).focus();
-                        document.getElementById('inpVend-'+(i+1)).select();
-                    }
-                }
-            },
-            verPagos(remision){
-                this.remision.unidades = 0;
-                axios.get('/datos_vendidos', {params: {remision_id: remision.id}}).then(response => {
-                    this.remision.id = remision.id;
-                    this.remision.pagos = remision.pagos;
-                    this.remision.vendidos = response.data.vendidos;
-                    this.remision.cliente = remision.cliente;
-                    this.remision.depositos = response.data.depositos;
-                    this.remision.total_pagar = remision.total_pagar;
-                    this.remision.vendidos.forEach(vendido => {
-                        this.remision.unidades += vendido.unidades;
-                    });
-                    this.mostrarPagos = true;
-                }).catch(error => {
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                });
-            },
-            mostrarClientes(){
-                if(this.queryCliente.length > 0){
-                    axios.get('/mostrarClientes', {params: {queryCliente: this.queryCliente}}).then(response => {
-                        this.resultsClientes = response.data;
-                    }); 
-                }
-                else{
-                    // this.getTodo();
-                    this.resultsClientes = [];
-                }
-            },
-            pagosCliente(cliente){
-                axios.get('/all_pagos', {params: {cliente_id: cliente.id}}).then(response => {
-                    this.remisiones = [];
-                    this.remisiones = response.data;
-                    this.resultsClientes = [];
-                    this.queryCliente = cliente.name;
-                }).catch(error => {
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                });
-            },
-            porNumero(){
-                axios.get('/num_pagos', {params: {remision_id: this.remision_id}}).then(response => {
-                    if(response.data.id != undefined){
-                        this.remisiones = [];
-                        this.remisiones.push(response.data);
-                    }
-                    else{
-                        this.makeToast('warning', 'No se puede consultar el numero de remisión ingresado');
-                    }
-                }).catch(error => {
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                });
             },
             makeToast(variant = null, descripcion) {
                 this.$bvToast.toast(descripcion, {

@@ -1,6 +1,6 @@
 <template>
     <div align="center">
-        <b-form @submit.prevent="onSubmit">
+        <b-form @submit.prevent="onSubmit()">
             <b-row class="my-1">
                 <b-col align="right">Nombre</b-col>
                 <div class="col-md-7">
@@ -99,6 +99,7 @@
             }
         },
         methods: {
+            // GUARDAR NUEVO CLIENTE
             onSubmit() {
                 this.loaded = true;
                 this.errors = {};

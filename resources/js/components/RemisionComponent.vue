@@ -1,16 +1,18 @@
 <template>
     <div>
         <div class="row">
-            <h4 class="col-md-4">{{ !editar ? 'Crear remisión': `Editar remisión N. ${bdremision.id}` }}</h4>
+            <h4 style="color: #170057" class="col-md-4">{{ !editar ? 'Crear remisión': `Editar remisión N. ${bdremision.id}` }}</h4>
+            <!-- CREAR NUEVA REMISIÓN -->
             <div class="col-md-2"> 
-                <b-button 
+                <!-- <b-button 
                     variant="success" 
-                    @click="nuevaRemision" 
+                    @click="nuevaRemision()" 
                     v-if="btnNuevo">
                     <i class="fa fa-plus"></i>
-                </b-button>
+                </b-button> -->
                 <div>
-                    <b-button 
+                    <!-- CERRAR LA REMISIÓN QUE SE ESTABA CREANDO -->
+                    <!-- <b-button 
                         variant="danger"
                         @click="show=true" 
                         v-if="!btnNuevo">
@@ -19,34 +21,22 @@
                     <b-modal v-model="show" title="Cerrar remisión">
                         <p><b><i class="fa fa-exclamation-triangle"></i> No se guardara ningún cambio</b></p>
                         <div slot="modal-footer">
-                            <b-button @click="cancelarRemision">OK</b-button>
+                            <b-button @click="cancelarRemision()">OK</b-button>
                         </div>
-                    </b-modal>
+                    </b-modal> -->
                 </div>
             </div>
+            <!-- GUARDAR LOS DATOS DE LA REMISIÓN -->
             <div class="col-md-4">
                 <b-button 
                     :disabled="load"
-                    @click="guardarRemision" 
+                    @click="guardarRemision()" 
                     variant="success"
                     v-if="mostrarGuardar && !editar && items.length > 0">
                     <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
                 </b-button>
-                <!-- <b-button 
-                    @click="actRemision" 
-                    variant="success"
-                    v-if="mostrarActualizar && items.length > 0">
-                    <i class="fa fa-check"></i> Guardar
-                </b-button> -->
             </div>
-            <!-- <div class="col-md-2">
-                <b-button 
-                    variant="warning" 
-                    @click="editarRemision"
-                    v-if="mostrarOpciones">
-                    <i class="fa fa-pencil"></i>
-                </b-button>
-            </div> -->
+            <!-- IMPRIMIR LA REMSIÓN -->
             <div class="col-md-2">
                 <a 
                     class="btn btn-info"
@@ -57,43 +47,25 @@
             </div>
         </div>
         <hr>
+        <!-- SELECCIONAR CLIENTE PARA UNA NUEVA REMISIÓN -->
         <div align="center" v-if="mostrarBusqueda && !btnNuevo">
-            <!-- <div align="left">
-                <button 
-                    class="btn btn-light" 
-                    v-if="clientes.length > 0 && !listaClientes" 
-                    @click="listaClientes = true;">
-                    <i class="fa fa-users"></i> Clientes
-                </button>
-            </div>
-            <div align="right">
-                <button 
-                    id="btnCancelar" 
-                    class="btn btn-danger" 
-                    v-if="btnEditarInf" 
-                    @click="mostrarBusqueda = false; mostrarDatos = true; mostrarForm = true;">
-                    <i class="fa fa-close"></i>
-                </button>
-            </div> -->
             <div v-if="listaClientes">
-                <!-- <b-alert v-if="clientes.length == 0" show variant="secondary">
-                    <i class="fa fa-exclamation-triangle"></i> No hay clientes registrados, ir al apartado de <b>Agregar cliente</b> para poder continuar.
-                </b-alert> -->
                 <div v-if="clientes.length > 0">
                     <b-row>
-                        <b-col sm="4"><h6 align="left">Seleccionar cliente</h6></b-col>
+                        <b-col sm="4"><h6 align="left"><b>Seleccionar cliente</b></h6></b-col>
                         <b-col>
                             <b-row>
                                 <b-col sm="2">
                                     <label for="input-cliente"><i class="fa fa-search"></i> Buscar</label>
                                 </b-col>
                                 <b-col sm="10">
-                                    <b-input v-model="queryCliente" autofocus @keyup="mostrarClientes"></b-input>
+                                    <b-input v-model="queryCliente" autofocus @keyup="mostrarClientes()"></b-input>
                                 </b-col>
                             </b-row>
                         </b-col>
                     </b-row>
                     <hr>
+                    <!-- LISTADO DE CLIENTES -->
                     <b-table 
                         :items="clientes" 
                         :fields="fieldsClientes" 
@@ -106,6 +78,7 @@
                             </b-button>
                         </template>
                     </b-table>
+                    <!-- PAGINACIÓN -->
                     <b-pagination
                         v-model="currentPage"
                         :total-rows="clientes.length"
@@ -117,14 +90,15 @@
         </div>
         <hr>
         <div v-if="!mostrarBusqueda">
+            <!-- MOSTRAR DATOS DEL CLIENTE -->
             <div class="row">
-                <h6 class="col-md-10">Datos del cliente</h6>
+                <h6 class="col-md-10"><b>Datos del cliente</b></h6>
                 <div class="col-md-1">
                     <b-button 
                         id="btnEditar" 
                         variant="warning" 
                         :disabled="btnInformacion" 
-                        @click="editarInformacion"><i class="fa fa-pencil"></i>
+                        @click="editarInformacion()"><i class="fa fa-pencil"></i>
                     </b-button>
                 </div>
                 <b-button 
@@ -158,7 +132,7 @@
                     type="date" 
                     v-model="fecha" 
                     :disabled="inputFecha"
-                    @change="sel_fecha">
+                    @change="sel_fecha()">
                 </b-form-input>
                 <div class="text-danger">{{ respuestaFecha }}</div>
             </div>
@@ -180,21 +154,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(item, i) in items" v-bind:key="i">
-                        <td>{{ item.ISBN }}</td>
-                        <td>{{ item.titulo }}</td>
-                        <td>$ {{ item.costo_unitario }}</td>
-                        <td>{{ item.unidades }}</td>
-                        <td>$ {{ item.total }}</td>
-                        <td>
-                            <b-button 
-                                variant="danger" 
-                                @click="eliminarRegistro(item, i)" 
-                                v-if="botonEliminar">
-                                <i class="fa fa-minus-circle"></i>
-                            </b-button>
-                        </td>
-                    </tr>
                     <tr>
                         <td>
                             <b-input
@@ -210,10 +169,10 @@
                             <b-input
                                 v-model="queryTitulo"
                                 autofocus
-                                @keyup="mostrarLibros"
+                                @keyup="mostrarLibros()"
                                 v-if="inputLibro"
                             ></b-input>
-                            <div class="list-group" v-if="resultslibros.length">
+                            <div class="list-group" v-if="resultslibros.length" id="listaL">
                                 <a 
                                     class="list-group-item list-group-item-action" 
                                     href="#" 
@@ -233,9 +192,8 @@
                                 v-if="inputCosto"
                                 min="1"
                                 max="9999"
-                                @keyup.enter="guardarCosto">
-                            </b-input> 
-                            <!-- <b v-if="!inputCosto">$ {{ temporal.costo_unitario }}</b> -->
+                                @keyup.enter="guardarCosto()">
+                            </b-input>
                         </td>
                         <td>
                             <b-input 
@@ -245,15 +203,30 @@
                             v-if="inputUnidades"
                             min="1"
                             max="9999"
-                            @keyup.enter="guardarRegistro"
+                            @keyup.enter="guardarRegistro()"
                             ></b-input>
                         </td>
                         <td></td>
                         <td>
                             <b-button 
                                 variant="secondary"
-                                @click="eliminarTemporal" 
+                                @click="eliminarTemporal()" 
                                 v-if="inputCosto || inputUnidades">
+                                <i class="fa fa-minus-circle"></i>
+                            </b-button>
+                        </td>
+                    </tr>
+                    <tr v-for="(item, i) in items" v-bind:key="i">
+                        <td>{{ item.ISBN }}</td>
+                        <td>{{ item.titulo }}</td>
+                        <td>$ {{ item.costo_unitario }}</td>
+                        <td>{{ item.unidades }}</td>
+                        <td>$ {{ item.total }}</td>
+                        <td>
+                            <b-button 
+                                variant="danger" 
+                                @click="eliminarRegistro(item, i)" 
+                                v-if="botonEliminar">
                                 <i class="fa fa-minus-circle"></i>
                             </b-button>
                         </td>
@@ -266,6 +239,7 @@
 
 <script>
     export default {
+        props: ['registersall'],
         data() {
             return {
                 load: false,
@@ -315,7 +289,7 @@
                 btnEditarInf: false,
                 descuento: 0,
                 pagar: 0,
-                clientes: [],
+                clientes: this.registersall,
                 listaClientes: false,
                 fieldsClientes: [
                     {key: 'name', label: 'Nombre'},
@@ -327,109 +301,15 @@
                 currentPage: 1,
             }
         },
+        created: function() {
+            this.btnEditarInf = false;
+            this.listaClientes = true;
+            this.ini_1();
+            this.ini_2();
+            this.ini_4();
+        },
         methods: {
-            //Inicializar valores para crear una nueva remision
-            nuevaRemision(){
-                this.btnEditarInf = false;
-                this.listaClientes = true;
-                this.ini_1();
-                this.ini_2();
-                this.ini_4();
-                this.getTodo();
-            },
-            //Cerrar la remisión
-            cancelarRemision(){
-                this.ini_4();
-                this.show = false;
-                this.btnEditarInf = false;
-                this.listaClientes = false;
-                this.btnNuevo = true;
-            },
-            //Obtener todos los clientes registrados
-            getTodo(){
-                axios.get('/getTodo').then(response => {
-                    this.clientes = response.data;
-                });
-            },
-            mostrarClientes(){
-                if(this.queryCliente.length > 0){
-                    axios.get('/mostrarClientes', {params: {queryCliente: this.queryCliente}}).then(response => {
-                        this.clientes = response.data;
-                    }); 
-                }
-                else{
-                    this.getTodo();
-                }
-            },
-            //Buscar libro por ISBN
-            buscarLibroISBN(){
-                axios.get('/buscarISBN', {params: {isbn: this.isbn}}).then(response => {
-                    this.inicializar();
-                    this.temporal = response.data;
-                    
-                }).catch(error => {
-                   this.makeToast('danger', 'ISBN incorrecto');
-                });
-            },
-            //Buscar libro por titulo, Mostrar resultados de la busqueda
-            mostrarLibros(){
-                if(this.queryTitulo.length > 0){
-                   axios.get('/mostrarLibros', {params: {queryTitulo: this.queryTitulo}}).then(response => {
-                        this.resultslibros = response.data;
-                    });
-                } 
-                else{
-                    this.resultslibros = [];
-                }
-            },
-            //Mostrar datos del libro seleccionado 
-            datosLibro(libro){
-                this.inicializar();
-                this.temporal = {
-                    id: libro.id,
-                    ISBN: libro.ISBN,
-                    titulo: libro.titulo,
-                    costo_unitario: null,
-                    unidades: null,
-                    total: 0,
-                    piezas: libro.piezas
-                };
-            },
-            //Asignar la fecha seleccionada
-            sel_fecha(){
-                this.bdremision.fecha_entrega = this.fecha;
-            },
-            //Guardar un registro de la remision
-            guardarRegistro(){
-                if(this.unidades > 0){
-                    if(this.unidades <= this.temporal.piezas){
-                        if(this.costo_unitario > 0){
-                            this.mostrarDatos = false;
-                            this.temporal.unidades = this.unidades;
-                            this.temporal.total = this.unidades * this.temporal.costo_unitario;
-                            this.items.push(this.temporal);
-                            this.total_remision += this.temporal.total;
-                            this.inicializar_registro();
-                        }
-                        else{
-                            this.makeToast('danger', 'El costo debe ser mayor a 0');
-                        } 
-                    }
-                    else{
-                        this.makeToast('danger', `${this.temporal.piezas} piezas en existencia`);
-                    }
-                }
-                else{
-                    this.makeToast('danger', 'Unidades invalidas');
-                }
-            },
-            //Eliminar registro de la remision
-            eliminarRegistro(item, i){
-                this.items.splice(i, 1);
-                this.total_remision = this.total_remision - item.total;
-                this.bdremision.total = this.total_remision;
-            },
-            //Guardar toda la remision
+            // GUARDAR DATOS DE REMISIÓN
             guardarRemision(){
                 this.load = true;
                 this.bdremision.total = this.total_remision;
@@ -454,31 +334,84 @@
                     this.load = false;
                 }
             },
-            //Editar la remision
-            // editarRemision(){
-            //     this.ini_1();
-            //     this.mostrarActualizar = true;
-            //     this.inputFecha = false;
-            //     this.botonEliminar = true;
-            //     this.editar = true;
-            // },
-            //Guardar cambios de la remision
-            // actRemision(){
-            //     this.bdremision.total = this.total_remision;
-            //     axios.put('/actualizar_remision', this.bdremision).then(response => {
-            //         this.mostrarActualizar = false;
-            //         this.inicializar_guardar();
-            //     });
-            // }, 
-            eliminarTemporal(){
-                this.ini_1();
-                this.ini_2();
-                this.inputCosto = false;
-                this.queryTitulo = '';
-                this.respuestaUnidades = '';
-                this.respuestaCosto = '';
-                this.costo_unitario = null;
+            // MOSTRAR COINCIDENCIA DE CLIENTES
+            mostrarClientes(){
+                if(this.queryCliente.length > 0){
+                    axios.get('/mostrarClientes', {params: {queryCliente: this.queryCliente}}).then(response => {
+                        this.clientes = response.data;
+                    }); 
+                }
+                else{
+                    this.getTodo();
+                }
             },
+            // OBTENER TODOS LOS CLIENTES
+            getTodo(){
+                axios.get('/getTodo').then(response => {
+                    this.clientes = response.data;
+                }).catch(error => {
+                   this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
+            },
+            // ASIGNAR DATOS DE CLIENTE SELECCIONADO
+            seleccionCliente(cliente){
+                this.inicializar_editar(cliente); 
+                this.listaClientes = false;
+            },
+            // INICIALIZAR PARA CAMBIAR CLIENTE
+            editarInformacion(){
+                this.listaClientes = true;
+                this.mostrarBusqueda = true;
+                this.mostrarDatos = false;
+                this.btnEditarInf = true;
+                this.form = this.dato;
+                this.mostrarForm = false;
+            },
+            // ASIGNAR FECHA SELECCIONADA
+            sel_fecha(){
+                this.bdremision.fecha_entrega = this.fecha;
+            },
+            // ELIMINAR REGISTRO DE ARRAY
+            eliminarRegistro(item, i){
+                this.items.splice(i, 1);
+                this.total_remision = this.total_remision - item.total;
+                this.bdremision.total = this.total_remision;
+            },
+            // BUSCAR LIBRO POR ISBN
+            buscarLibroISBN(){
+                axios.get('/buscarISBN', {params: {isbn: this.isbn}}).then(response => {
+                    this.inicializar();
+                    this.temporal = response.data;
+                    
+                }).catch(error => {
+                   this.makeToast('danger', 'ISBN incorrecto');
+                });
+            },
+            // MOSTRAR LIBROS POR COINCIDENCIA
+            mostrarLibros(){
+                if(this.queryTitulo.length > 0){
+                   axios.get('/mostrarLibros', {params: {queryTitulo: this.queryTitulo}}).then(response => {
+                        this.resultslibros = response.data;
+                    });
+                } 
+                else{
+                    this.resultslibros = [];
+                }
+            },
+            // ASIGNAR DATOS DE LIBRO SELECCIONADO
+            datosLibro(libro){
+                this.inicializar();
+                this.temporal = {
+                    id: libro.id,
+                    ISBN: libro.ISBN,
+                    titulo: libro.titulo,
+                    costo_unitario: null,
+                    unidades: null,
+                    total: 0,
+                    piezas: libro.piezas
+                };
+            },
+            // VERIFICAR EL COSTO INGRESADO
             guardarCosto(){
                 if(this.costo_unitario > 0){
                     this.temporal.costo_unitario = this.costo_unitario;
@@ -491,18 +424,47 @@
                     
                 } 
             },
-            //Editar información del cliente
-            editarInformacion(){
-                this.listaClientes = true;
-                this.mostrarBusqueda = true;
-                this.mostrarDatos = false;
-                this.btnEditarInf = true;
-                this.form = this.dato;
-                this.mostrarForm = false;
-            }, 
-            seleccionCliente(cliente){
-                this.inicializar_editar(cliente); 
+            // GUARDAR REGISTRO TEMPORAL
+            guardarRegistro(){
+                if(this.unidades > 0){
+                    if(this.unidades <= this.temporal.piezas){
+                        if(this.costo_unitario > 0){
+                            this.mostrarDatos = false;
+                            this.temporal.unidades = this.unidades;
+                            this.temporal.total = this.unidades * this.temporal.costo_unitario;
+                            this.items.push(this.temporal);
+                            this.total_remision += this.temporal.total;
+                            this.inicializar_registro();
+                        }
+                        else{
+                            this.makeToast('danger', 'El costo debe ser mayor a 0');
+                        } 
+                    }
+                    else{
+                        this.makeToast('danger', `${this.temporal.piezas} piezas en existencia`);
+                    }
+                }
+                else{
+                    this.makeToast('danger', 'Unidades invalidas');
+                }
+            },
+            // ELIMINAR REGISTRO TEMPORAL
+            eliminarTemporal(){
+                this.ini_1();
+                this.ini_2();
+                this.inputCosto = false;
+                this.queryTitulo = '';
+                this.respuestaUnidades = '';
+                this.respuestaCosto = '';
+                this.costo_unitario = null;
+            },
+            //Cerrar la remisión (ELIMINADO)
+            cancelarRemision(){
+                this.ini_4();
+                this.show = false;
+                this.btnEditarInf = false;
                 this.listaClientes = false;
+                this.btnNuevo = true;
             },
             //Inicializar los valores
             inicializar(){
@@ -600,5 +562,9 @@
         background-color: transparent;
         border: 0ch;
         font-size: 25px;
+    }
+    #listaL{
+        position: absolute;
+        z-index: 100
     }
 </style>

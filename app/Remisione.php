@@ -8,6 +8,7 @@ use App\Dato;
 use App\Devolucione;
 use App\Vendido;
 use App\Deposito;
+use App\Donacione;
 use App\Fecha;
 
 class Remisione extends Model
@@ -18,6 +19,7 @@ class Remisione extends Model
         'tipo', 
         'total', 
         'total_devolucion', 
+        'total_donacion',
         'total_pagar', 
         'fecha_entrega', 
         'estado', 
@@ -61,5 +63,11 @@ class Remisione extends Model
     //Una remision puede tener muchas fechas de devolucion
     public function fechas(){
         return $this->hasMany(Fecha::class);
+    }
+
+    //Uno a muchos
+    //UNa remision puede tener muchas donaciones
+    public function donaciones(){
+        return $this->hasMany(Donacione::class);
     }
 }

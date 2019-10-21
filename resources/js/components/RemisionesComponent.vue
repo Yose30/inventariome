@@ -2,7 +2,8 @@
     <div>
         <div v-if="!mostrarDetalles">
             <b-row>
-                <b-col sm="3">
+                <b-col sm="4">
+                    <!-- BUSCAR REMISION POR NUMERO -->
                     <b-row class="my-1">
                         <b-col sm="4">
                             <label for="input-numero">Remision</label>
@@ -12,18 +13,19 @@
                                 id="input-numero" 
                                 type="number" 
                                 v-model="num_remision" 
-                                @keyup.enter="porNumero">
+                                @keyup.enter="porNumero()">
                             </b-form-input>
                         </b-col>
                     </b-row>
                 </b-col>
-                <b-col sm="6">
+                <!-- BUSCAR REMISION POR CLIENTE -->
+                <b-col sm="8">
                     <b-row class="my-1">
-                        <b-col sm="2" align="right">
+                        <b-col sm="2">
                             <label for="input-cliente">Cliente</label>
                         </b-col>
                         <b-col sm="10">
-                            <b-input v-model="queryCliente" @keyup="mostrarClientes"></b-input>
+                            <b-input v-model="queryCliente" @keyup="mostrarClientes()"></b-input>
                             <div class="list-group" v-if="resultsClientes.length" id="listR">
                                 <a 
                                     href="#" 
@@ -37,14 +39,17 @@
                         </b-col>
                     </b-row>
                 </b-col>
-                <b-col sm="3" align="right"> 
+                <!-- MOSTRAR TODAS LAS REMISIONES -->
+                <!-- <b-col sm="3" align="right"> 
                     <b-button variant="info" :disabled="loadRegisters" @click="getTodo">
                         <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
                     </b-button>
-                </b-col>  
+                </b-col>   -->
             </b-row> 
             <hr>
+            <!-- LISTADO DE REMISIONES -->
             <b-table 
+                responsive
                 :items="remisiones" 
                 :fields="fields"
                 v-if="remisiones.length > 0"
@@ -73,6 +78,7 @@
                     </b-button>
                 </template>
             </b-table>
+            <!-- PAGINACIÓN -->
             <b-pagination
                 v-model="currentPage"
                 :total-rows="remisiones.length"
@@ -81,20 +87,12 @@
                 v-if="remisiones.length > 0"
             ></b-pagination>
         </div>
+        <!-- DETALLES DE LA REMISIÓN -->
         <div v-if="mostrarDetalles">
             <b-row>
                 <b-col>
-                    <h4>Remisión No. {{ remision.id }}</h4>
-                    <label>Cliente: {{ remision.cliente.name }}</label>
-                </b-col>
-                <b-col>
-                    <br>
-                    <label><b>Unidades</b>: {{ total_unidades | formatNumber }}</label>
-                </b-col>
-                <b-col>
-                    <br>
-                    <label><b>Total</b>: ${{ remision.total | formatNumber }}</label>
-                    <br>
+                    <h5><b>Remisión No. {{ remision.id }}</b></h5>
+                    <label><b>Fecha de creación:</b> {{ remision.created_at | moment }}</label>
                 </b-col>
                 <b-col>
                     <div class="text-right">
@@ -104,6 +102,7 @@
                     </div>
                 </b-col>
             </b-row>
+            <label>Cliente: {{ remision.cliente.name }}</label>
             <hr>
             <b-table :items="remision.datos" :fields="fieldsD">
                 <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
@@ -111,6 +110,13 @@
                 <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
                 <template slot="subtotal" slot-scope="row">${{ row.item.total | formatNumber }}</template>
                 <template slot="unidades" slot-scope="row">{{ row.item.unidades | formatNumber }}</template>
+                <template slot="thead-top" slot-scope="row">
+                    <tr>
+                        <th colspan="3"></th>
+                        <th>{{ total_unidades | formatNumber }}</th>
+                        <th>${{ remision.total | formatNumber }}</th>
+                    </tr>
+                </template>
             </b-table>
         </div>
     </div>
@@ -118,12 +124,13 @@
 
 <script>
     export default {
+        props: ['registersall'],
         data() {
             return {
                 num_remision: null,
                 queryCliente: '',
                 resultsClientes: [],
-                remisiones: [],
+                remisiones: this.registersall,
                 fields: [
                     {key: 'id', label: 'No.'}, 
                     {key: 'fecha_creacion', label: 'Fecha de creación'}, 
@@ -148,29 +155,33 @@
             }
         },
         filters: {
+            moment: function (date) {
+                return moment(date).format('DD-MM-YYYY');
+            },
             formatNumber: function (value) {
                 return numeral(value).format("0,0[.]00"); 
             }
         },
-        // created: function(){
-		// 	this.getTodo();
-		// },
         methods: {
+            // BUSCAR REMISIÓN POR NUMERO
             porNumero(){
                 if(this.num_remision > 0){
                     axios.get('/buscar_por_numero', {params: {num_remision: this.num_remision}}).then(response => {
-                        if(response.data.remision.estado == 'Cancelado' || (response.data.remision.total_pagar == 0 && (response.data.remision.estado == 'Proceso' || response.data.remision.estado == 'Terminado')))
-                            this.makeToast('warning', 'No se puede consultar el numero de remisión ingresado');
+                        if(response.data.remision.estado == 'Cancelado')
+                            this.makeToast('warning', 'La remisión esta cancelada');
+                        if(response.data.remision.estado == 'Proceso' || response.data.remision.estado == 'Terminado')
+                            this.makeToast('warning', 'La remisión ya fue marcada como entregada. Consultar en el apartado de remisiones');
                         else{
                             this.remision = response.data.remision;
                             this.remisiones = [];
                             this.remisiones.push(this.remision);
                         }
                     }).catch(error => {
-                        this.makeToast('warning', 'El numero de remisión no existe');
+                        this.makeToast('danger', 'Error al consultar el numero de remisión ingresado');
                     });
                 }
             },
+            // MOSTRAR LOS CLIENTES
             mostrarClientes(){
                 if(this.queryCliente.length > 0){
                     axios.get('/mostrarClientes', {params: {queryCliente: this.queryCliente}}).then(response => {
@@ -179,46 +190,35 @@
                 }
                 else{
                     this.resultsClientes = [];
-                    // this.getTodo();
                 }
             },
+            // MOSTRAR REMISIONES INICIADAS POR CLIENTE
             porCliente(result){
                 axios.get('/buscar_por_cliente', {params: {id: result.id, inicio: this.inicio, final: this.final}}).then(response => {
                     this.queryCliente = result.name;
                     this.resultsClientes = [];
                     this.remisiones = [];
                     response.data.forEach(data => {
-                        // if(data.estado != 'Cancelado'){
-                        //     this.remisiones.push(data);
-                        // }
-                        if(data.estado == 'Cancelado' || (data.total_pagar == 0 && (data.estado == 'Proceso' || data.estado == 'Terminado'))){}    
-                        else{
+                        if(data.estado == 'Iniciado'){
                             this.remisiones.push(data);
                         }
                     });
                 });
             },
-            getTodo(){
-                this.loadRegisters = true;
-                axios.get('/get_iniciados').then(response => {
-                    this.resultsClientes = [];
-                    this.remisiones = response.data;
-                    this.loadRegisters = false;
-                }).catch(error => {
-                    this.loadRegisters = false;
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                });
-            },
+            // MARCAR ENTREGA DE REMISIÓN
             entregaLibros(remision, i){
                 this.load = true;
                 axios.put('/vendidos_remision', remision).then(response => {
                     this.load = false;
                     this.remisiones[i].estado = response.data.remision.estado;
+                    // this.remisiones.splice(i,1);
+                    this.makeToast('success', 'La remisión ha sido marcada como entregada');
                 }).catch(error => {
                     this.load = false;
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 }); 
             },
+            // VER DETALLES DE LA REMISIÓN
             viewDetalles(remision){
                 this.remision.id = remision.id;
                 this.remision.cliente = remision.cliente;
@@ -226,7 +226,7 @@
                 this.total_unidades = 0;
                 axios.get('/lista_datos', {params: {numero: remision.id}}).then(response => {
                     this.mostrarDetalles = true;
-                    this.remision.datos = response.data.datos;
+                    this.remision.datos = response.data.remision.datos;
                     this.remision.datos.forEach(dato => {
                         this.total_unidades += dato.unidades;
                     });

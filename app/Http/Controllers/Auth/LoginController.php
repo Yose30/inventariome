@@ -39,13 +39,13 @@ class LoginController extends Controller
 
     public function redirectPath(){
         if(auth()->user()->role_id == 1){
-            return '/home';
+            return '/administrador/remisiones';
         }
         if(auth()->user()->role_id == 2){
-            return '/inicio';
+            return '/oficina/remisiones';
         }
         if(auth()->user()->role_id == 3){
-            return '/devolucion';
+            return '/almacen/entregas';
         }
     } 
     //METODOS SOBREESCRITOS

@@ -1,27 +1,31 @@
 <template>
     <div>
         <b-row>
-            <b-col sm="6">
+            <b-col sm="8">
+                <!-- BUSCAR CLIENTE POR NOMBRE -->
                 <b-row class="my-1">
-                    <b-col sm="3">
+                    <b-col sm="1">
                         <label for="input-cliente">Cliente</label>
                     </b-col>
-                    <b-col sm="9">
-                        <b-input v-model="queryCliente" @keyup="mostrarClientes"></b-input>
+                    <b-col sm="6">
+                        <b-input v-model="queryCliente" @keyup="mostrarClientes()"></b-input>
                     </b-col>
                 </b-row>
             </b-col>
-            <b-col sm="3">
+            <!-- AGREGAR NUEVO CLIENTE -->
+            <b-col sm="4">
                 <b-button v-if="role_id == 2" variant="success" v-b-modal.modal-nuevoCliente><i class="fa fa-plus"></i> Agregar cliente</b-button>
             </b-col>
-            <b-col sm="3" align="right">
+            <!-- <b-col sm="3" align="right">
                 <b-button variant="info" :disabled="loadRegisters" @click="getTodo">
                     <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
                 </b-button>
-            </b-col>
+            </b-col> -->
         </b-row>
         <hr>
+        <!-- LISTADO DE CLIENTES -->
         <b-table 
+            responsive
             :items="clientes" 
             :fields="fields"
             id="my-table" 
@@ -32,7 +36,7 @@
                 <b-button 
                     v-if="role_id == 2" 
                     v-b-modal.modal-editarCliente 
-                    variant="outline-warning" 
+                    variant="warning" 
                     @click="editarCliente(row.item, row.index)">
                     <i class="fa fa-pencil"></i> Editar
                 </b-button>
@@ -41,6 +45,7 @@
                 <b-button variant="info" v-b-modal.modal-detalles @click="form = row.item">Detalles</b-button>
             </template>
         </b-table>
+        <!-- PAGINACIÓN -->
         <b-pagination
             v-model="currentPage"
             :total-rows="clientes.length"
@@ -48,12 +53,12 @@
             aria-controls="my-table"
             v-if="clientes.length > 0"
         ></b-pagination>
-
+        <!-- MODAL PARA AGREGAR UN CLIENTE -->
         <b-modal id="modal-nuevoCliente" title="Agregar cliente">
             <new-client-component @actualizarClientes="actClientes"></new-client-component>
             <div slot="modal-footer"></div>
         </b-modal>
-
+        <!-- MODAL PARA MOSTRAR LOS DETALLES DEL CLIENTE -->
         <b-modal id="modal-detalles" :title="`${form.name}`">
             <label><b>Contacto:</b> {{ form.contacto }}</label><br>
             <label><b>Correo:</b> {{ form.email }}</label><br>
@@ -62,9 +67,9 @@
             <label><b>Condiciones de pago:</b> {{ form.condiciones_pago }}</label><br>
             <div slot="modal-footer"></div>
         </b-modal>
-
+        <!-- MODAL PARA AGREGAR CLIENTE -->
         <b-modal id="modal-editarCliente" title="Editar cliente">
-            <b-form @submit.prevent="onUpdate">
+            <b-form @submit.prevent="onUpdate()">
                 <b-row class="my-1">
                     <b-col align="right">Nombre</b-col>
                     <div class="col-md-7">
@@ -151,10 +156,10 @@
 
 <script>
     export default {
-        props: ['role_id'],
+        props: ['role_id', 'registersall'],
         data() {
             return {
-               clientes: [],
+               clientes: this.registersall,
                fields: [
                    {key: 'id', label: 'N.'},
                    {key: 'name', label: 'Nombre'},
@@ -183,30 +188,16 @@
                 loadRegisters: false
             }
         },
-        // created: function(){
-		// 	this.getTodo();
-		// },
         methods: {
-            getTodo(){
-                this.loadRegisters = true;
-                axios.get('/getTodo').then(response => {
-                    this.clientes = response.data;
-                    this.loadRegisters = false;
-                }).catch(error => {
-                    this.loadRegisters = false;
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                });
-            },
+            // MOSTRAR TODOS LOS CLIENTES
             mostrarClientes(){
                 if(this.queryCliente.length > 0){
                     axios.get('/mostrarClientes', {params: {queryCliente: this.queryCliente}}).then(response => {
                         this.clientes = response.data;
                     }); 
                 }
-                // else{
-                //     this.getTodo();
-                // }
             },
+            // INICIALIZAR PARA EDITAR CLIENTE
             editarCliente(cliente, i){
                 this.posicion = i;
                 this.form = {
@@ -226,6 +217,11 @@
                 this.form.direccion = cliente.direccion;
                 this.form.condiciones_pago = cliente.condiciones_pago;
             },
+            // AGREGAR CLIENTE A LA LISTA (EVENTO)
+            actClientes(cliente){
+                this.clientes.push(cliente);
+            },
+            // ACTUALIZAR DATOS DE CLIENTE
             onUpdate(){
                 this.loaded = true;
                 axios.put('/editar_cliente', this.form).then(response => {
@@ -246,9 +242,6 @@
                         this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                     }
                 });
-            },
-            actClientes(cliente){
-                this.clientes.push(cliente);
             },
             makeToast(variant = null, descripcion) {
                 this.$bvToast.toast(descripcion, {

@@ -11,20 +11,36 @@ class LibrosExport implements FromCollection,WithHeadings{
     /**
     * @return \Illuminate\Support\Collection
     */
+
+    protected $editorial;
+    
+    public function __construct($editorial)
+    {
+        $this->editorial = $editorial;
+    }
+
     public function headings(): array
     {
         return [
             // 'id',
-            'isbn',
+            'isbn', 
             'titulo',
             'editorial',
             'piezas'
         ];
     }
-    public function collection(){
-         $libros = DB::table('libros')
-                        ->select('isbn', 'titulo', 'editorial', 'piezas')
-                        ->orderBy('editorial','asc')->get();
+    public function collection(){ 
+        if($this->editorial === 'TODO'){
+            $libros = DB::table('libros')
+                    ->select('isbn', 'titulo', 'editorial', 'piezas')
+                    ->orderBy('editorial','asc')->get();
+        }
+        else{
+            $libros = DB::table('libros')
+                    ->select('isbn', 'titulo', 'editorial', 'piezas')
+                    ->where('editorial', $this->editorial)
+                    ->orderBy('editorial','asc')->get();
+        }
         return $libros;
         
     }

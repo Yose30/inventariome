@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\SoftDeletes; //línea necesaria
 use Illuminate\Database\Eloquent\Model;
 use App\Devolucione;
 use App\Departure;
+use App\Donacione;
 use App\Register;
 use App\Registro;
 use App\Vendido;
@@ -68,5 +69,11 @@ class Libro extends Model
     //Un libro puede pertenecer a muchas fechas 
     public function fechas(){
         return $this->hasMany(Fecha::class);
+    }
+
+    //Uno a muchos
+    //Un libro puede tener muchas donaciones
+    public function donaciones(){
+        return $this->hasMany(Donacione::class);
     }
 }

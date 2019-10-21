@@ -14,9 +14,18 @@ class RoleMiddleware
      * @return mixed
      */
     public function handle($request, Closure $next, $role){
-        if(auth()->user()->role_id != $role){
-            abort(401, __("No puedes acceder a este sitio"));
+        if(auth()->check() && auth()->user()->role->rol === $role){
+            // abort(401, __("No puedes acceder a este sitio"));
+            return $next($request);
         }
-        return $next($request);
+        if(auth()->user()->role_id === 1){
+            return redirect()->route('administrador.remisiones');
+        }
+        if(auth()->user()->role_id === 2){
+            return redirect()->route('oficina.remisiones');
+        }
+        if(auth()->user()->role_id === 3){
+            return redirect()->route('almacen.entregas');
+        }
     }
 }

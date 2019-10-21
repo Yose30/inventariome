@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-form @submit.prevent="actualizarLibro">
+        <b-form @submit.prevent="actualizarLibro()">
             <b-row class="my-1">
                 <label align="right" class="col-md-3">Titulo</label>
                 <div class="col-md-9">
@@ -76,7 +76,7 @@
             }
         },
         methods: {
-            //Actualizar libro
+            // ACTUALIZAR DATOS DEL LIBRO
             actualizarLibro(){
                 this.loaded = true;
                 axios.put('/actualizar_libro', this.libro).then(response => {

@@ -10,21 +10,18 @@ use App\Dato;
 
 class ClienteController extends Controller
 {
-    //Nuevo cliente
-    public function store(Request $request){
-        $this->validacion($request);
-        try {
-            \DB::beginTransaction();
-            $cliente = Cliente::create($request->input());
-            \DB::commit();
-        } catch (Exception $e) {
-            \DB::rollBack();
-            return response()->json($exception->getMessage());
-        }
-        return response()->json($cliente);
+    // MOSTRAR TODOS LOS CLIENTES
+    // Función utilizada en los componentes
+    // - AdeudosComponent - ClientesComponent - DevolucionAdeudosComponent
+    // - DevolucionComponent - ListadoComponent - PagosComponent - RemisionComponent - RemisionesComponent
+    public function show(){
+        $queryCliente = Input::get('queryCliente');
+        $clientes = Cliente::where('name','like','%'.$queryCliente.'%')->get();
+        return response()->json($clientes);
     }
 
-    //Editar cliente
+    // EDITAR DATOS DE CLIENTE
+    // Función utilizada en ClientesComponent
     public function editar(Request $request){
         $cliente = Cliente::whereId($request->id)->first();
         $cliente->name = 'prueba';
@@ -47,6 +44,28 @@ class ClienteController extends Controller
         return response()->json($cliente);
     }
 
+    // OBTENER TODOS LOS CLIENTES
+    // Función utilizada en AdeudosComponent, RemisionComponent
+    public function getTodo(){
+        $clientes = Cliente::get();
+        return response()->json($clientes);
+    }
+
+    // GUARDAR NUEVO CLIENTE
+    // Función utilizada en NewClienteComponent
+    public function store(Request $request){
+        $this->validacion($request);
+        try {
+            \DB::beginTransaction();
+            $cliente = Cliente::create($request->input());
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
+        return response()->json($cliente);
+    }
+
     public function validacion($request){
         $this->validate($request, [
             'name' => 'min:3|max:100|required|string|unique:clientes',
@@ -55,25 +74,5 @@ class ClienteController extends Controller
             'direccion' => 'min:3|max:150|required|string',
             'condiciones_pago' => 'min:3|max:150|required|string'
         ]);
-    }
-    
-    public function show(){
-        $queryCliente = Input::get('queryCliente');
-        $clientes = Cliente::where('name','like','%'.$queryCliente.'%')->get();
-        // ->select('id', 'name', 'direccion')
-        return response()->json($clientes);
-    }
-
-    public function getCliente(){
-        $id = Input::get('id');
-        $remision_id = Input::get('remision_id');
-        $cliente = Cliente::whereId($id)->first();
-        $datos = Dato::where('remisione_id', $remision_id)->with('libro')->get();
-        return response()->json(['cliente' => $cliente, 'datos' => $datos]);
-    }
-
-    public function getTodo(){
-        $clientes = Cliente::get();
-        return response()->json($clientes);
     }
 }

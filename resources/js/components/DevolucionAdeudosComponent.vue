@@ -2,6 +2,7 @@
     <div>
         <div v-if="listadoAdeudos">
             <b-row>
+                <!-- BUSCAR ADEUDO POR NUMERO DE REMISION -->
                 <b-col sm="3">
                     <b-row class="my-1">
                         <b-col sm="4">
@@ -12,7 +13,7 @@
                                 id="input-numero" 
                                 type="number" 
                                 v-model="num_remision" 
-                                @keyup.enter="porNumero">
+                                @keyup.enter="porNumero()">
                             </b-form-input>
                         </b-col>
                     </b-row>
@@ -23,10 +24,7 @@
                             <label for="input-cliente">Cliente</label>
                         </b-col>
                         <b-col sm="10">
-                            <b-input
-                            v-model="queryCliente"
-                            @keyup="mostrarClientes"
-                            ></b-input>
+                            <b-input v-model="queryCliente" @keyup="mostrarClientes()"></b-input>
                             <div class="list-group" v-if="resultsClientes.length" id="listaAD">
                                 <a 
                                     href="#" 
@@ -40,14 +38,16 @@
                         </b-col>
                     </b-row>
                 </b-col>
-                <b-col sm="3" align="right">
+                <!-- <b-col sm="3" align="right">
                     <b-button variant="info" :disabled="loadRegisters" @click="obtenerAdeudos">
                         <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
                     </b-button>
-                </b-col>
+                </b-col> -->
             </b-row>
             <hr>
+            <!-- LISTADO DE ADEUDOS -->
             <b-table 
+                responsive
                 :items="adeudos" 
                 :fields="fieldsA" 
                 :tbody-tr-class="rowClass"
@@ -90,6 +90,7 @@
                     </tr>
                 </template>
             </b-table>
+            <!-- PAGINACIÓN -->
             <b-pagination
                 v-model="currentPage"
                 :total-rows="adeudos.length"
@@ -98,63 +99,15 @@
                 v-if="adeudos.length > 0"
             ></b-pagination>
         </div>
-
-        <div v-if="mostrarRegistrar">
-            <b-row>
-                <b-col align="right">
-                    <b-button 
-                        variant="success" 
-                        @click="guardarDevolucion" 
-                        :disabled="load">
-                        <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
-                    </b-button>
-                </b-col>
-                <b-col align="right">
-                    <b-button variant="secondary" @click="mostrarRegistrar = false; listadoAdeudos = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
-                </b-col>
-            </b-row>
-            <hr>
-            <b-row>
-                <b-col>
-                    <label>Remisión No.: {{ adeudo.remision_num }}</label><br>
-                    <label>Fecha del adeudo: {{ adeudo.fecha_adeudo }}</label>
-                </b-col>
-                <b-col align="right">
-                    <label><b>Total adeudo</b>: ${{ adeudo.total_adeudo | formatNumber }}</label>
-                </b-col>
-            </b-row>
-            <hr>
-            <b-table :items="adeudo.devoluciones" :fields="fieldsRD">
-                <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
-                <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
-                <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario | formatNumber }}</template>
-                <template slot="unidades" slot-scope="row">
-                    <b-input 
-                        :id="`inpAdeuDev-${row.index}`"
-                        type="number" 
-                        @change="obtenerSubtotal(row.item, row.index)"
-                        v-model="row.item.unidades">
-                    </b-input>
-                </template>
-                <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
-            </b-table>
-        </div> 
-
+        <!-- MOSTRAR DETALLES DEL ADEUDO -->
         <div v-if="mostrarAbonos">
             <b-row>
                 <b-col sm="4">
-                    <label><b>Cliente</b><br>{{ adeudo.cliente.name }}</label>
+                    <label><b>Remision No.</b>: {{ adeudo.remision_num }}</label><br>
+                    <label><b>Fecha</b>: {{ adeudo.created_at | moment}}</label>
                 </b-col>
-                <b-col sm="2">
-                    <!-- <label><b>Total adeudo</b> ${{ adeudo.total_adeudo }}</label> -->
-                </b-col>
-                <b-col sm="2">
-                    <!-- <label><b>Pagos</b> ${{ adeudo.total_abonos }}</label>
-                    <label><b>Devolución</b> ${{ adeudo.total_devolucion }}</label> -->
-                </b-col>
-                <b-col sm="2">
-                    <!-- <label><b>Total pendiente</b> ${{ adeudo.total_pendiente }}</label> -->
+                <b-col sm="6"  class="text-right">
+                    <label><b>Total pendiente</b> ${{ adeudo.total_pendiente | formatNumber }}</label>
                 </b-col>
                 <b-col sm="2" align="right">
                     <b-button variant="secondary" @click="listadoAdeudos = true; mostrarAbonos = false;">
@@ -162,8 +115,10 @@
                     </b-button>
                 </b-col>
             </b-row>
+            <label><b>Cliente</b>: {{ adeudo.cliente.name }}</label>
             <hr>
-            <div class="row">
+            <!-- SALIDA -->
+            <div class="row" v-if="adeudo.datos.length > 0">
                 <h4 class="col-md-10">Salida</h4>
                 <b-button 
                     variant="link" 
@@ -181,10 +136,50 @@
                     <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
                     <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
                     <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
+                    <!-- ENCABEZADO DE TOTALES -->
+                    <template slot="thead-top" slot-scope="row">
+                        <tr>
+                            <th colspan="5"></th>
+                            <th>${{ adeudo.total_adeudo | formatNumber }}</th>
+                        </tr>
+                    </template>
                 </b-table>
             </b-collapse>
             <hr>
-            <div class="row">
+            <!-- PAGOS -->
+            <div class="row" v-if="adeudo.abonos.length > 0">
+                <h4 class="col-md-10">Pagos</h4>
+                <b-button 
+                    variant="link" 
+                    :class="mostrarPagos ? 'collapsed' : null"
+                    :aria-expanded="mostrarPagos ? 'true' : 'false'"
+                    aria-controls="collapse-3"
+                    @click="mostrarPagos = !mostrarPagos">
+                    <i class="fa fa-sort-asc"></i>
+                </b-button>
+            </div>
+            <b-collapse id="collapse-3" v-model="mostrarPagos" class="mt-2">
+                <b-table :items="adeudo.abonos" :fields="fieldsP">
+                    <template slot="index" slot-scope="row">
+                        {{ row.index + 1 }}
+                    </template>
+                    <template slot="pago" slot-scope="row">
+                        ${{ row.item.pago | formatNumber }}
+                    </template>
+                    <template slot="created_at" slot-scope="row">
+                        {{ row.item.created_at | moment }}
+                    </template>
+                    <!-- ENCABEZADO DE TOTALES -->
+                    <template slot="thead-top" slot-scope="row">
+                        <tr>
+                            <th colspan="1"></th>
+                            <th>${{ adeudo.total_abonos | formatNumber }}</th>
+                        </tr>
+                    </template>
+                </b-table>
+            </b-collapse>
+            <hr>
+            <div class="row" v-if="adeudo.devoluciones.length > 0">
                 <h4 class="col-md-10">Devolución</h4>
                 <b-button 
                     variant="link" 
@@ -202,56 +197,58 @@
                     <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
                     <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario | formatNumber }}</template>
                     <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
+                    <!-- ENCABEZADO DE TOTALES -->
+                    <template slot="thead-top" slot-scope="row">
+                        <tr>
+                            <th colspan="5"></th>
+                            <th>${{ adeudo.total_devolucion | formatNumber }}</th>
+                        </tr>
+                    </template>
                 </b-table>
             </b-collapse>
-            <!-- <hr>
-            <div class="row">
-                <h4 class="col-md-10">Pagos</h4>
-                <b-button 
-                    variant="link" 
-                    :class="mostrarPagos ? 'collapsed' : null"
-                    :aria-expanded="mostrarPagos ? 'true' : 'false'"
-                    aria-controls="collapse-3"
-                    @click="mostrarPagos = !mostrarPagos">
-                    <i class="fa fa-sort-asc"></i>
-                </b-button>
-            </div>
-            <b-collapse id="collapse-3" v-model="mostrarPagos" class="mt-2">
-                
-            </b-collapse>
+        </div>
+        <!-- REGISTRAR DEVOLUCIÓN -->
+        <div v-if="mostrarRegistrar">
+            <h4 style="color: #170057">Registro de devolución</h4>
             <hr>
             <div class="row">
-                <h4 class="col-md-10">Pagar</h4>
-                <b-button 
-                    variant="link" 
-                    :class="mostrarFinal ? 'collapsed' : null"
-                    :aria-expanded="mostrarFinal ? 'true' : 'false'"
-                    aria-controls="collapse-3"
-                    @click="mostrarFinal = !mostrarFinal">
-                    <i class="fa fa-sort-asc"></i>
-                </b-button>
+                <div class="col-md-6"><h5><b>Remisión No. {{ adeudo.remision_num }}</b></h5></div>
+                <div class="col-md-3 text-right">
+                    <b-button 
+                        variant="success" 
+                        @click="guardarDevolucion()" 
+                        :disabled="load">
+                        <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
+                    </b-button>
+                </div>
+                <div class="col-md-3 text-right">
+                    <b-button variant="secondary" @click="mostrarRegistrar = false; listadoAdeudos = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
+                </div>
             </div>
-            <b-collapse id="collapse-3" v-model="mostrarFinal" class="mt-2">
-                
-            </b-collapse> -->
-            <!-- <b-table :items="adeudo.abonos" :fields="fieldsP">
-                <template slot="index" slot-scope="row">
-                    {{ row.index + 1 }}
+            <label><b>Cliente:</b> {{ adeudo.cliente.name }}</label>
+            <hr>
+            <b-table :items="adeudo.devoluciones" :fields="fieldsRD">
+                <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
+                <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
+                <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
+                <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario | formatNumber }}</template>
+                <template slot="unidades" slot-scope="row">
+                    <b-input 
+                        :id="`inpAdeuDev-${row.index}`"
+                        type="number" 
+                        @change="obtenerSubtotal(row.item, row.index)"
+                        v-model="row.item.unidades">
+                    </b-input>
                 </template>
-                <template slot="pago" slot-scope="row">
-                    ${{ row.item.pago }}
-                </template>
-                <template slot="created_at" slot-scope="row">
-                    {{ row.item.created_at | moment }}
-                </template>
-            </b-table> -->
+                <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
+            </b-table>
         </div>
     </div>
 </template>
 
 <script>
     export default {
-        props: ['role_id'],
+        props: ['role_id', 'registersall'],
         data() {
             return {
                 datos: [],
@@ -295,12 +292,15 @@
                     fecha_adeudo: '',
                     total_adeudo: 0,
                     total_pendiente: 0,
+                    total_abonos: 0,
+                    total_devolucion: 0,
                     datos: [],
-                    devoluciones: []
+                    devoluciones: [],
+                    abonos: []
                 },
                 state: null,
                 load: false,
-                adeudos: [],
+                adeudos: this.registersall,
                 fieldsA: [
                     {key: 'remision_num', label: 'Remisión No.'},
                     {key: 'cliente_id', label: 'Cliente'},
@@ -350,9 +350,6 @@
                 loadRegisters: false
             }
         },
-        // created: function(){
-		// 	this.obtenerAdeudos();
-        // },
         filters: {
             moment: function (date) {
                 return moment(date).format('DD-MM-YYYY');
@@ -361,7 +358,11 @@
                 return numeral(value).format("0,0[.]00"); 
             }
         },
+        created: function(){
+			this.acumular();
+        },
         methods: {
+            // BUSCAR ADEUDO POR NUMERO DE REMISIÓN
             porNumero(){
                 if(this.num_remision > 0){
                     axios.get('/buscar_adeudo', {params: {num_remision: this.num_remision}}).then(response => {
@@ -378,138 +379,57 @@
                     });
                 }
             },
-            buscarLibroISBN(){
-                axios.get('/buscarISBN', {params: {isbn: this.isbn}}).then(response => {
-                    this.datosLibro(response.data);
-                }).catch(error => {
-                    this.makeToast('danger', 'ISBN incorrecto');
-                });
-            },
-            mostrarLibros(){
-                if(this.queryTitulo.length > 0){
-                   axios.get('/mostrarLibros', {params: {queryTitulo: this.queryTitulo}}).then(response => {
-                        this.resultslibros = response.data;
-                    });
-               } 
-            },
-            datosLibro(libro){
-                this.temporal = {
-                    id: libro.id,
-                    libro: {
-                        ISBN: libro.ISBN,
-                        titulo: libro.titulo,
-                        piezas: libro.piezas,
-                    },
-                    costo_unitario: 0,
-                    unidades: 0,
-                    total: 0
-                };
-                this.ini_1();
-            },
-            ini_1(){
-                this.inputLibro = false;
-                this.inputISBN = false;
-                this.inputCosto = true;
-                this.resultslibros = [];
-            },
-            guardarRegistro(){
-                if(this.unidades > 0){
-                    this.temporal.unidades = this.unidades;
-                    this.temporal.total = this.temporal.unidades * this.temporal.costo_unitario;
-                    // if(this.editar == true){
-                    //     this.nuevos.push(this.temporal);
-                    // }
-                    this.datos.push(this.temporal);
-                    this.adeudo.total_adeudo += this.temporal.total;
-                    this.eliminarTemporal();
+            // MOSTRAR COINCIDENCIA DE CLIENTES
+            mostrarClientes(){
+                if(this.queryCliente.length > 0){
+                    axios.get('/mostrarClientes', {params: {queryCliente: this.queryCliente}}).then(response => {
+                        this.resultsClientes = response.data;
+                    }); 
                 }
                 else{
-                    this.makeToast('warning', 'Unidades invalidas');
+                    this.resultsClientes = [];
                 }
             },
-            eliminarTemporal(){
-                this.inputUnidades = false;
-                this.inputLibro = true;
-                this.inputISBN = true;
-                this.queryTitulo = '';
-                this.temporal = {};
-                this.unidades = '';
-                this.costo_unitario = '';
-                this.inputCosto = false;
-                this.isbn = '';
-            },
-            eliminarRegistro(dato, i){
-                // if(this.editar == true){
-                //     this.eliminados.push(registro);
-                // }
-                this.datos.splice(i, 1);
-                this.adeudo.total_adeudo = this.adeudo.total_adeudo - dato.total;
-            },
-            rowClass(item, type) {
-                if (!item) return
-                if (item.total_pendiente == 0) return 'table-success'
-            },
-            guardarCosto(){
-                if(this.costo_unitario > 0){
-                    this.inputUnidades = true;
-                    this.temporal.costo_unitario = this.costo_unitario;
-                }
-                else{
-                    this.makeToast('warning', 'Costo invalido');
-                }
-            },
-            verificarRemision(){
-                if(this.adeudo.remision_num.length > 0){
-                    axios.get('/buscarRemision', {params: {remision_num: this.adeudo.remision_num}}).then(response => {
-                        if(response.data.adeudo == 0 && response.data.remision == 0){
-                            this.stateR = null;
-                        }
-                        else{
-                            this.stateR = false;
-                            this.makeToast('danger', 'El numero de remisión ya existe');
-                        }
-                    }).catch(error => {
-                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                    });
-                }
-                else{
-                    this.stateR = false;
-                    this.makeToast('danger', 'Definir folio');
-                }
-            },
-            obtenerAdeudos(){
-                this.loadRegisters = true;
-                axios.get('/obtener_adeudos').then(response => {
+            // MOSTRAR ADEUDOS DEL CLIENTE SELECCIONADO
+            adeudosCliente(cliente){
+                this.resultsClientes = [];
+                this.queryCliente = cliente.name;
+                axios.get('/adeudos_cliente', {params: {cliente_id: cliente.id}}).then(response => {
                     this.adeudos = response.data;
-                    this.loadRegisters = false;
                     this.acumular();
                 }).catch(error => {
-                    this.loadRegisters = false;
+                    this.load = false;
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
-            registrarAdeudo(){
-                this.clientes = [];
-                this.cliente = {};
-                this.mostrarSeleccionar = true;
-                this.mostrarDatos = false;
-                this.mostrarForm = false;
+            // MOSTRAR LOS DETALLES DE ADEUDO
+            detallesAdeudo(adeudo){
                 this.ini_adeudo();
-                axios.get('/getTodo').then(response => {
-                    this.clientes = response.data;
+                axios.get('/detalles_adeudo', {params: {id: adeudo.id}}).then(response => {
+                    this.mostrarSalida = false;
+                    this.mostrarDevolucion = false;
+                    this.mostrarPagos = false;
+                    this.mostrarFinal = false;
+                    this.adeudo = {
+                        cliente_id: response.data.adeudo.cliente_id,
+                        cliente: response.data.adeudo.cliente,
+                        remision_num: response.data.adeudo.remision_num,
+                        fecha_adeudo: response.data.adeudo.fecha_adeudo,
+                        total_adeudo: response.data.adeudo.total_adeudo,
+                        total_abonos: response.data.adeudo.total_abonos,
+                        total_devolucion: response.data.adeudo.total_devolucion,
+                        total_pendiente: response.data.adeudo.total_pendiente,
+                        datos: response.data.datos,
+                        devoluciones: response.data.devoluciones,
+                        abonos: response.data.adeudo.abonos
+                    };
                     this.listadoAdeudos = false;
-                    this.mostrarRegistrar = true;
+                    this.mostrarAbonos = true;
                 }).catch(error => {
-                   this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
-            seleccionCliente(cliente){
-                this.cliente = {};
-                this.cliente = cliente;
-                this.mostrarSeleccionar = false;
-                this.mostrarDatos = true;
-                this.mostrarForm = true;
-            },
+            // REGISTRAR DEVOLUCIÓN DE ADEUDO
             registrarDevAdeudo(adeudo, i){
                 this.posicion = i;
                 this.ini_adeudo();
@@ -521,6 +441,8 @@
                         remision_num: response.data.adeudo.remision_num,
                         fecha_adeudo: response.data.adeudo.fecha_adeudo,
                         total_adeudo: response.data.adeudo.total_adeudo,
+                        total_abonos: response.data.adeudo.total_abonos,
+                        total_devolucion: response.data.adeudo.total_devolucion,
                         total_pendiente: response.data.adeudo.total_pendiente,
                         datos: response.data.datos,
                         devoluciones: response.data.devoluciones
@@ -531,6 +453,7 @@
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
+            // GUARDAR DEVOLUCIÓN
             guardarDevolucion(){
                 this.load = true;
                 axios.put('/guardar_adeudo_devolucion', this.adeudo).then(response => {
@@ -545,110 +468,7 @@
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
-            registrarAbono(adeudo, i){
-                this.ini_adeudo();
-                this.abono = { adeudo_id: 0, pago: 0, };
-                this.posicion = i;
-                this.adeudo = adeudo;
-                this.abono.adeudo_id = this.adeudo.id;
-            },
-            guardarAbono(){
-                if(this.abono.pago > 0){
-                    if(this.abono.pago <= this.adeudo.total_pendiente){
-                        this.state = null;
-                        this.load = true;
-                        axios.post('/guardar_abono', this.abono).then(response => {
-                            this.$bvModal.hide('modal-pago');
-                            this.load = false;
-                            this.adeudos[this.posicion].total_abonos = response.data.total_abonos;
-                            this.adeudos[this.posicion].total_pendiente = response.data.total_pendiente;
-                            this.acumular();
-                        })
-                        .catch(error => {
-                            this.load = false;
-                            this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                        });
-                    }
-                    else{
-                        this.state = false;
-                        this.makeToast('warning', 'El pago es mayor al total pendiente');
-                    }
-                }
-                else{
-                    this.state = false;
-                    this.makeToast('warning', 'El pago tiene que ser mayor a 0');
-                }
-            },
-            detallesAdeudo(adeudo){
-                this.ini_adeudo();
-                axios.get('/detalles_adeudo', {params: {id: adeudo.id}}).then(response => {
-                    this.mostrarSalida = false;
-                    this.mostrarDevolucion = false;
-                    this.mostrarPagos = false;
-                    this.mostrarFinal = false;
-                    this.adeudo = {
-                        cliente_id: response.data.adeudo.cliente_id,
-                        cliente: response.data.adeudo.cliente,
-                        remision_num: response.data.adeudo.remision_num,
-                        fecha_adeudo: response.data.adeudo.fecha_adeudo,
-                        total_adeudo: response.data.adeudo.total_adeudo,
-                        total_pendiente: response.data.adeudo.total_pendiente,
-                        datos: response.data.datos,
-                        devoluciones: response.data.devoluciones
-                    };
-                    this.listadoAdeudos = false;
-                    this.mostrarAbonos = true;
-                }).catch(error => {
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                });
-            },
-            ini_adeudo(){
-                this.adeudo = {
-                    id: 0,
-                    cliente_id: 0,
-                    cliente: {},
-                    remision_num: 0,
-                    fecha_adeudo: '',
-                    total_adeudo: 0,
-                    total_pendiente: 0,
-                    datos: [],
-                    devoluciones: []
-                };
-            },
-            acumular(){
-                this.total_adeudo = 0;
-                this.total_pagos = 0;
-                this.total_pendiente = 0;
-                this.total_devolucion = 0;
-                this.adeudos.forEach(adeudo => {
-                    this.total_adeudo += adeudo.total_adeudo;
-                    this.total_pagos += adeudo.total_abonos;
-                    this.total_pendiente += adeudo.total_pendiente;
-                    this.total_devolucion += adeudo.total_devolucion;
-                });
-            },
-            mostrarClientes(){
-                if(this.queryCliente.length > 0){
-                    axios.get('/mostrarClientes', {params: {queryCliente: this.queryCliente}}).then(response => {
-                        this.resultsClientes = response.data;
-                    }); 
-                }
-                else{
-                    this.resultsClientes = [];
-                    // this.obtenerAdeudos();
-                }
-            },
-            adeudosCliente(cliente){
-                this.resultsClientes = [];
-                this.queryCliente = cliente.name;
-                axios.get('/adeudos_cliente', {params: {cliente_id: cliente.id}}).then(response => {
-                    this.adeudos = response.data;
-                    this.acumular();
-                }).catch(error => {
-                    this.load = false;
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                });
-            },
+            // VERIFICAR LAS UNIDADES PARA OBTENER EL SUBTOTAL
             obtenerSubtotal(devolucion, i){
                 if(devolucion.unidades >= 0){
                     if(devolucion.unidades > devolucion.unidades_resta){
@@ -667,6 +487,38 @@
                 else{
                     this.makeToast('warning', 'Unidades invalidas');
                 }
+            },
+            rowClass(item, type) {
+                if (!item) return
+                if (item.total_pendiente == 0) return 'table-success'
+            },
+            ini_adeudo(){
+                this.adeudo = {
+                    id: 0,
+                    cliente_id: 0,
+                    cliente: {},
+                    remision_num: 0,
+                    fecha_adeudo: '',
+                    total_adeudo: 0,
+                    total_pendiente: 0,
+                    total_abonos: 0,
+                    total_devolucion: 0,
+                    datos: [],
+                    devoluciones: [],
+                    abonos: []
+                };
+            },
+            acumular(){
+                this.total_adeudo = 0;
+                this.total_pagos = 0;
+                this.total_pendiente = 0;
+                this.total_devolucion = 0;
+                this.adeudos.forEach(adeudo => {
+                    this.total_adeudo += adeudo.total_adeudo;
+                    this.total_pagos += adeudo.total_abonos;
+                    this.total_pendiente += adeudo.total_pendiente;
+                    this.total_devolucion += adeudo.total_devolucion;
+                });
             },
             makeToast(variant = null, descripcion) {
                 this.$bvToast.toast(descripcion, {

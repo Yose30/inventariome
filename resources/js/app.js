@@ -36,10 +36,6 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 // const files = require.context('./', true, /\.vue$/i);
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default));
 
-Vue.component('inicio-component', require('./components/InicioComponent.vue').default);
-Vue.component('home-component', require('./components/HomeComponent.vue').default);
-Vue.component('almacen-component', require('./components/AlmacenComponent.vue').default);
-
 Vue.component('editar-libro-component', require('./components/EditarLibroComponent.vue').default);
 Vue.component('remision-component', require('./components/RemisionComponent.vue').default);
 Vue.component('remisiones-component', require('./components/RemisionesComponent.vue').default);

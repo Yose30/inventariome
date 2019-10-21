@@ -2,48 +2,49 @@
     <div>
         <div v-if="listadoNotas">
             <b-row>
-                <b-col sm="4">
+                <!-- BUSCAR POR NOTA FOLIO -->
+                <b-col sm="3">
                     <b-row class="my-1">
-                        <b-col sm="2">
+                        <b-col sm="4">
                             <label for="input-folio">Folio</label>
                         </b-col>
-                        <b-col sm="10">
+                        <b-col sm="8">
                             <b-form-input 
                                 id="input-folio" 
                                 v-model="folio" 
-                                @keyup.enter="porFolio">
+                                @keyup.enter="porFolio()">
                             </b-form-input>
                         </b-col>
                     </b-row>
                 </b-col>
-                <b-col sm="4">
+                <!-- BUSCAR NOTA POR CLIENTE -->
+                <b-col sm="6">
                     <b-row class="my-1">
                         <b-col sm="2">
                             <label for="input-cliente">Cliente</label>
                         </b-col>
-                        <b-col sm="9">
-                            <b-input v-model="queryCliente" @keyup="porCliente"></b-input>
+                        <b-col sm="10">
+                            <b-input v-model="queryCliente" @keyup="porCliente()"></b-input>
                         </b-col>
                     </b-row>
                 </b-col> 
-                <b-col sm="2">
+                <b-col sm="3">
                     <div v-if="role_id == 3">
-                        <b-button variant="success" @click="func_crearNota"><i class="fa fa-plus"></i> Crear nota</b-button>
+                        <b-button variant="success" @click="func_crearNota()"><i class="fa fa-plus"></i> Crear nota</b-button>
                     </div>
                 </b-col>  
-                <b-col sm="2" align="right">
+                <!-- <b-col sm="2" align="right">
                     <b-button variant="info" :disabled="loadRegisters" @click="getTodo">
                         <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
                     </b-button>
-                </b-col> 
+                </b-col>  -->
             </b-row> 
             <hr>
         </div>
+        <!-- LISTADO DE NOTAS -->
         <div v-if="listadoNotas">
-            <!-- <b-alert v-if="!mostrarDetalles && !mostrarCrearNota && !mostrarNewPago && notes.length == 0" show variant="secondary">
-                <i class="fa fa-exclamation-triangle"></i> No hay notas
-            </b-alert> -->
             <b-table 
+                responsive
                 v-if="notes.length > 0" 
                 :items="notes" :fields="fieldsN"
                 id="my-table" 
@@ -65,30 +66,30 @@
                     ${{ row.item.total_pagar | formatNumber }}
                 </template>
                 <template slot="detalles" slot-scope="row">
-                    <b-button variant="outline-info" @click="detallesNota(row.item)">Detalles</b-button>
+                    <b-button variant="secondary" @click="detallesNota(row.item)">Detalles</b-button>
                 </template>
                 <template slot="pagar" slot-scope="row">
                     <b-button 
                         v-if="role_id == 3 && row.item.total_pagar > 0" 
-                        variant="outline-primary" 
-                        @click="registrarPago(row.item, row.index)">Registrar pago
+                        variant="primary" 
+                        @click="registrarPago(row.item, row.index)">Pago
                     </b-button>
                 </template>
                 <template slot="devolucion" slot-scope="row">
                     <b-button
                         v-if="role_id == 3 && row.item.total_pagar > 0" 
-                        variant="outline-primary"
-                        @click="registrarDevolucion(row.item, row.index)">Registrar devolución</b-button>
+                        variant="info"
+                        @click="registrarDevolucion(row.item, row.index)">Devolución</b-button>
                 </template>
                 <template slot="editar" slot-scope="row">
-                    <!--  && row.item.total_pagar == row.item.total_salida -->
                     <b-button
                         v-if="role_id == 3 && row.item.total_pagar > 0" 
-                        variant="outline-warning"
+                        variant="warning"
                         @click="editarNota(row.item, row.index)"
                         >Editar</b-button>
                 </template>
             </b-table>
+            <!-- PAGINACIÓN -->
             <b-pagination
                 v-model="currentPage"
                 :total-rows="notes.length"
@@ -97,59 +98,16 @@
                 v-if="notes.length > 0"
             ></b-pagination>
         </div>
-        <div v-if="mostrarNewPago">
-            <h5>Registrar pago</h5>
-            <hr>
-            <b-row>
-                <b-col>
-                    <h4>Nota {{ nota.folio }}</h4>
-                    <label>Cliente: {{ nota.cliente }}</label>
-                </b-col>
-                <b-col>
-                    <div class="text-right">
-                        <b-button v-if="btnGuardar" variant="success" @click="guardarPagosNota">
-                            <i class="fa fa-check"></i> Guardar
-                        </b-button>
-                    </div>
-                </b-col>
-                <b-col align="right">
-                    <b-button variant="outline-secondary" @click="mostrarNewPago = false; listadoNotas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
-                </b-col>
-            </b-row>
-            <hr>
-            <b-table :items="nota.registers" :fields="fieldsNP">
-                <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
-                <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
-                <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
-                <template slot="unidades" slot-scope="row">
-                    <b-input 
-                        :id="`inpPago-${row.index}`"
-                        type="number" 
-                        @change="verificarUnidades(row.item.unidades_base, row.item.unidades_pendiente, row.item.costo_unitario, row.index)" 
-                        v-model="row.item.unidades_base">
-                    </b-input>
-                </template>
-                <template slot="total" slot-scope="row">${{ row.item.total_base | formatNumber }}</template>
-            </b-table>
-            <h5 class="text-right">${{ total_vendido | formatNumber }}</h5>
-        </div>
+        <!-- MOSTRAR DETALLES DE LA NOTA -->
         <div v-if="mostrarDetalles">
             <b-row>
                 <b-col>
-                    <h4>Nota {{ nota.folio }}</h4>
-                    <label>Cliente: {{ nota.cliente }}</label>
-                </b-col>
-                <b-col>
-                    <br>
-                    <label><b>Unidades</b>: {{ total_unidades | formatNumber }}</label>
-                </b-col>
-                <b-col>
-                    <br>
-                    <label><b>Total</b>: ${{ nota.total_salida | formatNumber }}</label><br>
+                    <h5><b>Folio {{ nota.folio }}</b></h5>
+                    <label><b>Fecha de creación:</b> {{ nota.created_at | moment }}</label><br>
+                    <label><b>Cliente:</b> {{ nota.cliente }}</label>
                 </b-col>
                 <b-col align="right">
-                    <b-button variant="outline-secondary" @click="mostrarDetalles = false; listadoNotas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
+                    <b-button variant="secondary" @click="mostrarDetalles = false; listadoNotas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
                 </b-col>
             </b-row>
             <hr>
@@ -174,20 +132,67 @@
                         </b-table>
                     </b-card>
                 </template>
+                <template slot="thead-top" slot-scope="row">
+                    <tr>
+                        <th colspan="4"></th>
+                        <th>{{ total_unidades | formatNumber }}</th>
+                        <th>${{ nota.total_salida | formatNumber }}</th>
+                    </tr>
+                </template>
             </b-table>
         </div>
-        <div v-if="mostrarDevolucion">
-            <h5>Registrar devolución</h5>
+        <!-- REGISTRAR NUEVO PAGO -->
+        <div v-if="mostrarNewPago">
+            <h4 style="color: #170057">Registrar pago</h4>
             <hr>
             <b-row>
                 <b-col>
-                    <h4>Nota {{ nota.folio }}</h4>
-                    <label>Cliente: {{ nota.cliente }}</label>
+                    <h5><b>Folio {{ nota.folio }}</b></h5>
+                    <label><b>Cliente:</b> {{ nota.cliente }}</label>
                 </b-col>
                 <b-col>
                     <div class="text-right">
-                        <b-button v-if="btnGuardar" variant="success" @click="guardarDevolucion">
-                            <i class="fa fa-check"></i> Guardar
+                        <b-button :disabled="load" v-if="btnGuardar" variant="success" @click="guardarPagosNota()">
+                            <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
+                        </b-button>
+                    </div>
+                </b-col>
+                <b-col align="right">
+                    <b-button variant="outline-secondary" @click="mostrarNewPago = false; listadoNotas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
+                </b-col>
+            </b-row>
+            <hr>
+            <b-table :items="nota.registers" :fields="fieldsNP">
+                <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
+                <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
+                <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
+                <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
+                <template slot="unidades" slot-scope="row">
+                    <b-input 
+                        :id="`inpPago-${row.index}`"
+                        type="number" 
+                        :disabled="load"
+                        @change="verificarUnidades(row.item.unidades_base, row.item.unidades_pendiente, row.item.costo_unitario, row.index)" 
+                        v-model="row.item.unidades_base">
+                    </b-input>
+                </template>
+                <template slot="total" slot-scope="row">${{ row.item.total_base | formatNumber }}</template>
+            </b-table>
+            <h5 class="text-right">${{ total_vendido | formatNumber }}</h5>
+        </div>
+        <!-- REGISTRAR DEVOLUCIÓN -->
+        <div v-if="mostrarDevolucion">
+            <h4 style="color: #170057">Registrar devolución</h4>
+            <hr>
+            <b-row>
+                <b-col>
+                    <h5><b>Folio {{ nota.folio }}</b></h5>
+                    <label><b>Cliente:</b> {{ nota.cliente }}</label>
+                </b-col>
+                <b-col>
+                    <div class="text-right">
+                        <b-button :disabled="load" v-if="btnGuardar" variant="success" @click="guardarDevolucion()">
+                            <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
                         </b-button>
                     </div>
                 </b-col>
@@ -213,40 +218,47 @@
             </b-table>
             <h5 class="text-right">${{ total_vendido | formatNumber }}</h5>
         </div>
+        <!-- CREAR / EDITAR UNA NOTA -->
         <div v-if="mostrarCrearNota">
             <b-row>
-                <b-col>
-                    <h4>{{ editar ? 'Editar' : 'Crear' }} nota</h4>
-                </b-col>
-                <b-col align="right">
-                    <b-button variant="outline-secondary" @click="mostrarCrearNota = false; listadoNotas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
-                </b-col>
-            </b-row>
-            <hr>
-            <b-row class="col-md-8">
-                <b-col sm="3">Cliente</b-col>
-                <b-col sm="6">
-                    <b-form-input v-model="cliente" autofocus :disabled="load" :state="state" @keyup.enter="func_viewForm"></b-form-input>
-                </b-col>
                 <b-col sm="3">
+                    <h4 style="color: #170057">{{ editar ? 'Editar' : 'Crear' }} nota</h4>
+                </b-col>
+                <b-col sm="6" align="right">
                     <b-button 
                         v-if="registers.length > 0 && editar == false" 
                         variant="success" 
                         :disabled="load"
-                        @click="guardarNota">
-                        {{ !load ? 'Guardar' : 'Guardando' }}
+                        @click="guardarNota()">
+                        <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
                     </b-button>
                     <b-button 
                         v-if="registers.length > 0 && editar == true" 
                         variant="success" 
                         :disabled="load"
-                        @click="actualizarNota">
-                        {{ !load ? 'Guardar cambios' : 'Guardando' }}
+                        @click="actualizarNota()">
+                        <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
                     </b-button>
+                </b-col>
+                <b-col sm="3" align="right">
+                    <b-button variant="secondary" @click="mostrarCrearNota = false; listadoNotas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
                 </b-col>
             </b-row>
             <hr>
-            <div v-if="viewForm">
+            <b-row class="col-md-6">
+                <b-col sm="3">Cliente <b id="txtObligatorio">*</b></b-col>
+                <b-col sm="9">
+                    <b-form-input 
+                        v-model="cliente" 
+                        autofocus 
+                        :disabled="load" 
+                        :state="state" 
+                        @keyup.enter="func_viewForm()">
+                    </b-form-input>
+                </b-col>
+            </b-row>
+            <hr>
+            <div>
                 <b-table :items="registers" :fields="fields">
                     <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
                     <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
@@ -254,82 +266,92 @@
                     <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
                     <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
                     <template slot="eliminar" slot-scope="row">
-                        <!-- <b-button variant="danger" @click="eliminarRegistro(row.item, row.index)" :disabled="load">
+                        <b-button 
+                            variant="danger"
+                            @click="eliminarRegistro(row.item, row.index)" 
+                            :disabled="load"
+                            v-if="editar == false">
                             <i class="fa fa-minus-circle"></i>
-                        </b-button> -->
+                        </b-button>
+                    </template>
+                    <template slot="thead-top" slot-scope="row">
+                        <tr>
+                            <th colspan="1"></th>
+                            <th>ISBN</th>
+                            <th>Libro</th>
+                            <th>Costo unitario</th>
+                            <th>Unidades</th>
+                        </tr>
+                        <tr>
+                            <th colspan="1"></th>
+                            <th>
+                                <b-input
+                                    id="input-isbn"
+                                    autofocus
+                                    v-model="isbn"
+                                    @keyup.enter="buscarLibroISBN()"
+                                    v-if="inputISBN"
+                                    :disabled="load"
+                                ></b-input>
+                                <label v-if="!inputISBN">{{ temporal.libro.ISBN }}</label>
+                            </th>
+                            <th>
+                                <b-input
+                                    id="input-libro"
+                                    autofocus
+                                    v-model="queryTitulo"
+                                    @keyup="mostrarLibros()"
+                                    v-if="inputLibro"
+                                    :disabled="load">
+                                </b-input>
+                                <div class="list-group" v-if="resultslibros.length" id="listaBL">
+                                    <a 
+                                        href="#" 
+                                        v-bind:key="i" 
+                                        class="list-group-item list-group-item-action" 
+                                        v-for="(libro, i) in resultslibros" 
+                                        @click="datosLibro(libro)">
+                                        {{ libro.titulo }}
+                                    </a>
+                                </div>
+                                <label v-if="!inputLibro">{{ temporal.libro.titulo }}</label>
+                            </th>
+                            <th>
+                                <b-form-input 
+                                    id="input-costo"
+                                    type="number" 
+                                    autofocus
+                                    v-model="costo_unitario"
+                                    v-if="inputCosto"
+                                    @keyup.enter="guardarCosto()"
+                                    :disabled="load">
+                                </b-form-input> 
+                            </th>
+                            <th>
+                                <b-form-input 
+                                    autofocus
+                                    id="input-unidades"
+                                    @keyup.enter="guardarRegistro()"
+                                    v-if="inputUnidades"
+                                    v-model="unidades" 
+                                    type="number"
+                                    required
+                                    :disabled="load">
+                                </b-form-input>
+                            </th>
+                            <th>
+                                <b-button 
+                                    variant="secondary"
+                                    @click="eliminarTemporal()" 
+                                    v-if="inputCosto"
+                                    :disabled="load">
+                                    <i class="fa fa-minus-circle"></i>
+                                </b-button>
+                            </th>
+                        </tr>
                     </template>
                 </b-table>
                 <hr>
-                <b-row>
-                    <b-col sm="3">
-                        <label for="input-isbn">ISBN</label>
-                        <b-input
-                            id="input-isbn"
-                            autofocus
-                            v-model="isbn"
-                            @keyup.enter="buscarLibroISBN"
-                            v-if="inputISBN"
-                            :disabled="load"
-                        ></b-input>
-                        <br><b v-if="!inputISBN">{{ temporal.libro.ISBN }}</b>
-                    </b-col>
-                    <b-col sm="4">
-                        <label for="input-libro">Libro</label>
-                        <b-input
-                            id="input-libro"
-                            autofocus
-                            v-model="queryTitulo"
-                            @keyup="mostrarLibros"
-                            v-if="inputLibro"
-                            :disabled="load">
-                        </b-input>
-                        <div class="list-group" v-if="resultslibros.length">
-                            <a 
-                                href="#" 
-                                v-bind:key="i" 
-                                class="list-group-item list-group-item-action" 
-                                v-for="(libro, i) in resultslibros" 
-                                @click="datosLibro(libro)">
-                                {{ libro.titulo }}
-                            </a>
-                        </div>
-                        <br><b v-if="!inputLibro">{{ temporal.libro.titulo }}</b>
-                    </b-col>
-                    <b-col sm="2">
-                        <label for="input-costo">Costo unitario</label>
-                        <b-form-input 
-                            id="input-costo"
-                            type="number" 
-                            autofocus
-                            v-model="costo_unitario"
-                            v-if="inputCosto"
-                            @keyup.enter="guardarCosto"
-                            :disabled="load">
-                        </b-form-input> 
-                    </b-col>
-                    <b-col sm="2">
-                        <label for="input-unidades">Unidades</label>
-                        <b-form-input 
-                            autofocus
-                            id="input-unidades"
-                            @keyup.enter="guardarRegistro"
-                            v-if="inputUnidades"
-                            v-model="unidades" 
-                            type="number"
-                            required
-                            :disabled="load">
-                        </b-form-input>
-                    </b-col>
-                    <b-col sm="1">
-                        <b-button 
-                            variant="secondary"
-                            @click="eliminarTemporal" 
-                            v-if="inputCosto"
-                            :disabled="load">
-                            <i class="fa fa-minus-circle"></i>
-                        </b-button>
-                    </b-col>
-                </b-row>
             </div>
         </div> 
     </div>
@@ -337,7 +359,7 @@
 
 <script>
     export default {
-        props: ['role_id'],
+        props: ['role_id', 'registersall'],
         data() {
             return {
                 cliente: '',
@@ -349,7 +371,8 @@
                     {key: 'titulo', label: 'Libro'},
                     {key: 'costo_unitario', label: 'Costo unitario'},
                     'unidades',
-                    {key: 'total', label: 'Subtotal'}
+                    {key: 'total', label: 'Subtotal'},
+                    {key: 'eliminar', label: ''}
                 ],
                 fieldsP: [
                     {key: 'index', label: 'N.'}, 
@@ -402,7 +425,7 @@
                 inputCosto: false,
                 load: false,
                 nota: {},
-                notes: [],
+                notes: this.registersall,
                 mostrarDetalles: false,
                 total_unidades: 0,
                 mostrarCrearNota: false,
@@ -422,9 +445,6 @@
                 loadRegisters: false
             }
         },
-        // created: function(){
-		// 	this.getTodo();
-        // },
         filters: {
             moment: function (date) {
                 return moment(date).format('DD-MM-YYYY');
@@ -434,6 +454,7 @@
             }
         },
         methods: {
+            // BUSCAR NOTA POR FOLIO
             porFolio(){
                 axios.get('/buscar_folio_note', {params: {folio: this.folio}}).then(response => {
                     if(response.data.id != undefined){
@@ -447,6 +468,7 @@
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
+            // BUSCAR NOTA POR CLIENTE
             porCliente(){
                 if(this.queryCliente != ''){
                     axios.get('/buscar_cliente_notes', {params: {queryCliente: this.queryCliente}}).then(response => {
@@ -456,20 +478,8 @@
                         this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                     });
                 }
-                // else{
-                //     this.getTodo();
-                // }
             },
-            getTodo(){
-                this.loadRegisters = true;
-                axios.get('/all_notas').then(response => {
-                    this.notes = response.data;
-                    this.loadRegisters = false;
-                }).catch(error => {
-                    this.loadRegisters = false;
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                });
-            },
+            // INICIALIZAR PARA CREAR NOTA
             func_crearNota(){
                 this.listadoNotas = false;
                 this.mostrarCrearNota = true;
@@ -478,96 +488,122 @@
                 this.registers = [];
                 this.editar = false;
             },
-            func_viewForm(){
-                if(this.cliente.length > 4){
-                    this.viewForm = true;
-                    this.state = null;
-                }
-                else{
-                    this.state = false;
-                    this.makeToast('warning', 'Campo obligatorio, mayor a 5 caracteres');
-                }
-            },
-            buscarLibroISBN(){
-                axios.get('/buscarISBN', {params: {isbn: this.isbn}}).then(response => {
-                    this.datosLibro(response.data);
-                }).catch(error => {
-                    this.makeToast('danger', 'ISBN incorrecto');
-                });
-            }, 
-            mostrarLibros(){
-                if(this.queryTitulo.length > 0){
-                   axios.get('/mostrarLibros', {params: {queryTitulo: this.queryTitulo}}).then(response => {
-                        this.resultslibros = response.data;
+            // MOSTRAR DETALLES DE LA NOTA
+            detallesNota(nota){
+                this.nota = {};
+                this.total_unidades = 0;
+                axios.get('/detalles_nota', {params: {note_id: nota.id}}).then(response => {
+                    this.nota.id = nota.id;
+                    this.nota.folio = nota.folio;
+                    this.nota.cliente = nota.cliente;
+                    this.nota.total_salida = nota.total_salida;
+                    this.nota.registers = response.data;
+                    this.nota.registers.forEach(register => {
+                        this.total_unidades += register.unidades;
                     });
-                } 
+                    this.listadoNotas = false;
+                    this.mostrarDetalles = true;
+                });
             },
-            datosLibro(libro){
-                this.temporal = {
-                    id: libro.id,
-                    libro: {
-                        ISBN: libro.ISBN,
-                        titulo: libro.titulo,
-                        piezas: libro.piezas,
-                    },
-                    costo_unitario: 0,
-                    unidades: 0,
-                    total: 0
-                };
-                this.ini_1();
+            // REGISTRAR PAGO DE LA NOTA
+            registrarPago(nota, i){
+                this.nota = {};
+                this.posicion = i;
+                axios.get('/detalles_nota', {params: {note_id: nota.id}}).then(response => {
+                    this.nota.id = nota.id;
+                    this.nota.folio = nota.folio;
+                    this.nota.cliente = nota.cliente;
+                    this.nota.total_salida = nota.total_salida;
+                    this.nota.registers = response.data;
+                    this.listadoNotas = false;
+                    this.mostrarNewPago = true;
+                });
             },
-            ini_1(){
-                this.inputLibro = false;
-                this.inputISBN = false;
-                this.inputCosto = true;
-                this.resultslibros = [];
+            // REGISTRAR DEVOLUCIÓN
+            registrarDevolucion(nota, i){
+                this.nota = {};
+                this.posicion = i;
+                axios.get('/detalles_nota', {params: {note_id: nota.id}}).then(response => {
+                    this.nota.id = nota.id;
+                    this.nota.folio = nota.folio;
+                    this.nota.cliente = nota.cliente;
+                    this.nota.total_salida = nota.total_salida;
+                    this.nota.registers = response.data;
+                    this.listadoNotas = false;
+                    this.mostrarDevolucion = true;
+                });
             },
-            guardarCosto(){
-                if(this.costo_unitario > 0){
-                    this.inputUnidades = true;
-                    this.temporal.costo_unitario = this.costo_unitario;
+            // INICIALIZAR PARA EDITAR LA NOTA
+            editarNota(nota, i){
+                this.editar = true;
+                this.cliente = '';
+                this.registers = [];
+                this.nota = {};
+                this.posicion = i;
+                this.nuevos = [];
+                this.eliminados = [];
+                axios.get('/detalles_nota', {params: {note_id: nota.id}}).then(response => {
+                    this.nota.id = nota.id;
+                    this.nota.folio = nota.folio;
+                    this.cliente = nota.cliente;
+                    this.nota.total_salida = nota.total_salida;
+                    this.registers = response.data;
+                    this.listadoNotas = false;
+                    this.mostrarCrearNota = true;
+                    this.viewForm = true;
+                });
+            },
+            // GUARDAR PAGOS DE NOTA
+            guardarPagosNota(){
+                this.load = true;
+                axios.post('/guardar_pago', this.nota).then(response => {
+                    this.notes[this.posicion] = response.data;
+                    this.makeToast('success', 'El pago se guardo correctamente');
+                    this.mostrarNewPago = false;
+                    this.listadoNotas = true;
+                    this.load = false;
+                })
+                .catch(error => {
+                    this.makeToast('danger', 'Ocurrio un error, vuelve a intentarlo');
+                    this.load = false;
+                });
+            },
+            // VERIFICAR UNIDADES PARA OBTENER EL SUBTOTAL
+            verificarUnidades(unidades, pendiente, costo_unitario, i){
+                if(unidades > pendiente){
+                    this.makeToast('warning', 'Las unidades son mayor a lo pendiente');
+                    this.nota.registers[i].unidades_base = 0;
+                    this.nota.registers[i].total_base = 0;
                 }
-                else{
-                    this.makeToast('warning', 'Costo invalido');
-                }
-                
-            },
-            guardarRegistro(){
-                if(this.unidades > 0){
-                    if(this.unidades <= this.temporal.libro.piezas){
-                        this.temporal.unidades = this.unidades;
-                        this.temporal.total = this.temporal.unidades * this.temporal.costo_unitario;
-                        if(this.editar == true){
-                            this.nuevos.push(this.temporal);
-                        }
-                        this.registers.push(this.temporal);
-                        this.eliminarTemporal();
+                if(unidades <= pendiente){
+                    this.total_vendido = 0;
+                    this.nota.registers[i].total_base = unidades * costo_unitario;
+                    this.btnGuardar = true;
+                    this.nota.registers.forEach(register => {
+                        this.total_vendido += register.total_base;
+                    });
+                    if(i + 1 < this.nota.registers.length){
+                        document.getElementById('inpPago-'+(i+1)).focus();
+                        document.getElementById('inpPago-'+(i+1)).select();
                     }
-                    else{
-                        this.makeToast('warning', `${this.temporal.libro.piezas} unidades en existencia`);
-                    }
-                }
-                else{
-                    this.makeToast('warning', 'Unidades invalidas');
                 }
             },
-            eliminarTemporal(){
-                this.inputUnidades = false;
-                this.inputLibro = true;
-                this.inputISBN = true;
-                this.queryTitulo = '';
-                this.temporal = {};
-                this.unidades = '';
-                this.costo_unitario = '';
-                this.inputCosto = false;
-                this.isbn = '';
+            // GUARDAR DEVOLUCIÓN
+            guardarDevolucion(){
+                this.load = true;
+                axios.post('/guardar_devolucion', this.nota).then(response => {
+                    this.notes[this.posicion] = response.data;
+                    this.makeToast('success', 'La devolución se guardo correctamente');
+                    this.mostrarDevolucion = false;
+                    this.listadoNotas = true;
+                    this.load = false;
+                })
+                .catch(error => {
+                    this.makeToast('danger', 'Ocurrio un error, vuelve a intentarlo');
+                    this.load = false;
+                });
             },
-            eliminarRegistro(registro, i){
-                if(this.editar == true){
-                    this.eliminados.push(registro);
-                }
-                this.registers.splice(i, 1);
-            },
+            // GUARDAR NOTA
             guardarNota(){
                 this.load = true;
                 if(this.cliente.length > 4){
@@ -592,6 +628,7 @@
                     this.makeToast('warning', 'Campo obligatorio, mayor a 5 caracteres');
                 }
             },
+            // ACTUALIZAR DATOS DE NOTA
             actualizarNota(){
                 this.load = true;
                 if(this.cliente.length > 4){
@@ -618,107 +655,103 @@
                     this.makeToast('warning', 'Campo obligatorio, mayor a 5 caracteres');
                 }
             },
-            detallesNota(nota){
-                this.nota = {};
-                this.total_unidades = 0;
-                axios.get('/detalles_nota', {params: {note_id: nota.id}}).then(response => {
-                    this.nota.id = nota.id;
-                    this.nota.folio = nota.folio;
-                    this.nota.cliente = nota.cliente;
-                    this.nota.total_salida = nota.total_salida;
-                    this.nota.registers = response.data;
-                    this.nota.registers.forEach(register => {
-                        this.total_unidades += register.unidades;
-                    });
-                    this.listadoNotas = false;
-                    this.mostrarDetalles = true;
-                });
-            },
-            registrarPago(nota, i){
-                this.nota = {};
-                this.posicion = i;
-                axios.get('/detalles_nota', {params: {note_id: nota.id}}).then(response => {
-                    this.nota.id = nota.id;
-                    this.nota.folio = nota.folio;
-                    this.nota.cliente = nota.cliente;
-                    this.nota.total_salida = nota.total_salida;
-                    this.nota.registers = response.data;
-                    this.listadoNotas = false;
-                    this.mostrarNewPago = true;
-                });
-            },
-            registrarDevolucion(nota, i){
-                this.nota = {};
-                this.posicion = i;
-                axios.get('/detalles_nota', {params: {note_id: nota.id}}).then(response => {
-                    this.nota.id = nota.id;
-                    this.nota.folio = nota.folio;
-                    this.nota.cliente = nota.cliente;
-                    this.nota.total_salida = nota.total_salida;
-                    this.nota.registers = response.data;
-                    this.listadoNotas = false;
-                    this.mostrarDevolucion = true;
-                });
-            },
-            verificarUnidades(unidades, pendiente, costo_unitario, i){
-                if(unidades > pendiente){
-                    this.makeToast('warning', 'Las unidades son mayor a lo pendiente');
-                    this.nota.registers[i].unidades_base = 0;
-                    this.nota.registers[i].total_base = 0;
+            // VALIDAR EL CAMPO CLIENTE
+            func_viewForm(){
+                if(this.cliente.length > 4){
+                    this.viewForm = true;
+                    this.state = null;
                 }
-                if(unidades <= pendiente){
-                    this.total_vendido = 0;
-                    this.nota.registers[i].total_base = unidades * costo_unitario;
-                    this.btnGuardar = true;
-                    this.nota.registers.forEach(register => {
-                        this.total_vendido += register.total_base;
+                else{
+                    this.state = false;
+                    this.makeToast('warning', 'Campo obligatorio, mayor a 5 caracteres');
+                }
+            },
+            // BUSCAR LIBRO POR ISBN
+            buscarLibroISBN(){
+                axios.get('/buscarISBN', {params: {isbn: this.isbn}}).then(response => {
+                    this.datosLibro(response.data);
+                }).catch(error => {
+                    this.makeToast('danger', 'ISBN incorrecto');
+                });
+            }, 
+            // MOSTRAR COINCIDENCIAS DE LIBROS
+            mostrarLibros(){
+                if(this.queryTitulo.length > 0){
+                   axios.get('/mostrarLibros', {params: {queryTitulo: this.queryTitulo}}).then(response => {
+                        this.resultslibros = response.data;
                     });
-                    if(i + 1 < this.nota.registers.length){
-                        document.getElementById('inpPago-'+(i+1)).focus();
-                        document.getElementById('inpPago-'+(i+1)).select();
+                } 
+            },
+            // SELECCIONAR LIBRO
+            datosLibro(libro){
+                this.temporal = {
+                    id: libro.id,
+                    libro: {
+                        ISBN: libro.ISBN,
+                        titulo: libro.titulo,
+                        piezas: libro.piezas,
+                    },
+                    costo_unitario: 0,
+                    unidades: 0,
+                    total: 0
+                };
+                this.ini_1();
+            },
+            // VERIFICAR QUE EL COSTO SEA VALIDO
+            guardarCosto(){
+                if(this.costo_unitario > 0){
+                    this.inputUnidades = true;
+                    this.temporal.costo_unitario = this.costo_unitario;
+                }
+                else{
+                    this.makeToast('warning', 'Costo invalido');
+                }
+                
+            },
+            // GUARDAR REGISTRO TEMPORAL EN ARRAY
+            guardarRegistro(){
+                if(this.unidades > 0){
+                    if(this.unidades <= this.temporal.libro.piezas){
+                        this.temporal.unidades = this.unidades;
+                        this.temporal.total = this.temporal.unidades * this.temporal.costo_unitario;
+                        if(this.editar == true){
+                            this.nuevos.push(this.temporal);
+                        }
+                        this.registers.push(this.temporal);
+                        this.eliminarTemporal();
+                    }
+                    else{
+                        this.makeToast('warning', `${this.temporal.libro.piezas} unidades en existencia`);
                     }
                 }
+                else{
+                    this.makeToast('warning', 'Unidades invalidas');
+                }
             },
-            guardarPagosNota(){
-                axios.post('/guardar_pago', this.nota).then(response => {
-                    this.notes[this.posicion] = response.data;
-                    this.makeToast('success', 'El pago se guardo correctamente');
-                    this.mostrarNewPago = false;
-                    this.listadoNotas = true;
-                })
-                .catch(error => {
-                    this.makeToast('danger', 'Ocurrio un error, vuelve a intentarlo');
-                });
+            // ELIMINAR DATOS TEMPORALES
+            eliminarTemporal(){
+                this.inputUnidades = false;
+                this.inputLibro = true;
+                this.inputISBN = true;
+                this.queryTitulo = '';
+                this.temporal = {};
+                this.unidades = '';
+                this.costo_unitario = '';
+                this.inputCosto = false;
+                this.isbn = '';
             },
-            guardarDevolucion(){
-                axios.post('/guardar_devolucion', this.nota).then(response => {
-                    this.notes[this.posicion] = response.data;
-                    this.makeToast('success', 'La devolución se guardo correctamente');
-                    this.mostrarDevolucion = false;
-                    this.listadoNotas = true;
-                })
-                .catch(error => {
-                    this.makeToast('danger', 'Ocurrio un error, vuelve a intentarlo');
-                });
+            // ELIMINAR REGISTRO DEL ARRAY
+            eliminarRegistro(registro, i){
+                if(this.editar == true){
+                    this.eliminados.push(registro);
+                }
+                this.registers.splice(i, 1);
             },
-            editarNota(nota, i){
-                this.editar = true;
-                this.cliente = '';
-                this.registers = [];
-                this.nota = {};
-                this.posicion = i;
-                this.nuevos = [];
-                this.eliminados = [];
-                axios.get('/detalles_nota', {params: {note_id: nota.id}}).then(response => {
-                    this.nota.id = nota.id;
-                    this.nota.folio = nota.folio;
-                    this.cliente = nota.cliente;
-                    this.nota.total_salida = nota.total_salida;
-                    this.registers = response.data;
-                    this.listadoNotas = false;
-                    this.mostrarCrearNota = true;
-                    this.viewForm = true;
-                });
+            ini_1(){
+                this.inputLibro = false;
+                this.inputISBN = false;
+                this.inputCosto = true;
+                this.resultslibros = [];
             },
             makeToast(variant = null, descripcion) {
                 this.$bvToast.toast(descripcion, {
@@ -730,3 +763,13 @@
         }
     }
 </script>
+
+<style scoped>
+    #listaBL{
+        position: absolute;
+        z-index: 100
+    }
+    #txtObligatorio {
+        color: red;
+    }
+</style>

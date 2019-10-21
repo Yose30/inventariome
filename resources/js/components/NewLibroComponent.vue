@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-form @submit.prevent="onSubmit">
+        <b-form @submit.prevent="onSubmit()">
             <b-row class="my-1">
                 <label align="right" class="col-md-3">Titulo</label>
                 <div class="col-md-9">
@@ -83,6 +83,7 @@
             }
         },
         methods: {
+            // GUARDAR UN NUEVO LIBRO
             onSubmit() {
                 this.loaded = true;
                 this.success = false;

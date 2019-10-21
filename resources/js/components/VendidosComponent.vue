@@ -2,29 +2,33 @@
     <div>
        <div v-if="listadoLibros"> 
             <b-row>
+                <!-- MOSTRAR LIBROS POR EDITORIALES -->
                 <b-col sm="5">
                     <b-row>
                         <b-col sm="2">
                             <label for="input-editorial">Editorial</label>
                         </b-col>
                         <b-col sm="10">
-                            <b-form-select v-model="editorial" :options="options" @change="mostrarEditoriales"></b-form-select>
+                            <b-form-select v-model="editorial" :options="options" @change="mostrarEditoriales()"></b-form-select>
                         </b-col> 
                     </b-row>
                 </b-col>
+                <!-- MOSTRAR LIBROS POR FECHA -->
                 <b-col sm="7">
                     <b-row>
                         <b-col align="right" sm="4">
                             Seleccionar fecha
                         </b-col>
                         <b-col sm="8">
-                            <b-input type="date" v-model="fecha" @change="porFecha"/>
+                            <b-input type="date" v-model="fecha" @change="porFecha()"/>
                         </b-col>
                     </b-row>
                 </b-col>
             </b-row>
             <hr>
+            <!-- LISTADO DE DATOS -->
             <b-table 
+                responsive
                 :items="vendidos" 
                 :fields="fields" 
                 v-if="vendidos.length > 0" 
@@ -47,6 +51,7 @@
                     <b-button variant="info" @click="func_detalles(row.item)">Detalles</b-button>
                 </template>
             </b-table>
+            <!-- PAGINACIÓN -->
             <b-pagination
                 v-model="currentPage"
                 :total-rows="vendidos.length"
@@ -55,24 +60,29 @@
                 v-if="vendidos.length > 0">
             </b-pagination>
         </div>
+        <!-- DETALLES -->
         <div v-if="mostrarDetalles">
-            <div class="text-right">
-                <b-button variant="outline-secondary" @click="mostrarDetalles = false; listadoLibros = true;">
-                    <i class="fa fa-mail-reply"></i> Regresar
-                </b-button>
-                <hr>
-                <b-table :items="registros"></b-table>
-            </div>
+            <b-row>
+                <b-col sm="10"><b>{{ libro }}</b></b-col>
+                <b-col sm="2">
+                    <b-button variant="secondary" @click="mostrarDetalles = false; listadoLibros = true;">
+                        <i class="fa fa-mail-reply"></i> Regresar
+                    </b-button>
+                </b-col>
+            </b-row>
+            <hr>
+            <b-table :items="registros"></b-table>
         </div>
     </div>
 </template>
 
 <script>
     export default {
+        props: ['registersall'],
         data() {
             return {
                 fecha: null,
-                vendidos: [],
+                vendidos: this.registersall,
                 fields: [
                     'libro', 
                     {key: 'unidades_vendido', label: 'Unidades vendidas'},
@@ -105,24 +115,16 @@
                 ],
                 perPage: 15,
                 currentPage: 1,
+                libro: ''
             }
         },
-        // created: function(){
-		// 	this.getTodo();
-        // },
         filters: {
             formatNumber: function (value) {
                 return numeral(value).format("0,0[.]00"); 
             }
         },
         methods: {
-            getTodo(){
-                axios.get('/obtener_vendidos').then(response => {
-                    this.vendidos = response.data;
-                }).catch(error => {
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                });
-            },
+            // MOSTRAR LIBROS POR EDITORIAL
             mostrarEditoriales(){
                 if(this.editorial.length > 0){
                     axios.get('/porEditorialVendidos', {params: {editorial: this.editorial}}).then(response => {
@@ -136,6 +138,7 @@
                     this.getTodo();
                 } 
             },
+            // OBTENER POR FECHA
             porFecha(){
                 axios.get('/obtener_por_fecha', {params: {fecha: this.fecha}}).then(response => {
                     this.vendidos = response.data;
@@ -143,11 +146,21 @@
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
+            // OBTENER DETALLES DEL LIBRO VENDIDO
             func_detalles(vendido){
                 this.listadoLibros = false;
                 this.mostrarDetalles = true;
                 axios.get('/detalles_vendidos', {params: {fecha: this.fecha, libro_id: vendido.libro_id}}).then(response => {
+                    this.libro = vendido.libro;
                     this.registros = response.data;
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
+            },
+            // OBTENER TODOS LOS LIBROS VENDIDOS
+            getTodo(){
+                axios.get('/obtener_vendidos').then(response => {
+                    this.vendidos = response.data;
                 }).catch(error => {
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });

@@ -8,6 +8,7 @@ use NumerosEnLetras;
 use App\Devolucione;
 use Carbon\Carbon;
 use App\Remisione;
+use App\Donacione;
 use App\Deposito;
 use App\Vendido;
 use App\Cliente;
@@ -19,208 +20,36 @@ use PDF;
 
 class RemisionController extends Controller
 {
-    public function registro(Request $request){
-        // if($request->remision_id != 0){
-        //     $remision = $request->remision_id;
-        // }
-        // else{
-        //     $remision = Remisione::all()->count() + 1;
-        // }
-        
-        // try {
 
-        //     \DB::beginTransaction();
-
-        //     $dato = Dato::create([
-        //         'remision_id' => $remision,
-        //         'libro_id'  => $request->id,
-        //         'costo_unitario' => $request->costo_unitario,
-        //         'unidades'  => $request->unidades,
-        //         'total'     => $request->total
-        //     ]);
-
-        //     $libro = Libro::whereId($dato->libro_id)->first();
-        //     $libro->update(['piezas' => $libro->piezas - $dato->unidades]);
-            
-        //     \DB::commit();
-
-        //     return response()->json(['dato' => $dato, 'libro' => $dato->libro]);
-
-        // } catch (Exception $e) {
-        //     \DB::rollBack();
-        //     return response()->json($exception->getMessage());
-		// }
-    }
-
-    public function store(Request $request){
-        try {
-            \DB::beginTransaction();
-            
-            $remision = Remisione::create([
-                'cliente_id' => $request->cliente_id,
-                'total' => $request->total,
-                'fecha_entrega' => $request->fecha_entrega,
-                'estado' => 1,
-                'fecha_creacion' => Carbon::now()->format('Y-m-d'),
-                'fecha_devolucion' => Carbon::now()->format('Y-m-d')
-            ]);
-
-            foreach($request->registros as $registro){
-                $dato = Dato::create([
-                    'remisione_id' => $remision->id,
-                    'libro_id'  => $registro['id'],
-                    'costo_unitario' => $registro['costo_unitario'],
-                    'unidades'  => $registro['unidades'],
-                    'total'     => $registro['total'],
-                    'estado'    => 'Terminado'
-                ]);
-    
-                $libro = Libro::whereId($dato->libro_id)->first();
-                $libro->update(['piezas' => $libro->piezas - $dato->unidades]);
-            }
-            
-            \DB::commit();
-        } catch (Exception $e) {
-            \DB::rollBack();
-            return response()->json($exception->getMessage());
-        }
-        return response()->json($remision);
-    }
-
-    public function show(){
-        $numero = Input::get('numero');
-        $remision = Remisione::whereId($numero)->first();
-        $datos = Dato::where('remisione_id', $remision->id)->with('libro')->get();
-        $devoluciones = Devolucione::where('remisione_id', $remision->id)->with('libro', 'dato')->get();
-        $fechas = Fecha::where('remisione_id', $remision->id)->with('libro')->get();
-        $vendidos = Vendido::where('remisione_id', $remision->id)->with('libro', 'dato', 'pagos')->get();
-        return response()->json([
-            'remision' => $remision, 
-            'datos' => $datos, 
-            'devoluciones' => $devoluciones, 
-            'vendidos' => $vendidos,
-            'fechas' => $fechas
-        ]);
-    }
-
-    public function actualizar(Request $request){
-        $remision = Remisione::whereId($request->id)->first();
-        
-        try {
-            \DB::beginTransaction();
-            $remision->fecha_entrega = $request->fecha_entrega;
-            $remision->total = $request->total;
-            $remision->save();
-            \DB::commit();
-            $this->concluir_remision($remision->id);
-            return response()->json($remision);
-        } catch (Exception $e) {
-            \DB::rollBack();
-            return response()->json($exception->getMessage());
-		}
-    }
-
-    public function concluir_remision($id){
-        $datos = Dato::where('remisione_id', $id)->where('estado', 'Eliminado')->get();
-
-        foreach($datos as $dato){
-            $libro = Libro::whereId($dato->libro_id)->first();
-            $libro->update(['piezas' => $libro->piezas + $dato->unidades]);
-        }
-
-        Dato::where('remisione_id', $id)->where('estado', 'Eliminado')->delete();
-        Dato::where('remisione_id', $id)->update(['estado' => 'Terminado']);
-    }
-
-    public function eliminar(Request $request){
-        try {
-            \DB::beginTransaction();
-
-            $dato = Dato::whereId($request->id)->update(['estado' => 'Eliminado']);
-
-            \DB::commit();
-            
-            return response()->json($dato);
-        
-        } catch (Exception $e) {
-            \DB::rollBack();
-            return response()->json($exception->getMessage());
-		}
-    }
-
-    public function todos(){
-        $remisiones = Remisione::with('cliente:id,name')->orderBy('id','desc')->get();
-        return response()->json($remisiones);
-    } 
-
-    public function get_iniciados(){
-        // $remisiones = Remisione::where('estado', 'Iniciado')
-        //                     ->orWhere('total_pagar', '>', 0)
-        //                     ->where(function ($query) {
-        //                         $query->where('estado', '=', 'Proceso')
-        //                             ->orWhere('estado', '=', 'Terminado');
-        //                     })
-        //                     ->orderBy('id','desc')
-        //                     ->with('cliente')
-        //                     ->get();
-        $remisiones = Remisione::where('estado', 'Iniciado')
-                            // ->orWhere('total_pagar', '>', 0)
-                            // ->where(function ($query) {
-                            //     $query->where('estado', '=', 'Proceso')
-                            //         ->orWhere('estado', '=', 'Terminado');
-                            // })
-                            ->orderBy('id','desc')
-                            ->with('cliente')
-                            ->get();
-        return response()->json($remisiones);
-    } 
-
+    // BUSCAR REMISIÓN POR NUMERO
+    // Función utilizada en ListadoComponent y RemisionesComponent
     public function por_numero(){
         $num_remision = Input::get('num_remision');
         $remision = Remisione::whereId($num_remision)->with('cliente')->first();
-        $cliente = Cliente::whereId($remision->cliente_id)->first();
-        return response()->json(['remision' => $remision, 'cliente_nombre' => $cliente->name]);
-    } 
+        return response()->json(['remision' => $remision]);
+    }
 
+    // MOSTRAR REMISIONES POR CLIENTE
+    // Función utilizada en ListadoComponent y RemisionesComponent
     public function por_cliente(){
         $id = Input::get('id');
         $inicio = Input::get('inicio');
         $final = Input::get('final');
-
         if($inicio != '' && $final != ''){
             $remisiones = Remisione::where('cliente_id', $id)
-                            ->whereBetween('fecha_creacion', [$inicio, $final])
-                            ->orderBy('id','desc')
-                            ->with('cliente')
-                            ->get();
+                        ->whereBetween('fecha_creacion', [$inicio, $final])
+                        ->orderBy('id','desc')
+                        ->with('cliente')
+                        ->get();
         }
-        if($id != 0){
+        if($id != 0)
             $remisiones = Remisione::where('cliente_id', $id)->orderBy('id','desc')->with('cliente')->get();
-        }
 
         return response()->json($remisiones);
     }
 
-    public function por_fecha(){
-        $inicio = Input::get('inicio');
-        $final = Input::get('final');
-        $cliente_id = Input::get('cliente_id');
-
-        if($cliente_id != 0){
-            $remisiones = Remisione::where('cliente_id', $cliente_id)
-                            ->whereBetween('fecha_creacion', [$inicio, $final])
-                            ->orderBy('id','desc')
-                            ->with('cliente')->get();
-        }
-        else{
-            $remisiones = Remisione::whereBetween('fecha_creacion', [$inicio, $final])
-                                ->orderBy('id','desc')
-                                ->with('cliente')->get();
-        }
-
-        return response()->json($remisiones);
-    }
-
+    // MOSTRAR REMISIONES POR ESTADO
+    // Función utilizado en ListadoComponent
     public function por_estado(){
         $estado = Input::get('estado');
         if($estado == 'cancelado'){
@@ -246,229 +75,72 @@ class RemisionController extends Controller
         return response()->json($remisiones);
     }
 
-    public function imprimirSalida($id){
-        $remision = Remisione::whereId($id)->first();
-        $data['remision'] = $remision;
+    // MOSTRAR REMISIONES POR FECHAS
+    // Función utilizada en ListadoComponent
+    public function por_fecha(){
+        $inicio = Input::get('inicio');
+        $final = Input::get('final');
+        $cliente_id = Input::get('cliente_id');
 
-        if($remision->estado == 'Iniciado'){
-            $datos = Dato::where('remisione_id', $remision->id)->with('libro')->get();
-            $data['datos'] = $datos;
-            $data['total_salida'] = NumerosEnLetras::convertir($remision->total);
-            $pdf = PDF::loadView('remision.nota', $data);    
-        }         
-        if($remision->estado == 'Terminado'){
-            $devoluciones = Devolucione::where('remisione_id', $remision->id)->with('libro')->with('dato')->get();
-            $data['devoluciones'] = $devoluciones;
-            $data['total_final'] = NumerosEnLetras::convertir($remision->total_pagar);
-            $pdf = PDF::loadView('remision.final', $data); 
+        if($cliente_id != 0){
+            $remisiones = Remisione::where('cliente_id', $cliente_id)
+                            ->whereBetween('fecha_creacion', [$inicio, $final])
+                            ->orderBy('id','desc')
+                            ->with('cliente')->get();
         }
-        
-        return $pdf->download('remision.pdf');
-    }
-
-    public function imprimirCliente($cliente_id, $inicio, $final){
-        $cliente = Cliente::whereId($cliente_id)->first();
-        if($cliente_id != 0 && $final == '0000-00-00'){
-            $remisiones = Remisione::where('cliente_id', $cliente->id)->with('datos')->get();
-        }
-        if($cliente_id == 0 && $final != '0000-00-00'){
-            $remisiones = Remisione::whereBetween('fecha_creacion', [$inicio, $final])->with('datos')->get();
-        }
-        if($cliente_id != 0 && $final != '0000-00-00'){
-            $remisiones = Remisione::where('cliente_id', $cliente->id)->whereBetween('fecha_creacion', [$inicio, $final])->with('datos')->get();
-        }
-        if($cliente_id == 0 && $final == '0000-00-00'){
-            $remisiones = Remisione::with('cliente', 'datos')->get();
-        }
-        
-        $data = $this->valores($remisiones, $inicio, $final, $cliente);
-        $pdf = PDF::loadView('remision.reporte', $data);
-        return $pdf->download('reporte.pdf');
-    }
-
-    public function imprimirEstado($estado){
-        $remisiones = Remisione::where('estado', $estado)->with('cliente')->get();
-
-        $data = $this->valores($remisiones, '0000-00-00', '0000-00-00', null);
-
-        $pdf = PDF::loadView('remision.reporte', $data);
-        return $pdf->download('reporte.pdf');
-    }
-
-    public function valores($remisiones, $inicio, $final, $cliente){
-        $total_salida = 0;
-        $total_devolucion = 0;
-        $total_pagos = 0;
-        $total_pagar = 0;
-
-        foreach($remisiones as $r){
-            if($r->estado != 'Iniciado' && $r->estado != 'Cancelado'){
-                $total_salida += $r->total;
-                $total_devolucion += $r->total_devolucion;
-                $total_pagos += $r->pagos;
-                $total_pagar += $r->total_pagar;
-            }            
+        else{
+            $remisiones = Remisione::whereBetween('fecha_creacion', [$inicio, $final])
+                                ->orderBy('id','desc')
+                                ->with('cliente')->get();
         }
 
-        $data['remisiones'] = $remisiones;
-        $data['total_salida'] = $total_salida;
-        $data['total_devolucion'] = $total_devolucion;
-        $data['total_pagos'] = $total_pagos;
-        $data['total_pagar'] = $total_pagar;
-        $data['fecha_inicio'] = $inicio;
-        $data['fecha_final'] = $final;
-        $data['cliente'] = $cliente;
-
-        return $data;
-    }
-
-    public function nueva(){
-        $remision = Remisione::all()->count() + 1;
-
-        // try {
-        //     \DB::beginTransaction();
-        //     $this->comprobar($remision - 1);
-        //     //Si una remision estab siendo creada pero no se guardo se recuperan los datos en estado Eliminado e Iniciado
-        //     //Se deshacen los cambios de disminucion de piezas
-        //     $eliminados = Dato::where('remision_id', $remision)->where('estado', 'Eliminado')->get();
-        //     if($eliminados->count() > 0){
-        //         foreach($eliminados as $eliminado){
-        //             $libro = Libro::whereId($eliminado->libro_id)->first();
-        //             $libro->update(['piezas' => $libro->piezas + $eliminado->unidades]);
-        //         }
-        //     }
-
-        //     $datos = Dato::where('remision_id', $remision)->where('estado', 'Iniciado')->get();
-        //     if($datos->count() > 0){
-        //         foreach($datos as $dato){
-        //             $libro = Libro::whereId($dato->libro_id)->first();
-        //             $libro->update(['piezas' => $libro->piezas + $dato->unidades]);
-        //         }
-        //     }
-
-        //     Dato::where('remision_id', $remision)->where('estado', 'Eliminado')->delete();
-        //     Dato::where('remision_id', $remision)->where('estado', 'Iniciado')->delete();
-        //     Cliente::where('estado', 'Iniciado')->delete();
-        //     \DB::commit();
-
-        // } catch (Exception $e) {
-        //     \DB::rollBack();
-        // }
-        
-        return response()->json(null, 200);
-    }
-
-    public function nueva_edicion(){
-        $id = Input::get('id');
-        $this->comprobar($id);
-        return response()->json(null, 200);
-    }
-
-    public function comprobar($remision){
-        //En caso de que alguna remision estaba siendo editada y se elimino un dato pero no se guardo, 
-        //se cambia el estado de nuevo a Terminado
-        Dato::where('remisione_id', $remision)
-            ->where('estado', 'Eliminado')
-            ->update(['estado' => 'Terminado']);
-        //En caso de haber agregado uno nuevo, se recuperan las piezas
-        $noguardados = Dato::where('remisione_id', $remision)->where('estado', 'Iniciado')->get();
-        if($noguardados->count() > 0){
-            foreach($noguardados as $noguardado){
-                $libro = Libro::whereId($noguardado->libro_id)->first();
-                $libro->update(['piezas' => $libro->piezas + $noguardado->unidades]);
-            }
-        }
-        //Se eliminan dichos datos
-        Dato::where('remisione_id', $remision)->where('estado', 'Iniciado')->delete();
-    }
-
-    public function por_estado_libros(){
-        $estado = Input::get('estado');
-        if($estado == 'Iniciado'){
-            $remisiones = \DB::table('libros')
-            ->join('datos', 'libros.id', '=', 'datos.libro_id')
-            ->select(
-                'ISBN', 
-                'titulo', 
-                \DB::raw('SUM(datos.unidades) as unidades'),
-                \DB::raw('SUM(datos.total) as total'))
-            ->groupBy('ISBN', 'titulo')
-            ->get();
-        }
-        if($estado == 'Proceso'){
-            $remisiones = \DB::table('libros')
-            ->join('devoluciones', 'libros.id', '=', 'devoluciones.libro_id')
-            ->select(
-                'ISBN', 
-                'titulo', 
-                \DB::raw('SUM(devoluciones.unidades) as unidades_devolucion'),
-                \DB::raw('SUM(devoluciones.total) as total_devolucion'),
-                \DB::raw('SUM(devoluciones.unidades_resta) as unidades_final'), 
-                \DB::raw('SUM(devoluciones.total_resta) as total_final'))
-            ->groupBy('ISBN', 'titulo')
-            ->get();
-        }
-        if($estado == 'Terminado'){
-            $remisiones = \DB::table('libros')
-            ->join('devoluciones', 'libros.id', '=', 'devoluciones.libro_id')
-            ->select(
-                'ISBN', 
-                'titulo', 
-                \DB::raw('SUM(devoluciones.unidades_resta) as unidades_final'), 
-                \DB::raw('SUM(devoluciones.total_resta) as total_final'))
-            ->groupBy('ISBN', 'titulo')
-            ->get();
-        }
-        
         return response()->json($remisiones);
     }
- 
-    //Registrar vendidos
-    public function registrar_vendidos(Request $request){
-        $remision = Remisione::whereId($request->id)->first();
-        $datos = Dato::where('remisione_id', $remision->id)->with('libro')->get();
-        try {
-            if(Vendido::where('remisione_id', $remision->id)->count() == 0){  
-                \DB::beginTransaction();
-                $remision->update(['estado' => 'Proceso']);
-                $total_pagar = 0;
-                foreach($datos as $d){
-                    $total_pagar += $d->total;            
-                }
-                $remision->update(['total_pagar' => $total_pagar]);
-                foreach($datos as $dato){
-                    $vendido = Vendido::create([
-                        'remisione_id' => $dato->remisione_id,
-                        'dato_id'   => $dato->id,
-                        'libro_id' => $dato->libro_id, 
-                        'unidades_resta' => $dato->unidades,
-                        'total_resta' => $dato->total,
-                    ]);
-                    $devolucion = Devolucione::create([
-                        'remisione_id' => $dato->remisione_id,
-                        'dato_id'   => $dato->id,
-                        'libro_id' => $dato->libro_id,
-                        'unidades_resta' => $dato->unidades,
-                        'total_resta' => $dato->total,
-                    ]);
-                }
-                \DB::commit();
-            }
-            
-            $vendidos = Vendido::where('remisione_id', $remision->id)->with('libro')->with('dato')->get();
-        } catch (Exception $e) {
-            \DB::rollBack();
-            return response()->json($exception->getMessage());
+
+    // IMPRIMIR PDF CON LOS DATOS DE LAS REMISIONES POR CLIENTE
+    // Función utilizada en ListadoComponent
+    public function imprimirCliente($cliente_id, $inicio, $final){
+        $cliente = Cliente::whereId($cliente_id)->select('id', 'name')->first();
+        if($inicio != '0000-00-00' && $final != '0000-00-00'){
+            $remisiones = Remisione::where('cliente_id', $cliente->id)
+                            ->whereBetween('fecha_creacion', [$inicio, $final])
+                            ->whereNotIn('estado', ['Cancelado'])
+                            ->with('datos.libro')
+                            ->orderBy('id','desc')
+                            ->get();
         }
-        return response()->json(['vendidos' => $vendidos, 'remision' => $remision]);
+        else { 
+            $remisiones = Remisione::where('cliente_id', $cliente->id)
+                            ->whereNotIn('estado', ['Cancelado'])
+                            ->with('datos.libro')
+                            ->orderBy('id','desc')
+                            ->get();
+        }
+    
+        $data['cliente'] = $cliente->name;
+        $data['remisiones'] = $remisiones;
+        $pdf = PDF::loadView('remision.reporte', $data);
+        return $pdf->download('reporte.pdf');
+    }
+    
+    // MOSTRAR DETALLES DE REMISIÓN
+    // Función utilizada en ListadoComponent, DevoluciónComponent, RemisionesComponent
+    public function show(){
+        $numero = Input::get('numero');
+        $remision = Remisione::whereId($numero)
+                    ->with(['datos.libro', 'fechas.libro','donaciones.libro','devoluciones.libro','devoluciones.dato'])
+                    ->first(); 
+        $vendidos = Vendido::where('remisione_id', $remision->id)->with('libro', 'dato', 'pagos')->get();
+        return response()->json(['remision' => $remision, 'vendidos' => $vendidos]);
     }
 
+    // CANCELAR REMISIÓN
+    // Función utilizada en ListadoComponent
     public function cancelar_remision(Request $request){
         $remision = Remisione::whereId($request->id)->first();
-        $datos = Dato::where('remisione_id', $remision->id)->get();
         try{
             \DB::beginTransaction();
-            foreach($datos as $dato){
+            foreach($remision->datos as $dato){
                 $libro = Libro::whereId($dato->libro_id)->first();
                 $libro->update(['piezas' => $libro->piezas + $dato->unidades]);
             }
@@ -482,23 +154,8 @@ class RemisionController extends Controller
         return response()->json($remision);
     }
 
-    public function obtener_vendidos(){
-        $datos = \DB::table('vendidos')
-                    ->join('libros', 'vendidos.libro_id', '=', 'libros.id')
-                    ->select(
-                        'libros.id as libro_id',
-                        'libros.titulo as libro',
-                        \DB::raw('SUM(unidades) as unidades_vendido'),
-                        \DB::raw('SUM(total) as total_vendido'),
-                        \DB::raw('SUM(unidades_resta) as unidades_pendiente'),
-                        \DB::raw('SUM(total_resta) as total_pendiente')
-                    )
-                    ->groupBy('libros.titulo', 'libros.id')
-                    ->get();
-        return response()->json($datos);
-    }
-
-    //Función para obtener vendidos por fecha
+    //OBTENER VENDIDOS POR FECHA
+    // Función utilizada en VendidosComponent
     public function obtener_por_fecha(){
         $fecha = Input::get('fecha');
         $datos = \DB::table('vendidos')
@@ -518,7 +175,8 @@ class RemisionController extends Controller
         return response()->json($datos);
     }
 
-    //Función para mostrar detalles
+    // MOSTRAR DETALLES DE VENDIDOS
+    // Función utilizada en VendidosComponent
     public function detalles_vendidos(){
         $fecha = Input::get('fecha');
         $libro_id = Input::get('libro_id');
@@ -554,6 +212,45 @@ class RemisionController extends Controller
         return response()->json($remisiones);
     }
 
+    // GUARDAR REMISION
+    // Función utilizada en RemisionComponent
+    public function store(Request $request){
+        try {
+            \DB::beginTransaction();
+            
+            $remision = Remisione::create([
+                'cliente_id' => $request->cliente_id,
+                'total' => $request->total,
+                'fecha_entrega' => $request->fecha_entrega,
+                'estado' => 1,
+                'fecha_creacion' => Carbon::now()->format('Y-m-d'),
+                'fecha_devolucion' => Carbon::now()->format('Y-m-d')
+            ]);
+
+            foreach($request->registros as $registro){
+                $dato = Dato::create([
+                    'remisione_id' => $remision->id,
+                    'libro_id'  => $registro['id'],
+                    'costo_unitario' => $registro['costo_unitario'],
+                    'unidades'  => $registro['unidades'],
+                    'total'     => $registro['total'],
+                    'estado'    => 'Terminado'
+                ]);
+    
+                $libro = Libro::whereId($dato->libro_id)->first();
+                $libro->update(['piezas' => $libro->piezas - $dato->unidades]);
+            }
+            
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
+        return response()->json($remision);
+    }
+    
+    // GUARDAR DEPOSITO DE REMISIÓN
+    // Función utilizada en PagosComponent
     public function deposito_remision(Request $request){
         $remision = Remisione::whereId($request->remision_id)->first();
         
@@ -599,14 +296,115 @@ class RemisionController extends Controller
         return response()->json($remision);
     }
 
-    // public function aplicar_descuento(Request $request){
-    //     $remision = Remisione::whereId($request->id)->first();
-    //     $total_pagar = $remision->total - (($remision->total * $request->descuento) / 100);
-    //     $remision->update([
-    //         'total_descuento' => $total_pagar,
-    //         'descuento' => $request->descuento
-    //     ]);
+    // MARCAR COMO ENTREGADA UNA REMISIÓN
+    // Función utilizada en RemisionesComponent
+    public function registrar_vendidos(Request $request){
+        $remision = Remisione::whereId($request->id)->with('datos.libro')->first();
+        try {
+            if(Vendido::where('remisione_id', $remision->id)->count() == 0){  
+                \DB::beginTransaction();
+                $remision->update(['estado' => 'Proceso']);
+                $total_pagar = 0;
+                foreach($remision->datos as $d){
+                    $total_pagar += $d->total;            
+                }
+                $remision->update(['total_pagar' => $total_pagar]);
+                foreach($remision->datos as $dato){
+                    $vendido = Vendido::create([
+                        'remisione_id' => $dato->remisione_id,
+                        'dato_id'   => $dato->id,
+                        'libro_id' => $dato->libro_id, 
+                        'unidades_resta' => $dato->unidades,
+                        'total_resta' => $dato->total,
+                    ]);
+                    $devolucion = Devolucione::create([
+                        'remisione_id' => $dato->remisione_id,
+                        'dato_id'   => $dato->id,
+                        'libro_id' => $dato->libro_id,
+                        'unidades_resta' => $dato->unidades,
+                        'total_resta' => $dato->total,
+                    ]);
+                }
+                \DB::commit();
+            }
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
+        return response()->json(['remision' => $remision]);
+    }
+    // OBTENER TODAS LAS REMISIONES DE LOS CLIENTES
+    // Función utilizada en ListadoComponent
+    public function todos(){
+        $remisiones = Remisione::with('cliente:id,name')->orderBy('id','desc')->get();
+        return response()->json($remisiones);
+    } 
+
+    // DESCARGAR REMISIÓN
+    public function imprimirSalida($id){ 
+        $remision = Remisione::whereId($id)->with('datos.libro')->first();
+        $data['remision'] = $remision;
+
+        $datos = $remision->datos;
+        $data['datos'] = $datos;
+        $data['total_salida'] = NumerosEnLetras::convertir($remision->total);
+        $pdf = PDF::loadView('remision.nota', $data); 
         
-    //     return response()->json($remision);
-    // }
+        return $pdf->download('remision.pdf');
+    }
+
+    // OBTENER DETALLES DE LIBROS VENDIDOS
+    // Función utilizada en VendidosComponent
+    public function obtener_vendidos(){
+        $datos = \DB::table('vendidos')
+                    ->join('libros', 'vendidos.libro_id', '=', 'libros.id')
+                    ->select(
+                        'libros.id as libro_id',
+                        'libros.titulo as libro',
+                        \DB::raw('SUM(unidades) as unidades_vendido'),
+                        \DB::raw('SUM(total) as total_vendido'),
+                        \DB::raw('SUM(unidades_resta) as unidades_pendiente'),
+                        \DB::raw('SUM(total_resta) as total_pendiente')
+                    )
+                    ->groupBy('libros.titulo', 'libros.id')
+                    ->get();
+        return response()->json($datos);
+    } 
+
+    // CHECAR
+    public function imprimirEstado($estado){
+        $remisiones = Remisione::where('estado', $estado)->with('cliente')->get();
+
+        $data = $this->valores($remisiones, '0000-00-00', '0000-00-00', null);
+
+        $pdf = PDF::loadView('remision.reporte', $data);
+        return $pdf->download('reporte.pdf');
+    }
+
+    public function valores($remisiones, $inicio, $final, $cliente){
+        $total_salida = 0;
+        $total_devolucion = 0;
+        $total_pagos = 0;
+        $total_pagar = 0;
+
+        foreach($remisiones as $r){
+            if($r->estado != 'Iniciado' && $r->estado != 'Cancelado'){
+                $total_salida += $r->total;
+                $total_devolucion += $r->total_devolucion;
+                $total_pagos += $r->pagos;
+                $total_pagar += $r->total_pagar;
+            }            
+        }
+
+        $data['remisiones'] = $remisiones;
+        $data['total_salida'] = $total_salida;
+        $data['total_devolucion'] = $total_devolucion;
+        $data['total_pagos'] = $total_pagos;
+        $data['total_pagar'] = $total_pagar;
+        $data['fecha_inicio'] = $inicio;
+        $data['fecha_final'] = $final;
+        $data['cliente'] = $cliente;
+
+        return $data;
+    }
 }

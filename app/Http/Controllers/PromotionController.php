@@ -10,11 +10,33 @@ use App\Libro;
 
 class PromotionController extends Controller
 {
-    public function show(){
-        $promotions = Promotion::with('departures')->orderBy('folio','desc')->get();
+    // MOSTRAR PROMOCIONES POR FOLIO
+    // Función utilizada en PromocionesComponent
+    public function buscar_folio(){
+        $folio = Input::get('folio');
+        $promotion = Promotion::where('folio', $folio)->first();
+        return response()->json($promotion);
+    }
+
+    // MOSTRAR PROMOCIONES POR PLANTEL
+    // Función utilizada en PromocionesComponent
+    public function buscar_plantel(){
+        $queryPlantel = Input::get('queryPlantel');
+        $promotions = Promotion::where('plantel','like','%'.$queryPlantel.'%')->orderBy('folio','desc')->get();
         return response()->json($promotions);
     }
 
+    // MOSTRAR LOS DETALLES DE UNA PROMOCIÓN
+    // Función utilizada en PromocionesComponent
+    public function obtener_departures(){
+        $promotion_id = Input::get('promotion_id');
+        $promotion = Promotion::whereId($promotion_id)->with('departures.libro')->first();
+        // $departures = Departure::where('promotion_id', $promotion_id)->with('libro')->get();
+        return response()->json($promotion);
+    }
+
+    // GUARDAR UNA PROMOCIÓN
+    // Función utilizada en PromocionesComponent
     public function store(Request $request){
         try{
             \DB::beginTransaction();
@@ -54,23 +76,5 @@ class PromotionController extends Controller
             \DB::rollBack();
         }
         return response()->json($promotion);
-    }
-
-    public function obtener_departures(){
-        $promotion_id = Input::get('promotion_id');
-        $departures = Departure::where('promotion_id', $promotion_id)->with('libro')->get();
-        return response()->json($departures);
-    }
-
-    public function buscar_folio(){
-        $folio = Input::get('folio');
-        $promotion = Promotion::where('folio', $folio)->first();
-        return response()->json($promotion);
-    }
-
-    public function buscar_plantel(){
-        $queryPlantel = Input::get('queryPlantel');
-        $promotions = Promotion::where('plantel','like','%'.$queryPlantel.'%')->orderBy('folio','desc')->get();
-        return response()->json($promotions);
     }
 }

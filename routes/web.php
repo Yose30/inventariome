@@ -13,20 +13,58 @@
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home')->middleware('auth', 'role:1');
+// Route::get('/home', 'HomeController@index')->name('home')->middleware('auth', 'role:Administrador');
 
-Route::get('/inicio', function () {
-    return view('/inicio');
-})->name('inicio')->middleware('auth', 'role:2');
+Route::get('/remision/reporte', 'RemisionController@imprimirCliente')->name('reporte');
 
-Route::get('/devolucion', function () {
-    return view('/devolucion');
-})->name('devolucion')->middleware('auth', 'role:3');
+// Route::get('/inicio', function () {
+//     return view('/inicio');
+// })->name('inicio')->middleware('auth', 'role:2');
+
+// Route::get('/devolucion', function () {
+//     return view('/devolucion');
+// })->name('devolucion')->middleware('auth', 'role:3');
 
 Route::get('/reset_password', function () {
     return view('/reset_password');
 })->name('reset_password');
  
+// ADMINISTRADOR
+Route::name('administrador.')->prefix('administrador')->middleware(['auth', 'role:Administrador'])->group(function () {
+    Route::get('/remisiones', 'AdministradorController@remisiones')->name('remisiones');
+    Route::get('/vendidos', 'AdministradorController@vendidos')->name('vendidos');
+    Route::get('/notas', 'AdministradorController@notas')->name('notas');
+    Route::get('/promociones', 'AdministradorController@promociones')->name('promociones');
+    Route::get('/adeudos', 'AdministradorController@adeudos')->name('adeudos');
+    Route::get('/entradas', 'AdministradorController@entradas')->name('entradas');
+    Route::get('/libros', 'AdministradorController@libros')->name('libros');
+    Route::get('/clientes', 'AdministradorController@clientes')->name('clientes');
+    
+});
+
+Route::name('oficina.')->prefix('oficina')->middleware(['auth', 'role:Oficina'])->group(function () {
+    Route::get('/remisiones', 'OficinaController@remisiones')->name('remisiones');
+    Route::get('/remision', 'OficinaController@remision')->name('remision');
+    Route::get('/pagos', 'OficinaController@pagos')->name('pagos');
+    Route::get('/clientes', 'OficinaController@clientes')->name('clientes');
+    Route::get('/libros', 'OficinaController@libros')->name('libros');
+    Route::get('/adeudos', 'OficinaController@adeudos')->name('adeudos');
+    Route::get('/entradas', 'OficinaController@entradas')->name('entradas');
+});
+
+// ALMACEN
+Route::name('almacen.')->prefix('almacen')->middleware(['auth', 'role:Almacen'])->group(function () {
+    Route::get('/entregas', 'AlmacenController@entregas')->name('entregas');
+    Route::get('/pagos', 'AlmacenController@pagos')->name('pagos');
+    Route::get('/remisiones', 'AlmacenController@remisiones')->name('remisiones');
+    Route::get('/notas', 'AlmacenController@notas')->name('notas');
+    Route::get('/promociones', 'AlmacenController@promociones')->name('promociones');
+    Route::get('/adeudos', 'AlmacenController@adeudos')->name('adeudos');
+    Route::get('/entradas', 'AlmacenController@entradas')->name('entradas');
+    Route::get('/libros', 'AlmacenController@libros')->name('libros');
+});
+
+
 //CLIENTES
 //Agregar cliente
 Route::post('new_client', 'ClienteController@store')->name('new_client');
@@ -37,7 +75,7 @@ Route::put('editar_cliente', 'ClienteController@editar')->name('editar_cliente')
 //Obtener datos de un cliente
 Route::get('/getCliente', 'ClienteController@getCliente')->name('getCliente');
 //Obtener todos los cliente
-Route::get('/getTodo', 'ClienteController@getTodo')->name('getTodo'); 
+Route::get('/getTodo', 'ClienteController@getTodo')->name('getTodo')->middleware('auth'); 
 
 //REMISIONES
 //Borrar los valores si no se concluyo una remision
@@ -118,7 +156,7 @@ Route::get('descargarLibros', 'LibroController@descargarLibros')->name('descarga
 //Mostrar libros vendidos buscados por editorial
 Route::get('porEditorialVendidos', 'LibroController@porEditorialVendidos')->name('porEditorialVendidos');
 // Descargar en formato excel todos los libros
-Route::get('/downloadExcel', 'LibroController@downloadExcel')->name('downloadExcel');
+Route::get('/downloadExcel/{editorial}', 'LibroController@downloadExcel')->name('downloadExcel');
 
 //ENTRADAS
 //Mostrar todas las entradas
@@ -205,3 +243,7 @@ Route::get('obtener_departures', 'PromotionController@obtener_departures')->name
 Route::get('buscar_folio_promo', 'PromotionController@buscar_folio')->name('buscar_folio_promo');
 // Buscar promocion por plantel
 Route::get('buscar_plantel', 'PromotionController@buscar_plantel')->name('buscar_plantel');
+
+// DONACIONE
+// GUARDAR DONACIONES
+Route::post('guardar_donacion', 'DonacioneController@store')->name('guardar_donacion');

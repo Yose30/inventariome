@@ -11,98 +11,24 @@ use App\Note;
 
 class NoteController extends Controller
 {
-    //Crear nota
-    public function store(Request $request){
-        try{
-            \DB::beginTransaction();
-            $num = Note::get()->count() + 1;
-            if($num < 10){
-                $folio = 'A000'.$num;
-            }
-            if($num >= 10 && $num < 100){
-                $folio = 'A00'.$num;
-            }
-            if($num >= 100 && $num < 1000){
-                $folio = 'A0'.$num;
-            }
-            if($num >= 1000 && $num < 10000){
-                $folio = 'A'.$num;
-            }
-            $note = Note::create([
-                'folio'     => $folio,
-                'cliente'   => $request->cliente
-            ]);
-            $total = 0;
-            foreach($request->registers as $register){
-                Register::create([
-                    'note_id' => $note->id,
-                    'libro_id' => $register['id'],
-                    'costo_unitario' => $register['costo_unitario'],
-                    'unidades' => $register['unidades'],
-                    'total' => $register['total'],
-                    'unidades_pendiente' => $register['unidades'],
-                    'total_pendiente' => $register['total']
-                ]);
-                
-                $libro = Libro::whereId($register['id'])->first();
-                $libro->update(['piezas' => $libro->piezas - $register['unidades']]);
-                $total += $register['total'];
-            }
-
-            $note->update(['total_salida' => $total, 'total_pagar' => $total]);
-            \DB::commit();
-        } catch (Exception $e) {
-            \DB::rollBack();
-        }
+    // BUSCAR NOTA POR FOLIO
+    // Función utilizada en NewNoteComponent
+    public function buscar_folio(){
+        $folio = Input::get('folio');
+        $note = Note::where('folio', $folio)->first();
         return response()->json($note);
     }
 
-    //Actualizar nota
-    public function update(Request $request){
-        $note = Note::whereId($request->id)->first();
-        try{
-            \DB::beginTransaction();
-            //ELIMINADOS
-            $total_eliminado = 0;
-            // foreach($request->eliminados as $eliminado){
-            //     $register = Register::whereId($eliminado['id'])->delete();
-            //     $libro = Libro::whereId($eliminado['libro_id'])->first();
-            //     $libro->update(['piezas' => $libro->piezas + $eliminado['unidades']]);
-            //     $total_eliminado += $eliminado['total'];
-            // }
-            //NUEVOS
-            $total = 0;
-            foreach($request->nuevos as $nuevo){
-                Register::create([
-                    'note_id' => $note->id,
-                    'libro_id' => $nuevo['id'],
-                    'costo_unitario' => $nuevo['costo_unitario'],
-                    'unidades' => $nuevo['unidades'],
-                    'total' => $nuevo['total'],
-                    'unidades_pendiente' => $nuevo['unidades'],
-                    'total_pendiente' => $nuevo['total']
-                ]);
-                $libro = Libro::whereId($nuevo['id'])->first();
-                $libro->update(['piezas' => $libro->piezas - $nuevo['unidades']]);
-                $total += $nuevo['total'];
-            }
-            $total_salida = ($note->total_salida - $total_eliminado) + $total;
-            $total_pagar = $total_salida - $note->pagos;
-            $note->update(['total_salida' => $total_salida, 'total_pagar' => $total_pagar]);
-            \DB::commit();
-        } catch (Exception $e) {
-            \DB::rollBack();
-        }
-        return response()->json($note);
-    }
-
-    //Mostrar notas
-    public function show(){
-        $notes = Note::orderBy('folio','desc')->get();
+    // BUSCAR NOTA POR CLIENTE
+    // Función utilizada en NewNoteComponent
+    public function buscar_cliente_notes(){
+        $queryCliente = Input::get('queryCliente');
+        $notes = Note::where('cliente','like','%'.$queryCliente.'%')->orderBy('folio','desc')->get();
         return response()->json($notes);
     }
 
-    //Mostrar detalles de nota
+    // MOSTRAR DETALLES DE NOTA
+    // Función utilizada en NewNoteComponent
     public function detalles_nota(){
         $note_id = Input::get('note_id');
         $note = Note::whereId($note_id)->first();
@@ -110,7 +36,8 @@ class NoteController extends Controller
         return response()->json($registers);
     }
 
-    //Guardar pago
+    // GUARDAR PAGO DE NOTA
+    // Función utilizada en NewNoteComponent
     public function guardar_pago(Request $request){
         try{
             \DB::beginTransaction();
@@ -157,6 +84,8 @@ class NoteController extends Controller
         return response()->json($nota);
     }
 
+    // REGISTRAR DEVOLUCIÓN DE NOTA
+    // Función utilizada en NewNoteComponent
     public function guardar_devolucion(Request $request){
         try{
             \DB::beginTransaction();
@@ -200,15 +129,84 @@ class NoteController extends Controller
         return response()->json($nota);
     }
 
-    public function buscar_folio(){
-        $folio = Input::get('folio');
-        $note = Note::where('folio', $folio)->first();
+    // CREAR UNA NOTA
+    // Función utilizada en NewNoteComponent
+    public function store(Request $request){
+        try{
+            \DB::beginTransaction();
+            $num = Note::get()->count() + 1;
+            if($num < 10){
+                $folio = 'A000'.$num;
+            }
+            if($num >= 10 && $num < 100){
+                $folio = 'A00'.$num;
+            }
+            if($num >= 100 && $num < 1000){
+                $folio = 'A0'.$num;
+            }
+            if($num >= 1000 && $num < 10000){
+                $folio = 'A'.$num;
+            }
+            $note = Note::create([
+                'folio'     => $folio,
+                'cliente'   => $request->cliente
+            ]);
+            $total = 0;
+            foreach($request->registers as $register){
+                Register::create([
+                    'note_id' => $note->id,
+                    'libro_id' => $register['id'],
+                    'costo_unitario' => $register['costo_unitario'],
+                    'unidades' => $register['unidades'],
+                    'total' => $register['total'],
+                    'unidades_pendiente' => $register['unidades'],
+                    'total_pendiente' => $register['total']
+                ]);
+                
+                $libro = Libro::whereId($register['id'])->first();
+                $libro->update(['piezas' => $libro->piezas - $register['unidades']]);
+                $total += $register['total'];
+            }
+
+            $note->update(['total_salida' => $total, 'total_pagar' => $total]);
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+        }
         return response()->json($note);
     }
 
-    public function buscar_cliente_notes(){
-        $queryCliente = Input::get('queryCliente');
-        $notes = Note::where('cliente','like','%'.$queryCliente.'%')->orderBy('folio','desc')->get();
-        return response()->json($notes);
+    // ACTUALIZAR DATOS DE NOTA
+    // Función utilizada en NewNoteComponent
+    public function update(Request $request){
+        $note = Note::whereId($request->id)->first();
+        try{
+            \DB::beginTransaction();
+            //ELIMINADOS
+            $total_eliminado = 0;
+            //NUEVOS
+            $total = 0;
+            foreach($request->nuevos as $nuevo){
+                Register::create([
+                    'note_id' => $note->id,
+                    'libro_id' => $nuevo['id'],
+                    'costo_unitario' => $nuevo['costo_unitario'],
+                    'unidades' => $nuevo['unidades'],
+                    'total' => $nuevo['total'],
+                    'unidades_pendiente' => $nuevo['unidades'],
+                    'total_pendiente' => $nuevo['total']
+                ]);
+                $libro = Libro::whereId($nuevo['id'])->first();
+                $libro->update(['piezas' => $libro->piezas - $nuevo['unidades']]);
+                $total += $nuevo['total'];
+            }
+            $total_salida = ($note->total_salida - $total_eliminado) + $total;
+            $total_pagar = $total_salida - $note->pagos;
+            $note->update(['total_salida' => $total_salida, 'total_pagar' => $total_pagar]);
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+        }
+        return response()->json($note);
     }
 }

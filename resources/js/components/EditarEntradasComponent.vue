@@ -2,6 +2,7 @@
     <div>
         <div v-if="listadoEntradas">
             <b-row>
+                <!-- MOSTRAR ENTRADAS POR EDITORIAL -->
                 <b-col>
                     <b-row class="my-1">
                         <b-col sm="3">
@@ -11,11 +12,12 @@
                             <b-form-select 
                                 v-model="editorial" 
                                 :options="options" 
-                                @change="mostrarEditoriales">
+                                @change="mostrarEditoriales()">
                             </b-form-select>
                         </b-col>
                     </b-row>
                 </b-col>
+                <!-- MOSTRAR ENTRADAS POR FECHA -->
                 <b-col align="right">
                     <b-row class="my-1">
                         <b-col sm="3">
@@ -24,18 +26,20 @@
                         </b-col>
                         <b-col sm="9">
                             <b-input type="date" v-model="fecha1"/>
-                            <b-input type="date" v-model="fecha2" @change="porFecha"/>
+                            <b-input type="date" v-model="fecha2" @change="porFecha()"/>
                         </b-col>
                     </b-row>
                 </b-col>
-                <b-col sm="3" align="right">
+                <!-- <b-col sm="3" align="right">
                     <b-button variant="info" :disabled="loadRegisters" @click="getTodo">
                         <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
                     </b-button>
-                </b-col>
+                </b-col> -->
             </b-row>
             <hr>
+            <!-- LISTADO DE ENTRADAS -->
             <b-table 
+                responsive
                 v-if="!mostrarDetalles && !mostrarEA && entradas.length > 0" 
                 :items="entradas" 
                 :fields="fields"
@@ -76,6 +80,7 @@
                     </tr>
                 </template>
             </b-table>
+            <!-- PAGINACION -->
             <b-pagination
                 v-model="currentPage"
                 :total-rows="entradas.length"
@@ -84,15 +89,12 @@
                 v-if="entradas.length > 0">
             </b-pagination>
         </div> 
+        <!-- MOSTRAR DETALLES DE LA ENTRADA -->
         <div v-if="mostrarDetalles">
             <b-row>
-                <b-col sm="1">
-                    <label><b>Folio:</b></label><br>
-                    <label><b>Editorial:</b></label>
-                </b-col>
-                <b-col sm="4">
-                    <label>{{entrada.folio}}</label><br>
-                    <label>{{entrada.editorial}}</label>
+                <b-col sm="5">
+                    <label><b>Folio:</b> {{entrada.folio}}</label><br>
+                    <label><b>Editorial:</b> {{entrada.editorial}}</label>
                 </b-col>
                 <b-col>
                     <b-button 
@@ -105,7 +107,7 @@
                     <b-button 
                         variant="info" 
                         @click="mostrarPagos(entrada.id)"
-                        v-if="entrada.total_pagos > 0 && role_id == 2">Mostrar pagos
+                        v-if="entrada.total_pagos > 0 && role_id != 3">Mostrar pagos
                     </b-button>
                 </b-col>
                 <b-col align="right">
@@ -132,26 +134,23 @@
                 </template>
             </b-table>
         </div>
+        <!-- AGREGAR COSTOS A LOS DATOS DE LA ENTRADA -->
         <div v-if="mostrarEA">
             <div class="text-right">
                 <b-button variant="secondary" @click="mostrarEA = false; listadoEntradas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
             </div>
             <hr>
             <b-row>
-                <b-col sm="1">
-                    <label>Folio</label><br>
-                    <label>Editorial</label>
-                </b-col>
-                <b-col sm="5">
-                    <label>{{entrada.folio}}</label><br>
-                    <label>{{entrada.editorial}}</label>
+                <b-col sm="6">
+                    <label><b>Folio:</b> {{entrada.folio}}</label><br>
+                    <label><b>Editorial:</b> {{entrada.editorial}}</label>
                 </b-col>
                 <b-col sm="3" align="right">
                     <label><b>Unidades:</b> {{ total_unidades | formatNumber }}</label>
                 </b-col>
                 <b-col sm="3" class="text-right">
                     <b-button 
-                        @click="actualizarCosto" 
+                        @click="actualizarCosto()" 
                         variant="success"
                         :disabled="load"
                         v-if="!agregar">
@@ -183,9 +182,9 @@
 
             </b-table>
         </div>
-
+        <!-- MODAL PARA REGISTRAR PAGO -->
         <b-modal id="modal-registrarPago" title="Registrar pago">
-            <b-form @submit.prevent="guardarVendidos">
+            <b-form @submit.prevent="guardarVendidos()">
                 <b-row>
                     <b-col sm="2">
                         <label>Monto</label>
@@ -202,24 +201,15 @@
             </b-form>
             <div slot="modal-footer"></div>
         </b-modal>
-        
+        <!-- MOSTRAR PAGOS GUARDADOS -->
         <div v-if="pagosGuardados">
             <b-row>
-                <b-col sm="1">
-                    <label><b>Folio:</b></label><br>
-                    <label><b>Editorial:</b></label>
-                </b-col>
-                <b-col sm="4">
-                    <label>{{entrada.folio}}</label><br>
-                    <label>{{entrada.editorial}}</label>
+                <b-col sm="5">
+                    <label><b>Folio:</b> {{entrada.folio}}</label><br>
+                    <label><b>Editorial:</b> {{entrada.editorial}}</label>
                 </b-col>
                 <b-col>
-                    <label><b>Total:</b> ${{ entrada.total | formatNumber }}</label>
-                </b-col>
-                <b-col>
-                    <label><b>Pagos:</b> ${{ entrada.total_pagos | formatNumber }}</label>
-                </b-col>
-                <b-col>
+                    <label><b>Total:</b> ${{ entrada.total | formatNumber }}</label><br>
                     <label><b>Total pendiente:</b> ${{ entrada.total - entrada.total_pagos | formatNumber }}</label>
                 </b-col>
                 <b-col align="right">
@@ -241,6 +231,12 @@
                 <template slot="created_at" slot-scope="row">
                     {{ row.item.created_at | moment }}
                 </template>
+                <template slot="thead-top" slot-scope="row">
+                    <tr>
+                        <th colspan="1"></th>
+                        <th>${{ entrada.total_pagos | formatNumber }}</th>
+                    </tr>
+                </template>
             </b-table>
         </div>
     </div>
@@ -248,10 +244,10 @@
 
 <script>
     export default {
-        props: ['role_id'],
+        props: ['role_id', 'registersall'],
         data() {
             return {
-                entradas: [],
+                entradas: this.registersall,
                 registros: [],
                 editorial: '',
                 fieldsP: [
@@ -355,9 +351,9 @@
                 loadRegisters: false
             }
         },
-        // created: function(){
-        //     this.getTodo();
-        // },
+        created: function(){
+            this.acumular();
+        },
         filters: {
             moment: function (date) {
                 return moment(date).format('DD-MM-YYYY');
@@ -367,67 +363,7 @@
             }
         }, 
         methods: {
-            rowClass(item, type) {
-                if (!item) return
-                if (item.total_pagos > 0 && item.total_pagos == item.total) return 'table-success'
-                if (item.total == 0) return 'table-warning'
-            },
-            getTodo(){
-                var ffinal = moment();
-                this.fechaFinal = ffinal;
-                this.loadRegisters = true;
-                axios.get('/all_entradas').then(response => {
-                    this.entradas = response.data;
-                    this.loadRegisters = false;
-                    this.acumular();
-                }).catch(error => {
-                    this.loadRegisters = false;
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                });
-            },
-            detallesEntrada(entrada){
-                axios.get('/detalles_entrada', {params: {entrada_id: entrada.id}}).then(response => {
-                    this.asignar(response);
-                    this.mostrarDetalles = true;
-                });
-            },
-            editarEntrada(entrada, i){
-                this.posicion = i;
-                this.agregar = false;
-                this.stateN = null;
-                axios.get('/detalles_entrada', {params: {entrada_id: entrada.id}}).then(response => {
-                    this.asignar(response);
-                    this.total_unidades = this.entrada.unidades;
-                    this.mostrarEA = true;
-                });
-            },
-            asignar(response){
-                this.entrada = {
-                    id: 0,
-                    unidades: 0,
-                    total: 0,
-                    total_pagos: 0,
-                    total_pendiente: 0,
-                    folio: '',
-                    editorial: '',
-                    items: [],
-                    nuevos: []
-                };
-                this.entrada.id = response.data.entrada.id;
-                this.entrada.folio = response.data.entrada.folio;
-                this.entrada.editorial = response.data.entrada.editorial;
-                this.entrada.total = response.data.entrada.total;
-                this.entrada.total_pagos = response.data.entrada.total_pagos;
-                this.entrada.total_pendiente = this.entrada.total - this.entrada.total_pagos;
-                this.entrada.unidades = response.data.entrada.unidades;
-                this.registros = response.data.registros;
-                this.listadoEntradas = false;
-            },
-            restasUnidades(item, i){
-                this.registros.splice(i, 1);
-                this.total_unidades = this.total_unidades - item.unidades;
-                this.entrada.unidades = this.total_unidades;
-            },
+            // MOSTRAR ENTRADAS POR EDITORIAL
             mostrarEditoriales(){
                 if(this.editorial.length > 0){
                     axios.get('/mostrarEditoriales', {params: {editorial: this.editorial}}).then(response => {
@@ -442,40 +378,7 @@
                     this.getTodo();
                 } 
             },
-            acumular(){
-                this.total = 0;
-                this.total_pagos = 0;
-                this.total_pendiente = 0;
-                this.entradas.forEach(entrada => {
-                    this.total += entrada.total;
-                    this.total_pagos += entrada.total_pagos;
-                    this.total_pendiente += entrada.total - entrada.total_pagos;
-                });
-            },
-            verificarUnidades(unidades, costo_unitario, i){
-                if(costo_unitario > 0){
-                    this.registros[i].total = unidades * costo_unitario;
-                    // SUMAR TODO LO QUE SE VAYA EDITANDO DE LA ENTRADA
-                    this.sumatoriaSubtotal();
-                    if(i + 1 < this.registros.length){
-                        document.getElementById('input-'+(i+1)).focus();
-                        document.getElementById('input-'+(i+1)).select();
-                    }
-                }
-                else{
-                    this.makeToast('warning', 'Costo unitario invalido');
-                    this.registros[i].costo_unitario = 0;
-                    this.registros[i].total = 0;
-                    // SUMAR TODO LO QUE SE VAYA EDITANDO DE LA ENTRADA
-                    this.sumatoriaSubtotal();
-                }
-            },
-            sumatoriaSubtotal(){
-                this.subtotal = 0;
-                this.registros.forEach(registro => {
-                    this.subtotal += registro.total;
-                });
-            },
+            // MOSTRAR ENTRADAS POR FECHA
             porFecha(){
                 axios.get('/fecha_entradas', {params: {fecha1: this.fecha1, fecha2: this.fecha2}}).then(response => {
                     this.entradas = response.data;
@@ -484,6 +387,44 @@
                     this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                 });
             },
+            // MOSTRAR DETALLES DE UNA ENTRADA
+            detallesEntrada(entrada){
+                axios.get('/detalles_entrada', {params: {entrada_id: entrada.id}}).then(response => {
+                    this.asignar(response);
+                    this.mostrarDetalles = true;
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                });
+            },
+            // AGREGAR COSTOS A LOS DATOS DE LA ENTRADA
+            editarEntrada(entrada, i){
+                this.posicion = i;
+                this.agregar = false;
+                this.stateN = null;
+                axios.get('/detalles_entrada', {params: {entrada_id: entrada.id}}).then(response => {
+                    this.asignar(response);
+                    this.total_unidades = this.entrada.unidades;
+                    this.mostrarEA = true;
+                });
+            },
+            // REGISTRAR PAGO DE LA ENTRADA
+            registrarPago(entrada, i){
+                this.posicion = i;
+                axios.get('/detalles_entrada', {params: {entrada_id: entrada.id}}).then(response => {
+                    this.asignar(response);
+                    this.listadoEntradas = true;
+                    this.repayment.entrada_id = entrada.id;
+                });
+            },
+            mostrarPagos(entrada_id){
+                axios.get('/detalles_entrada', {params: {entrada_id: entrada_id}}).then(response => {
+                    this.asignar(response);
+                    this.pagos = response.data.entrada.repayments;
+                    this.mostrarDetalles = false;
+                    this.pagosGuardados = true;
+                });
+            },
+            // GUARDAR COSTOS DE LA ENTRADA
             actualizarCosto(){
                 this.estado = false;
                 this.registros.forEach(registro => {
@@ -510,24 +451,25 @@
                     });
                 }
             },
-            obtenerSubtotal(registro, i){
-                if(registro.unidades_base > (registro.unidades - registro.unidades_vendido)){
-                    this.makeToast('warning', 'Las unidades son mayor a las unidades pendientes');
-                    this.registros[i].unidades_base = 0;
-                    this.registros[i].total_base = 0;
+            verificarUnidades(unidades, costo_unitario, i){
+                if(costo_unitario > 0){
+                    this.registros[i].total = unidades * costo_unitario;
+                    // SUMAR TODO LO QUE SE VAYA EDITANDO DE LA ENTRADA
+                    this.sumatoriaSubtotal();
+                    if(i + 1 < this.registros.length){
+                        document.getElementById('input-'+(i+1)).focus();
+                        document.getElementById('input-'+(i+1)).select();
+                    }
                 }
                 else{
-                    this.registros[i].total_base = registro.unidades_base * registro.costo_unitario;
+                    this.makeToast('warning', 'Costo unitario invalido');
+                    this.registros[i].costo_unitario = 0;
+                    this.registros[i].total = 0;
+                    // SUMAR TODO LO QUE SE VAYA EDITANDO DE LA ENTRADA
+                    this.sumatoriaSubtotal();
                 }
             },
-            registrarPago(entrada, i){
-                this.posicion = i;
-                axios.get('/detalles_entrada', {params: {entrada_id: entrada.id}}).then(response => {
-                    this.asignar(response);
-                    this.listadoEntradas = true;
-                    this.repayment.entrada_id = entrada.id;
-                });
-            },
+            // GUARDAR PAGO DE ENTRADAS
             guardarVendidos(){
                 if(this.repayment.pago > 0){
                     if(this.repayment.pago <= (this.entrada.total - this.entrada.total_pagos)){
@@ -559,12 +501,47 @@
                     this.makeToast('warning', 'El pago tiene que ser mayor a 0');
                 }
             },
-            mostrarPagos(entrada_id){
-                axios.get('/detalles_entrada', {params: {entrada_id: entrada_id}}).then(response => {
-                    this.asignar(response);
-                    this.pagos = response.data.entrada.repayments;
-                    this.mostrarDetalles = false;
-                    this.pagosGuardados = true;
+            rowClass(item, type) {
+                if (!item) return
+                if (item.total_pagos > 0 && item.total_pagos == item.total) return 'table-success'
+                if (item.total == 0) return 'table-warning'
+            },
+            asignar(response){
+                this.entrada = {
+                    id: 0,
+                    unidades: 0,
+                    total: 0,
+                    total_pagos: 0,
+                    total_pendiente: 0,
+                    folio: '',
+                    editorial: '',
+                    items: [],
+                    nuevos: []
+                };
+                this.entrada.id = response.data.entrada.id;
+                this.entrada.folio = response.data.entrada.folio;
+                this.entrada.editorial = response.data.entrada.editorial;
+                this.entrada.total = response.data.entrada.total;
+                this.entrada.total_pagos = response.data.entrada.total_pagos;
+                this.entrada.total_pendiente = this.entrada.total - this.entrada.total_pagos;
+                this.entrada.unidades = response.data.entrada.unidades;
+                this.registros = response.data.entrada.registros;
+                this.listadoEntradas = false;
+            },
+            acumular(){
+                this.total = 0;
+                this.total_pagos = 0;
+                this.total_pendiente = 0;
+                this.entradas.forEach(entrada => {
+                    this.total += entrada.total;
+                    this.total_pagos += entrada.total_pagos;
+                    this.total_pendiente += entrada.total - entrada.total_pagos;
+                });
+            },
+            sumatoriaSubtotal(){
+                this.subtotal = 0;
+                this.registros.forEach(registro => {
+                    this.subtotal += registro.total;
                 });
             },
             makeToast(variant = null, descripcion) {

@@ -50,4 +50,10 @@ class User extends Authenticatable
     public function pagos(){
         return $this->hasMany(Pago::class);
     }
+
+    public static function navigation(){
+        return auth()->check() ? auth()->user()->role->rol : 'guest';
+        //Con la función check Verifica si el usuario esta o no autentficado
+        //Si si esta autentificado accede y mediante un objeto de la clase user (en este caso user()) accede al metodo rol() y extrae el nombre dle rol, de no ser asi sera invitado
+    }
 }

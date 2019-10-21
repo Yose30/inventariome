@@ -18,6 +18,7 @@ class Devolucione extends Model
         'unidades_resta',
         'total', 
         'total_resta',
+        'total_base'
     ];
 
     //Uno a muchos (inversa)

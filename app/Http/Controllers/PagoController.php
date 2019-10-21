@@ -13,6 +13,32 @@ use App\Dato;
 
 class PagoController extends Controller
 {
+    // MOSTRAR PAGOS
+    // Función utilizada en DevolucionComponent, PagosComponent
+    public function all_pagos(){
+        $cliente_id = Input::get('cliente_id');
+        $remisiones = Remisione::where('cliente_id', $cliente_id)
+                    ->where('total_pagar', '>', 0)
+                    ->where(function ($query) {
+                        $query->where('estado', '=', 'Proceso')
+                            ->orWhere('estado', '=', 'Terminado');
+                    })
+                    ->orderBy('id','desc')
+                    ->with('cliente')->get();
+        return response()->json($remisiones);
+    }
+
+    // MOSTRAR DATOS
+    // Función utilizada en DevoluciónComponent y PagosComponent
+    public function datos_vendidos(){
+        $remision_id = Input::get('remision_id');
+        $vendidos = Vendido::where('remisione_id', $remision_id)->with('libro')->with('pagos')->with('dato')->get();
+        $depositos = Deposito::where('remisione_id', $remision_id)->get();
+        return response()->json(['vendidos' => $vendidos, 'depositos' => $depositos]);
+    } 
+
+    // REGISTRAR PAGO DE REMISIÓN (POR UNIDADES)
+    // Función utilizada en AdeudosComponent, DevoluciónAdeudosComponent, DevoluciónComponent, PagosComponent
     public function store(Request $request){
         try{
             \DB::beginTransaction();
@@ -45,11 +71,13 @@ class PagoController extends Controller
                 ]);
                 
                 Devolucione::where('dato_id', $vendido['dato']['id'])->update(['unidades_resta' => $unidades_resta]);
-                $pagos += $total;
+                $pagos += $pago_total;
             }
-            $total_pagar = $remision->total - ($pagos + $remision->total_devolucion);
+            // $total_pagar = $remision->total - ($pagos + $remision->total_devolucion); 
+            $total_pagar = $remision->total_pagar - $pagos;
+            $total_pagos = $remision->pagos + $pagos; 
             $remision->update([
-                'pagos' => $pagos,
+                'pagos' => $total_pagos,
                 'total_pagar'   => $total_pagar
             ]);
             if ((int) $total_pagar === 0) {
@@ -60,43 +88,6 @@ class PagoController extends Controller
             \DB::rollBack();
         }
         
-        return response()->json($remision);
-    }
-
-    public function datos_vendidos(){
-        $remision_id = Input::get('remision_id');
-        $vendidos = Vendido::where('remisione_id', $remision_id)->with('libro')->with('pagos')->with('dato')->get();
-        $depositos = Deposito::where('remisione_id', $remision_id)->get();
-        return response()->json(['vendidos' => $vendidos, 'depositos' => $depositos]);
-    } 
-
-    public function all_pagos(){
-        $cliente_id = Input::get('cliente_id');
-        $remisiones = Remisione::where('cliente_id', $cliente_id)
-                        ->where('total_pagar', '>', 0)
-                        ->where(function ($query) {
-                            $query->where('estado', '=', 'Proceso')
-                                ->orWhere('estado', '=', 'Terminado');
-                        })
-                        ->orderBy('id','desc')
-                        ->with('cliente')->get();
-        return response()->json($remisiones);
-    }
-
-    public function num_pagos(){
-        $remision_id = Input::get('remision_id');
-        // $remision = Remisione::whereId($remision_id)
-        //                 ->where('total_pagar', '>', 0)
-        //                 ->where(function ($query) {
-        //                     $query->where('estado', '=', 'Proceso')
-        //                         ->orWhere('estado', '=', 'Terminado');
-        //                 })->with('cliente')->first();
-        $remision = Remisione::whereId($remision_id)
-                        // ->where('total_pagar', '>', 0)
-                        ->where(function ($query) {
-                            $query->where('estado', '=', 'Proceso')
-                                ->orWhere('estado', '=', 'Terminado');
-                        })->with('cliente')->first();
         return response()->json($remision);
     }
 }
