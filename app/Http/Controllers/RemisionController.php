@@ -128,7 +128,7 @@ class RemisionController extends Controller
     public function show(){
         $numero = Input::get('numero');
         $remision = Remisione::whereId($numero)
-                    ->with(['datos.libro', 'fechas.libro','donaciones.libro','devoluciones.libro','devoluciones.dato'])
+                    ->with(['datos.libro', 'fechas.libro','donaciones.libro','devoluciones.libro','devoluciones.dato', 'depositos'])
                     ->first(); 
         $vendidos = Vendido::where('remisione_id', $remision->id)->with('libro', 'dato', 'pagos')->get();
         return response()->json(['remision' => $remision, 'vendidos' => $vendidos]);

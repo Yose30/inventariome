@@ -137,7 +137,7 @@
                     <b-button v-if="row.item.pagos.length > 0" variant="outline-info" @click="row.toggleDetails">
                         {{ row.detailsShowing ? 'Ocultar' : 'Mostrar'}}
                     </b-button>
-                </template>
+                </template> 
                 <template slot="thead-top" slot-scope="row">
                     <tr>
                         <th colspan="5"></th>

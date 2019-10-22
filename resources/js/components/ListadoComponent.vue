@@ -238,7 +238,19 @@
                 </b-button>
             </div>
             <b-collapse id="collapse-3" v-model="mostrarPagos" class="mt-2">
-                <b-table :items="vendidos" :fields="fieldsP">
+                <b-table v-if="depositos.length > 0" :items="depositos" :fields="fieldsDep">
+                    <template slot="index" slot-scope="row">
+                        {{ row.index + 1 }}
+                    </template>
+                    <template slot="pago" slot-scope="row">
+                        ${{ row.item.pago | formatNumber }}
+                    </template>
+                    <template slot="created_at" slot-scope="row">
+                        {{ row.item.created_at | moment }}
+                    </template>
+                    <template slot="user" slot-scope="row">Teresa Pérez</template>
+                </b-table>
+                <b-table v-if="depositos.length == 0" :items="vendidos" :fields="fieldsP">
                     <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                     <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
                     <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario | formatNumber }}</template>
@@ -404,6 +416,12 @@
                     { key: 'total_pagar', label: 'Pagar' },
                     { key: 'detalles', label: '' }
                 ],
+                fieldsDep: [
+                    {key: 'index', label: 'No.'},
+                    'pago',
+                    {key: 'created_at', label: 'Fecha de pago'},
+                    {key: 'user', label: 'Usuario'}
+                ],
                 num_remision: 0,
                 inicio: '',
                 final: '',
@@ -504,7 +522,8 @@
                     { key: 'titulo', label: 'Libro' },
                     { key: 'unidades', label: 'Unidades devueltas' },
                     { key: 'fecha_devolucion', label: 'Fecha' }
-                ]
+                ],
+                depositos: []
             }
         },
         created: function(){
@@ -634,6 +653,7 @@
                     this.vendidos = response.data.vendidos;
                     this.fechas = response.data.remision.fechas;
                     this.donaciones = response.data.remision.donaciones;
+                    this.depositos = response.data.remision.depositos;
                 });
             },
             // CANCELAR REMISIÓN
