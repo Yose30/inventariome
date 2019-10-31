@@ -52,23 +52,29 @@ class RemisionController extends Controller
     // Función utilizado en ListadoComponent
     public function por_estado(){
         $estado = Input::get('estado');
+        $inicio = Input::get('inicio');
+        $final = Input::get('final');
         if($estado == 'cancelado'){
             $remisiones = Remisione::where('estado',4)
+                                    ->whereBetween('fecha_creacion', [$inicio, $final])
                                     ->orderBy('id','desc')
                                     ->with('cliente:id,name')->get();
         }
         if($estado == 'no_entregado'){
             $remisiones = Remisione::where('estado',1)
+                                    ->whereBetween('fecha_creacion', [$inicio, $final])
                                     ->orderBy('id','desc')
                                     ->with('cliente:id,name')->get();
         }
         if($estado == 'entregado'){
             $remisiones = Remisione::where('estado',2)->where('total_pagar', '>', 0)
+                                    ->whereBetween('fecha_creacion', [$inicio, $final])
                                     ->orderBy('id','desc')
                                     ->with('cliente:id,name')->get();
         }
         if($estado == 'pagado'){
             $remisiones = Remisione::where('total_pagar', '=', 0)->where('pagos', '>', 0)
+                                    ->whereBetween('fecha_creacion', [$inicio, $final])
                                     ->orderBy('id','desc')
                                     ->with('cliente:id,name')->get();
         }
@@ -372,13 +378,83 @@ class RemisionController extends Controller
     } 
 
     // CHECAR
-    public function imprimirEstado($estado){
-        $remisiones = Remisione::where('estado', $estado)->with('cliente')->get();
-
-        $data = $this->valores($remisiones, '0000-00-00', '0000-00-00', null);
-
-        $pdf = PDF::loadView('remision.reporte', $data);
-        return $pdf->download('reporte.pdf');
+    public function imprimirEstado($estado, $tipo, $estinicio, $estfinal){
+        $inicio = new Carbon($estinicio);
+        $final = new Carbon($estfinal);
+        $dif = $inicio->diff($final);
+        if((int)$tipo === 1){
+            if($estado == 'cancelado'){
+                $remisiones = Remisione::where('estado','Cancelado')
+                                        ->whereBetween('fecha_creacion', [$inicio, $final])
+                                        ->orderBy('id','desc')
+                                        ->with('cliente:id,name')
+                                        ->get();
+            }
+            if($estado == 'no_entregado'){
+                $remisiones = Remisione::where('estado','iniciado')
+                                        ->whereBetween('fecha_creacion', [$inicio, $final])
+                                        ->orderBy('id','desc')
+                                        ->with('cliente:id,name')
+                                        ->get();
+            }
+            if($estado == 'entregado'){
+                $remisiones = Remisione::where('estado','proceso')->where('total_pagar', '>', 0)
+                                        ->whereBetween('fecha_creacion', [$inicio, $final])
+                                        ->orderBy('id','desc')
+                                        ->with('cliente:id,name')
+                                        ->get();
+            }
+            if($estado == 'pagado'){
+                $remisiones = Remisione::where('total_pagar', '=', 0)->where('pagos', '>', 0)
+                                        ->whereBetween('fecha_creacion', [$inicio, $final])
+                                        ->orderBy('id','desc')
+                                        ->with('cliente:id,name')
+                                        ->get();
+            }
+            $data['remisiones'] = $remisiones;
+            $pdf = PDF::loadView('remision.reporteEstadoGral', $data);
+            return $pdf->download('reporte-estado-general.pdf');
+        } else {
+            if($dif->days < 61){
+                if($estado == 'cancelado'){
+                    $remisiones = Remisione::where('estado','Cancelado')
+                                            ->whereBetween('fecha_creacion', [$inicio, $final])
+                                            ->orderBy('id','desc')
+                                            ->with('cliente:id,name')
+                                            ->with('datos.libro')
+                                            ->get();
+                }
+                if($estado == 'no_entregado'){
+                    $remisiones = Remisione::where('estado','iniciado')
+                                            ->whereBetween('fecha_creacion', [$inicio, $final])
+                                            ->orderBy('id','desc')
+                                            ->with('cliente:id,name')
+                                            ->with('datos.libro')
+                                            ->get();
+                }
+                if($estado == 'entregado'){
+                    $remisiones = Remisione::where('estado','proceso')->where('total_pagar', '>', 0)
+                                            ->whereBetween('fecha_creacion', [$inicio, $final])
+                                            ->orderBy('id','desc')
+                                            ->with('cliente:id,name')
+                                            ->with('datos.libro')
+                                            ->get();
+                }
+                if($estado == 'pagado'){
+                    $remisiones = Remisione::where('total_pagar', '=', 0)->where('pagos', '>', 0)
+                                            ->whereBetween('fecha_creacion', [$inicio, $final])
+                                            ->orderBy('id','desc')
+                                            ->with('cliente:id,name')
+                                            ->with('datos.libro')
+                                            ->get();
+                }
+                $data['remisiones'] = $remisiones;
+                $pdf = PDF::loadView('remision.reporteEstado', $data);
+                return $pdf->download('reporte-estado-detallado.pdf');
+            } else {
+                return back()->with('status', 'El rango de fecha debe ser igual o menor a dos meses.');
+            }
+        }
     }
 
     public function valores($remisiones, $inicio, $final, $cliente){

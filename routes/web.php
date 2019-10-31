@@ -120,7 +120,7 @@ Route::get('detalles_vendidos', 'RemisionController@detalles_vendidos')->name('d
 //REMISIONES -Imprimir
 Route::get('/imprimirSalida/{id}', 'RemisionController@imprimirSalida')->name('imprimirSalida');
 Route::get('/imprimirCliente/{cliente_id}/{inicio}/{final}', 'RemisionController@imprimirCliente')->name('imprimirCliente');
-Route::get('/imprimirEstado/{estado}', 'RemisionController@imprimirEstado')->name('imprimirEstado');
+Route::get('/imprimirEstado/{estado}/{tipo}/{inicio}/{final}', 'RemisionController@imprimirEstado')->name('imprimirEstado');
 
 //DEVOLUCIONES
 //Mostrar todos los registros de devoluciones

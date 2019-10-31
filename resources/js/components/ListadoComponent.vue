@@ -46,7 +46,7 @@
                             <label for="input-estado">Estado</label>
                         </b-col>
                         <b-col sm="9">
-                            <b-form-select v-model="estadoRemision" :options="estados" @change="porEstado()"></b-form-select>
+                            <b-form-select v-model="estadoRemision" :options="estados" @change="openModal()"></b-form-select>
                         </b-col>
                     </b-row>
                 </div>
@@ -86,7 +86,7 @@
                     class="btn btn-info"
                     v-if="imprimirCliente && remisiones.length && cliente_id != 0"
                     :href="'/imprimirCliente/' + cliente_id + '/' + inicio + '/' + final">
-                    <i class="fa fa-download"></i> Descargar
+                    <i class="fa fa-download"></i> Descargar (Cliente)
                 </a>
             </div>
             <hr>
@@ -390,10 +390,56 @@
                 </table>
             </b-collapse>
         </div>
+        <!-- MODALS -->
         <b-modal id="modal-cancelar" title="Cancelar remisión">
             <p><b><i class="fa fa-exclamation-triangle"></i> ¿Estas seguro de cancelar la remisión?</b></p>
             <div slot="modal-footer">
                 <b-button :disabled="load" @click="cambiarEstado()">OK</b-button>
+            </div>
+        </b-modal>
+        <b-modal ref="modal-dates" hide-backdrop title="Busqueda por estado">
+            <p>Seleccionar rango de fechas para buscar las remisiones.</p>
+            <hr>
+            <b-row class="my-1">
+                <b-col sm="2" align="right">
+                    <label for="input-inicio">De:</label>
+                </b-col>
+                <b-col sm="10">
+                    <input class="form-control" type="date" v-model="estinicio">
+                </b-col>
+            </b-row>
+            <b-row class="my-1">
+                <b-col sm="2" align="right">
+                    <label for="input-final">A: </label>
+                </b-col>
+                <b-col sm="10">
+                    <input class="form-control" type="date" v-model="estfinal">
+                </b-col>
+            </b-row>
+            <div slot="modal-footer">
+                <b-row>
+                    <b-col sm="9">
+                        <b-button 
+                            variant="info"
+                            :disabled="estinicio === '' || estfinal === ''"
+                            :href="'/imprimirEstado/' + estadoRemision + '/' + 1 + '/' + estinicio + '/' + estfinal">
+                            <i class="fa fa-download"></i> General
+                        </b-button>
+                        <b-button 
+                            id="tooltip-descargar"
+                            variant="info"
+                            :disabled="estinicio === '' || estfinal === ''"
+                            :href="'/imprimirEstado/' + estadoRemision + '/' + 2 + '/' + estinicio + '/' + estfinal">
+                            <i class="fa fa-download"></i> Detallado
+                        </b-button>
+                        <b-tooltip target="tooltip-descargar" triggers="hover">
+                            Para descargar el reporte detallado, el rango de fecha debe ser igual o menor a dos meses.
+                        </b-tooltip>
+                    </b-col>
+                    <b-col sm="3" class="text-right">
+                        <b-button variant="primary" @click="porEstado()">Buscar</b-button>
+                    </b-col>
+                </b-row>
             </div>
         </b-modal>
     </div>
@@ -425,6 +471,8 @@
                 num_remision: 0,
                 inicio: '',
                 final: '',
+                estinicio: '',
+                estfinal: '',
                 respuesta_numero: '',
                 respuesta_fecha: '',
                 remisiones: this.registersall,
@@ -510,8 +558,8 @@
                     { value: 'no_entregado', text: 'NO ENTREGADO' },
                     { value: 'entregado', text: 'ENTREGADO' },
                     { value: 'pagado', text: 'PAGADO'},
-                    { value: 'cancelado', text: 'CANCELADO' },
-                    { value: '', text: 'MOSTRAR TODO'}
+                    { value: 'cancelado', text: 'CANCELADO' }
+                    // { value: '', text: 'MOSTRAR TODO'}
                 ],
                 currentPage: 1,
                 perPage: 10,
@@ -538,6 +586,12 @@
             }
         },
         methods: {
+            // ABRIR MODAL PARA ESPECIFICAR LA FECHA
+            openModal () {
+                this.estinicio = '';
+                this.estfinal = '';
+                this.$refs['modal-dates'].show()
+            },
             // CONSULTAR REMISIÓN POR NUMERO
             porNumero(){
                 if(this.num_remision > 0){
@@ -605,15 +659,16 @@
             // MOSTRAR REMISIONES POR ESTADO
             porEstado(){
                 if(this.estadoRemision != ''){
-                    axios.get('/buscar_por_estado', {params: {estado: this.estadoRemision}}).then(response => {
+                    axios.get('/buscar_por_estado', {params: {estado: this.estadoRemision, inicio: this.estinicio, final: this.estfinal}}).then(response => {
                         this.valores(response);
+                         this.$refs['modal-dates'].hide();
                     }).catch(error => {
                         this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                     });
                 }
-                else{
-                    this.getTodo();
-                }
+                // else{
+                //     this.getTodo();
+                // }
             },
             // OBTENER TODAS LAS REMISIONES
             getTodo(){ 
