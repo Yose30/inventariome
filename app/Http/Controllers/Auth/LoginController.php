@@ -48,6 +48,9 @@ class LoginController extends Controller
         if(auth()->user()->role_id == 3){
             return '/almacen/entregas';
         }
+        if(auth()->user()->role_id == 4){
+            return '/gestor/remisiones';
+        }
     } 
     //METODOS SOBREESCRITOS
     public function username(){

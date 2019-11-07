@@ -54,6 +54,8 @@ Vue.component('promociones-component', require('./components/PromocionesComponen
 Vue.component('editar-entradas-component', require('./components/EditarEntradasComponent.vue').default);
 Vue.component('devolucion-adeudos-component', require('./components/DevolucionAdeudosComponent.vue').default);
 
+Vue.component('list-general-component', require('./components/ListGeneralComponent.vue').default);
+
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application

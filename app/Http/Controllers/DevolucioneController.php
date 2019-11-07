@@ -27,37 +27,37 @@ class DevolucioneController extends Controller
 
                 $unidades_base = $devolucion['unidades_base'];
                 $total_base = $unidades_base * $costo_unitario;
-                
-                $unidades_resta = $devolucion['unidades_resta'] - $unidades_base;
-                $total_resta = $unidades_resta * $costo_unitario;
 
-                $libro = Libro::whereId($devolucion['libro']['id'])->first();
-               
-                $fecha = Fecha::create([
-                    'remisione_id' => $remision->id,
-                    'fecha_devolucion' => Carbon::now()->format('Y-m-d'),
-                    'libro_id' => $libro->id,
-                    'unidades' => $unidades_base,
-                    'total' => $total_base
-                ]);
-
-                $d = Devolucione::whereId($devolucion['id'])->first();
-                $unidades = $d->unidades + $unidades_base;
-                $total = $d->total + $total_base;
-                
-                $d->update([
-                    'unidades' => $unidades, 
-                    'unidades_resta' => $unidades_resta,
-                    'total' => $total,
-                    'total_resta' => $total_resta
-                ]);
-                
-                $libro->update(['piezas' => $libro->piezas + $unidades_base]);     
-                
-                Vendido::where('dato_id', $devolucion['dato']['id'])->update([
-                    'unidades_resta' => $unidades_resta,
-                    'total_resta'    => $total_resta
-                ]);   
+                if($unidades_base != 0){
+                    $unidades_resta = $devolucion['unidades_resta'] - $unidades_base;
+                    $total_resta = $unidades_resta * $costo_unitario;
+                    $libro = Libro::whereId($devolucion['libro']['id'])->first();
+                    $fecha = Fecha::create([
+                        'remisione_id' => $remision->id,
+                        'fecha_devolucion' => Carbon::now()->format('Y-m-d'),
+                        'libro_id' => $libro->id,
+                        'unidades' => $unidades_base,
+                        'total' => $total_base
+                    ]);
+    
+                    $d = Devolucione::whereId($devolucion['id'])->first();
+                    $unidades = $d->unidades + $unidades_base;
+                    $total = $d->total + $total_base;
+                    
+                    $d->update([
+                        'unidades' => $unidades, 
+                        'unidades_resta' => $unidades_resta,
+                        'total' => $total,
+                        'total_resta' => $total_resta
+                    ]);
+                    
+                    $libro->update(['piezas' => $libro->piezas + $unidades_base]);     
+                    
+                    Vendido::where('dato_id', $devolucion['dato']['id'])->update([
+                        'unidades_resta' => $unidades_resta,
+                        'total_resta'    => $total_resta
+                    ]); 
+                }  
                 $total_devolucion += $total_base;
             }
             

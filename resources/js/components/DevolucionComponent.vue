@@ -405,19 +405,23 @@
             },
             // GUARDAR DEVOLUCIÓN
             guardar(){
-                this.load = true;
-                this.remision.devoluciones = this.devoluciones;
-                axios.put('/concluir_remision', this.remision).then(response => {
-                    this.remisiones[this.posicion].estado = response.data.estado;
-                    this.remisiones[this.posicion].total_devolucion = response.data.total_devolucion;
-                    this.remisiones[this.posicion].total_pagar = response.data.total_pagar;
-                    this.mostrarDevolucion = false; 
-                    this.load = false;
-                    this.makeToast('success', 'La devolución se guardo correctamente');
-                }).catch(error => {
-                    this.load = false;
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                });
+                if(this.total_devolucion <= this.remisiones[this.posicion].total_pagar){
+                    this.load = true;
+                    this.remision.devoluciones = this.devoluciones;
+                    axios.put('/concluir_remision', this.remision).then(response => {
+                        this.remisiones[this.posicion].estado = response.data.estado;
+                        this.remisiones[this.posicion].total_devolucion = response.data.total_devolucion;
+                        this.remisiones[this.posicion].total_pagar = response.data.total_pagar;
+                        this.mostrarDevolucion = false; 
+                        this.load = false;
+                        this.makeToast('success', 'La devolución se guardo correctamente');
+                    }).catch(error => {
+                        this.load = false;
+                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    });
+                } else {    
+                    this.makeToast('warning', 'La devolución no puede ser guardada. El total de la devolución es mayor al total por pagar.');
+                }
             },
             // GUARDAR DONACIÓN
             guardarDonacion () {

@@ -73,7 +73,11 @@ class RemisionController extends Controller
                                     ->with('cliente:id,name')->get();
         }
         if($estado == 'pagado'){
-            $remisiones = Remisione::where('total_pagar', '=', 0)->where('pagos', '>', 0)
+            $remisiones = Remisione::where('total_pagar', '=', 0)
+                                    ->where(function ($query) {
+                                        $query->where('pagos', '>', 0)
+                                                ->orWhere('total_devolucion', '>', 0);
+                                    })
                                     ->whereBetween('fecha_creacion', [$inicio, $final])
                                     ->orderBy('id','desc')
                                     ->with('cliente:id,name')->get();
@@ -377,7 +381,7 @@ class RemisionController extends Controller
         return response()->json($datos);
     } 
 
-    // CHECAR
+    // IMPRIMIR REPORTE GENERAL Y DETALLADO
     public function imprimirEstado($estado, $tipo, $estinicio, $estfinal){
         $inicio = new Carbon($estinicio);
         $final = new Carbon($estfinal);
@@ -405,7 +409,11 @@ class RemisionController extends Controller
                                         ->get();
             }
             if($estado == 'pagado'){
-                $remisiones = Remisione::where('total_pagar', '=', 0)->where('pagos', '>', 0)
+                $remisiones = Remisione::where('total_pagar', '=', 0)
+                                        ->where(function ($query) {
+                                            $query->where('pagos', '>', 0)
+                                                    ->orWhere('total_devolucion', '>', 0);
+                                        })
                                         ->whereBetween('fecha_creacion', [$inicio, $final])
                                         ->orderBy('id','desc')
                                         ->with('cliente:id,name')
@@ -441,7 +449,11 @@ class RemisionController extends Controller
                                             ->get();
                 }
                 if($estado == 'pagado'){
-                    $remisiones = Remisione::where('total_pagar', '=', 0)->where('pagos', '>', 0)
+                    $remisiones = Remisione::where('total_pagar', '=', 0)
+                                            ->where(function ($query) {
+                                                $query->where('pagos', '>', 0)
+                                                        ->orWhere('total_devolucion', '>', 0);
+                                            })
                                             ->whereBetween('fecha_creacion', [$inicio, $final])
                                             ->orderBy('id','desc')
                                             ->with('cliente:id,name')

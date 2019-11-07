@@ -13,22 +13,14 @@
 
 Auth::routes();
 
-// Route::get('/home', 'HomeController@index')->name('home')->middleware('auth', 'role:Administrador');
-
 Route::get('/remision/reporte', 'RemisionController@imprimirCliente')->name('reporte');
-
-// Route::get('/inicio', function () {
-//     return view('/inicio');
-// })->name('inicio')->middleware('auth', 'role:2');
-
-// Route::get('/devolucion', function () {
-//     return view('/devolucion');
-// })->name('devolucion')->middleware('auth', 'role:3');
-
-Route::get('/reset_password', function () {
-    return view('/reset_password');
-})->name('reset_password');
  
+// GESTOR
+Route::name('gestor.')->prefix('gestor')->middleware(['auth', 'role:Gestor'])->group(function () {
+    Route::get('/remisiones', 'GestorController@remisiones')->name('remisiones');
+    
+});
+
 // ADMINISTRADOR
 Route::name('administrador.')->prefix('administrador')->middleware(['auth', 'role:Administrador'])->group(function () {
     Route::get('/remisiones', 'AdministradorController@remisiones')->name('remisiones');

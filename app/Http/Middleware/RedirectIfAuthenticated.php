@@ -28,6 +28,9 @@ class RedirectIfAuthenticated
             if(Auth::user()->role_id == 3){
                 return redirect('/almacen/entregas');
             }
+            if(Auth::user()->role_id == 4){
+                return redirect('/gestor/remisiones');
+            }
         }
 
         return $next($request);
