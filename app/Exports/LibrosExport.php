@@ -2,8 +2,8 @@
 
 namespace App\Exports;
 
-use App\Libro;
 use DB;
+use App\Libro;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 

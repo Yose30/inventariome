@@ -140,7 +140,7 @@
                 </template> 
                 <template slot="thead-top" slot-scope="row">
                     <tr>
-                        <th colspan="5"></th>
+                        <th colspan="4"></th>
                         <th>${{ remision.pagos | formatNumber }}</th>
                     </tr>
                 </template>

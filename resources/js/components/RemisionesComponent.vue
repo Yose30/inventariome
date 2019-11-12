@@ -1,12 +1,13 @@
 <template>
     <div>
+        <check-connection-component></check-connection-component>
         <div v-if="!mostrarDetalles">
             <b-row>
                 <b-col sm="4">
                     <!-- BUSCAR REMISION POR NUMERO -->
                     <b-row class="my-1">
                         <b-col sm="4">
-                            <label for="input-numero">Remision</label>
+                            <label for="input-numero">Remisión</label>
                         </b-col>
                         <b-col sm="8">
                             <b-form-input 
@@ -39,15 +40,12 @@
                         </b-col>
                     </b-row>
                 </b-col>
-                <!-- MOSTRAR TODAS LAS REMISIONES -->
-                <!-- <b-col sm="3" align="right"> 
-                    <b-button variant="info" :disabled="loadRegisters" @click="getTodo">
-                        <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
-                    </b-button>
-                </b-col>   -->
             </b-row> 
             <hr>
             <!-- LISTADO DE REMISIONES -->
+            <b-alert v-if="remisiones.length === 0" show variant="secondary">
+                <i class="fa fa-warning"></i> No se encontraron registros.
+            </b-alert>
             <b-table 
                 responsive
                 :items="remisiones" 
@@ -132,7 +130,7 @@
                 resultsClientes: [],
                 remisiones: this.registersall,
                 fields: [
-                    {key: 'id', label: 'No.'}, 
+                    {key: 'id', label: 'Folio'}, 
                     {key: 'fecha_creacion', label: 'Fecha de creación'}, 
                     'cliente', 
                     {key: 'total', label: 'Salida'},
@@ -150,8 +148,7 @@
                 total_unidades: 0,
                 load: false,
                 perPage: 15,
-                currentPage: 1,
-                loadRegisters: false
+                currentPage: 1
             }
         },
         filters: {
@@ -167,17 +164,17 @@
             porNumero(){
                 if(this.num_remision > 0){
                     axios.get('/buscar_por_numero', {params: {num_remision: this.num_remision}}).then(response => {
-                        if(response.data.remision.estado == 'Cancelado')
-                            this.makeToast('warning', 'La remisión esta cancelada');
-                        if(response.data.remision.estado == 'Proceso' || response.data.remision.estado == 'Terminado')
-                            this.makeToast('warning', 'La remisión ya fue marcada como entregada. Consultar en el apartado de remisiones');
-                        else{
+                        if(response.data.remision.estado == 'Iniciado'){
                             this.remision = response.data.remision;
                             this.remisiones = [];
                             this.remisiones.push(this.remision);
                         }
+                        if(response.data.remision.estado == 'Cancelado')
+                            this.makeToast('warning', 'La remisión esta cancelada.');
+                        if(response.data.remision.estado == 'Proceso' || response.data.remision.estado == 'Terminado')
+                            this.makeToast('warning', 'La remisión ya fue marcada como entregada. Consultar en el apartado de remisiones.');
                     }).catch(error => {
-                        this.makeToast('danger', 'Error al consultar el numero de remisión ingresado');
+                        this.makeToast('danger', 'Error al consultar el numero de remisión ingresado.');
                     });
                 }
             },
@@ -199,9 +196,8 @@
                     this.resultsClientes = [];
                     this.remisiones = [];
                     response.data.forEach(data => {
-                        if(data.estado == 'Iniciado'){
+                        if(data.estado == 'Iniciado')
                             this.remisiones.push(data);
-                        }
                     });
                 });
             },
@@ -248,6 +244,9 @@
 <style>
     #listR{
         position: absolute;
-        z-index: 100
+        z-index: 100;
+    }
+    #listR a {
+        background-color: #f2f8ff;
     }
 </style>

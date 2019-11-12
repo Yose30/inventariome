@@ -39,7 +39,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 Vue.component('editar-libro-component', require('./components/EditarLibroComponent.vue').default);
 Vue.component('remision-component', require('./components/RemisionComponent.vue').default);
 Vue.component('remisiones-component', require('./components/RemisionesComponent.vue').default);
-Vue.component('devolucion-component', require('./components/DevolucionComponent.vue').default);
+Vue.component('pagos-almacen-component', require('./components/PagosAlmacenComponent.vue').default);
 Vue.component('listado-component', require('./components/ListadoComponent.vue').default);
 Vue.component('libros-component', require('./components/LibrosComponent.vue').default);
 Vue.component('new-client-component', require('./components/NewClientComponent.vue').default);
@@ -55,6 +55,7 @@ Vue.component('editar-entradas-component', require('./components/EditarEntradasC
 Vue.component('devolucion-adeudos-component', require('./components/DevolucionAdeudosComponent.vue').default);
 
 Vue.component('list-general-component', require('./components/ListGeneralComponent.vue').default);
+Vue.component('check-connection-component', require('./components/CheckConnectionComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -63,5 +64,5 @@ Vue.component('list-general-component', require('./components/ListGeneralCompone
  */
 
 const app = new Vue({
-    el: '#app',
+    el: '#app'
 });

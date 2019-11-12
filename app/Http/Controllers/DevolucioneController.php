@@ -20,18 +20,24 @@ class DevolucioneController extends Controller
     public function concluir(Request $request){
         try {
             \DB::beginTransaction();
+            // Buscar remisión
             $remision = Remisione::whereId($request->id)->first();
             $total_devolucion = 0;
+            
             foreach($request->devoluciones as $devolucion){
-                $costo_unitario = $devolucion['dato']['costo_unitario'];
+                // $costo_unitario = $devolucion['dato']['costo_unitario'];
+                // $total_base = $unidades_base * $costo_unitario;
 
                 $unidades_base = $devolucion['unidades_base'];
-                $total_base = $unidades_base * $costo_unitario;
+                $total_base = $devolucion['total_base'];
 
                 if($unidades_base != 0){
-                    $unidades_resta = $devolucion['unidades_resta'] - $unidades_base;
-                    $total_resta = $unidades_resta * $costo_unitario;
-                    $libro = Libro::whereId($devolucion['libro']['id'])->first();
+                    // Buscar devolución
+                    $d = Devolucione::whereId($devolucion['id'])->first();
+                    // Buscar libro
+                    $libro = Libro::whereId($d->libro->id)->first();
+
+                    // Crear registro de fecha de la devolución
                     $fecha = Fecha::create([
                         'remisione_id' => $remision->id,
                         'fecha_devolucion' => Carbon::now()->format('Y-m-d'),
@@ -40,20 +46,21 @@ class DevolucioneController extends Controller
                         'total' => $total_base
                     ]);
     
-                    $d = Devolucione::whereId($devolucion['id'])->first();
                     $unidades = $d->unidades + $unidades_base;
                     $total = $d->total + $total_base;
-                    
+                    $unidades_resta = $d->unidades_resta - $unidades_base;
+                    $total_resta = $d->total_resta - $total_base;
+                    // Actualizar la tabla de devolución
                     $d->update([
                         'unidades' => $unidades, 
                         'unidades_resta' => $unidades_resta,
                         'total' => $total,
                         'total_resta' => $total_resta
                     ]);
-                    
+                    // Actualizar las piezas del libro
                     $libro->update(['piezas' => $libro->piezas + $unidades_base]);     
-                    
-                    Vendido::where('dato_id', $devolucion['dato']['id'])->update([
+                    // Actualizar tabla vendidos
+                    Vendido::where('dato_id', $d->dato->id)->update([
                         'unidades_resta' => $unidades_resta,
                         'total_resta'    => $total_resta
                     ]); 
@@ -62,13 +69,16 @@ class DevolucioneController extends Controller
             }
             
             $total_pagar = $remision->total_pagar - $total_devolucion;
+            $t_devolucion = $remision->total_devolucion + $total_devolucion;
             
             $remision->update([
-                'total_devolucion' => $remision->total_devolucion + $total_devolucion,
+                'total_devolucion' => $t_devolucion,
                 'total_pagar'   => $total_pagar
             ]);
             if ((int) $total_pagar === 0) {
-                $remision->update(['estado' => 'Terminado']);
+                if ($remision->depositos->count() > 0)
+                    $this->restantes_to_cero($remision);
+                $remision->update(['estado' => 'Terminado']); 
             }
             \DB::commit();
 
@@ -78,6 +88,27 @@ class DevolucioneController extends Controller
         }
         return response()->json($remision);
     } 
+
+    // ACTUALIZAR LAS UNIDADES RESTANTES DE LAS REMISIONES
+    // SOLO SI EN LA REMISIÓN SE REALIZO UN DEPOSITO
+    public function restantes_to_cero($remision) {
+        Devolucione::where('remisione_id', $remision->id)->update([
+            'unidades_resta' => 0,
+            'total_resta' => 0
+        ]);
+        
+        $vendidos = Vendido::where('remisione_id', $remision->id)->get();
+        foreach($vendidos as $vendido){
+            $unidades = $vendido->unidades + $vendido->unidades_resta;
+            $total = $vendido->dato->costo_unitario * $unidades;
+            $vendido->update([
+                'unidades' => $unidades,
+                'total' => $total,
+                'unidades_resta' => 0,
+                'total_resta' => 0
+            ]);
+        }
+    }
     
     //Mostrar todas las devoluciones (ELIMINADA)
     public function all_devoluciones(){

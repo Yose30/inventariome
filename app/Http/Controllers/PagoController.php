@@ -42,38 +42,48 @@ class PagoController extends Controller
     public function store(Request $request){
         try{
             \DB::beginTransaction();
+            // Buscar remisión
             $remision = Remisione::whereId($request->id)->first();
             $pagos = 0;
             foreach($request->vendidos as $vendido){
-                $unidades = $vendido['unidades_base'];
-                $costo_unitario = $vendido['dato']['costo_unitario'];
-                $pago_total = $unidades * $costo_unitario;
-                
-                if($unidades != 0){
+                $unidades_base = $vendido['unidades_base'];
+                $total_base = $vendido['total_base'];
+                // $costo_unitario = $vendido['dato']['costo_unitario'];
+                // $pago_total = $unidades_base * $costo_unitario;
+
+                if($unidades_base != 0){
+                    // Guardar pagos por libro
                     Pago::create([
                         'user_id' => auth()->user()->id,
                         'vendido_id' => $vendido['id'],
-                        'unidades' => $unidades,
-                        'pago' => $pago_total
+                        'unidades' => $unidades_base,
+                        'pago' => $total_base
                     ]);
                 }
 
+                // Buscar el dato vendido
                 $d_vendido = Vendido::whereId($vendido['id'])->first();
-                $v_unidades = $d_vendido->unidades + $unidades;
-                $unidades_resta = $d_vendido->unidades_resta - $unidades;
-                $total = $v_unidades * $costo_unitario;
-                $total_resta = $unidades_resta * $costo_unitario;
+                $unidades = $d_vendido->unidades + $unidades_base;
+                $total = $d_vendido->total + $total_base;
+                $unidades_resta = $d_vendido->unidades_resta - $unidades_base;
+                $total_resta = $d_vendido->total_resta - $total_base;
+                // $total = $v_unidades * $costo_unitario;
+                // $total_resta = $unidades_resta * $costo_unitario;
                 $d_vendido->update([
-                    'unidades' => $v_unidades, 
+                    'unidades' => $unidades, 
                     'unidades_resta' => $unidades_resta,
                     'total' => $total,
                     'total_resta' => $total_resta
                 ]);
                 
-                Devolucione::where('dato_id', $vendido['dato']['id'])->update(['unidades_resta' => $unidades_resta]);
-                $pagos += $pago_total;
+                // Actualizar los datos de devolución
+                Devolucione::where('dato_id', $vendido['dato']['id'])->update([
+                    'unidades_resta' => $unidades_resta,
+                    'total_resta' => $total_resta
+                ]);
+                $pagos += $total_base;
             }
-            // $total_pagar = $remision->total - ($pagos + $remision->total_devolucion); 
+            
             $total_pagar = $remision->total_pagar - $pagos;
             $total_pagos = $remision->pagos + $pagos; 
             $remision->update([

@@ -1,12 +1,13 @@
 <template>
     <div>
-        <div v-if="mostrar && !detalles">
+        <check-connection-component></check-connection-component>
+        <div v-if="!detalles">
             <div class="row">
                 <!-- BUSCAR REMISION POR NUMERO -->
                 <div class="col-md-3">
                     <b-row class="my-1">
                         <b-col sm="5">
-                            <label for="input-numero">Remision</label>
+                            <label for="input-numero">Remisión</label>
                         </b-col>
                         <b-col sm="7">
                             <b-form-input 
@@ -17,6 +18,8 @@
                             </b-form-input>
                         </b-col>
                     </b-row>
+                    <hr>
+                    <b-button  v-if="role_id != 3" variant="info" pill v-b-modal.modal-ayuda><i class="fa fa-info-circle"></i> Ayuda</b-button>
                 </div>
                 <div class="col-md-5">
                     <!-- BUSCAR POR CLIENTE -->
@@ -25,8 +28,7 @@
                             <label for="input-cliente">Cliente</label>
                         </b-col>
                         <b-col sm="9">
-                            <b-input v-model="queryCliente" @keyup="mostrarClientes()"
-                            ></b-input>
+                            <b-input v-model="queryCliente" @keyup="mostrarClientes()"></b-input>
                             <div class="list-group" v-if="resultsClientes.length" id="listaL">
                                 <a 
                                     href="#" 
@@ -40,18 +42,16 @@
                         </b-col>
                     </b-row>
                     <hr>
-                     <!-- BUSCAR REMISION POR ESTADO -->
+                    <!-- BUSCAR REMISION POR ESTADO -->
                     <b-row class="my-1" v-if="role_id != 3">
-                        <b-col sm="3">
-                            <label for="input-estado">Estado</label>
-                        </b-col>
+                        <b-col sm="3"><label for="input-estado">Estado</label></b-col>
                         <b-col sm="9">
-                            <b-form-select v-model="estadoRemision" :options="estados" @change="openModal()"></b-form-select>
+                            <b-form-select v-model="estadoRemision" :options="estados" @change="porEstado()"></b-form-select>
                         </b-col>
                     </b-row>
                 </div>
                 <!-- BUSCAR POR FECHAS -->
-                <div class="col-md-4" v-if="role_id != 3">
+                <div class="col-md-4">
                     <b-row class="my-1">
                         <b-col sm="3">
                             <label for="input-inicio">De:</label>
@@ -61,7 +61,6 @@
                                 class="form-control" 
                                 type="date" 
                                 v-model="inicio">
-                            <div class="text-danger">{{ respuesta_fecha }}</div>
                         </b-col>
                     </b-row>
                     <b-row class="my-1">
@@ -74,32 +73,86 @@
                                 type="date" 
                                 v-model="final"
                                 @change="porFecha()">
-                            </input>
                         </b-col>
                     </b-row>
                 </div>
             </div>
             <hr>
             <!-- IMPIRMIR REPORTE -->
-            <div align="right" v-if="role_id != 3">
-                <a 
-                    class="btn btn-info"
-                    v-if="imprimirCliente && remisiones.length && cliente_id != 0"
-                    :href="'/imprimirCliente/' + cliente_id + '/' + inicio + '/' + final">
-                    <i class="fa fa-download"></i> Descargar (Cliente)
-                </a>
+            <div>
+                <b-row>
+                    <b-col>
+                        <!-- PAGINACIÓN -->
+                        <b-pagination
+                            v-if="remisiones.length"
+                            v-model="currentPage"
+                            :total-rows="remisiones.length"
+                            :per-page="perPage"
+                            aria-controls="my-table"
+                            align="left">
+                        </b-pagination>
+                    </b-col>
+                    <b-col align="right" v-if="role_id != 3">
+                        <div v-if="imprimirCliente && remisiones.length">
+                            <a 
+                                class="btn btn-danger"
+                                :href="'/imprimirCliente/' + cliente_id + '/' + inicio + '/' + final">
+                                <i class="fa fa-download"></i> Descargar PDF
+                            </a>
+                            <a 
+                                class="btn btn-success"
+                                :href="'/imprimirClienteEXC/' + cliente_id + '/' + inicio + '/' + final">
+                                <i class="fa fa-download"></i> Descargar Excel
+                            </a>
+                            <a 
+                                class="btn btn-primary"
+                                :href="'/imprimirClienteDet/' + cliente_id + '/' + inicio + '/' + final">
+                                <i class="fa fa-download"></i> Detallado Excel
+                            </a>
+                        </div>
+                        <div v-if="imprimirFecha && remisiones.length">
+                            <a 
+                                class="btn btn-danger"
+                                :href="'/imprimirFecha/' + inicio + '/' + final">
+                                <i class="fa fa-download"></i> Descargar PDF
+                            </a>
+                            <a 
+                                class="btn btn-success"
+                                :href="'/imprimirFechaEXC/' + inicio + '/' + final">
+                                <i class="fa fa-download"></i> Descargar Excel
+                            </a>
+                            <a 
+                                class="btn btn-primary"
+                                :href="'/imprimirFechaDet/' + inicio + '/' + final">
+                                <i class="fa fa-download"></i> Detallado Excel
+                            </a>
+                        </div>
+                        <div v-if="imprimirEstado && remisiones.length">
+                            <a 
+                                class="btn btn-danger"
+                                :href="'/imprimirEstado/' + estadoRemision + '/' + cliente_id + '/' + inicio + '/' + final">
+                                <i class="fa fa-download"></i> Descargar PDF
+                            </a>
+                            <a 
+                                class="btn btn-success"
+                                :href="'/imprimirEstadoEXC/' + estadoRemision + '/' + cliente_id + '/' + inicio + '/' + final">
+                                <i class="fa fa-download"></i> Descargar Excel
+                            </a>
+                            <a 
+                                class="btn btn-primary"
+                                :href="'/imprimirEstadoDet/' + estadoRemision + '/' + cliente_id + '/' + inicio + '/' + final">
+                                <i class="fa fa-download"></i> Detallado Excel
+                            </a>
+                        </div>
+                    </b-col>
+                </b-row>
             </div>
-            <hr>
             <!-- LISTADO DE REMISIONES -->
             <div>
-                <!-- PAGINACIÓN -->
-                <b-pagination
-                    v-model="currentPage"
-                    :total-rows="remisiones.length"
-                    :per-page="perPage"
-                    aria-controls="my-table">
-                </b-pagination>
                 <!-- TABLA DE REMISIONES -->
+                <b-alert v-if="remisiones.length === 0" show variant="secondary">
+                    <i class="fa fa-warning"></i> No se encontraron registros.
+                </b-alert>
                 <b-table 
                     responsive
                     :items="remisiones" 
@@ -135,7 +188,7 @@
                         </b-button>
                     </template>
                     <!-- ENCABEZADO DE TOTALES -->
-                    <template slot="thead-top" slot-scope="row">
+                    <template slot="thead-top" slot-scope="row" v-if="role_id != 3">
                         <tr>
                             <th colspan="3"></th>
                             <th>${{ total_salida | formatNumber }}</th>
@@ -165,8 +218,9 @@
                 </b-col>
                 <b-col sm="2" align="left">
                     <b-badge variant="info" v-if="remision.estado == 'Iniciado'">{{ remision.estado }}</b-badge>
-                    <b-badge variant="primary" v-if="remision.estado == 'Proceso'">Entregado</b-badge>
+                    <b-badge variant="primary" v-if="remision.estado == 'Proceso' && remision.total_pagar > 0">Entregado</b-badge>
                     <b-badge variant="danger" v-if="remision.estado == 'Cancelado'">Remisión cancelada</b-badge>
+                    <b-badge variant="success" v-if="remision.total_pagar == 0 && (remision.pagos > 0 || remision.total_devolucion > 0)">Pagado</b-badge>
                 </b-col>
                 <b-col sm="2" align="right">
                     <b-button 
@@ -352,7 +406,7 @@
                 </b-table>
             </b-collapse>
             <hr>
-            <div class="row" v-if="remision.estado == 'Proceso' || remision.estado == 'Terminado'">
+            <div class="row" v-if="(remision.estado == 'Proceso' || remision.estado === 'Terminado') && (depositos.length === 0 || remision.total_pagar === 0)">
                 <h4 class="col-md-10"><b>Pagar</b></h4>
                 <b-button 
                     variant="link" 
@@ -391,13 +445,48 @@
             </b-collapse>
         </div>
         <!-- MODALS -->
+        <!-- MODAL DE AYUDA -->
+        <b-modal id="modal-ayuda" hide-backdrop hide-footer title="Ayuda">
+            <p>
+                <b>Busqueda de remisiones</b><br>
+                <ul>
+                    <li><b>Busqueda por remisión</b>: Ingresar el numero de folio de la remisión que se desea buscar y presionar <b>Enter</b>.</li>
+                    <li><b>Busqueda por cliente</b>: Escribir el nombre del cliente y elegir entre las opciones que aparezcan.</li>
+                    <li><b>Busqueda por fechas</b>: Elegir fecha de inicio y fecha final para buscar las remisiones en ese rango de fechas.</li>
+                    <li>
+                        <b>Busqueda por estado</b>: Elegir alguna opción<br>
+                        <ul>
+                            <li><b>NO ENTREGADO:</b> Remisiones que aún no han sido marcadas como entregadas.</li>
+                            <li><b>ENTREGADO:</b> Remisiones que ya fueron entregadas y que estan pendientes por pagar.</li>
+                            <li><b>PAGADO:</b> Remisiones que ya están pagadas.</li>
+                            <li><b>CANCELADO:</b> Remisiones que están canceladas.</li>
+                        </ul>
+                    </li>
+                    <li><b>Busqueda por cliente y fecha</b>: Elegir el rango de fechas y despues escribir el nombre del cliente para elegir entre las opciones que aparezcan.</li>
+                    <li><b>Busqueda por estado y fecha</b>: Elegir el rango de fechas y despues seleccionar el estado.</li>
+                    <li><b>Busqueda por cliente y estado</b>: Escribir el nombre del cliente para elegir entre las opciones que aparezcan y despues seleccionar el estado.</li>
+                </ul>
+            </p>
+            <hr>
+            <p>
+                <b>Descargar reporte</b><br>
+                Los botones de descarga aparecerán de acuerdo a la busqueda realizada. Se puede descargar en PDF o EXCEL.<br>
+                Para el reporte detallado, solo se podrá descargar en EXCEL.
+            </p>
+            <hr>
+            <p>
+                <b>Totales</b><br>
+                El total de Salida, Pagos, Devolución, Donación y Pagar solo aparecen de las remisiones que ya fueron marcadas como entregadas y las que ya están pagadas.
+                De las remisiones no entregadas y canceladas el total aparecerá en $0.
+            </p>
+        </b-modal>
         <b-modal id="modal-cancelar" title="Cancelar remisión">
             <p><b><i class="fa fa-exclamation-triangle"></i> ¿Estas seguro de cancelar la remisión?</b></p>
             <div slot="modal-footer">
                 <b-button :disabled="load" @click="cambiarEstado()">OK</b-button>
             </div>
         </b-modal>
-        <b-modal ref="modal-dates" hide-backdrop title="Busqueda por estado">
+        <!-- <b-modal ref="modal-dates" hide-backdrop title="Busqueda por estado">
             <p>Seleccionar rango de fechas para buscar las remisiones.</p>
             <hr>
             <b-row class="my-1">
@@ -441,7 +530,7 @@
                     </b-col>
                 </b-row>
             </div>
-        </b-modal>
+        </b-modal> -->
     </div>
 </template>
 
@@ -468,26 +557,17 @@
                     {key: 'created_at', label: 'Fecha de pago'},
                     {key: 'user', label: 'Usuario'}
                 ],
-                num_remision: 0,
-                inicio: '',
-                final: '',
-                estinicio: '',
-                estfinal: '',
-                respuesta_numero: '',
-                respuesta_fecha: '',
+                num_remision: null,
+                inicio: '0000-00-00',
+                final: '0000-00-00',
                 remisiones: this.registersall,
                 remision: {},
-                cliente_nombre: '',
-                tabla_numero: false,
                 queryCliente: '',
                 resultsClientes: [],
                 total_salida: 0,
                 total_devolucion: 0,
                 total_pagar: 0,
-                currentTime: null,
-                cliente_id: 0,
-                selected: null,
-                selected2: 'Terminado',
+                cliente_id: null,
                 options: [
                     { value: null, text: 'Selecciona una opción', disabled: true },
                     { value: 'Terminado', text: 'Terminado'},
@@ -495,31 +575,15 @@
                     { value: 'Iniciado', text: 'Iniciado' },
                 ],
                 imprimirCliente: false,
-                imprimirEstado:false,
+                imprimirEstado: false,
+                imprimirFecha: false,
                 estadoRemision: null,
-                queryTitulo: '',
-                resultslibros: [],
-                tabla_libros: false,
-                libros: [],
-                mostrar: true,
-                show: false,
-                mostrarDatos: false,
-                errors: {},
-                fecha: '',
-                inputFecha: true,
-                bdremision: {
-                    id: 0,
-                    cliente_id: 0,
-                    total: 0,
-                    fecha_entrega: ''
-                },
-                items: [],
-                total_remision: 0,
-                pagar: 0,
                 detalles: false,
                 mostrarSalida: false,
+                mostrarPagos: false,
                 mostrarDevolucion: false,
                 mostrarDonaciones: false,
+                mostrarFinal: false,
                 donaciones: [],
                 fieldsDon: [
                     { key: 'isbn', label: 'ISBN' },
@@ -527,13 +591,8 @@
                     { key: 'unidades', label: 'Unidades donadas' },
                     { key: 'created_at', label: 'Fecha' }
                 ],
-                mostrarPagos: false,
-                mostrarFinal: false,
                 registros: [],
                 devoluciones: [],
-                d_total_salida: 0,
-                d_total_devolucion: 0,
-                d_total_pagar: 0,
                 total_pagos: 0,
                 vendidos: [],
                 fieldsP: [
@@ -551,7 +610,6 @@
                     'pago', 
                     {key: 'created_at', label: 'Fecha'}, 
                 ],
-                idRemision: 0,
                 load: false,
                 estados: [
                     { value: null, text: 'Selecciona una opción', disabled: true },
@@ -559,7 +617,6 @@
                     { value: 'entregado', text: 'ENTREGADO' },
                     { value: 'pagado', text: 'PAGADO'},
                     { value: 'cancelado', text: 'CANCELADO' }
-                    // { value: '', text: 'MOSTRAR TODO'}
                 ],
                 currentPage: 1,
                 perPage: 10,
@@ -586,32 +643,34 @@
             }
         },
         methods: {
-            // ABRIR MODAL PARA ESPECIFICAR LA FECHA
-            openModal () {
-                this.estinicio = '';
-                this.estfinal = '';
-                this.$refs['modal-dates'].show()
-            },
             // CONSULTAR REMISIÓN POR NUMERO
             porNumero(){
                 if(this.num_remision > 0){
-                    this.respuesta_numero = '';
                     axios.get('/buscar_por_numero', {params: {num_remision: this.num_remision}}).then(response => {
-                        if(this.role_id ===3 && response.data.remision.estado === 'Cancelado'){
-                            this.makeToast('warning', 'La remisión esta cancelada');
+                        if(this.role_id === 3 && response.data.remision.estado === 'Cancelado'){
+                            this.makeToast('warning', 'La remisión esta cancelada.');
                         }
                         else{
                             this.remision = response.data.remision;
                             this.remisiones = [];
                             this.remisiones.push(this.remision);
                             this.acumular();
-                            this.imprimirCliente = false;
-                            this.imprimirEstado = false;
+                            this.ini_imprimir(false, false, false);
                         }
                     }).catch(error => {
-                        this.makeToast('danger', 'No existe la remisión');
+                        this.makeToast('danger', 'Error al consultar el numero de remisión ingresado.');
                     });
                 }
+            },
+            // INCIALIZAR VARIABLES PARA INDICAR QUE BOTON DE IMPRIMIR SE MOSTRARA
+            ini_imprimir(t1, t2, t3){
+                if(this.inicio == '' || this.final == ''){
+                    this.inicio = '0000-00-00';
+                    this.final = '0000-00-00';
+                }
+                this.imprimirCliente = t1;
+                this.imprimirEstado = t2;
+                this.imprimirFecha = t3;
             },
             // MOSTRAR LOS CLIENTES
             mostrarClientes(){
@@ -630,14 +689,7 @@
                     this.cliente_id = result.id;
                     this.queryCliente = result.name;
                     this.resultsClientes = [];
-
-                    if(this.inicio == '' || this.final == ''){
-                        this.inicio = '0000-00-00';
-                        this.final = '0000-00-00';
-                    }
-                    this.imprimirEstado = false;
-                    this.imprimirCliente = true;
-
+                    this.ini_imprimir(true, false, false);
                     this.valores(response);
                 });
             },
@@ -659,39 +711,42 @@
             // MOSTRAR REMISIONES POR ESTADO
             porEstado(){
                 if(this.estadoRemision != ''){
-                    axios.get('/buscar_por_estado', {params: {estado: this.estadoRemision, inicio: this.estinicio, final: this.estfinal}}).then(response => {
+                    axios.get('/buscar_por_estado', {
+                                params: {
+                                    estado: this.estadoRemision,
+                                    inicio: this.inicio,
+                                    final: this.final,
+                                    cliente_id: this.cliente_id
+                                }
+                            }).then(response => {
                         this.valores(response);
-                         this.$refs['modal-dates'].hide();
+                        this.ini_imprimir(false, true, false);
+                        //  this.$refs['modal-dates'].hide();
                     }).catch(error => {
                         this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
                     });
                 }
-                // else{
-                //     this.getTodo();
-                // }
             },
             // OBTENER TODAS LAS REMISIONES
             getTodo(){ 
                 axios.get('/todos_los_clientes').then(response => {
                     this.imprimirCliente = true;
                     this.imprimirEstado = false;
-                    this.cliente_id = 0;
-                    if(this.inicio == '' || this.final == ''){
-                        this.inicio = '0000-00-00';
-                        this.final = '0000-00-00';
-                    }
+                    this.cliente_id = null;
+                    // if(this.inicio == '' || this.final == ''){
+                    //     this.inicio = '0000-00-00';
+                    //     this.final = '0000-00-00';
+                    // }
                     this.valores(response);
                 });
             },
             // OBTENER REMISIONES POR FECHA
             porFecha(){
-                axios.get('/buscar_por_fecha', {params: {inicio: this.inicio, final: this.final, cliente_id: this.cliente_id}}).then(response => {
+                axios.get('/buscar_por_fecha', {params: {inicio: this.inicio, final: this.final}}).then(response => {
                     this.valores(response);
-                    if(this.final != ''){
-                        this.imprimirEstado = false;
-                        this.imprimirCliente = true;
-                    }
+                    this.ini_imprimir(false, false, true);
                 });
+                
             },
             // MOSTRAR LOS DETALLES DE LA REMISIÓN
             detallesRemision(remision){
@@ -769,5 +824,8 @@
     #listaL{
         position: absolute;
         z-index: 100
+    }
+    #listaL a {
+        background-color: #f2f8ff;
     }
 </style>

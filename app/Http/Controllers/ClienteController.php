@@ -10,13 +10,20 @@ use App\Dato;
 
 class ClienteController extends Controller
 {
+    // OBTENER TODOS LOS CLIENTES
+    // Función utilizada en AdeudosComponent, RemisionComponent
+    public function getTodo(){
+        $clientes = Cliente::orderBy('name', 'asc')->get();
+        return response()->json($clientes);
+    }
+    
     // MOSTRAR TODOS LOS CLIENTES
     // Función utilizada en los componentes
     // - AdeudosComponent - ClientesComponent - DevolucionAdeudosComponent
     // - DevolucionComponent - ListadoComponent - PagosComponent - RemisionComponent - RemisionesComponent
     public function show(){
         $queryCliente = Input::get('queryCliente');
-        $clientes = Cliente::where('name','like','%'.$queryCliente.'%')->get();
+        $clientes = Cliente::where('name','like','%'.$queryCliente.'%')->orderBy('name', 'asc')->get();
         return response()->json($clientes);
     }
 
@@ -42,13 +49,6 @@ class ClienteController extends Controller
             return response()->json($exception->getMessage());
         }
         return response()->json($cliente);
-    }
-
-    // OBTENER TODOS LOS CLIENTES
-    // Función utilizada en AdeudosComponent, RemisionComponent
-    public function getTodo(){
-        $clientes = Cliente::get();
-        return response()->json($clientes);
     }
 
     // GUARDAR NUEVO CLIENTE

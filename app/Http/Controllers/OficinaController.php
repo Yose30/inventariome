@@ -17,7 +17,7 @@ class OficinaController extends Controller
     }
 
     public function remision(){
-        $clientes = Cliente::get();
+        $clientes = Cliente::orderBy('name', 'asc')->get();
         return view('oficina.remision', compact('clientes'));
     }
 

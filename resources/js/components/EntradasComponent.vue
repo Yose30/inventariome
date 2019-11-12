@@ -468,15 +468,7 @@
             },
             // ELIMINAR REGISTRO DE ENTRADA
             eliminarRegistro(item, i){
-                // if(this.agregar == false){
-                //     axios.delete('/eliminar_registro_entrada', {params: {id: item.id}}).then(response => {
-                //         this.restasUnidades(item, i);
-                //     });
-                // } 
-                // else{
-                    this.restasUnidades(item, i);
-                // }
-                
+                this.restasUnidades(item, i);
             },
             restasUnidades(item, i){
                 this.registros.splice(i, 1);

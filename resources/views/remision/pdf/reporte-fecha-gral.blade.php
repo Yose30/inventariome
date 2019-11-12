@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Reporte</title>
+        <style>
+            th{
+                border-collapse: collapse;
+                text-align:center;
+                font-size:12px;
+            }
+            td{
+                border-collapse: collapse;
+                text-align:left;
+                font-size:10px;
+            }
+            table{
+                border-collapse: collapse;
+                width: 100%;   
+            }
+            th, td {
+                border-collapse: collapse;
+                padding: 1px;
+                border-left:1px solid #ddd;
+                border-right:1px solid #ddd;
+                border-top:1px solid #ddd;
+                border-bottom:1px solid #ddd;
+            }
+            #tdcent{
+                text-align:center;
+            }
+            #tdder{
+                text-align:right;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            <main>
+                <div>
+                    <h5><b>Fecha:</b> {{ $fecha }}</h5>
+                    @if($inicio != '0000-00-00' && $final != '0000-00-00')
+                        <h6><b>De:</b> {{ $inicio }} - <b>A:</b> {{ $final }}</h6>
+                    @endif
+                    @include('remision.partials.pdf.table', ['remisiones' => $remisiones, 'totales' => $totales])
+                    <br><hr><br>
+                    <table>
+                        <tr>
+                            <th>CLIENTE</th>
+                            <th>SALIDA</th>
+                            <th>PAGOS</th>
+                            <th>DEVOLUCIÓN</th>
+                            <th>DONACIÓN</th>
+                            <th>PAGAR</th>
+                        </tr>
+                        @foreach($datos as $dato)
+                            <tr>
+                                <td style="width:50%">{{ $dato->nombre }}</td>
+                                <td style="width:10%" id="tdder">${{ $dato->total }}</td>
+                                <td style="width:10%" id="tdder">${{ $dato->pagos }}</td>
+                                <td style="width:10%" id="tdder">${{ $dato->total_devolucion }}</td>
+                                <td style="width:10%" id="tdder">${{ $dato->total_donacion }}</td>
+                                <td style="width:10%" id="tdder">${{ $dato->total_pagar }}</td>
+                            </tr>
+                        @endforeach
+                    </table>
+                </div>
+            </main>
+        </div>
+    </body>
+</html>
