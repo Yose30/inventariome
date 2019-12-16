@@ -50,6 +50,8 @@
                 </b-row>
             </b-col>
             <b-col sm="2" class="text-right">
+                <b-button variant="primary" :disabled="movimientos.length > 0" @click="movimientosLibros()">Mostrar</b-button>
+                <hr>
                 <b-button variant="dark" v-if="(tablaUnidades || tablaMonto) && movimientos.length > 0" :href="`/download_movimientos/${queryEMov}/${selected}`">
                     <i class="fa fa-download"></i> Descargar
                 </b-button>
@@ -225,7 +227,6 @@
             }
         },
         mounted: function(){
-            this.movimientosLibros();
             this.assign_editorial();
         },
         methods: {
@@ -307,6 +308,12 @@
             movimientosLibros(){
                 axios.get('/movimientos_todos').then(response => {
                     this.movimientos = response.data;
+                    this.queryEMov = 'TODO';
+                    this.selected = 'unidades';
+                    this.inicio = '0000-00-00';
+                    this.final = '0000-00-00';
+                    this.selectCategoria = null;
+                    this.show_tables(true, false, false);
                 }).catch(error => {
                     this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 });
