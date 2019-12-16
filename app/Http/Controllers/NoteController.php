@@ -8,6 +8,10 @@ use App\Payment;
 use App\Register;
 use App\Libro;
 use App\Note;
+use Carbon\Carbon;
+use App\Exports\NotesExport;
+use Excel;
+use PDF;
 
 class NoteController extends Controller
 {
@@ -47,26 +51,26 @@ class NoteController extends Controller
                 $unidades = $register['unidades_base'];
                 $total = $register['total_base'];
 
-                $registro = Register::whereId($register['id'])->first();
                 if($unidades != 0){
+                    $registro = Register::whereId($register['id'])->first();
                     Payment::create([
                         'register_id' => $registro->id,
                         'unidades' => $unidades,
                         'pago' => $total
                     ]);
-                }
                     
-                $unidades_pagado = $registro->unidades_pagado + $unidades;
-                $total_pagado = $registro->total_pagado + $total;
-                $unidades_pendiente = $registro->unidades_pendiente - $unidades;
-                $total_pendiente = $registro->total_pendiente - $total;
+                    $unidades_pagado = $registro->unidades_pagado + $unidades;
+                    $total_pagado = $registro->total_pagado + $total;
+                    $unidades_pendiente = $registro->unidades_pendiente - $unidades;
+                    $total_pendiente = $registro->total_pendiente - $total;
 
-                $registro->update([
-                    'unidades_pagado' => $unidades_pagado,
-                    'total_pagado' => $total_pagado,
-                    'unidades_pendiente' => $unidades_pendiente,
-                    'total_pendiente' => $total_pendiente
-                ]);
+                    $registro->update([
+                        'unidades_pagado' => $unidades_pagado,
+                        'total_pagado' => $total_pagado,
+                        'unidades_pendiente' => $unidades_pendiente,
+                        'total_pendiente' => $total_pendiente
+                    ]);
+                }
                 $pagos += $total;
             }
 
@@ -95,22 +99,24 @@ class NoteController extends Controller
                 $unidades = $register['unidades_base'];
                 $total = $register['total_base'];
 
-                $registro = Register::whereId($register['id'])->first();
+                if($unidades !== 0){
+                    $registro = Register::whereId($register['id'])->first();
                     
-                $unidades_devuelto = $registro->unidades_devuelto + $unidades;
-                $total_devuelto = $registro->total_devuelto + $total;
-                $unidades_pendiente = $registro->unidades_pendiente - $unidades;
-                $total_pendiente = $registro->total_pendiente - $total;
-                
-                $registro->update([
-                    'unidades_devuelto' => $unidades_devuelto,
-                    'total_devuelto' => $total_devuelto,
-                    'unidades_pendiente' => $unidades_pendiente,
-                    'total_pendiente' => $total_pendiente
-                ]);
+                    $unidades_devuelto = $registro->unidades_devuelto + $unidades;
+                    $total_devuelto = $registro->total_devuelto + $total;
+                    $unidades_pendiente = $registro->unidades_pendiente - $unidades;
+                    $total_pendiente = $registro->total_pendiente - $total;
+                    
+                    $registro->update([
+                        'unidades_devuelto' => $unidades_devuelto,
+                        'total_devuelto' => $total_devuelto,
+                        'unidades_pendiente' => $unidades_pendiente,
+                        'total_pendiente' => $total_pendiente
+                    ]);
 
-                $libro = Libro::whereId($registro->libro_id)->first();
-                $libro->update(['piezas' => $libro->piezas + $unidades]);
+                    $libro = Libro::whereId($registro->libro_id)->first();
+                    $libro->update(['piezas' => $libro->piezas + $unidades]);
+                }
 
                 $total_devolucion += $total;
             }
@@ -149,7 +155,8 @@ class NoteController extends Controller
             }
             $note = Note::create([
                 'folio'     => $folio,
-                'cliente'   => $request->cliente
+                'cliente'   => strtoupper($request->cliente),
+                'entregado_por' => $request->entregado_por
             ]);
             $total = 0;
             foreach($request->registers as $register){
@@ -182,8 +189,6 @@ class NoteController extends Controller
         $note = Note::whereId($request->id)->first();
         try{
             \DB::beginTransaction();
-            //ELIMINADOS
-            $total_eliminado = 0;
             //NUEVOS
             $total = 0;
             foreach($request->nuevos as $nuevo){
@@ -200,13 +205,74 @@ class NoteController extends Controller
                 $libro->update(['piezas' => $libro->piezas - $nuevo['unidades']]);
                 $total += $nuevo['total'];
             }
-            $total_salida = ($note->total_salida - $total_eliminado) + $total;
-            $total_pagar = $total_salida - $note->pagos;
-            $note->update(['total_salida' => $total_salida, 'total_pagar' => $total_pagar]);
+            $total_salida = $note->total_salida + $total;
+            $total_pagar = $total_salida - ($note->pagos + $note->total_devolucion);
+            $note->update([
+                'cliente'   => strtoupper($request->cliente),
+                'entregado_por' => $request->entregado_por,
+                'total_salida' => $total_salida, 
+                'total_pagar' => $total_pagar
+            ]);
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
         }
         return response()->json($note);
+    }
+
+    public function buscar_fecha_notes(){
+        $inicio = Input::get('inicio');
+        $final = Input::get('final');
+        $cliente = Input::get('cliente');
+
+        $fechas = $this->format_date($inicio, $final);
+        $fecha1 = $fechas['inicio'];
+        $fecha2 = $fechas['final'];
+
+        if($cliente === null){
+            $notes = Note::whereBetween('created_at', [$fecha1, $fecha2])
+                ->orderBy('id','desc')->get(); 
+        } else {
+            $notes = Note::where('cliente','like','%'.$cliente.'%')
+                ->whereBetween('created_at', [$fecha1, $fecha2])
+                ->orderBy('id','desc')->get(); 
+        }
+        
+        return response()->json($notes);
+    }
+
+    public function format_date($fecha1, $fecha2){
+        $inicio = new Carbon($fecha1);
+        $final 	= new Carbon($fecha2);
+        $inicio = $inicio->format('Y-m-d 00:00:00');
+        $final 	= $final->format('Y-m-d 23:59:59');
+
+        $fechas = [
+            'inicio' => $inicio,
+            'final' => $final
+        ];
+
+        return $fechas;
+    }
+
+    public function download_note($cliente, $inicio, $final, $tipo){
+        return Excel::download(new NotesExport($cliente, $inicio, $final, $tipo), 'reporte-notas.xlsx');
+    }
+
+    public function download_nota($id){
+        $nota = Note::whereId($id)->with('registers.libro')->first();
+        $total_unidades = $this->acumular_unidades($nota->registers);
+        $data['nota'] = $nota;
+        $data['total_unidades'] = $total_unidades;
+        $pdf = PDF::loadView('download.pdf.notas.nota', $data); 
+        return $pdf->download('nota.pdf');
+    }
+
+    public function acumular_unidades($registers){
+        $total_unidades = 0;
+        foreach($registers as $register){
+            $total_unidades += $register->unidades;
+        }
+        return $total_unidades;
     }
 }

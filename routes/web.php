@@ -28,17 +28,21 @@ Route::name('administrador.')->prefix('administrador')->middleware(['auth', 'rol
     Route::get('/entradas', 'AdministradorController@entradas')->name('entradas');
     Route::get('/libros', 'AdministradorController@libros')->name('libros');
     Route::get('/clientes', 'AdministradorController@clientes')->name('clientes');
-    
+    Route::get('/pedidos', 'AdministradorController@pedidos')->name('pedidos');
+    Route::get('/donaciones', 'AdministradorController@donaciones')->name('donaciones');
+    Route::get('/movimientos', 'AdministradorController@movimientos')->name('movimientos');
 });
 
+// OFICINA
 Route::name('oficina.')->prefix('oficina')->middleware(['auth', 'role:Oficina'])->group(function () {
     Route::get('/remisiones', 'OficinaController@remisiones')->name('remisiones');
-    Route::get('/remision', 'OficinaController@remision')->name('remision');
+    Route::get('/pedidos', 'OficinaController@pedidos')->name('pedidos');
     Route::get('/pagos', 'OficinaController@pagos')->name('pagos');
     Route::get('/clientes', 'OficinaController@clientes')->name('clientes');
     Route::get('/libros', 'OficinaController@libros')->name('libros');
     Route::get('/adeudos', 'OficinaController@adeudos')->name('adeudos');
     Route::get('/entradas', 'OficinaController@entradas')->name('entradas');
+    Route::get('/donaciones', 'OficinaController@donaciones')->name('donaciones');
 });
 
 // ALMACEN
@@ -51,6 +55,8 @@ Route::name('almacen.')->prefix('almacen')->middleware(['auth', 'role:Almacen'])
     Route::get('/adeudos', 'AlmacenController@adeudos')->name('adeudos');
     Route::get('/entradas', 'AlmacenController@entradas')->name('entradas');
     Route::get('/libros', 'AlmacenController@libros')->name('libros');
+    Route::get('/pedidos', 'AlmacenController@pedidos')->name('pedidos');
+    Route::get('/donaciones', 'AlmacenController@donaciones')->name('donaciones');
 });
 
 //CLIENTES
@@ -62,6 +68,8 @@ Route::get('/mostrarClientes', 'ClienteController@show')->name('mostrarClientes'
 Route::put('editar_cliente', 'ClienteController@editar')->name('editar_cliente');
 //Obtener todos los cliente
 Route::get('/getTodo', 'ClienteController@getTodo')->name('getTodo'); 
+// Detalles del cliente
+Route::get('/detallesCliente', 'ClienteController@detallesCliente')->name('detallesCliente'); 
 
 //REMISIONES
 //Buscar remision
@@ -72,46 +80,31 @@ Route::post('crear_remision', 'RemisionController@store')->name('crear_remision'
 Route::put('vendidos_remision', 'RemisionController@registrar_vendidos')->name('vendidos_remision');
 //Cancelar remision
 Route::put('cancelar_remision', 'RemisionController@cancelar_remision')->name('cancelar_remision');
-//Guardar deposito de remision
-Route::post('deposito_remision', 'RemisionController@deposito_remision')->name('deposito_remision');
+
+// REMISIONES BUSQUEDA
+// Buscar remisiones por cliente
+Route::get('buscar_por_cliente', 'RemisionController@buscar_por_cliente')->name('buscar_por_cliente');
+// Buscar remisiones por estado
+Route::get('buscar_por_estado', 'RemisionController@buscar_por_estado')->name('buscar_por_estado');
+// Buscar remisiones por fecha y cliente / estado
+Route::get('buscar_por_fecha', 'RemisionController@buscar_por_fecha')->name('buscar_por_fecha');
 
 //REMISIONES -Listado
 Route::get('todos_los_clientes', 'RemisionController@todos')->name('todos_los_clientes');
 Route::get('buscar_por_numero', 'RemisionController@por_numero')->name('buscar_por_numero');
-Route::get('buscar_por_cliente', 'RemisionController@por_cliente')->name('buscar_por_cliente');
-Route::get('buscar_por_fecha', 'RemisionController@por_fecha')->name('buscar_por_fecha');
-Route::get('buscar_por_estado', 'RemisionController@por_estado')->name('buscar_por_estado');
 
-//Obtener todas las unidades pendientes
-Route::get('obtener_vendidos', 'RemisionController@obtener_vendidos')->name('obtener_vendidos');
-//Obtener por fecha
-Route::get('obtener_por_fecha', 'RemisionController@obtener_por_fecha')->name('obtener_por_fecha');
-//Obtener detalles de vendidos
-Route::get('detalles_vendidos', 'RemisionController@detalles_vendidos')->name('detalles_vendidos');
 
 //REMISIONES - Descargar
 Route::get('/imprimirSalida/{id}', 'RemisionController@imprimirSalida')->name('imprimirSalida');
 
-// DESCARGAR POR CLIENTE PDF
-Route::get('/imprimirCliente/{cliente_id}/{inicio}/{final}', 'RemisionController@imprimirCliente')->name('imprimirCliente');
-// DESCARGAR POR CLIENTE EXCEL
-Route::get('/imprimirClienteEXC/{cliente_id}/{inicio}/{final}', 'RemisionController@imprimirClienteEXC')->name('imprimirClienteEXC');
-// DESCARGAR POR CLIENTE DETALLADO EXCEL
-Route::get('/imprimirClienteDet/{cliente_id}/{inicio}/{final}', 'RemisionController@imprimirClienteDet')->name('imprimirClienteDet');
+Route::get('/download_remision/{id}', 'RemisionController@download_remision')->name('download_remision');
 
-// DESCARGAR POR FECHA PDF
-Route::get('/imprimirFecha/{inicio}/{final}', 'RemisionController@imprimirFecha')->name('imprimirFecha');
-// DESCARGAR POR FECHA EXCEL
-Route::get('/imprimirFechaEXC/{inicio}/{final}', 'RemisionController@imprimirFechaEXC')->name('imprimirFechaEXC');
-// DESCARGAR POR FECHA EXCEL
-Route::get('/imprimirFechaDet/{inicio}/{final}', 'RemisionController@imprimirFechaDet')->name('imprimirFechaDet');
-
-// DESCARGAR POR ESTADO PDF
-Route::get('/imprimirEstado/{estado}/{cliente_id}/{inicio}/{final}', 'RemisionController@imprimirEstado')->name('imprimirEstado');
-// DESCARGAR POR ESTADO EXCEL
-Route::get('/imprimirEstadoEXC/{estado}/{cliente_id}/{inicio}/{final}', 'RemisionController@imprimirEstadoEXC')->name('imprimirEstadoEXC');
-// DESCARGAR POR ESTADO DETALLADO EXCEL
-Route::get('/imprimirEstadoDet/{estado}/{cliente_id}/{inicio}/{final}', 'RemisionController@imprimirEstadoDet')->name('imprimirEstadoDet');
+// DESCARGAR TODO EN EXCEL DETALLADO
+Route::get('/down_remisiones_excel/{cliente_id}/{inicio}/{final}/{estado}', 'RemisionController@down_remisiones_excel')->name('down_remisiones_excel');
+// DESCARGAR TODO EN EXCEL GENERAL
+Route::get('/down_gral_excel/{cliente_id}/{inicio}/{final}/{estado}', 'RemisionController@down_gral_excel')->name('down_gral_excel');
+// DESCARGAR TODO EN PDF
+Route::get('/down_remisiones_pdf/{cliente_id}/{inicio}/{final}/{estado}', 'RemisionController@down_remisiones_pdf')->name('down_remisiones_pdf');
 
 //DEVOLUCIONES
 //Concluir remision
@@ -126,16 +119,31 @@ Route::put('actualizar_libro', 'LibroController@update')->name('actualizar_libro
 Route::delete('eliminar_libro', 'LibroController@delete')->name('eliminar_libro');
 //Buscar libro
 Route::get('/mostrarLibros', 'LibroController@buscar')->name('mostrarLibros');
+// Mostrar libros por editorial
+Route::get('/libros_por_editorial', 'LibroController@libros_por_editorial')->name('libros_por_editorial');
 //Buscar libro por editorial
 Route::get('/mostrarPorEditorial', 'LibroController@porEditorial')->name('mostrarPorEditorial');
 //Datos del libro
 Route::get('/buscarISBN', 'LibroController@show')->name('buscarISBN'); 
+// Buscar libro por ISBN y editorial
+Route::get('/isbn_por_editorial', 'LibroController@isbn_por_editorial')->name('isbn_por_editorial'); 
 //Obtener todos los libros
 Route::get('allLibros', 'LibroController@allLibros')->name('allLibros');
-//Mostrar libros vendidos buscados por editorial
-Route::get('porEditorialVendidos', 'LibroController@porEditorialVendidos')->name('porEditorialVendidos');
 // Descargar en formato excel todos los libros
 Route::get('/downloadExcel/{editorial}', 'LibroController@downloadExcel')->name('downloadExcel');
+// Mostrar entradas por libro
+Route::get('movimientos_todos', 'LibroController@movimientos_todos')->name('movimientos_todos');
+// Mostrar entradas por libro
+Route::get('movimientos_por_edit', 'LibroController@movimientos_por_edit')->name('movimientos_por_edit');
+// Descargar movimientos por libro
+Route::get('/download_movimientos/{editorial}/{tipo}', 'LibroController@download_movimientos')->name('download_movimientos');
+// Mostrar libros por tipo
+Route::get('obtener_movimientos', 'LibroController@obtener_movimientos')->name('obtener_movimientos');
+// Obtener movimientos por fecha
+Route::get('movimientos_por_fecha', 'LibroController@movimientos_por_fecha')->name('movimientos_por_fecha');
+// Descargar movimientos por fecha y categoria
+Route::get('/down_fechaCategoria/{incio}/{final}/{categoria}', 'LibroController@down_fechaCategoria')->name('down_fechaCategoria');
+
 
 //ENTRADAS
 //Buscar editorial
@@ -149,17 +157,24 @@ Route::post('crear_entrada', 'EntradaController@store')->name('crear_entrada');
 //Actualizar entrada
 Route::put('actualizar_entrada', 'EntradaController@actualizar')->name('actualizar_entrada');
 //Imprimir entrada
-Route::get('/imprimirEntrada/{id}', 'EntradaController@imprimirEntrada')->name('imprimirEntrada');
+Route::get('/downloadEntrada/{id}', 'EntradaController@downloadEntrada')->name('downloadEntrada');
 //Actualizar costos unitarios
 Route::put('actualizar_costos', 'EntradaController@actualizar_costos')->name('actualizar_costos');
 //Mostrarentradas por fecha
 Route::get('fecha_entradas', 'EntradaController@fecha_entradas')->name('fecha_entradas');
 //Mostrarentradas por fecha
 Route::put('pago_entrada', 'EntradaController@pago_entrada')->name('pago_entrada');
+// Descargar reporte de entradas en PDF
+Route::get('/downEntradas/{inicio}/{final}/{editorial}', 'EntradaController@downEntradas')->name('downEntradas');
+// Descargar reporte de entradas en EXCEL
+Route::get('/downEntradasEXC/{inicio}/{final}/{editorial}/{tipo}', 'EntradaController@downEntradasEXC')->name('downEntradasEXC');
+
 
 //PAGOS
-//Guardar pago
+//Guardar pago por unidades
 Route::post('registrar_pago', 'PagoController@store')->name('registrar_pago');
+//Guardar deposito de remision
+Route::post('deposito_remision', 'PagoController@deposito_remision')->name('deposito_remision');
 //Obtener registros de vendidos
 Route::get('datos_vendidos', 'PagoController@datos_vendidos')->name('datos_vendidos');
 //Buscar pagos por cliente
@@ -180,6 +195,12 @@ Route::post('guardar_devolucion', 'NoteController@guardar_devolucion')->name('gu
 Route::get('buscar_folio_note', 'NoteController@buscar_folio')->name('buscar_folio_note');
 // Buscar por cliente
 Route::get('buscar_cliente_notes', 'NoteController@buscar_cliente_notes')->name('buscar_cliente_notes');
+// Buscar notas por fecha
+Route::get('buscar_fecha_notes', 'NoteController@buscar_fecha_notes')->name('buscar_fecha_notes');
+// Descargar reporte de notas
+Route::get('/download_note/{cliente}/{inicio}/{final}/{tipo}', 'NoteController@download_note')->name('download_note');
+// Descargar nota
+Route::get('/download_nota/{id}', 'NoteController@download_nota')->name('download_nota');
 
 //ADEUDO
 //Guardar adeudo
@@ -206,7 +227,77 @@ Route::get('obtener_departures', 'PromotionController@obtener_departures')->name
 Route::get('buscar_folio_promo', 'PromotionController@buscar_folio')->name('buscar_folio_promo');
 // Buscar promocion por plantel
 Route::get('buscar_plantel', 'PromotionController@buscar_plantel')->name('buscar_plantel');
+// Buscar promociones por fecha
+Route::get('buscar_fecha_promo', 'PromotionController@buscar_fecha_promo')->name('buscar_fecha_promo');
+// Descargar el reporte de promoción
+Route::get('download_promotion/{plantel}/{inicio}/{final}/{tipo}', 'PromotionController@download_promotion')->name('download_promotion');
+// Descargar nota de la promocion
+Route::get('/download_promocion/{id}', 'PromotionController@download_promocion')->name('download_promocion');
 
 // DONACIONE
 // GUARDAR DONACIONES
 Route::post('guardar_donacion', 'DonacioneController@store')->name('guardar_donacion');
+// Obtener detalles de la donación
+Route::get('detalles_donacion', 'DonacioneController@detalles_donacion')->name('detalles_donacion');
+// Obtener donaciones por plantel
+Route::get('buscar_plantel_regalo', 'DonacioneController@buscar_plantel_regalo')->name('buscar_plantel_regalo');
+// Obtener donaciones por fecha
+Route::get('buscar_fecha_regalo', 'DonacioneController@buscar_fecha_regalo')->name('buscar_fecha_regalo');
+// Descargar el reporte de promoción
+Route::get('download_donacion/{plantel}/{inicio}/{final}/{tipo}', 'DonacioneController@download_donacion')->name('download_donacion');
+// Marcar como entregada la donación
+Route::put('entrega_donacion', 'DonacioneController@entrega_donacion')->name('entrega_donacion');
+// Descargar nota de la donacion
+Route::get('/download_regalo/{id}', 'DonacioneController@download_regalo')->name('download_regalo');
+
+// Guardar comentario de la remisión
+Route::post('guardar_comentario', 'RemisionController@guardar_comentario')->name('guardar_comentario');
+
+// VENDIDO
+// Obtener todas los libros vendidos
+Route::get('obtener_vendidos', 'VendidoController@obtener_vendidos')->name('obtener_vendidos');
+// Obtener por fecha
+Route::get('obtener_por_fecha', 'VendidoController@obtener_por_fecha')->name('obtener_por_fecha');
+// Obtener unidades vendidas por libro
+Route::get('obtener_libro', 'VendidoController@obtener_libro')->name('obtener_libro');
+//Obtener por libros y fecha
+Route::get('libro_por_fecha', 'VendidoController@libro_por_fecha')->name('libro_por_fecha');
+// Obtener libros vendidos por cliente
+Route::get('obtener_cliente', 'VendidoController@obtener_cliente')->name('obtener_cliente');
+// Obtener libros vendidos por cliente y fecha
+Route::get('cliente_por_fecha', 'VendidoController@cliente_por_fecha')->name('cliente_por_fecha');
+// Obtener libros vendidos por editorial
+Route::get('obtener_editorial', 'VendidoController@obtener_editorial')->name('obtener_editorial');
+// Obtener por editorial y fecha
+Route::get('editorial_por_fecha', 'VendidoController@editorial_por_fecha')->name('editorial_por_fecha');
+// Obtener detalles de vendidos
+Route::get('detalles_vendidos', 'VendidoController@detalles_vendidos')->name('detalles_vendidos');
+
+// DESCARGAR REPORTES
+// Descargar reporte de libros vendidos por cliente
+Route::get('/downClienteEX/{cliente_id}/{fecha1}/{fecha2}', 'VendidoController@downClienteEX')->name('downClienteEX');
+// Descargar reporte por libro
+Route::get('/downLibroEX/{libro_id}/{fecha1}/{fecha2}', 'VendidoController@downLibroEX')->name('downLibroEX');
+// Descargar reporte de libros vendidos por editorial
+Route::get('/downEditorialEX/{editorial}/{fecha1}/{fecha2}', 'VendidoController@downEditorialEX')->name('downEditorialEX');
+// Descargar reporte detallado de libros vendidos
+Route::get('/downDetalladoEX/{fecha1}/{fecha2}', 'VendidoController@downDetalladoEX')->name('downDetalladoEX');
+
+
+// PEDIDOS
+// Guardar nuevo pedido
+Route::post('guardar_compra', 'CompraController@store')->name('guardar_compra');
+// Mostrar detalles de la compra
+Route::get('detalles_compra', 'CompraController@detalles_compra')->name('detalles_compra');
+// Buscar compra por numero de pedido
+Route::get('buscar_n_pedido', 'CompraController@buscar_n_pedido')->name('buscar_n_pedido');
+// Buscar compras por usuario
+Route::get('buscar_usuario_p', 'CompraController@buscar_usuario_p')->name('buscar_usuario_p');
+// Buscar compras por fecha
+Route::get('buscar_fecha_p', 'CompraController@buscar_fecha_p')->name('buscar_fecha_p');
+// Descargar reporte
+Route::get('/download_compra/{usuario}/{inicio}/{final}/{tipo}', 'CompraController@download_compra')->name('download_compra');
+// Marcar la entrega del pedido
+Route::put('marcar_pedido', 'CompraController@marcar_pedido')->name('marcar_pedido');
+// Descargar nota
+Route::get('/download_pedido/{id}', 'CompraController@download_pedido')->name('download_pedido');

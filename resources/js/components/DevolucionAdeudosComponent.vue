@@ -1,5 +1,6 @@
 <template>
     <div>
+        <check-connection-component></check-connection-component>
         <div v-if="listadoAdeudos">
             <b-row>
                 <!-- BUSCAR ADEUDO POR NUMERO DE REMISION -->
@@ -399,7 +400,7 @@
                     this.acumular();
                 }).catch(error => {
                     this.load = false;
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 });
             },
             // MOSTRAR LOS DETALLES DE ADEUDO
@@ -426,7 +427,7 @@
                     this.listadoAdeudos = false;
                     this.mostrarAbonos = true;
                 }).catch(error => {
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 });
             },
             // REGISTRAR DEVOLUCIÓN DE ADEUDO
@@ -450,7 +451,7 @@
                     this.listadoAdeudos = false;
                     this.mostrarRegistrar = true;
                 }).catch(error => {
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 });
             },
             // GUARDAR DEVOLUCIÓN
@@ -465,7 +466,7 @@
                     this.listadoAdeudos = true;
                 }).catch(error => {
                     this.load = false;
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 });
             },
             // VERIFICAR LAS UNIDADES PARA OBTENER EL SUBTOTAL

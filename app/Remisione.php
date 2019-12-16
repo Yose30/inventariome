@@ -8,7 +8,7 @@ use App\Dato;
 use App\Devolucione;
 use App\Vendido;
 use App\Deposito;
-use App\Donacione;
+use App\Comentario;
 use App\Fecha;
 
 class Remisione extends Model
@@ -21,11 +21,12 @@ class Remisione extends Model
         'total_devolucion', 
         'total_donacion',
         'total_pagar', 
+        'pagos',
         'fecha_entrega', 
         'estado', 
         'fecha_creacion',
         'fecha_devolucion',
-        'pagos'
+        'responsable'
     ];
 
     //Uno a muchos (Inversa)
@@ -66,8 +67,8 @@ class Remisione extends Model
     }
 
     //Uno a muchos
-    //UNa remision puede tener muchas donaciones
-    public function donaciones(){
-        return $this->hasMany(Donacione::class);
+    //UNa remision puede tener muchos comentarios
+    public function comentarios(){
+        return $this->hasMany(Comentario::class);
     }
 }

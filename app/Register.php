@@ -19,12 +19,12 @@ class Register extends Model
         'total',
         'unidades_pagado',
         'total_pagado',
+        'unidades_devuelto',
+        'total_devuelto',
         'unidades_pendiente',
         'total_pendiente',
         'unidades_base',
-        'total_base',
-        'unidades_devuelto',
-        'total_devuelto'
+        'total_base'
     ];
 
 

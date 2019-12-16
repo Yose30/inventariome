@@ -12,8 +12,9 @@ class Pago extends Model
         'id', 
         'user_id',
         'vendido_id',
+        'unidades',
         'pago', 
-        'unidades'
+        'entregado_por'
     ];
 
     //Uno a muchos (Inverso)

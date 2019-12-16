@@ -3,22 +3,22 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Remisione;
+use App\Regalo;
 use App\Libro;
 
 class Donacione extends Model
 {
     protected $fillable = [
         'id', 
-        'remisione_id',
+        'regalo_id',
         'libro_id',
-        'unidades',
+        'unidades'
     ];
 
     //Uno a muchos (inversa)
     //Una donacion solo puede pertencer a una remisión
-    public function remision(){
-        return $this->belongsTo(Remisione::class);
+    public function regalo(){
+        return $this->belongsTo(Regalo::class);
     }
 
     //Uno a muchos (Inversa)

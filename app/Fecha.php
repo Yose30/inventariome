@@ -14,7 +14,8 @@ class Fecha extends Model
         'fecha_devolucion',
         'libro_id', 
         'unidades',
-        'total'
+        'total',
+        'entregado_por'
     ];
 
     //Uno a muchos (inversa)

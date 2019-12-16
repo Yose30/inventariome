@@ -16,7 +16,6 @@ class CreateUsersTable extends Migration
         Schema::create('roles', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('rol');
-            $table->rememberToken();
             $table->timestamps();
         });
 

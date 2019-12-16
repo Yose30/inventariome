@@ -22,12 +22,10 @@ class DevolucioneController extends Controller
             \DB::beginTransaction();
             // Buscar remisión
             $remision = Remisione::whereId($request->id)->first();
+            $entregado_por = $request->entregado_por;
             $total_devolucion = 0;
             
             foreach($request->devoluciones as $devolucion){
-                // $costo_unitario = $devolucion['dato']['costo_unitario'];
-                // $total_base = $unidades_base * $costo_unitario;
-
                 $unidades_base = $devolucion['unidades_base'];
                 $total_base = $devolucion['total_base'];
 
@@ -43,7 +41,8 @@ class DevolucioneController extends Controller
                         'fecha_devolucion' => Carbon::now()->format('Y-m-d'),
                         'libro_id' => $libro->id,
                         'unidades' => $unidades_base,
-                        'total' => $total_base
+                        'total' => $total_base,
+                        'entregado_por' => $entregado_por
                     ]);
     
                     $unidades = $d->unidades + $unidades_base;

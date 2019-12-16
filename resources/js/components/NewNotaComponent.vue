@@ -1,5 +1,6 @@
 <template>
     <div>
+        <check-connection-component></check-connection-component>
         <div v-if="listadoNotas">
             <b-row>
                 <!-- BUSCAR POR NOTA FOLIO -->
@@ -10,6 +11,7 @@
                         </b-col>
                         <b-col sm="8">
                             <b-form-input 
+                                style="text-transform:uppercase;"
                                 id="input-folio" 
                                 v-model="folio" 
                                 @keyup.enter="porFolio()">
@@ -18,31 +20,77 @@
                     </b-row>
                 </b-col>
                 <!-- BUSCAR NOTA POR CLIENTE -->
-                <b-col sm="6">
+                <b-col sm="5">
                     <b-row class="my-1">
                         <b-col sm="2">
                             <label for="input-cliente">Cliente</label>
                         </b-col>
                         <b-col sm="10">
-                            <b-input v-model="queryCliente" @keyup="porCliente()"></b-input>
+                            <b-input style="text-transform:uppercase;" v-model="queryCliente" @keyup="porCliente()"></b-input>
                         </b-col>
                     </b-row>
                 </b-col> 
-                <b-col sm="3">
+                <b-col sm="4">
+                    <b-row>
+                        <b-col sm="3">
+                            <label for="input-inicio">De:</label>
+                        </b-col>
+                        <b-col sm="9">
+                            <input 
+                                class="form-control" 
+                                type="date" 
+                                :state="stateDate"
+                                v-model="inicio"
+                                @change="porFecha()">
+                        </b-col>
+                    </b-row>
+                    <b-row>
+                        <b-col sm="3">
+                            <label for="input-final">A: </label>
+                        </b-col>
+                        <b-col sm="9">
+                            <input 
+                                class="form-control" 
+                                type="date" 
+                                v-model="final"
+                                @change="porFecha()">
+                        </b-col>
+                    </b-row>
+                </b-col>
+            </b-row> 
+            <hr>
+            <b-row>
+                <b-col>
+                    <!-- PAGINACIÓN -->
+                    <b-pagination
+                        v-model="currentPage"
+                        :total-rows="notes.length"
+                        :per-page="perPage"
+                        aria-controls="my-table"
+                        v-if="notes.length > 0"
+                    ></b-pagination>
+                </b-col>
+                <b-col class="text-right">
+                    <a 
+                        v-if="notes.length > 0"
+                        class="btn btn-dark"
+                        :href="'/download_note/' + queryCliente + '/' + inicio + '/' + final + '/general'">
+                        <i class="fa fa-download"></i> General
+                    </a>
+                    <a 
+                        v-if="notes.length > 0 && role_id === 1"
+                        class="btn btn-dark"
+                        :href="'/download_note/' + queryCliente + '/' + inicio + '/' + final + '/detallado'">
+                        <i class="fa fa-download"></i> Detallado
+                    </a>
+                </b-col>
+                <b-col sm="3" class="text-right">
                     <div v-if="role_id == 3">
                         <b-button variant="success" @click="func_crearNota()"><i class="fa fa-plus"></i> Crear nota</b-button>
                     </div>
-                </b-col>  
-                <!-- <b-col sm="2" align="right">
-                    <b-button variant="info" :disabled="loadRegisters" @click="getTodo">
-                        <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
-                    </b-button>
-                </b-col>  -->
-            </b-row> 
-            <hr>
-        </div>
-        <!-- LISTADO DE NOTAS -->
-        <div v-if="listadoNotas">
+                </b-col>
+            </b-row>
+            <!-- LISTADO DE NOTAS -->
             <b-table 
                 responsive
                 v-if="notes.length > 0" 
@@ -66,37 +114,44 @@
                     ${{ row.item.total_pagar | formatNumber }}
                 </template>
                 <template slot="detalles" slot-scope="row">
-                    <b-button variant="secondary" @click="detallesNota(row.item)">Detalles</b-button>
+                    <b-button variant="info" @click="detallesNota(row.item)">Detalles</b-button>
                 </template>
                 <template slot="pagar" slot-scope="row">
                     <b-button 
                         v-if="role_id == 3 && row.item.total_pagar > 0" 
-                        variant="primary" 
+                        variant="secondary" 
                         @click="registrarPago(row.item, row.index)">Pago
                     </b-button>
                 </template>
                 <template slot="devolucion" slot-scope="row">
                     <b-button
                         v-if="role_id == 3 && row.item.total_pagar > 0" 
-                        variant="info"
+                        variant="primary"
                         @click="registrarDevolucion(row.item, row.index)">Devolución</b-button>
                 </template>
                 <template slot="editar" slot-scope="row">
                     <b-button
+                        id="btnNotaE"
                         v-if="role_id == 3 && row.item.total_pagar > 0" 
                         variant="warning"
                         @click="editarNota(row.item, row.index)"
-                        >Editar</b-button>
+                        ><i class="fa fa-pencil"></i></b-button>
+                </template>
+                <template slot="thead-top" slot-scope="row">
+                    <tr>
+                        <th colspan="3"></th>
+                        <th>${{ total_salida | formatNumber }}</th>
+                        <th>${{ total_pagos | formatNumber }}</th>
+                        <th>${{ total_devolucion | formatNumber }}</th>
+                        <th>${{ total_pagar | formatNumber }}</th>
+                        <th colspan="4"></th>
+                    </tr>
                 </template>
             </b-table>
-            <!-- PAGINACIÓN -->
-            <b-pagination
-                v-model="currentPage"
-                :total-rows="notes.length"
-                :per-page="perPage"
-                aria-controls="my-table"
-                v-if="notes.length > 0"
-            ></b-pagination>
+            <div v-else>
+                <br>
+                <b-alert show variant="dark"><i class="fa fa-warning"></i> No se encontraron registros</b-alert>
+            </div>
         </div>
         <!-- MOSTRAR DETALLES DE LA NOTA -->
         <div v-if="mostrarDetalles">
@@ -106,11 +161,16 @@
                     <label><b>Fecha de creación:</b> {{ nota.created_at | moment }}</label><br>
                     <label><b>Cliente:</b> {{ nota.cliente }}</label>
                 </b-col>
-                <b-col align="right">
+                <b-col>
+                    <label v-if="nota.entregado_por !== null"><b>Responsable de la entrega:</b> {{ nota.entregado_por }}</label>
+                </b-col>
+                <b-col sm="2">
+                    <b-button variant="dark" :href="`/download_nota/${nota.id}`"><i class="fa fa-download"></i> Descargar</b-button>
+                </b-col>
+                <b-col sm="2" align="right">
                     <b-button variant="secondary" @click="mostrarDetalles = false; listadoNotas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
                 </b-col>
             </b-row>
-            <hr>
             <b-table :items="nota.registers" :fields="fieldsD">
                 <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
                 <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
@@ -135,8 +195,9 @@
                 <template slot="thead-top" slot-scope="row">
                     <tr>
                         <th colspan="4"></th>
-                        <th>{{ total_unidades | formatNumber }}</th>
+                        <th>{{ nota.total_unidades | formatNumber }}</th>
                         <th>${{ nota.total_salida | formatNumber }}</th>
+                        <th colspan="4"></th>
                     </tr>
                 </template>
             </b-table>
@@ -152,16 +213,15 @@
                 </b-col>
                 <b-col>
                     <div class="text-right">
-                        <b-button :disabled="load" v-if="btnGuardar" variant="success" @click="guardarPagosNota()">
+                        <b-button :disabled="load" variant="success" @click="confirmarPagNota()">
                             <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
                         </b-button>
                     </div>
                 </b-col>
                 <b-col align="right">
-                    <b-button variant="outline-secondary" @click="mostrarNewPago = false; listadoNotas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
+                    <b-button variant="secondary" @click="mostrarNewPago = false; listadoNotas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
                 </b-col>
             </b-row>
-            <hr>
             <b-table :items="nota.registers" :fields="fieldsNP">
                 <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
                 <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
@@ -177,8 +237,50 @@
                     </b-input>
                 </template>
                 <template slot="total" slot-scope="row">${{ row.item.total_base | formatNumber }}</template>
+                <template slot="thead-top" slot-scope="row">
+                    <tr>
+                        <th colspan="4"></th>
+                        <th>{{ total_unidades | formatNumber }}</th>
+                        <th></th>
+                        <th>${{ total_vendido | formatNumber }}</th>
+                    </tr>
+                </template>
             </b-table>
-            <h5 class="text-right">${{ total_vendido | formatNumber }}</h5>
+            <!-- MODAL -->
+            <b-modal ref="modal-confirmar-pag-nota" size="xl" title="Resumen de la nota">
+                <h5><b>Folio {{ nota.folio }}</b></h5>
+                <label><b>Cliente:</b> {{ nota.cliente }}</label><br>
+                <b-table :items="nota.registers" :fields="fields">
+                    <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
+                    <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
+                    <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
+                    <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
+                    <template slot="unidades" slot-scope="row">{{ row.item.unidades_base }}</template>
+                    <template slot="total" slot-scope="row">${{ row.item.total_base | formatNumber }}</template>
+                    <template slot="thead-top" slot-scope="row">
+                        <tr>
+                            <th colspan="4"></th>
+                            <th>{{ total_unidades | formatNumber }}</th>
+                            <th>${{ total_vendido | formatNumber }}</th>
+                        </tr>
+                    </template>
+                </b-table>
+                <div slot="modal-footer">
+                    <b-row>
+                        <b-col sm="10">
+                            <b-alert show variant="info">
+                                <i class="fa fa-exclamation-circle"></i>
+                                <b>Verificar los datos de la nota.</b> En caso de algún error, modificar antes de presionar <b>Confirmar</b> ya que después no se podrán realizar cambios.
+                            </b-alert>
+                        </b-col>
+                        <b-col sm="2" align="right">
+                            <b-button :disabled="load" @click="guardarPagosNota()" variant="success">
+                                <i class="fa fa-check"></i> Confirmar
+                            </b-button>
+                        </b-col>
+                    </b-row>
+                </div>
+            </b-modal>
         </div>
         <!-- REGISTRAR DEVOLUCIÓN -->
         <div v-if="mostrarDevolucion">
@@ -191,16 +293,15 @@
                 </b-col>
                 <b-col>
                     <div class="text-right">
-                        <b-button :disabled="load" v-if="btnGuardar" variant="success" @click="guardarDevolucion()">
+                        <b-button :disabled="load" variant="success" @click="confirmarDevNota()">
                             <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
                         </b-button>
                     </div>
                 </b-col>
                 <b-col align="right">
-                    <b-button variant="outline-secondary" @click="mostrarDevolucion = false; listadoNotas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
+                    <b-button variant="secondary" @click="mostrarDevolucion = false; listadoNotas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
                 </b-col>
             </b-row>
-            <hr>
             <b-table :items="nota.registers" :fields="fieldsNP">
                 <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
                 <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
@@ -215,8 +316,50 @@
                     </b-input>
                 </template>
                 <template slot="total" slot-scope="row">${{ row.item.total_base | formatNumber }}</template>
+                <template slot="thead-top" slot-scope="row">
+                    <tr>
+                        <th colspan="4"></th>
+                        <th>{{ total_unidades | formatNumber }}</th>
+                        <th></th>
+                        <th>${{ total_vendido | formatNumber }}</th>
+                    </tr>
+                </template>
             </b-table>
-            <h5 class="text-right">${{ total_vendido | formatNumber }}</h5>
+
+            <b-modal ref="modal-confirmar-dev-nota" size="xl" title="Resumen de la nota">
+                <h5><b>Folio {{ nota.folio }}</b></h5>
+                <label><b>Cliente:</b> {{ nota.cliente }}</label><br>
+                <b-table :items="nota.registers" :fields="fields">
+                    <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
+                    <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
+                    <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
+                    <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
+                    <template slot="total" slot-scope="row">${{ row.item.total_base | formatNumber }}</template>
+                    <template slot="unidades" slot-scope="row">{{ row.item.unidades_base }}</template>
+                    <template slot="thead-top" slot-scope="row">
+                        <tr>
+                            <th colspan="4"></th>
+                            <th>{{ total_unidades | formatNumber }}</th>
+                            <th>${{ total_vendido | formatNumber }}</th>
+                        </tr>
+                    </template>
+                </b-table>
+                <div slot="modal-footer">
+                    <b-row>
+                        <b-col sm="10">
+                            <b-alert show variant="info">
+                                <i class="fa fa-exclamation-circle"></i>
+                                <b>Verificar los datos de la nota.</b> En caso de algún error, modificar antes de presionar <b>Confirmar</b> ya que después no se podrán realizar cambios.
+                            </b-alert>
+                        </b-col>
+                        <b-col sm="2" align="right">
+                            <b-button :disabled="load" @click="guardarDevolucion()" variant="success">
+                                <i class="fa fa-check"></i> Confirmar
+                            </b-button>
+                        </b-col>
+                    </b-row>
+                </div>
+            </b-modal>
         </div>
         <!-- CREAR / EDITAR UNA NOTA -->
         <div v-if="mostrarCrearNota">
@@ -226,17 +369,9 @@
                 </b-col>
                 <b-col sm="6" align="right">
                     <b-button 
-                        v-if="registers.length > 0 && editar == false" 
                         variant="success" 
                         :disabled="load"
-                        @click="guardarNota()">
-                        <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
-                    </b-button>
-                    <b-button 
-                        v-if="registers.length > 0 && editar == true" 
-                        variant="success" 
-                        :disabled="load"
-                        @click="actualizarNota()">
+                        @click="confirmarNota()">
                         <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
                     </b-button>
                 </b-col>
@@ -249,15 +384,19 @@
                 <b-col sm="3">Cliente <b id="txtObligatorio">*</b></b-col>
                 <b-col sm="9">
                     <b-form-input 
+                        style="text-transform:uppercase;"
                         v-model="cliente" 
                         autofocus 
                         :disabled="load" 
                         :state="state" 
-                        @keyup.enter="func_viewForm()">
+                        @change="check_cliente()">
                     </b-form-input>
                 </b-col>
             </b-row>
-            <hr>
+            <b-row class="col-md-8">
+                <b-col sm="4">Responsable de la entrega <b id="txtObligatorio">*</b></b-col>
+                <b-col sm="8"><b-form-select :state="stateResp" v-model="entregado_por" :options="options"></b-form-select></b-col>
+            </b-row><br>
             <div>
                 <b-table :items="registers" :fields="fields">
                     <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
@@ -349,17 +488,69 @@
                                 </b-button>
                             </th>
                         </tr>
+                        <tr>
+                            <th colspan="4"></th>
+                            <th>{{ total_unidades }}</th>
+                            <th>${{ total }}</th>
+                            <th></th>
+                        </tr>
                     </template>
                 </b-table>
                 <hr>
             </div>
+            <!-- MODAL DE CONFIRMAR -->
+            <b-modal ref="modal-confirmar-nota" size="xl" title="Resumen de la nota">
+                <label><b>Cliente: </b><label style="text-transform:uppercase;">{{ cliente }}</label></label>
+                <br>
+                <b-table :items="registers" :fields="fields">
+                    <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
+                    <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
+                    <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
+                    <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
+                    <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
+                    <template slot="thead-top" slot-scope="row">
+                        <tr>
+                            <th colspan="4"></th>
+                            <th>{{ total_unidades | formatNumber }}</th>
+                            <th>${{ total | formatNumber }}</th>
+                            <th></th>
+                        </tr>
+                    </template>
+                </b-table>
+                <div slot="modal-footer">
+                    <b-row>
+                        <b-col sm="10">
+                            <b-alert show variant="info">
+                                <i class="fa fa-exclamation-circle"></i>
+                                <b>Verificar los datos de la nota.</b> En caso de algún error, modificar antes de presionar <b>Confirmar</b> ya que después no se podrán realizar cambios.
+                            </b-alert>
+                        </b-col>
+                        <b-col sm="2" align="right">
+                            <b-button 
+                                v-if="editar == false" 
+                                variant="success" 
+                                :disabled="load"
+                                @click="guardarNota()">
+                                <i class="fa fa-check"></i> Confirmar
+                            </b-button>
+                            <b-button 
+                                v-if="editar == true" 
+                                variant="success" 
+                                :disabled="load"
+                                @click="actualizarNota()">
+                                <i class="fa fa-check"></i> Confirmar
+                            </b-button>
+                        </b-col>
+                    </b-row>
+                </div>
+            </b-modal>
         </div> 
     </div>
 </template>
 
 <script>
     export default {
-        props: ['role_id', 'registersall'],
+        props: ['role_id', 'registersall', 'listresponsables'],
         data() {
             return {
                 cliente: '',
@@ -427,7 +618,6 @@
                 nota: {},
                 notes: this.registersall,
                 mostrarDetalles: false,
-                total_unidades: 0,
                 mostrarCrearNota: false,
                 mostrarNewPago: false,
                 total_vendido: 0,
@@ -439,10 +629,22 @@
                 eliminados: [],
                 nuevos: [],
                 folio: null,
-                queryCliente: '',
-                perPage: 15,
+                queryCliente: null,
+                perPage: 10,
                 currentPage: 1,
-                loadRegisters: false
+                loadRegisters: false,
+                inicio: '0000-00-00',
+                final: '0000-00-00',
+                stateDate: null,
+                total_salida: 0,
+                total_devolucion: 0,
+                total_pagar: 0,
+                total_pagos: 0,
+                total_unidades: 0,
+                total: 0,
+                entregado_por: null,
+                options: [],
+                stateResp: null
             }
         },
         filters: {
@@ -453,30 +655,118 @@
                 return numeral(value).format("0,0[.]00"); 
             }
         },
+        mounted: function(){
+            this.acumular_totales();
+            this.assign_responsables();
+        },
         methods: {
+            assign_responsables(){
+                if(this.role_id === 3){
+                    this.options.push({
+                        value: null,
+                        text: 'Selecciona una opción',
+                        disabled: true
+                    });
+                    this.listresponsables.forEach(responsable => {
+                        this.options.push({
+                            value: responsable.responsable,
+                            text: responsable.responsable
+                        });
+                    });
+                }
+            },
+            confirmarNota(){
+                this.stateResp = true;
+                if(this.cliente.length > 4 && this.registers.length > 0 && this.entregado_por !== null){
+                    this.state = true;
+                    this.$refs['modal-confirmar-nota'].show();
+                }
+                else{
+                    if(this.entregado_por === null) this.stateResp = false;
+                    if(this.cliente.length <= 4) this.state = false;
+                    this.makeToast('warning', 'Verificar que todos los datos esten escritos correctamente.');
+                }
+            },
+            confirmarDevNota(){
+                if(this.total_vendido > 0){
+                    this.$refs['modal-confirmar-dev-nota'].show();
+                } else {
+                    this.makeToast('warning', 'El total no puede ser 0.');
+                }
+            },
+            confirmarPagNota(){
+                if(this.total_vendido > 0){
+                    this.$refs['modal-confirmar-pag-nota'].show();
+                } else {
+                    this.makeToast('warning', 'El total no puede ser 0.');
+                }
+            },
+            acumular_totales(){
+                this.total_salida = 0;
+                this.total_devolucion = 0;
+                this.total_pagar = 0;
+                this.total_pagos = 0;
+                this.notes.forEach(note => {
+                    this.total_salida += note.total_salida;
+                    this.total_devolucion += note.total_devolucion;
+                    this.total_pagar += note.total_pagar;
+                    this.total_pagos += note.pagos;
+                });
+            },
+            acum_total_note(){
+                this.total_unidades = 0;
+                this.total = 0;
+                this.registers.forEach(register => {
+                    this.total_unidades += parseInt(register.unidades);
+                    this.total += parseInt(register.total);
+                });
+            },
+            // BUSCAR NOTAS POR FECHA
+            porFecha(){
+                if(this.final != '0000-00-00'){
+                    if(this.inicio != '0000-00-00'){
+                        axios.get('/buscar_fecha_notes', {
+                            params: {inicio: this.inicio, final: this.final, cliente: this.queryCliente}}).then(response => {
+                            this.notes = response.data;
+                            this.acumular_totales();
+                        });
+                    } else {
+                        this.stateDate = false;
+                        this.makeToast('warning', 'Es necesario seleccionar la fecha de inicio');
+                    }
+                }
+            },
             // BUSCAR NOTA POR FOLIO
             porFolio(){
                 axios.get('/buscar_folio_note', {params: {folio: this.folio}}).then(response => {
                     if(response.data.id != undefined){
                         this.notes = [];
                         this.notes.push(response.data);
+                        this.acumular_totales();
                     }
                     else{
                         this.makeToast('warning', 'El folio no existe');
                     }
                 }).catch(error => {
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 });
             },
             // BUSCAR NOTA POR CLIENTE
             porCliente(){
-                if(this.queryCliente != ''){
-                    axios.get('/buscar_cliente_notes', {params: {queryCliente: this.queryCliente}}).then(response => {
-                        this.notes = [];
-                        this.notes = response.data;
-                    }).catch(error => {
-                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                    });
+                if(this.queryCliente !== null){
+                    if(this.queryCliente.length > 0){
+                        axios.get('/buscar_cliente_notes', {params: {queryCliente: this.queryCliente}}).then(response => {
+                            this.notes = [];
+                            this.notes = response.data;
+                            this.acumular_totales();
+                            this.inicio = '0000-00-00';
+                            this.final = '0000-00-00';
+                        }).catch(error => {
+                            this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
+                        });
+                    } else {
+                        this.queryCliente = null;
+                    }
                 }
             },
             // INICIALIZAR PARA CREAR NOTA
@@ -487,19 +777,23 @@
                 this.cliente = '';
                 this.registers = [];
                 this.editar = false;
+                this.entregado_por = null;
+                this.stateResp = null;
+                this.state = null;
             },
             // MOSTRAR DETALLES DE LA NOTA
             detallesNota(nota){
                 this.nota = {};
-                this.total_unidades = 0;
+                this.nota.total_unidades = 0;
                 axios.get('/detalles_nota', {params: {note_id: nota.id}}).then(response => {
                     this.nota.id = nota.id;
                     this.nota.folio = nota.folio;
                     this.nota.cliente = nota.cliente;
                     this.nota.total_salida = nota.total_salida;
                     this.nota.registers = response.data;
+                    this.nota.entregado_por = nota.entregado_por;
                     this.nota.registers.forEach(register => {
-                        this.total_unidades += register.unidades;
+                        this.nota.total_unidades += register.unidades;
                     });
                     this.listadoNotas = false;
                     this.mostrarDetalles = true;
@@ -515,6 +809,7 @@
                     this.nota.cliente = nota.cliente;
                     this.nota.total_salida = nota.total_salida;
                     this.nota.registers = response.data;
+                    this.acum_vendidos();
                     this.listadoNotas = false;
                     this.mostrarNewPago = true;
                 });
@@ -529,6 +824,7 @@
                     this.nota.cliente = nota.cliente;
                     this.nota.total_salida = nota.total_salida;
                     this.nota.registers = response.data;
+                    this.acum_vendidos();
                     this.listadoNotas = false;
                     this.mostrarDevolucion = true;
                 });
@@ -542,15 +838,19 @@
                 this.posicion = i;
                 this.nuevos = [];
                 this.eliminados = [];
+                this.resultslibros = [];
+                this.queryTitulo = '';
                 axios.get('/detalles_nota', {params: {note_id: nota.id}}).then(response => {
                     this.nota.id = nota.id;
                     this.nota.folio = nota.folio;
                     this.cliente = nota.cliente;
                     this.nota.total_salida = nota.total_salida;
                     this.registers = response.data;
+                    this.entregado_por = nota.entregado_por;
                     this.listadoNotas = false;
                     this.mostrarCrearNota = true;
                     this.viewForm = true;
+                    this.acum_total_note();
                 });
             },
             // GUARDAR PAGOS DE NOTA
@@ -558,7 +858,9 @@
                 this.load = true;
                 axios.post('/guardar_pago', this.nota).then(response => {
                     this.notes[this.posicion] = response.data;
+                    this.acumular_totales();
                     this.makeToast('success', 'El pago se guardo correctamente');
+                    this.$refs['modal-confirmar-pag-nota'].hide();
                     this.mostrarNewPago = false;
                     this.listadoNotas = true;
                     this.load = false;
@@ -570,30 +872,43 @@
             },
             // VERIFICAR UNIDADES PARA OBTENER EL SUBTOTAL
             verificarUnidades(unidades, pendiente, costo_unitario, i){
+                if(unidades < 0){
+                    this.makeToast('warning', 'Las unidades tienen que ser mayor a cero.');
+                    this.nota.registers[i].unidades_base = 0;
+                    this.nota.registers[i].total_base = 0;
+                }
                 if(unidades > pendiente){
                     this.makeToast('warning', 'Las unidades son mayor a lo pendiente');
                     this.nota.registers[i].unidades_base = 0;
                     this.nota.registers[i].total_base = 0;
                 }
-                if(unidades <= pendiente){
+                if(unidades >= 0 && unidades <= pendiente){
                     this.total_vendido = 0;
                     this.nota.registers[i].total_base = unidades * costo_unitario;
                     this.btnGuardar = true;
-                    this.nota.registers.forEach(register => {
-                        this.total_vendido += register.total_base;
-                    });
                     if(i + 1 < this.nota.registers.length){
                         document.getElementById('inpPago-'+(i+1)).focus();
                         document.getElementById('inpPago-'+(i+1)).select();
                     }
                 }
+                this.acum_vendidos();
+            },
+            acum_vendidos(){
+                this.total_unidades = 0;
+                this.total_vendido = 0;
+                this.nota.registers.forEach(register => {
+                    this.total_unidades += parseInt(register.unidades_base);
+                    this.total_vendido += parseInt(register.total_base);
+                });
             },
             // GUARDAR DEVOLUCIÓN
             guardarDevolucion(){
                 this.load = true;
                 axios.post('/guardar_devolucion', this.nota).then(response => {
                     this.notes[this.posicion] = response.data;
+                    this.acumular_totales();
                     this.makeToast('success', 'La devolución se guardo correctamente');
+                    this.$refs['modal-confirmar-dev-nota'].hide();
                     this.mostrarDevolucion = false;
                     this.listadoNotas = true;
                     this.load = false;
@@ -610,9 +925,12 @@
                     this.state = null;
                     this.nota.cliente = this.cliente;
                     this.nota.registers = this.registers;
+                    this.nota.entregado_por = this.entregado_por;
                     axios.post('/guardar_nota', this.nota).then(response => {
                         this.load = false;
-                        this.notes.push(response.data);
+                        this.notes.unshift(response.data);
+                        this.acumular_totales();
+                        this.$refs['modal-confirmar-nota'].hide();
                         this.makeToast('success', 'La nota se creo correctamente');
                         this.mostrarCrearNota = false;
                         this.listadoNotas = true;
@@ -634,6 +952,7 @@
                 if(this.cliente.length > 4){
                     this.state = null;
                     this.nota.cliente = this.cliente;
+                    this.nota.entregado_por = this.entregado_por;
                     this.nota.nuevos = this.nuevos;
                     this.nota.eliminados = this.eliminados;
                     axios.post('/actualizar_nota', this.nota).then(response => {
@@ -641,6 +960,8 @@
                         this.makeToast('success', 'La nota se actualizo correctamente');
                         this.notes[this.posicion].total_salida = response.data.total_salida;
                         this.notes[this.posicion].total_pagar = response.data.total_pagar;
+                        this.$refs['modal-confirmar-nota'].hide();
+                        this.acumular_totales();
                         this.mostrarCrearNota = false;
                         this.listadoNotas = true;
                     })
@@ -656,10 +977,10 @@
                 }
             },
             // VALIDAR EL CAMPO CLIENTE
-            func_viewForm(){
+            check_cliente(){
                 if(this.cliente.length > 4){
                     this.viewForm = true;
-                    this.state = null;
+                    this.state = true;
                 }
                 else{
                     this.state = false;
@@ -719,6 +1040,7 @@
                         }
                         this.registers.push(this.temporal);
                         this.eliminarTemporal();
+                        this.acum_total_note();
                     }
                     else{
                         this.makeToast('warning', `${this.temporal.libro.piezas} unidades en existencia`);
@@ -746,6 +1068,7 @@
                     this.eliminados.push(registro);
                 }
                 this.registers.splice(i, 1);
+                this.acum_total_note();
             },
             ini_1(){
                 this.inputLibro = false;
@@ -765,6 +1088,9 @@
 </script>
 
 <style scoped>
+    #btnNotaE{
+        color: white;
+    }
     #listaBL{
         position: absolute;
         z-index: 100

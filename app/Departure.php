@@ -4,7 +4,6 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Promotion;
-use App\Devuelta;
 use App\Libro;
 
 class Departure extends Model
@@ -27,12 +26,6 @@ class Departure extends Model
     //Una salida solo puede tener un libro
     public function libro(){
         return $this->belongsTo(Libro::class);
-    }
-
-    //Uno a uno
-    //Una salida solo puede tener una devolucion
-    public function devuelta(){
-        return $this->hasOne(Devuelta::class);
     }
 
 }

@@ -39,7 +39,7 @@ class LibrosExport implements FromCollection,WithHeadings{
             $libros = DB::table('libros')
                     ->select('isbn', 'titulo', 'editorial', 'piezas')
                     ->where('editorial', $this->editorial)
-                    ->orderBy('editorial','asc')->get();
+                    ->orderBy('titulo','asc')->get();
         }
         return $libros;
         

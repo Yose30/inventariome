@@ -13,7 +13,8 @@ class Promotion extends Model
         'plantel',
         'descripcion', 
         'unidades',  
-        'unidades_pendientes'
+        'unidades_pendientes',
+        'entregado_por'
     ];
 
     //Uno a muchos

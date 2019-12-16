@@ -6,6 +6,7 @@
                 <div class="col-md-7">
                     <b-form-input 
                         id="input-name"
+                        style="text-transform:uppercase;"
                         autofocus
                         v-model="form.name"
                         :disabled="loaded"
@@ -19,6 +20,7 @@
                 <div class="col-md-7">
                     <b-form-input 
                         id="input-name"
+                        style="text-transform:uppercase;"
                         v-model="form.contacto"
                         :disabled="loaded">
                     </b-form-input>
@@ -55,6 +57,7 @@
                 <div class="col-md-7">
                     <b-form-input 
                         id="input-direccion"
+                        style="text-transform:uppercase;"
                         v-model="form.direccion" 
                         :disabled="loaded"
                         required>
@@ -67,6 +70,7 @@
                 <div class="col-md-7">
                     <b-form-input 
                         id="input-condiciones_pago"
+                        style="text-transform:uppercase;"
                         v-model="form.condiciones_pago" 
                         :disabled="loaded"
                         required>
@@ -108,7 +112,6 @@
                     this.loaded = false;
                     this.success = true;
                     this.$emit('actualizarClientes', response.data);
-                    this.$bvModal.hide('modal-nuevoCliente');
                 })
                 .catch(error => {
                     this.loaded = false;

@@ -1,42 +1,79 @@
 <template>
     <div>
+        <check-connection-component></check-connection-component>
         <div v-if="listadoEntradas">
             <b-row>
+                <!-- BUSCAR ENTRADA POR FOLIO -->
+                <b-col>
+                    <b-row>
+                        <b-col sm="2"><label>Folio</label></b-col>
+                        <b-col sm="10">
+                            <b-form-input 
+                                v-model="folio"
+                                @keyup.enter="porFolio()"
+                                style="text-transform:uppercase;">
+                            </b-form-input>
+                        </b-col>
+                    </b-row>
+                </b-col>
                 <!-- MOSTRAR ENTRADAS POR EDITORIAL -->
                 <b-col>
-                    <b-row class="my-1">
-                        <b-col sm="3">
-                            <label for="input-editorial">Editorial</label>
-                        </b-col>
+                    <b-row>
+                        <b-col sm="3"><label>Editorial</label></b-col>
                         <b-col sm="9">
-                            <b-form-select 
-                                v-model="editorial" 
-                                :options="options" 
-                                @change="mostrarEditoriales()">
-                            </b-form-select>
+                            <b-form-select v-model="editorial" :options="options" @change="mostrarEditoriales()"></b-form-select>
                         </b-col>
                     </b-row>
                 </b-col>
                 <!-- MOSTRAR ENTRADAS POR FECHA -->
-                <b-col align="right">
-                    <b-row class="my-1">
-                        <b-col sm="3">
-                            <label for="input-fecha">De: </label><br>
-                            <label for="input-fecha">A: </label>
+                <b-col>
+                    <b-row>
+                        <b-col sm="1"><label>De:</label></b-col>
+                        <b-col sm="10">
+                            <b-input type="date" v-model="inicio" @change="porFecha()" :state="stateDate"></b-input>
                         </b-col>
-                        <b-col sm="9">
-                            <b-input type="date" v-model="fecha1"/>
-                            <b-input type="date" v-model="fecha2" @change="porFecha()"/>
+                    </b-row>
+                    <b-row>
+                        <b-col sm="1"><label>A:</label></b-col>
+                        <b-col sm="10">
+                            <b-input type="date" v-model="final" @change="porFecha()"></b-input>
                         </b-col>
                     </b-row>
                 </b-col>
-                <!-- <b-col sm="3" align="right">
-                    <b-button variant="info" :disabled="loadRegisters" @click="getTodo">
-                        <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
-                    </b-button>
-                </b-col> -->
             </b-row>
-            <hr>
+            <br>
+            <b-row>
+                <b-col sm="5">
+                    <!-- PAGINACION -->
+                    <b-pagination
+                        v-model="currentPage"
+                        :total-rows="entradas.length"
+                        :per-page="perPage"
+                        aria-controls="my-table"
+                        v-if="entradas.length > 0">
+                    </b-pagination>
+                </b-col>
+                <b-col class="text-right">
+                    <b-button
+                        v-if="entradas.length > 0 && role_id === 1"
+                        variant="dark"
+                        :href="`/downEntradasEXC/${inicio}/${final}/${editorial}/general`">
+                        <i class="fa fa-download"></i> General
+                    </b-button>
+                    <b-button
+                        v-if="entradas.length > 0"
+                        variant="dark"
+                        :href="`/downEntradasEXC/${inicio}/${final}/${editorial}/detallado`">
+                        <i class="fa fa-download"></i> Detallado
+                    </b-button>
+                    <b-button
+                        v-if="entradas.length > 0"
+                        variant="dark"
+                        :href="`/downEntradas/${inicio}/${final}/${editorial}`">
+                        <i class="fa fa-download"></i> Descargar PDF
+                    </b-button>
+                </b-col>
+            </b-row>
             <!-- LISTADO DE ENTRADAS -->
             <b-table 
                 responsive
@@ -73,44 +110,40 @@
                 </template>
                 <template slot="thead-top" slot-scope="row">
                     <tr>
-                        <th colspan="4"></th>
+                        <th colspan="3"></th>
+                        <th>{{ total_unidades | formatNumber }}</th>
                         <th>${{ total | formatNumber }}</th>
                         <th>${{ total_pagos | formatNumber }}</th>
                         <th>${{ total_pendiente | formatNumber }}</th>
+                        <th colspan="2"></th>
                     </tr>
                 </template>
             </b-table>
-            <!-- PAGINACION -->
-            <b-pagination
-                v-model="currentPage"
-                :total-rows="entradas.length"
-                :per-page="perPage"
-                aria-controls="my-table"
-                v-if="entradas.length > 0">
-            </b-pagination>
+            <div v-if="entradas.length === 0">
+                <hr>
+                <b-alert show variant="dark"><i class="fa fa-warning"></i> No se encontraron registros</b-alert>
+            </div>
         </div> 
         <!-- MOSTRAR DETALLES DE LA ENTRADA -->
         <div v-if="mostrarDetalles">
             <b-row>
                 <b-col sm="5">
                     <label><b>Folio:</b> {{entrada.folio}}</label><br>
-                    <label><b>Editorial:</b> {{entrada.editorial}}</label>
+                    <label><b>Fecha de creación:</b> {{entrada.created_at | moment}}</label>
                 </b-col>
                 <b-col>
-                    <b-button 
-                        variant="primary"
-                        :href="'/imprimirEntrada/' + entrada.id">
-                        Descargar
+                    <b-button variant="info" v-b-modal.modal-Mpagos v-if="entrada.total_pagos > 0">
+                        Mostrar pagos
                     </b-button>
                 </b-col>
-                <b-col>
+                <b-col class="text-right">
                     <b-button 
-                        variant="info" 
-                        @click="mostrarPagos(entrada.id)"
-                        v-if="entrada.total_pagos > 0 && role_id != 3">Mostrar pagos
+                        variant="dark"
+                        :href="'/downloadEntrada/' + entrada.id">
+                        <i class="fa fa-download"></i> Descargar
                     </b-button>
                 </b-col>
-                <b-col align="right">
+                <b-col class="text-right">
                     <b-button 
                         variant="secondary" 
                         @click="mostrarDetalles = false; listadoEntradas = true;">
@@ -118,8 +151,10 @@
                     </b-button>
                 </b-col>
             </b-row>
+            <label><b>Editorial:</b> {{entrada.editorial}}</label>
             <hr>
             <b-table v-if="registros.length > 0" :items="registros" :fields="fieldsR">
+                <template slot="index" slot-scope="row">{{ row.index + 1}}</template>
                 <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                 <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
                 <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
@@ -133,34 +168,55 @@
                     </tr>
                 </template>
             </b-table>
+            <!-- MODAL PARA MOSTRAR LOS PAGOS -->
+            <b-modal id="modal-Mpagos" hide-footer :title="`Pagos de la entrada con folio ${entrada.folio}`">
+                <label><b>Total:</b> ${{ entrada.total | formatNumber }}</label><br>
+                <label><b>Total pendiente:</b> ${{ entrada.total - entrada.total_pagos | formatNumber }}</label><br>
+                <b-table :items="pagos" :fields="fieldsP">
+                    <template slot="index" slot-scope="row">
+                        {{ row.index + 1 }}
+                    </template>
+                    <template slot="pago" slot-scope="row">
+                        ${{ row.item.pago | formatNumber }}
+                    </template>
+                    <template slot="created_at" slot-scope="row">
+                        {{ row.item.created_at | moment }}
+                    </template>
+                    <template slot="thead-top" slot-scope="row">
+                        <tr>
+                            <th colspan="1"></th>
+                            <th>${{ entrada.total_pagos | formatNumber }}</th>
+                        </tr>
+                    </template>
+                </b-table>
+            </b-modal>
         </div>
         <!-- AGREGAR COSTOS A LOS DATOS DE LA ENTRADA -->
         <div v-if="mostrarEA">
-            <div class="text-right">
-                <b-button variant="secondary" @click="mostrarEA = false; listadoEntradas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
-            </div>
-            <hr>
             <b-row>
-                <b-col sm="6">
+                <b-col sm="3">
                     <label><b>Folio:</b> {{entrada.folio}}</label><br>
                     <label><b>Editorial:</b> {{entrada.editorial}}</label>
                 </b-col>
                 <b-col sm="3" align="right">
                     <label><b>Unidades:</b> {{ total_unidades | formatNumber }}</label>
                 </b-col>
-                <b-col sm="3" class="text-right">
+                <b-col sm="4" class="text-right">
                     <b-button 
-                        @click="actualizarCosto()" 
+                        @click="confirmarAct()" 
                         variant="success"
-                        :disabled="load"
-                        v-if="!agregar">
+                        :disabled="load">
                         <i class="fa fa-check"></i> {{ !load ? 'Guardar cambios' : 'Guardando' }}
                     </b-button>
+                </b-col>
+                <b-col sm="2" class="text-right">
+                    <b-button variant="secondary" @click="mostrarEA = false; listadoEntradas = true;"><i class="fa fa-mail-reply"></i> Regresar</b-button>
                 </b-col>
             </b-row>
             <hr>
             <b-table :items="registros" :fields="fieldsR">
-                <template slot="ISBN" slot-scope="row">{{ row.item.libro.ISBN }}</template>
+                <template slot="index" slot-scope="row">{{ row.index + 1}}</template>
+                <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                 <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
                 <template slot="costo_unitario" slot-scope="row">
                     <b-input 
@@ -172,16 +228,54 @@
                     </b-input>
                 </template>
                 <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
-
                 <template slot="thead-top" slot-scope="row">
                     <tr>
                         <th colspan="5">&nbsp;</th>
                         <th>${{ subtotal | formatNumber }}</th>
                     </tr>
                 </template>
-
             </b-table>
+            <!-- MODAL PARA CONFIRMAR LOS DATOS -->
+            <b-modal ref="modal-confirmarAct" size="lg" title="Resumen de la entrada">
+                <b-row>
+                    <b-col sm="6">
+                        <label><b>Folio:</b> {{entrada.folio}}</label><br>
+                        <label><b>Editorial:</b> {{entrada.editorial}}</label>
+                    </b-col>
+                    <b-col sm="3" align="right">
+                        <label><b>Unidades:</b> {{ total_unidades | formatNumber }}</label>
+                    </b-col>
+                </b-row>
+                <b-table :items="registros" :fields="fieldsR">
+                    <template slot="index" slot-scope="row">{{ row.index + 1}}</template>
+                    <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
+                    <template slot="titulo" slot-scope="row">{{ row.item.libro.titulo }}</template>
+                    <template slot="costo_unitario" slot-scope="row">${{ row.item.costo_unitario | formatNumber }}</template>
+                    <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
+                    <template slot="thead-top" slot-scope="row">
+                        <tr>
+                            <th colspan="5">&nbsp;</th>
+                            <th>${{ subtotal | formatNumber }}</th>
+                        </tr>
+                    </template>
+                </b-table>
+                <div slot="modal-footer">
+                    <b-row>
+                        <b-col sm="10">
+                            <b-alert show variant="info">
+                                <i class="fa fa-exclamation-circle"></i> <b>Verificar los datos de la entrada.</b> En caso de algún error, modificar antes de presionar <b>Confirmar</b> ya que después no se podrán realizar cambios.
+                            </b-alert>
+                        </b-col>
+                        <b-col sm="2" align="right">
+                            <b-button :disabled="load" @click="actualizarCosto()" variant="success">
+                                <i class="fa fa-check"></i> Confirmar
+                            </b-button>
+                        </b-col>
+                    </b-row>
+                </div>
+            </b-modal>
         </div>
+        <!-- MODALS -->
         <!-- MODAL PARA REGISTRAR PAGO -->
         <b-modal id="modal-registrarPago" title="Registrar pago">
             <b-form @submit.prevent="guardarVendidos()">
@@ -199,57 +293,38 @@
                     </b-col>
                 </b-row>
             </b-form>
-            <div slot="modal-footer"></div>
+            <div slot="modal-footer">
+                <b-alert show variant="info">
+                    <i class="fa fa-exclamation-circle"></i> Verificar el pago antes de presionar <b>Guardar</b>, ya que después no se podrán realizar cambios.
+                </b-alert>
+            </div>
         </b-modal>
-        <!-- MOSTRAR PAGOS GUARDADOS -->
-        <div v-if="pagosGuardados">
-            <b-row>
-                <b-col sm="5">
-                    <label><b>Folio:</b> {{entrada.folio}}</label><br>
-                    <label><b>Editorial:</b> {{entrada.editorial}}</label>
-                </b-col>
-                <b-col>
-                    <label><b>Total:</b> ${{ entrada.total | formatNumber }}</label><br>
-                    <label><b>Total pendiente:</b> ${{ entrada.total - entrada.total_pagos | formatNumber }}</label>
-                </b-col>
-                <b-col align="right">
-                    <b-button 
-                        variant="secondary" 
-                        @click="pagosGuardados = false; mostrarDetalles = true;">
-                        <i class="fa fa-mail-reply"></i> Regresar
-                    </b-button>
-                </b-col>
-            </b-row>
-            <hr>
-            <b-table :items="pagos" :fields="fieldsP">
-                <template slot="index" slot-scope="row">
-                    {{ row.index + 1 }}
-                </template>
-                <template slot="pago" slot-scope="row">
-                    ${{ row.item.pago | formatNumber }}
-                </template>
-                <template slot="created_at" slot-scope="row">
-                    {{ row.item.created_at | moment }}
-                </template>
-                <template slot="thead-top" slot-scope="row">
-                    <tr>
-                        <th colspan="1"></th>
-                        <th>${{ entrada.total_pagos | formatNumber }}</th>
-                    </tr>
-                </template>
-            </b-table>
-        </div>
+        <!-- MODAL DE AYUDA-->
+        <b-modal id="modal-ayudaEG" hide-backdrop hide-footer title="Ayuda">
+            <h5 id="titleA"><b>Búsqueda por folio</b></h5>
+            <p>Escribir el folio (completo) y presionar <label id="ctrlS">Enter</label>.</p>
+            <h5 id="titleA"><b>Búsqueda por editorial</b></h5>
+            <p>Elegir la editorial que desee y aparecerán todas los entradas relacionadas a esta.</p>
+            <h5 id="titleA"><b>Búsqueda por fecha</b></h5>
+            <p>Elegir fecha de inicio y fecha final para buscar las entradas en ese rango de fechas.</p>
+            <h5 id="titleA"><b>Búsqueda por editorial y fechas</b></h5>
+            <p>Elegir la editorial entre las opciones que aparecen y después seleccionar el rango de fechas.</p>
+            <h5 id="titleA"><b>Descargar reporte</b></h5>
+            <p>La lista que se descargue será de acuerdo a la búsqueda realizada. Se puede descargar en PDF o EXCEL.</p>
+            <h5 id="titleA"><b>Detalles de la entrada</b></h5>
+            <p>Se mostraran los registros de la entrada, así como un botón para descargar dicha entrada y otro para mostrar los pagos (En caso de que tenga).</p>
+        </b-modal>
     </div>
 </template>
 
 <script>
     export default {
-        props: ['role_id', 'registersall'],
+        props: ['role_id', 'registersall', 'editoriales'],
         data() {
             return {
                 entradas: this.registersall,
                 registros: [],
-                editorial: '',
+                editorial: 'TODAS',
                 fieldsP: [
                     {key: 'index', label: 'No.'},
                     'pago',
@@ -268,7 +343,7 @@
                     {key: 'editar', label: ''}
                 ],
                 fieldsR: [
-                    {key: 'id', label: 'N.'}, 
+                    {key: 'index', label: 'N.'}, 
                     {key: 'isbn', label: 'ISBN'}, 
                     {key: 'titulo', label: 'Libro'}, 
                     {key: 'costo_unitario', label: 'Costo unitario'},
@@ -276,7 +351,7 @@
                     {key: 'total', label: 'Subtotal'},
                 ],
                 fieldsRP: [
-                    {key: 'id', label: 'N.'}, 
+                    {key: 'index', label: 'N.'}, 
                     {key: 'isbn', label: 'ISBN'}, 
                     {key: 'titulo', label: 'Libro'}, 
                     {key: 'costo_unitario', label: 'Costo unitario'},
@@ -284,26 +359,8 @@
                     {key: 'unidades_base', label: 'Unidades'},
                     {key: 'total_base', label: 'Subtotal'},
                 ],
-                options: [
-                    { value: null, text: 'Selecciona una opción', disabled: true },
-                    { value: 'CAMBRIDGE', text: 'CAMBRIDGE' },
-                    { value: 'CENGAGE', text: 'CENGAGE' },
-                    { value: 'EMPRESER', text: 'EMPRESER' },
-                    { value: 'EXPRESS PUBLISHING', text: 'EXPRESS PUBLISHING'},
-                    { value: 'HELBLING LANGUAGES', text: 'HELBLING LANGUAGES'},
-                    { value: 'MAJESTIC', text: 'MAJESTIC'},
-                    { value: 'MC GRAW - MAJESTIC', text: 'MC GRAW - MAJESTIC'},
-                    { value: 'MCGRAW HILL', text: 'MCGRAW HILL'},
-                    { value: 'RICHMOND', text: 'RICHMOND'},
-                    { value: 'IMPRESOS DE CALIDAD', text: 'IMPRESOS DE CALIDAD'},
-                    { value: 'ENGLISH TEXBOOK', text: 'ENGLISH TEXBOOK'},
-                    { value: 'BOOKMART MÉXICO', text: 'BOOKMART MÉXICO' },
-                    { value: 'ANGLO PUBLISHING', text: 'ANGLO PUBLISHING' },
-                    { value: 'LAROUSSE', text: 'LAROUSSE' },
-                    { value: 'TODAS', text: 'MOSTRAR TODO'},
-                ],
+                options: [],
                 mostrarDetalles: false,
-                fechaFinal: '',
                 entrada: {
                     id: 0,
                     unidades: 0,
@@ -312,8 +369,7 @@
                     total_pendiente: 0,
                     folio: '',
                     editorial: '',
-                    items: [],
-                    nuevos: []
+                    items: []
                 },
                 total: 0,
                 total_pagos: 0,
@@ -323,36 +379,29 @@
                     pago: null
                 },
                 mostrarEA: false,
-                isbn: '',
-                inputISBN: true,
-                temporal: {},
-                queryTitulo: '',
-                inputLibro: true,
                 resultslibros: [],
-                inputUnidades: false,
                 unidades: 0,
-                stateN: null,
-                stateE: null,
                 load: false,
                 posicion: null,
                 listadoEntradas: true,
-                agregar: false,
-                nuevos: [],
                 estado: false,
-                fecha1: '',
-                fecha2: '',
-                mostrarRegistrar: false,
+                inicio: '0000-00-00',
+                final: '0000-00-00',
                 state: null,
                 pagosGuardados: false,
                 pagos: [],
                 subtotal: 0,
-                perPage: 15,
+                perPage: 10,
                 currentPage: 1,
-                loadRegisters: false
+                loadRegisters: false,
+                stateDate: null,
+                folio: '',
+                total_unidades: 0
             }
         },
         created: function(){
             this.acumular();
+            this.assign_editorial();
         },
         filters: {
             moment: function (date) {
@@ -363,29 +412,78 @@
             }
         }, 
         methods: {
+            assign_editorial(){
+                this.options.push({
+                    value: 'TODAS',
+                    text: 'MOSTRAR TODO'
+                });
+                this.editoriales.forEach(editorial => {
+                    this.options.push({
+                        value: editorial.editorial,
+                        text: editorial.editorial
+                    });
+                });
+            },
+            confirmarAct(){
+                if(this.subtotal > 0){
+                    this.estado = false;
+                    this.registros.forEach(registro => {
+                        if(registro.costo_unitario == 0){
+                            this.estado = true;
+                        }
+                    });
+                    if(this.estado == true){
+                        this.makeToast('warning', 'El costo unitario no puede ser 0');
+                    }
+                    else{
+                        this.$refs['modal-confirmarAct'].show();
+                    }
+                } else {
+                    this.makeToast('warning', 'El subtotal no puede ser cero. Favor de agregar costo unitario.');
+                }
+            },
+            // BUSCAR ENTRADA POR FOLIO
+            porFolio(){
+                axios.get('/buscarFolio', {params: {folio: this.folio}}).then(response => {
+                    if(response.data.id != undefined){
+                        this.entradas = [];
+                        this.entradas.push(response.data);
+                        this.acumular();
+                    }
+                    else{
+                        this.makeToast('warning', 'El folio no existe');
+                    }
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
+                });
+            },
             // MOSTRAR ENTRADAS POR EDITORIAL
             mostrarEditoriales(){
-                if(this.editorial.length > 0){
-                    axios.get('/mostrarEditoriales', {params: {editorial: this.editorial}}).then(response => {
-                        this.entradas = [];
-                        this.entradas = response.data;
-                        this.acumular();
-                    }).catch(error => {
-                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                    });
-                }
-                else{
-                    this.getTodo();
-                } 
+                axios.get('/mostrarEditoriales', {params: {editorial: this.editorial}}).then(response => {
+                    this.entradas = response.data;
+                    this.acumular();
+                    this.inicio = '0000-00-00';
+                    this.final = '0000-00-00';
+                }).catch(error => {
+                    this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
+                });
             },
             // MOSTRAR ENTRADAS POR FECHA
             porFecha(){
-                axios.get('/fecha_entradas', {params: {fecha1: this.fecha1, fecha2: this.fecha2}}).then(response => {
-                    this.entradas = response.data;
-                    this.acumular();
-                }).catch(error => {
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                });
+                if(this.final != '0000-00-00'){
+                    if(this.inicio != '0000-00-00') {
+                        this.stateDate = null;
+                        axios.get('/fecha_entradas', {params: {inicio: this.inicio, final: this.final, editorial: this.editorial}}).then(response => {
+                            this.entradas = response.data;
+                            this.acumular();
+                        }).catch(error => {
+                            this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
+                        });
+                    } else {
+                        this.stateDate = false;
+                        this.makeToast('warning', 'Es necesario seleccionar la fecha de inicio');
+                    }
+                }
             },
             // MOSTRAR DETALLES DE UNA ENTRADA
             detallesEntrada(entrada){
@@ -393,16 +491,15 @@
                     this.asignar(response);
                     this.mostrarDetalles = true;
                 }).catch(error => {
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 });
             },
             // AGREGAR COSTOS A LOS DATOS DE LA ENTRADA
             editarEntrada(entrada, i){
                 this.posicion = i;
-                this.agregar = false;
-                this.stateN = null;
                 axios.get('/detalles_entrada', {params: {entrada_id: entrada.id}}).then(response => {
                     this.asignar(response);
+                    this.subtotal = 0;
                     this.total_unidades = this.entrada.unidades;
                     this.mostrarEA = true;
                 });
@@ -410,52 +507,31 @@
             // REGISTRAR PAGO DE LA ENTRADA
             registrarPago(entrada, i){
                 this.posicion = i;
-                axios.get('/detalles_entrada', {params: {entrada_id: entrada.id}}).then(response => {
-                    this.asignar(response);
-                    this.listadoEntradas = true;
-                    this.repayment.entrada_id = entrada.id;
-                });
-            },
-            mostrarPagos(entrada_id){
-                axios.get('/detalles_entrada', {params: {entrada_id: entrada_id}}).then(response => {
-                    this.asignar(response);
-                    this.pagos = response.data.entrada.repayments;
-                    this.mostrarDetalles = false;
-                    this.pagosGuardados = true;
-                });
+                this.repayment.entrada_id = entrada.id;
+                this.entrada.total = entrada.total;
+                this.entrada.total_pagos = entrada.total_pagos;
+                this.entrada.total_pendiente = this.entrada.total - this.entrada.total_pagos;
             },
             // GUARDAR COSTOS DE LA ENTRADA
             actualizarCosto(){
-                this.estado = false;
-                this.registros.forEach(registro => {
-                    if(registro.costo_unitario == 0){
-                        this.estado = true;
-                    }
+                this.load = true;
+                this.entrada.items = this.registros;
+                axios.put('/actualizar_costos', this.entrada).then(response => {
+                    this.$refs['modal-confirmarAct'].hide();
+                    this.makeToast('success', 'La entrada se ha actualizado');
+                    this.entradas[this.posicion].total = response.data.total;
+                    this.acumular();
+                    this.load = false;
+                    this.mostrarEA = false;
+                    this.listadoEntradas = true;
+                }).catch(error => {
+                    this.load = false;
+                    this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 });
-                if(this.estado == true){
-                    this.makeToast('warning', 'El costo unitario no puede ser 0');
-                }
-                else{
-                    this.load = true;
-                    this.entrada.items = this.registros;
-                    axios.put('/actualizar_costos', this.entrada).then(response => {
-                        this.makeToast('success', 'La entrada se ha actualizado');
-                        this.entradas[this.posicion].total = response.data.total;
-                        this.acumular();
-                        this.load = false;
-                        this.mostrarEA = false;
-                        this.listadoEntradas = true;
-                    }).catch(error => {
-                        this.load = false;
-                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                    });
-                }
             },
             verificarUnidades(unidades, costo_unitario, i){
                 if(costo_unitario > 0){
                     this.registros[i].total = unidades * costo_unitario;
-                    // SUMAR TODO LO QUE SE VAYA EDITANDO DE LA ENTRADA
-                    this.sumatoriaSubtotal();
                     if(i + 1 < this.registros.length){
                         document.getElementById('input-'+(i+1)).focus();
                         document.getElementById('input-'+(i+1)).select();
@@ -465,14 +541,14 @@
                     this.makeToast('warning', 'Costo unitario invalido');
                     this.registros[i].costo_unitario = 0;
                     this.registros[i].total = 0;
-                    // SUMAR TODO LO QUE SE VAYA EDITANDO DE LA ENTRADA
-                    this.sumatoriaSubtotal();
                 }
+                // SUMAR TODO LO QUE SE VAYA EDITANDO DE LA ENTRADA
+                this.sumatoriaSubtotal();
             },
             // GUARDAR PAGO DE ENTRADAS
             guardarVendidos(){
                 if(this.repayment.pago > 0){
-                    if(this.repayment.pago <= (this.entrada.total - this.entrada.total_pagos)){
+                    if(this.repayment.pago <= this.entrada.total_pendiente){
                         this.state = null;
                         this.load = true;
                         axios.put('/pago_entrada', this.repayment).then(response => {
@@ -488,7 +564,7 @@
 
                         }).catch(error => {
                             this.load = false;
-                            this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                            this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                         });
                     }
                     else{
@@ -507,17 +583,7 @@
                 if (item.total == 0) return 'table-warning'
             },
             asignar(response){
-                this.entrada = {
-                    id: 0,
-                    unidades: 0,
-                    total: 0,
-                    total_pagos: 0,
-                    total_pendiente: 0,
-                    folio: '',
-                    editorial: '',
-                    items: [],
-                    nuevos: []
-                };
+                this.entrada = {};
                 this.entrada.id = response.data.entrada.id;
                 this.entrada.folio = response.data.entrada.folio;
                 this.entrada.editorial = response.data.entrada.editorial;
@@ -526,16 +592,19 @@
                 this.entrada.total_pendiente = this.entrada.total - this.entrada.total_pagos;
                 this.entrada.unidades = response.data.entrada.unidades;
                 this.registros = response.data.entrada.registros;
+                this.pagos = response.data.entrada.repayments;
                 this.listadoEntradas = false;
             },
             acumular(){
                 this.total = 0;
                 this.total_pagos = 0;
                 this.total_pendiente = 0;
+                this.total_unidades = 0;
                 this.entradas.forEach(entrada => {
                     this.total += entrada.total;
                     this.total_pagos += entrada.total_pagos;
                     this.total_pendiente += entrada.total - entrada.total_pagos;
+                    this.total_unidades += entrada.unidades;
                 });
             },
             sumatoriaSubtotal(){

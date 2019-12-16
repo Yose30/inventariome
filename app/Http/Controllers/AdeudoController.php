@@ -102,8 +102,7 @@ class AdeudoController extends Controller
                         'libro_id'  => $dato['id'],
                         'costo_unitario' => $dato['costo_unitario'],
                         'unidades'  => $dato['unidades'],
-                        'total'     => $dato['total'], 
-                        'estado'    => 'Terminado'
+                        'total'     => $dato['total']
                     ]);
                     $devolucion = Devolucione::create([
                         'remisione_id' => $request->remision_num,
@@ -142,23 +141,25 @@ class AdeudoController extends Controller
                     $unidades = $devolucion['unidades'];
                     $total = $unidades * $costo_unitario;
                     
-                    $unidades_resta = $devolucion['unidades_resta'] - $unidades;
-                    $total_resta = $unidades_resta * $costo_unitario;
-                    Devolucione::whereId($devolucion['id'])->update([
-                        'unidades' => $unidades, 
-                        'unidades_resta' => $unidades_resta,
-                        'total' => $total,
-                        'total_resta' => $total_resta
-                    ]);
-                    $libro = Libro::whereId($devolucion['libro']['id'])->first();
-                    $libro->update(['piezas' => $libro->piezas + $unidades]); 
-                    $total_devolucion += $total;
+                    if($unidades !== 0){
+                        $unidades_resta = $devolucion['unidades_resta'] - $unidades;
+                        $total_resta = $unidades_resta * $costo_unitario;
+                        Devolucione::whereId($devolucion['id'])->update([
+                            'unidades' => $unidades, 
+                            'unidades_resta' => $unidades_resta,
+                            'total' => $total,
+                            'total_resta' => $total_resta
+                        ]);
+                        $libro = Libro::whereId($devolucion['libro']['id'])->first();
+                        $libro->update(['piezas' => $libro->piezas + $unidades]); 
+                    }
+                    $total_devolucion += $total; 
                 }
                 $adeudo = Adeudo::whereId($request->id)->first();
                 $total_pendiente = $adeudo->total_pendiente - $total_devolucion;
                 $adeudo->update([
                     'total_pendiente' => $total_pendiente,
-                    'total_devolucion' => $total_devolucion, 
+                    'total_devolucion' => $total_devolucion
                 ]);
             \DB::commit();
         } catch (Exception $e) {

@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Comentario;
 use App\Role;
 use App\Pago;
 
@@ -49,6 +50,12 @@ class User extends Authenticatable
     //Una usuario puede tener muchos pagos
     public function pagos(){
         return $this->hasMany(Pago::class);
+    }
+
+    //Uno a muchos
+    //UNa usuario puede tener muchos comentarios
+    public function comentarios(){
+        return $this->hasMany(Comentario::class);
     }
 
     public static function navigation(){

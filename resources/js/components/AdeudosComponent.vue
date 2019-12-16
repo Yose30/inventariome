@@ -1,5 +1,6 @@
 <template>
     <div>
+        <check-connection-component></check-connection-component>
         <div v-if="listadoAdeudos">
             <b-row>
                 <!-- BUSCAR ADEUDO POR NUMERO DE REMISIÓN -->
@@ -48,13 +49,16 @@
                         <i class="fa fa-plus"></i> Registrar adeudo
                     </b-button>
                 </b-col>
-                <!-- <b-col align="right">
-                    <b-button variant="info" :disabled="loadRegisters" @click="obtenerAdeudos">
-                        <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
-                    </b-button>
-                </b-col> -->
             </b-row>
             <hr>
+            <!-- PAGINACIÓN -->
+            <b-pagination
+                v-model="currentPage"
+                :total-rows="adeudos.length"
+                :per-page="perPage"
+                aria-controls="my-table"
+                v-if="adeudos.length > 0">
+            </b-pagination>
             <!-- LISTADO DE ADEUDOS -->
             <b-table 
                 responsive
@@ -101,14 +105,7 @@
                     </tr>
                 </template>
             </b-table>
-            <!-- PAGINACIÓN -->
-            <b-pagination
-                v-model="currentPage"
-                :total-rows="adeudos.length"
-                :per-page="perPage"
-                aria-controls="my-table"
-                v-if="adeudos.length > 0">
-            </b-pagination>
+            <b-alert v-if="adeudos.length === 0" show variant="dark"><i class="fa fa-warning"></i> No se encontraron registros</b-alert>
             <!-- MODAL PARA REGISTRAR UN PAGO -->
             <b-modal id="modal-pago" title="Registrar pago">
                 <b-form @submit.prevent="guardarAbono()">
@@ -518,7 +515,7 @@
                 devoluciones: [],
                 vendidos: [],
                 num_remision: null,
-                perPage: 15,
+                perPage: 10,
                 currentPage: 1,
                 loadRegisters: false,
             }
@@ -572,7 +569,7 @@
                     this.acumular();
                 }).catch(error => {
                     this.load = false;
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 });
             },
             // REGISTRAR UN NUEVO ADEUDO Y MOSTRAR LOS CLIENTES
@@ -590,7 +587,7 @@
                     this.listadoAdeudos = false;
                     this.mostrarRegistrar = true;
                 }).catch(error => {
-                   this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                   this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 });
             },
             // MOSTRAR LOS DETALLES DE UN ADEUDO
@@ -607,7 +604,7 @@
                     this.listadoAdeudos = false;
                     this.mostrarAbonos = true;
                 }).catch(error => {
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 });
             },
             // REGISTRAR NUEVO ABONO A UNA DEUDA
@@ -633,7 +630,7 @@
                         })
                         .catch(error => {
                             this.load = false;
-                            this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                            this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                         });
                     }
                     else{
@@ -661,7 +658,7 @@
                     this.queryCliente = '';
                 }).catch(error => {
                     this.load = false;
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 });
             },
             // MOSTRAR EL LISTADO DE CLIENTES PARA SELECCIONAR UNO
@@ -676,7 +673,7 @@
                     axios.get('/getTodo').then(response => {
                         this.clientes = response.data;
                     }).catch(error => {
-                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                        this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                     });
                 }
             },
@@ -700,7 +697,7 @@
                             this.makeToast('danger', 'El numero de remisión ya existe');
                         }
                     }).catch(error => {
-                        this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                        this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                     });
                 }
                 else{

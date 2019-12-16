@@ -1,5 +1,6 @@
 <template>
     <div>
+        <check-connection-component></check-connection-component>
         <div v-if="!mostrarDetalles && !mostrarPagos">
             <b-row>
                 <b-col sm="3">
@@ -40,16 +41,20 @@
                         </b-col>
                     </b-row>
                 </b-col>
-                <!-- <b-col sm="3" align="right">
-                    <b-button variant="info" :disabled="loadRegisters" @click="getTodo">
-                        <b-spinner small v-if="loadRegisters"></b-spinner> {{ !loadRegisters ? 'Mostrar todo' : 'Cargando' }}
-                    </b-button>
-                </b-col> -->
             </b-row>
             <hr>
             <!-- LISTADO DE REMISIONES -->
+            <!-- PAGINACIÓN -->
+            <b-pagination
+                v-model="currentPage"
+                :total-rows="remisiones.length"
+                :per-page="perPage"
+                aria-controls="my-table"
+                v-if="remisiones.length > 0"
+            ></b-pagination>
             <b-table 
                 responsive
+                hover
                 :items="remisiones" 
                 :fields="fields" 
                 id="my-table" 
@@ -72,15 +77,83 @@
                 <template slot="ver_pagos" slot-scope="row">
                     <b-button v-if="row.item.pagos != 0" variant="info" @click="verPagos(row.item)">Ver pagos</b-button>
                 </template>
+                <!-- <template 
+                    v-if="row.item.estado === 'Proceso' || row.item.estado === 'Terminado'" 
+                    slot="pagos_por" slot-scope="row">
+                    <p v-if="row.item.depositos_count > 0">Teresa Pérez</p>
+                    <p v-else>Almacén</p>
+                </template> -->
             </b-table>
-            <!-- PAGINACIÓN -->
-            <b-pagination
-                v-model="currentPage"
-                :total-rows="remisiones.length"
-                :per-page="perPage"
-                aria-controls="my-table"
-                v-if="remisiones.length > 0"
-            ></b-pagination>
+        </div>
+        <div v-if="mostrarPagos">
+            <b-row>
+                <b-col>
+                    <h5><b>Remisión No. {{ remision.id }}</b></h5>
+                </b-col>
+                <b-col>
+                    <div class="text-right">
+                        <b-button variant="secondary" @click="mostrarPagos = false">
+                            <i class="fa fa-mail-reply"></i> Regresar
+                        </b-button>
+                    </div>
+                </b-col>
+            </b-row>
+            <label><b>Cliente:</b> {{ remision.cliente.name }}</label>
+            <hr>
+            <div v-if="remision.depositos.length > 0">
+                <h5><b>Pago por monto</b></h5>
+                <b-table hover :items="remision.depositos" :fields="fieldsDep">
+                    <template slot="index" slot-scope="row">
+                        {{ row.index + 1 }}
+                    </template>
+                    <template slot="pago" slot-scope="row">
+                        ${{ row.item.pago | formatNumber }}
+                    </template>
+                    <template slot="created_at" slot-scope="row">
+                        {{ row.item.created_at | moment }}
+                    </template>
+                    <template slot="user" slot-scope="row">Teresa Pérez</template>
+                    <template slot="thead-top" slot-scope="row">
+                        <tr>
+                            <th colspan="3"></th><th>${{ total_depositos | formatNumber }}</th>
+                        </tr>
+                    </template>
+                </b-table>
+            </div><br>
+            <div v-if="checkUnit">
+                <h5><b>Pago por unidades</b></h5>
+                <b-table hover :items="remision.vendidos" :fields="fieldsP">
+                    <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
+                    <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
+                    <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario | formatNumber }}</template>
+                    <template slot="subtotal" slot-scope="row">${{ row.item.total | formatNumber }}</template>
+                    <template slot="detalles" slot-scope="row">
+                        <b-button v-if="row.item.pagos.length > 0" variant="outline-info" @click="row.toggleDetails">
+                            {{ row.detailsShowing ? 'Ocultar' : 'Mostrar'}}
+                        </b-button>
+                    </template> 
+                    <template slot="thead-top" slot-scope="row">
+                        <tr>
+                            <th colspan="4"></th>
+                            <th>${{ total_vendido | formatNumber }}</th>
+                        </tr>
+                    </template>
+                    <template slot="row-details" slot-scope="row">
+                        <b-card>
+                            <b-table small responsive :items="row.item.pagos" :fields="fieldsD">
+                                <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
+                                <template slot="user_id" slot-scope="row">
+                                    <label v-if="row.item.user_id == 2">Teresa Pérez</label>
+                                    <label v-if="row.item.user_id == 3">Almacén</label>
+                                </template>
+                                <template slot="unidades" slot-scope="row">{{ row.item.unidades | formatNumber }}</template>
+                                <template slot="pago" slot-scope="row">$ {{ row.item.pago | formatNumber }}</template>
+                                <template slot="created_at" slot-scope="row">{{ row.item.created_at | moment }}</template>
+                            </b-table>
+                        </b-card>
+                    </template>
+                </b-table>
+            </div>
         </div>
         <!-- MODADL PARA REGISTRAR DEPOSITO -->
         <b-modal id="modal-registrar-deposito" title="Registrar pago">
@@ -92,74 +165,19 @@
                     <b-col sm="5">
                         <b-form-input v-model="deposito.pago" autofocus :state="state" :disabled="load" required></b-form-input>
                     </b-col>
-                    <b-col> 
+                    <b-col sm="5">
                         <b-button type="submit" variant="success" :disabled="load">
                             <i class="fa fa-check"></i> {{ !load ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="load"></b-spinner>
                         </b-button>
                     </b-col>
                 </b-row>
             </b-form>
-            <div slot="modal-footer"></div>
+            <div slot="modal-footer">
+                <b-alert show variant="info">
+                    <i class="fa fa-exclamation-circle"></i> Verificar el pago antes de presionar Guardar, ya que después no se podrán hacer cambios.
+                </b-alert>
+            </div>
         </b-modal>
-        <div v-if="mostrarPagos">
-            <b-row>
-                <b-col>
-                    <h5><b>Remisión No. {{ remision.id }}</b></h5>
-                </b-col>
-                <b-col>
-                    <div class="text-right">
-                        <b-button variant="outline-secondary" @click="mostrarPagos = false">
-                            <i class="fa fa-mail-reply"></i> Regresar
-                        </b-button>
-                    </div>
-                </b-col>
-            </b-row>
-            <label><b>Cliente:</b> {{ remision.cliente.name }}</label>
-            <hr>
-            <b-table v-if="remision.depositos.length > 0" :items="remision.depositos" :fields="fieldsDep">
-                <template slot="index" slot-scope="row">
-                    {{ row.index + 1 }}
-                </template>
-                <template slot="pago" slot-scope="row">
-                    ${{ row.item.pago | formatNumber }}
-                </template>
-                <template slot="created_at" slot-scope="row">
-                    {{ row.item.created_at | moment }}
-                </template>
-                <template slot="user" slot-scope="row">Teresa Pérez</template>
-            </b-table>
-            <b-table v-if="remision.depositos.length == 0" :items="remision.vendidos" :fields="fieldsP">
-                <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
-                <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
-                <template slot="costo_unitario" slot-scope="row">${{ row.item.dato.costo_unitario | formatNumber }}</template>
-                <template slot="subtotal" slot-scope="row">${{ row.item.total | formatNumber }}</template>
-                <template slot="detalles" slot-scope="row">
-                    <b-button v-if="row.item.pagos.length > 0" variant="outline-info" @click="row.toggleDetails">
-                        {{ row.detailsShowing ? 'Ocultar' : 'Mostrar'}}
-                    </b-button>
-                </template> 
-                <template slot="thead-top" slot-scope="row">
-                    <tr>
-                        <th colspan="4"></th>
-                        <th>${{ remision.pagos | formatNumber }}</th>
-                    </tr>
-                </template>
-                <template slot="row-details" slot-scope="row">
-                    <b-card>
-                        <b-table :items="row.item.pagos" :fields="fieldsD">
-                            <template slot="index" slot-scope="row">{{ row.index + 1 }}</template>
-                            <template slot="user_id" slot-scope="row">
-                                <label v-if="row.item.user_id == 2">Teresa Pérez</label>
-                                <label v-if="row.item.user_id == 3">Almacén</label>
-                            </template>
-                            <template slot="unidades" slot-scope="row">{{ row.item.unidades | formatNumber }}</template>
-                            <template slot="pago" slot-scope="row">$ {{ row.item.pago | formatNumber }}</template>
-                            <template slot="created_at" slot-scope="row">{{ row.item.created_at | moment }}</template>
-                        </b-table>
-                    </b-card>
-                </template>
-            </b-table>
-        </div>
     </div>
 </template>
 
@@ -170,14 +188,14 @@
             return {
                 remisiones: this.registersall,
                 fields: [
-                    {key: 'id', label: 'Remisión No.'}, 
+                    {key: 'id', label: 'Folio'}, 
                     'cliente', 
                     {key: 'total', label: 'Salida'}, 
                     {key: 'total_devolucion', label: 'Devolución'}, 
                     {key: 'pagos', label: 'Pagado'},
                     {key: 'total_pagar', label: 'Pagar'}, 
                     {key: 'ver_pagos', label: ''},
-                    {key: 'pagar', label: ''},
+                    {key: 'pagar', label: ''}
                 ],
                 fieldsRP: [
                     {key: 'isbn', label: 'ISBN'}, 
@@ -192,21 +210,20 @@
                     'libro', 
                     {key: 'costo_unitario', label: 'Costo unitario'}, 
                     {key: 'unidades', label: 'Unidades vendidas'}, 
-                    'subtotal',
-                    'detalles'
+                    'subtotal', 'detalles'
                 ],
                 fieldsDep: [
                     {key: 'index', label: 'No.'},
-                    'pago',
                     {key: 'created_at', label: 'Fecha de pago'},
-                    {key: 'user', label: 'Usuario'}
+                    {key: 'user', label: 'Pago realizado por'},
+                    'pago'
                 ],
                 fieldsD: [
                     {key: 'index', label: 'N.'},
-                    {key: 'user_id', label: 'Usuario'}, 
-                    {key: 'unidades', label: 'Unidades vendidas'},
-                    'pago', 
-                    {key: 'created_at', label: 'Fecha'}, 
+                    {key: 'created_at', label: 'Fecha'},
+                    {key: 'user_id', label: 'Pago realizado por'},
+                    {key: 'entregado_por', label: 'Pago entregado por'}, 
+                    'unidades', 'pago'
                 ],
                 mostrarDetalles: false,
                 remision: {
@@ -220,7 +237,6 @@
                     depositos: []
                 },
                 btnGuardar: false,
-                total_vendido: 0,
                 pos_remision: 0,
                 mostrarPagos: false,
                 state: null,
@@ -232,14 +248,14 @@
                 queryCliente: '',
                 resultsClientes: [],
                 remision_id: null,
-                perPage: 15,
+                perPage: 10,
                 currentPage: 1,
-                loadRegisters: false
+                loadRegisters: false,
+                checkUnit: false,
+                total_unidades: 0,
+                total_vendido: 0
             }
         },
-        // created: function(){
-		// 	this.getTodo();
-        // },
         filters: {
             moment: function (date) {
                 return moment(date).format('DD-MM-YYYY');
@@ -253,6 +269,8 @@
             porNumero(){
                 if(this.remision_id > 0){
                     axios.get('/buscar_por_numero', {params: {num_remision: this.remision_id}}).then(response => {
+                        if(response.data.remision.estado == 'Iniciado')
+                            this.makeToast('warning', 'La remisión aún no ha sido marcada como entregada.');
                         if(response.data.remision.estado == 'Cancelado')
                             this.makeToast('warning', 'La remisión esta cancelada');
                         if(response.data.remision.total_pagar == 0 && (response.data.remision.estado == 'Proceso' || response.data.remision.estado == 'Terminado'))
@@ -285,7 +303,7 @@
                     this.resultsClientes = [];
                     this.queryCliente = cliente.name;
                 }).catch(error => {
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 });
             },
             // INICIALIZAR PARA REGISTRAR PAGO
@@ -294,10 +312,13 @@
                 this.deposito.remision_id = remision.id;
                 this.remision.total_pagar = remision.total_pagar;
                 this.deposito.pago = null;
+                this.state = null;
             },
             // LISTAR TODOS LOS PAGOS REALIZADOS
             verPagos(remision){
                 this.remision.unidades = 0;
+                this.total_depositos = 0;
+                this.total_vendido = 0;
                 axios.get('/datos_vendidos', {params: {remision_id: remision.id}}).then(response => {
                     this.remision.id = remision.id;
                     this.remision.pagos = remision.pagos;
@@ -305,12 +326,27 @@
                     this.remision.cliente = remision.cliente;
                     this.remision.depositos = response.data.depositos;
                     this.remision.total_pagar = remision.total_pagar;
+
+                    this.remision.depositos.forEach(deposito => {
+                        this.total_depositos += deposito.pago;
+                    });
+
+                    var count = 0;
                     this.remision.vendidos.forEach(vendido => {
                         this.remision.unidades += vendido.unidades;
+                        this.total_vendido += vendido.total;
+                        if(vendido.unidades > 0){
+                           count += 1; 
+                        }
                     });
+
+                    if(count > 0 && (this.total_depositos !== this.total_vendido)){
+                        this.checkUnit = true;
+                    }
+
                     this.mostrarPagos = true;
                 }).catch(error => {
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 });
             },
             // GIUARDAR DEPOSITO
@@ -328,7 +364,7 @@
                         })
                         .catch(error => {
                             this.load = false;
-                            this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                            this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                         });
                     }
                     else{

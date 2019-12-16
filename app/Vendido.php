@@ -16,8 +16,8 @@ class Vendido extends Model
         'dato_id', 
         'libro_id',
         'unidades', 
-        'unidades_resta',
         'total', 
+        'unidades_resta',
         'total_resta',
         'unidades_base',
         'total_base'

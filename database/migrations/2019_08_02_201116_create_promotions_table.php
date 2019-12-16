@@ -20,6 +20,7 @@ class CreatePromotionsTable extends Migration
             $table->text('descripcion')->nullable();
             $table->integer('unidades')->default(0);
             $table->integer('unidades_pendientes')->default(0);
+            $table->text('entregado_por')->nullable();
             $table->timestamps();
         });
 
@@ -33,14 +34,6 @@ class CreatePromotionsTable extends Migration
             $table->integer('unidades_pendientes')->default(0);
             $table->timestamps();
         });
-
-        Schema::create('devueltas', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('departure_id')->nullable();
-            $table->foreign('departure_id')->references('id')->on('departures');
-            $table->integer('unidades')->default(0);
-            $table->timestamps();
-        });
     }
 
     /**
@@ -52,6 +45,5 @@ class CreatePromotionsTable extends Migration
     {
         Schema::dropIfExists('promotions');
         Schema::dropIfExists('departures');
-        Schema::dropIfExists('devueltas');
     }
 }

@@ -7,18 +7,18 @@ use App\Remisione;
 use App\Entrada;
 use App\Cliente;
 use App\Adeudo;
+use App\Compra;
 use App\Libro;
+use App\Regalo;
 
 class OficinaController extends Controller
 {
     public function remisiones(){
-        $remisiones = Remisione::with('cliente:id,name')->orderBy('id','desc')->get();
+        $remisiones = Remisione::with(['cliente:id,name'])
+                    ->withCount('depositos')
+                    ->orderBy('id','desc')
+                    ->get();
         return view('oficina.remisiones', compact('remisiones'));
-    }
-
-    public function remision(){
-        $clientes = Cliente::orderBy('name', 'asc')->get();
-        return view('oficina.remision', compact('clientes'));
     }
 
     public function pagos(){
@@ -32,13 +32,14 @@ class OficinaController extends Controller
     }
 
     public function clientes(){
-        $clientes = Cliente::get();
+        $clientes = Cliente::orderBy('name', 'asc')->get();
         return view('oficina.clientes', compact('clientes'));
     }
 
     public function libros(){
         $libros = Libro::all();
-        return view('oficina.libros', compact('libros'));
+        $editoriales = \DB::table('editoriales')->orderBy('editorial', 'asc')->get();
+        return view('oficina.libros', compact('libros', 'editoriales'));
     }
 
     public function adeudos(){
@@ -48,6 +49,17 @@ class OficinaController extends Controller
 
     public function entradas(){
         $entradas = Entrada::with('registros')->orderBy('id','desc')->get();
-        return view('oficina.entradas', compact('entradas'));
+        $editoriales = \DB::table('editoriales')->orderBy('editorial', 'asc')->get();
+        return view('oficina.entradas', compact('entradas', 'editoriales'));
+    }
+
+    public function pedidos(){
+        $compras = Compra::orderBy('id','desc')->get();
+        return view('oficina.pedidos', compact('compras'));
+    }
+
+    public function donaciones(){
+        $regalos = Regalo::orderBy('id','desc')->get();
+        return view('oficina.donaciones', compact('regalos'));
     }
 }

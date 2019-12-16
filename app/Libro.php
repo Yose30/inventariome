@@ -10,6 +10,7 @@ use App\Donacione;
 use App\Register;
 use App\Registro;
 use App\Vendido;
+use App\Pedido;
 use App\Fecha;
 use App\Dato;
 
@@ -75,5 +76,11 @@ class Libro extends Model
     //Un libro puede tener muchas donaciones
     public function donaciones(){
         return $this->hasMany(Donacione::class);
+    }
+
+    //Uno a muchos
+    //Un libro puede tener muchos pedidos
+    public function pedidos(){
+        return $this->hasMany(Pedido::class);
     }
 }

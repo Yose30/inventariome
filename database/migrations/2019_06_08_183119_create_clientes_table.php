@@ -20,9 +20,7 @@ class CreateClientesTable extends Migration
             $table->string('email');
             $table->string('telefono');
             $table->text('direccion');
-            $table->integer('descuento')->default(0);
             $table->string('condiciones_pago');
-            $table->enum('estado', ['Iniciado', 'Eliminado', 'Terminado'])->default('Terminado');
             $table->timestamps();
         }); 
     }

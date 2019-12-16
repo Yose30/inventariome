@@ -6,6 +6,7 @@
                 <div class="col-md-9">
                     <b-form-input 
                         autofocus
+                        style="text-transform:uppercase;"
                         v-model="form.titulo"
                         :disabled="loaded"
                         required>
@@ -28,6 +29,7 @@
                 <label align="right" class="col-md-3">Autor</label>
                 <div class="col-md-9">
                     <b-form-input 
+                        style="text-transform:uppercase;"
                         :disabled="loaded"
                         v-model="form.autor">
                     </b-form-input>
@@ -48,38 +50,19 @@
                 </b-button>
             </div>
         </b-form>
-        <hr>
-        <b-alert v-if="success" show dismissible>
-            <i class="fa fa-check"></i>Libro guardado
-        </b-alert>
     </div>
 </template>
 
 <script>
     export default {
+        props: ['listEditoriales'],
         data() {
             return {
                 form: {},
                 errors: {},
                 success: false,
                 loaded: false,
-                options: [
-                    { value: null, text: 'Selecciona una opción', disabled: true },
-                    { value: 'CAMBRIDGE', text: 'CAMBRIDGE' },
-                    { value: 'CENGAGE', text: 'CENGAGE' },
-                    { value: 'EMPRESER', text: 'EMPRESER' },
-                    { value: 'EXPRESS PUBLISHING', text: 'EXPRESS PUBLISHING'},
-                    { value: 'HELBLING LANGUAGES', text: 'HELBLING LANGUAGES'},
-                    { value: 'MAJESTIC', text: 'MAJESTIC'},
-                    { value: 'MC GRAW - MAJESTIC', text: 'MC GRAW - MAJESTIC'},
-                    { value: 'MCGRAW HILL', text: 'MCGRAW HILL'},
-                    { value: 'RICHMOND', text: 'RICHMOND'},
-                    { value: 'IMPRESOS DE CALIDAD', text: 'IMPRESOS DE CALIDAD'},
-                    { value: 'ENGLISH TEXBOOK', text: 'ENGLISH TEXBOOK'},
-                    { value: 'BOOKMART MÉXICO', text: 'BOOKMART MÉXICO' },
-                    { value: 'ANGLO PUBLISHING', text: 'ANGLO PUBLISHING' },
-                    { value: 'LAROUSSE', text: 'LAROUSSE' },
-                ],
+                options: this.listEditoriales,
             }
         },
         methods: {
@@ -93,16 +76,14 @@
                     this.loaded = false;
                     this.success = true;
                     this.$emit('actualizarLista', response.data);
-                    this.$bvModal.hide('modal-newLibro');
                 })
                 .catch(error => {
                     this.errors = {};
                     this.loaded = false;
                     if (error.response.status === 422) {
                         this.errors = error.response.data.errors || {};
-                    }
-                    else{
-                        this.$bvToast.toast('Ocurrio un problema, vuelve a intentar o actualiza la pagina', {
+                    } else{
+                        this.$bvToast.toast('Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.', {
                             title: 'Mensaje',
                             variant: 'danger',
                             solid: true

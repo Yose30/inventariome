@@ -31,8 +31,7 @@ class CreateEntradasTable extends Migration
             $table->foreign('libro_id')->references('id')->on('libros');
             $table->float('costo_unitario', 8, 2)->default(0);
             $table->integer('unidades')->default(0);
-            $table->double('total', 10, 2)->default(0);
-            $table->enum('estado', ['Iniciado', 'Eliminado', 'Terminado'])->default('Terminado');
+            $table->double('total', 16, 2)->default(0);
             $table->softDeletes(); //Nueva línea, para el borrado lógico
             $table->timestamps();
         });

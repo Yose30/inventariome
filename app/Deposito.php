@@ -10,7 +10,7 @@ class Deposito extends Model
     protected $fillable = [
         'id', 
         'remisione_id', 
-        'pago' 
+        'pago'
     ];
 
     //Uno a muchos (inversa)

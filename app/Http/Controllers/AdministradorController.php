@@ -5,33 +5,39 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Promotion;
 use App\Remisione;
+use App\Vendido;
 use App\Entrada;
 use App\Cliente;
+use App\Compra;
 use App\Adeudo;
+use App\Regalo;
 use App\Libro;
 use App\Note;
 
 class AdministradorController extends Controller
 {
     public function remisiones() {
-        $remisiones = Remisione::with('cliente:id,name')->orderBy('id','desc')->get();
+        $remisiones = Remisione::with('cliente:id,name')->withCount('depositos')->orderBy('id','desc')->get();
         return view('administrador.remisiones', compact('remisiones'));
     }
 
     public function vendidos(){
         $datos = \DB::table('vendidos')
                 ->join('libros', 'vendidos.libro_id', '=', 'libros.id')
+                ->where('unidades', '>', 0)->orWhere('unidades_resta', '>', 0)
                 ->select(
                     'libros.id as libro_id',
                     'libros.titulo as libro',
-                    \DB::raw('SUM(unidades) as unidades_vendido'),
+                    \DB::raw('SUM(unidades) as unidades_vendido'), 
                     \DB::raw('SUM(total) as total_vendido'),
                     \DB::raw('SUM(unidades_resta) as unidades_pendiente'),
                     \DB::raw('SUM(total_resta) as total_pendiente')
                 )
                 ->groupBy('libros.titulo', 'libros.id')
+                ->orderBy('libros.titulo', 'asc')
                 ->get();
-        return view('administrador.vendidos', compact('datos'));
+        $editoriales = \DB::table('editoriales')->orderBy('editorial', 'asc')->get();
+        return view('administrador.vendidos', compact('datos', 'editoriales'));
     }
 
     public function notas(){
@@ -51,16 +57,33 @@ class AdministradorController extends Controller
 
     public function entradas(){
         $entradas = Entrada::with('registros')->orderBy('id','desc')->get();
-        return view('administrador.entradas', compact('entradas'));
+        $editoriales = \DB::table('editoriales')->orderBy('editorial', 'asc')->get();
+        return view('administrador.entradas', compact('entradas', 'editoriales'));
     }
 
     public function libros(){
-        $libros = Libro::all();
-        return view('administrador.libros', compact('libros'));
+        $libros = Libro::orderBy('editorial','asc')->get();
+        $editoriales = \DB::table('editoriales')->orderBy('editorial', 'asc')->get();
+        return view('administrador.libros', compact('libros', 'editoriales'));
     }
 
     public function clientes(){
-        $clientes = Cliente::get();
+        $clientes = Cliente::orderBy('name', 'asc')->get();
         return view('administrador.clientes', compact('clientes'));
+    }
+
+    public function pedidos(){
+        $compras = Compra::orderBy('id','desc')->get();
+        return view('administrador.pedidos', compact('compras'));
+    }
+
+    public function donaciones(){
+        $regalos = Regalo::orderBy('id','desc')->get();
+        return view('administrador.donaciones', compact('regalos'));
+    }
+
+    public function movimientos(){
+        $editoriales = \DB::table('editoriales')->orderBy('editorial', 'asc')->get();
+        return view('administrador.movimientos', compact('editoriales'));
     }
 }

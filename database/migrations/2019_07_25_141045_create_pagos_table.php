@@ -23,11 +23,11 @@ class CreatePagosTable extends Migration
             $table->unsignedBigInteger('libro_id')->nullable();
             $table->foreign('libro_id')->references('id')->on('libros');
             $table->integer('unidades')->default(0);
-            $table->double('total', 12, 2)->default(0);
+            $table->double('total', 16, 2)->default(0);
             $table->integer('unidades_resta')->default(0);
-            $table->double('total_resta', 12, 2)->default(0);
+            $table->double('total_resta', 16, 2)->default(0);
             $table->integer('unidades_base')->default(0);
-            $table->double('total_base', 12, 2)->default(0);
+            $table->double('total_base', 16, 2)->default(0);
             $table->timestamps();
         });
 
@@ -38,7 +38,8 @@ class CreatePagosTable extends Migration
             $table->unsignedBigInteger('vendido_id');
             $table->foreign('vendido_id')->references('id')->on('vendidos');
             $table->integer('unidades')->default(0);
-            $table->double('pago', 12, 2)->default(0);
+            $table->double('pago', 16, 2)->default(0);
+            $table->text('entregado_por')->nullable();
             $table->timestamps();
         });
     }

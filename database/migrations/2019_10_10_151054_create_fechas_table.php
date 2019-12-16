@@ -21,7 +21,8 @@ class CreateFechasTable extends Migration
             $table->unsignedBigInteger('libro_id')->nullable();
             $table->foreign('libro_id')->references('id')->on('libros');
             $table->integer('unidades')->default(0);
-            $table->double('total', 12, 2)->default(0);
+            $table->double('total', 16, 2)->default(0);
+            $table->text('entregado_por')->nullable();
             $table->timestamps();
         });
     }

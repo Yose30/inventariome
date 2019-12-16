@@ -53,8 +53,9 @@ Vue.component('adeudos-component', require('./components/AdeudosComponent.vue').
 Vue.component('promociones-component', require('./components/PromocionesComponent.vue').default);
 Vue.component('editar-entradas-component', require('./components/EditarEntradasComponent.vue').default);
 Vue.component('devolucion-adeudos-component', require('./components/DevolucionAdeudosComponent.vue').default);
-
-Vue.component('list-general-component', require('./components/ListGeneralComponent.vue').default);
+Vue.component('compras-component', require('./components/ComprasComponent.vue').default);
+Vue.component('donaciones-component', require('./components/DonacionesComponent.vue').default);
+Vue.component('movimientos-component', require('./components/MovimientosComponent.vue').default);
 Vue.component('check-connection-component', require('./components/CheckConnectionComponent.vue').default);
 
 /**

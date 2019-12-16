@@ -20,7 +20,7 @@
                     </b-row>
                 </b-col>
                 <!-- BUSCAR REMISION POR CLIENTE -->
-                <b-col sm="8">
+                <b-col sm="6">
                     <b-row class="my-1">
                         <b-col sm="2">
                             <label for="input-cliente">Cliente</label>
@@ -40,8 +40,11 @@
                         </b-col>
                     </b-row>
                 </b-col>
+                <b-col sm="2">
+                    <!-- <b-button variant="info" pill v-b-modal.modal-ayudaE><i class="fa fa-info-circle"></i> Ayuda</b-button> -->
+                </b-col>
             </b-row> 
-            <hr>
+            <br>
             <!-- LISTADO DE REMISIONES -->
             <b-alert v-if="remisiones.length === 0" show variant="secondary">
                 <i class="fa fa-warning"></i> No se encontraron registros.
@@ -60,7 +63,7 @@
                 <template slot="total" slot-scope="row">${{ row.item.total | formatNumber }}</template>
                 <template slot="detalles" slot-scope="row">
                     <b-button 
-                        variant="outline-info"
+                        variant="info"
                         @click="viewDetalles(row.item)">
                         Detalles
                     </b-button>
@@ -70,9 +73,9 @@
                         variant="success" 
                         v-if="row.item.estado == 'Iniciado'"
                         :disabled="load"
-                        v-on:click="entregaLibros(row.item, row.index)">
+                        v-b-modal.modal-marcar
+                        v-on:click="inicializar_entrega(row.item, row.index)">
                         <i class="fa fa-check"></i> Marcar entrega
-                        <b-spinner v-if="load" small></b-spinner>
                     </b-button>
                 </template>
             </b-table>
@@ -94,14 +97,13 @@
                 </b-col>
                 <b-col>
                     <div class="text-right">
-                        <b-button variant="outline-secondary" @click="mostrarDetalles = false">
+                        <b-button variant="secondary" @click="mostrarDetalles = false">
                             <i class="fa fa-mail-reply"></i> Regresar
                         </b-button>
                     </div>
                 </b-col>
             </b-row>
-            <label>Cliente: {{ remision.cliente.name }}</label>
-            <hr>
+            <label><b>Cliente:</b> {{ remision.cliente.name }}</label>
             <b-table :items="remision.datos" :fields="fieldsD">
                 <template slot="isbn" slot-scope="row">{{ row.item.libro.ISBN }}</template>
                 <template slot="libro" slot-scope="row">{{ row.item.libro.titulo }}</template>
@@ -117,18 +119,61 @@
                 </template>
             </b-table>
         </div>
+        <!-- MODALS -->
+        <!-- ELEGIR RESPONSABLE DE LA ENTREGA -->
+        <b-modal ref="modalMarcarE" id="modal-marcar" title="Responsable de la entrega">
+            <b-row>
+                <b-col sm="8">
+                    <b-form-select :state="stateResp" :disabled="load" v-model="responsable" :options="options"></b-form-select>
+                </b-col>
+                <b-col sm="4">
+                    <b-button v-on:click="entregaLibros()" :disabled="load" variant="success">
+                        <i class="fa fa-check"></i> Guardar <b-spinner v-if="load" small></b-spinner>
+                    </b-button>
+                </b-col>
+            </b-row>
+            <template v-slot:modal-footer>
+                <b-alert show variant="info">
+                    <i class="fa fa-exclamation-circle"></i> Verificar los datos antes de presionar <b>Guardar</b>, ya que después no se podrán realizar cambios.
+                </b-alert>
+            </template>
+        </b-modal>
+        <!-- INFORMACIÓN ACERCA DEL APARTADO -->
+        <b-modal id="modal-ayudaE" hide-backdrop hide-footer title="Ayuda">
+            En este apartado solo aparecerán las remisiones que <b>NO</b> han sido marcadas como entregadas.
+            <hr>
+            <h5 id="titleA"><b>Búsqueda de remisiones</b></h5>
+            <p>
+                <ul>
+                    <li>
+                        <b>Búsqueda por remisión: </b>
+                        Ingresar el número de folio de la remisión que se desea buscar y presionar <label id="ctrlS">Enter</label>.
+                    </li>
+                    <li><b>Búsqueda por cliente: </b> Escribir el nombre del cliente y elegir entre las opciones que aparezcan.</li>
+                </ul>
+            </p>
+            <hr>
+            <h5 id="titleA"><b>Detalles de la remisión</b></h5>
+            <p>En <b id="titleA">Detalles</b> podrá consultar los datos de la remisión.</p>
+            <hr>
+            <h5 id="titleA"><b>Marcar entrega</b></h5>
+            <p>Al presionar <b id="titleA">Marcar entrega</b> de una remisión, aparecerá una ventana emergente, donde tendrá que elegir el responsable de la entrega, es decir quien entregara el pedido.</p>
+            <b><i class="fa fa-info-circle"></i> Nota: </b>Verificar antes de marcar una entrega, ya que después no se podrán realizar cambios.
+        </b-modal>
     </div>
 </template>
 
 <script>
     export default {
-        props: ['registersall'],
+        props: ['registersall', 'listresponsables'],
         data() {
             return {
                 num_remision: null,
                 queryCliente: '',
                 resultsClientes: [],
                 remisiones: this.registersall,
+                options: [],
+                responsable: null,
                 fields: [
                     {key: 'id', label: 'Folio'}, 
                     {key: 'fecha_creacion', label: 'Fecha de creación'}, 
@@ -142,13 +187,17 @@
                     'libro', 
                     {key: 'costo_unitario', label: 'Costo unitario'}, 
                     {key: 'unidades', label: 'Unidades'}, 
-                    'subtotal',],
+                    'subtotal'
+                ],
                 mostrarDetalles: false,
                 remision: {},
                 total_unidades: 0,
                 load: false,
                 perPage: 15,
-                currentPage: 1
+                currentPage: 1,
+                entrega: {},
+                position: null,
+                stateResp: null
             }
         },
         filters: {
@@ -159,7 +208,23 @@
                 return numeral(value).format("0,0[.]00"); 
             }
         },
+        created: function(){
+            this.assign_responsables();
+        },
         methods: {
+            assign_responsables(){
+                this.options.push({
+                    value: null,
+                    text: 'Selecciona una opción',
+                    disabled: true
+                });
+                this.listresponsables.forEach(responsable => {
+                    this.options.push({
+                        value: responsable.responsable,
+                        text: responsable.responsable
+                    });
+                });
+            },
             // BUSCAR REMISIÓN POR NUMERO
             porNumero(){
                 if(this.num_remision > 0){
@@ -191,7 +256,7 @@
             },
             // MOSTRAR REMISIONES INICIADAS POR CLIENTE
             porCliente(result){
-                axios.get('/buscar_por_cliente', {params: {id: result.id, inicio: this.inicio, final: this.final}}).then(response => {
+                axios.get('/buscar_por_cliente', {params: {id: result.id}}).then(response => {
                     this.queryCliente = result.name;
                     this.resultsClientes = [];
                     this.remisiones = [];
@@ -201,18 +266,33 @@
                     });
                 });
             },
+            // INICIALIZAR VALORES DE ENTREGA
+            inicializar_entrega (remision, i){
+                this.entrega = {
+                    remision: remision.id,
+                    responsable: null
+                };
+                this.position = i;
+            },
             // MARCAR ENTREGA DE REMISIÓN
-            entregaLibros(remision, i){
-                this.load = true;
-                axios.put('/vendidos_remision', remision).then(response => {
-                    this.load = false;
-                    this.remisiones[i].estado = response.data.remision.estado;
-                    // this.remisiones.splice(i,1);
-                    this.makeToast('success', 'La remisión ha sido marcada como entregada');
-                }).catch(error => {
-                    this.load = false;
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
-                }); 
+            entregaLibros(){
+                if(this.responsable != null){
+                    this.load = true;
+                    this.stateResp = null;
+                    this.entrega.responsable = this.responsable;
+                    axios.put('/vendidos_remision', this.entrega).then(response => {
+                        this.load = false;
+                        this.remisiones[this.position].estado = response.data.remision.estado;
+                        this.$refs['modalMarcarE'].hide();
+                        this.makeToast('success', 'La remisión ha sido marcada como entregada');
+                    }).catch(error => {
+                        this.load = false;
+                        this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
+                    });
+                } else {
+                    this.stateResp = false;
+                    this.makeToast('warning', 'Seleccionar responsable para poder continuar.');
+                }
             },
             // VER DETALLES DE LA REMISIÓN
             viewDetalles(remision){
@@ -227,7 +307,7 @@
                         this.total_unidades += dato.unidades;
                     });
                 }).catch(error => {
-                    this.makeToast('danger', 'Ocurrio un problema, vuelve a intentar o actualiza la pagina');
+                    this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 });
             },
             makeToast(variante = null, descripcion){
@@ -247,6 +327,12 @@
         z-index: 100;
     }
     #listR a {
-        background-color: #f2f8ff;
+        /* background-color: #f2f8ff; */
+    }
+    #titleA, #ctrlS{
+        font-style: oblique;
+    }
+    #ctrlS {
+        color: #10013d;
     }
 </style>

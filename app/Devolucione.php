@@ -16,9 +16,10 @@ class Devolucione extends Model
         'libro_id',
         'unidades', 
         'unidades_resta',
+        'unidades_base',
+        'total_base',
         'total', 
-        'total_resta',
-        'total_base'
+        'total_resta'
     ];
 
     //Uno a muchos (inversa)

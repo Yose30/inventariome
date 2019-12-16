@@ -31,18 +31,19 @@ class ClienteController extends Controller
     // Función utilizada en ClientesComponent
     public function editar(Request $request){
         $cliente = Cliente::whereId($request->id)->first();
-        $cliente->name = 'prueba';
+        $cliente->name = 'PRUEBA';
         $cliente->save();
         $this->validacion($request);
         try {
             \DB::beginTransaction();
-            $cliente->name = $request->name;
-            $cliente->contacto = $request->contacto;
-            $cliente->email = $request->email;
-            $cliente->telefono = $request->telefono;
-            $cliente->direccion = $request->direccion;
-            $cliente->condiciones_pago = $request->condiciones_pago;
-            $cliente->save();
+            $cliente->update([
+                'name' => strtoupper($request->name),
+                'contacto' => strtoupper($request->contacto),
+                'email' => $request->email,
+                'telefono' => $request->telefono,
+                'direccion' => strtoupper($request->direccion),
+                'condiciones_pago' => strtoupper($request->condiciones_pago)
+            ]);
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -57,7 +58,15 @@ class ClienteController extends Controller
         $this->validacion($request);
         try {
             \DB::beginTransaction();
-            $cliente = Cliente::create($request->input());
+            // $request->input()
+            $cliente = Cliente::create([
+                'name' => strtoupper($request->name),
+                'contacto' => strtoupper($request->contacto),
+                'email' => $request->email,
+                'telefono' => $request->telefono,
+                'direccion' => strtoupper($request->direccion),
+                'condiciones_pago' => strtoupper($request->condiciones_pago)
+            ]);
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -74,5 +83,11 @@ class ClienteController extends Controller
             'direccion' => 'min:3|max:150|required|string',
             'condiciones_pago' => 'min:3|max:150|required|string'
         ]);
+    }
+
+    public function detallesCliente(){
+        $cliente_id = Input::get('cliente_id');
+        $cliente = Cliente::whereId($cliente_id)->first();
+        return response()->json($cliente);
     }
 }

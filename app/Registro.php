@@ -19,8 +19,7 @@ class Registro extends Model
         'libro_id',
         'costo_unitario', 
         'unidades', 
-        'total',
-        'estado'
+        'total'
     ];
 
     //Uno a muchos (inversa)

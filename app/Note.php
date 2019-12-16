@@ -17,6 +17,7 @@ class Note extends Model
         'total_pagar', 
         'pagos', 
         'fecha_devolucion',
+        'entregado_por'
     ];
 
     //Uno a muchos

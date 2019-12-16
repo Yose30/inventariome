@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Input;
+use App\Exports\PromotionsExport;
 use Illuminate\Http\Request;
 use App\Promotion;
 use App\Departure;
+use Carbon\Carbon;
 use App\Libro;
+use Excel;
+use PDF;
 
 class PromotionController extends Controller
 {
@@ -55,8 +59,9 @@ class PromotionController extends Controller
             }
             $promotion = Promotion::create([
                 'folio' => $folio,
-                'plantel' => $request->plantel,
-                'descripcion' => $request->descripcion,
+                'plantel' => strtoupper($request->plantel),
+                'descripcion' => strtoupper($request->descripcion),
+                'entregado_por' => $request->entregado_por
             ]);
 
             $unidades = 0;
@@ -76,5 +81,53 @@ class PromotionController extends Controller
             \DB::rollBack();
         }
         return response()->json($promotion);
+    }
+
+    // BUSCAR PROMOCIÓN POR FECHAS
+    public function buscar_fecha_promo(){
+        $inicio = Input::get('inicio');
+        $final = Input::get('final');
+        $plantel = Input::get('plantel');
+
+        $fechas = $this->format_date($inicio, $final);
+        $fecha1 = $fechas['inicio'];
+        $fecha2 = $fechas['final'];
+
+        if($plantel === null){
+            $promotions = Promotion::whereBetween('created_at', [$fecha1, $fecha2])
+                                ->orderBy('folio','desc')->get();
+        } else {
+            $promotions = Promotion::where('plantel','like','%'.$plantel.'%')
+                                ->whereBetween('created_at', [$fecha1, $fecha2])
+                                ->orderBy('folio','desc')->get();
+        }
+        
+        return response()->json($promotions);
+    }
+
+    public function format_date($fecha1, $fecha2){
+        $inicio = new Carbon($fecha1);
+        $final 	= new Carbon($fecha2);
+        $inicio = $inicio->format('Y-m-d 00:00:00');
+        $final 	= $final->format('Y-m-d 23:59:59');
+
+        $fechas = [
+            'inicio' => $inicio,
+            'final' => $final
+        ];
+
+        return $fechas;
+    }
+
+    // DESCARGAR REPORTE
+    public function download_promotion($plantel, $inicio, $final, $tipo){
+        return Excel::download(new PromotionsExport($plantel, $inicio, $final, $tipo), 'reporte-promociones.xlsx');
+    }
+
+    public function download_promocion($id){
+        $promocion = Promotion::whereId($id)->with('departures.libro')->first();
+        $data['promocion'] = $promocion;
+        $pdf = PDF::loadView('download.pdf.promociones.promocion', $data); 
+        return $pdf->download('promocion.pdf');
     }
 }
