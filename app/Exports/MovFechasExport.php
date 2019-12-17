@@ -44,7 +44,7 @@ class MovFechasExport implements FromView
                     'libros.titulo as libro',
                     \DB::raw('SUM(unidades) as unidades'),
                     \DB::raw('SUM(total) as total')
-                )->groupBy('libro_id')
+                )->groupBy('libro_id', 'libros.titulo')
                 ->orderBy('libros.titulo', 'asc')
                 ->get();
         }
@@ -59,7 +59,7 @@ class MovFechasExport implements FromView
                     \DB::raw('SUM(total) as total')
                 )
                 ->orderBy('libros.titulo', 'asc')
-                ->groupBy('libro_id')
+                ->groupBy('libro_id', 'libros.titulo')
                 ->get();
         }
         if($categoria === 'NOTASDEV'){
@@ -72,7 +72,7 @@ class MovFechasExport implements FromView
                         \DB::raw('SUM(total_devuelto) as total')
                     )->whereBetween('registers.created_at', [$fecha1, $fecha2])
                     ->orderBy('libros.titulo', 'asc')
-                    ->groupBy('libro_id')
+                    ->groupBy('libro_id', 'libros.titulo')
                     ->get();
         }
         // SALIDAS
@@ -89,20 +89,19 @@ class MovFechasExport implements FromView
                         \DB::raw('SUM(datos.total) as total')
                     )
                     ->orderBy('libros.titulo', 'asc')
-                    ->groupBy('libro_id')
+                    ->groupBy('libro_id', 'libros.titulo')
                     ->get();
         }
         if($categoria === 'NOTAS'){
             $datos = \DB::table('registers')
                     ->join('libros', 'registers.libro_id', '=', 'libros.id')
                     ->select(
-                        // 'libro_id as libro_id',
                         'libros.titulo as libro',
                         \DB::raw('SUM(unidades) as unidades'),
                         \DB::raw('SUM(total) as total')
                     )->whereBetween('registers.created_at', [$fecha1, $fecha2])
                     ->orderBy('libros.titulo', 'asc')
-                    ->groupBy('libro_id')
+                    ->groupBy('libro_id', 'libros.titulo')
                     ->get();
         }
         if($categoria === 'PEDIDOS'){
@@ -115,7 +114,7 @@ class MovFechasExport implements FromView
                         \DB::raw('SUM(total) as total')
                     )->whereBetween('pedidos.created_at', [$fecha1, $fecha2])
                     ->orderBy('libros.titulo', 'asc')
-                    ->groupBy('libro_id')
+                    ->groupBy('libro_id', 'libros.titulo')
                     ->get();
         }
         if($categoria === 'PROMOCIONES'){
@@ -124,7 +123,7 @@ class MovFechasExport implements FromView
                     ->select('libros.titulo as libro', \DB::raw('SUM(unidades) as unidades'))
                     ->whereBetween('departures.created_at', [$fecha1, $fecha2])
                     ->orderBy('libros.titulo', 'asc')
-                    ->groupBy('libro_id')
+                    ->groupBy('libro_id', 'libros.titulo')
                     ->get();
         }
         if($categoria === 'DONACIONES'){
@@ -133,7 +132,7 @@ class MovFechasExport implements FromView
                     ->select('libros.titulo as libro', \DB::raw('SUM(unidades) as unidades'))
                     ->whereBetween('donaciones.created_at', [$fecha1, $fecha2])
                     ->orderBy('libros.titulo', 'asc')
-                    ->groupBy('libro_id')
+                    ->groupBy('libro_id', 'libros.titulo')
                     ->get();
         }
         return $datos;

@@ -53,7 +53,7 @@ class MovLibrosExport implements FromView
                     'libros.titulo as libro',
                     \DB::raw('SUM(unidades) as entradas'),
                     'libros.piezas as existencia'
-                )->groupBy('libro_id')
+                )->groupBy('libro_id', 'libros.titulo', 'libros.piezas')
                 ->orderBy('libros.titulo', 'asc')
                 ->get();
         return $registros;
@@ -68,7 +68,7 @@ class MovLibrosExport implements FromView
                 'libros.titulo as libro',
                 \DB::raw('SUM(unidades) as entradas'),
                 'libros.piezas as existencia'
-            )->groupBy('libro_id')
+            )->groupBy('libro_id', 'libros.titulo', 'libros.piezas')
             ->orderBy('libros.titulo', 'asc')
             ->get();
         return $registros;
@@ -123,7 +123,7 @@ class MovLibrosExport implements FromView
                     'libro_id as libro_id',
                     'libros.titulo as libro',
                     \DB::raw('SUM(total) as entradas')
-                )->groupBy('libro_id')
+                )->groupBy('libro_id', 'libros.titulo')
                 ->orderBy('libros.titulo', 'asc')
                 ->get();
         return $registros;
@@ -137,7 +137,7 @@ class MovLibrosExport implements FromView
                 'libro_id as libro_id',
                 'libros.titulo as libro',
                 \DB::raw('SUM(total) as entradas')
-            )->groupBy('libro_id')
+            )->groupBy('libro_id', 'libros.titulo')
             ->orderBy('libros.titulo', 'asc')
             ->get();
         return $registros;
