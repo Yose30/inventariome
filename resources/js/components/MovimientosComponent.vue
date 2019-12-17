@@ -50,8 +50,6 @@
                 </b-row>
             </b-col>
             <b-col sm="2" class="text-right">
-                <b-button variant="primary" :disabled="movimientos.length > 0" @click="movimientosLibros()">Mostrar</b-button>
-                <hr>
                 <b-button variant="dark" v-if="(tablaUnidades || tablaMonto) && movimientos.length > 0" :href="`/download_movimientos/${queryEMov}/${selected}`">
                     <i class="fa fa-download"></i> Descargar
                 </b-button>
@@ -228,6 +226,7 @@
         },
         mounted: function(){
             this.assign_editorial();
+            this.movimientosLibros();
         },
         methods: {
             assign_editorial(){
@@ -247,14 +246,15 @@
                     this.stateCategoria = null;
                     if(this.final != '0000-00-00'){
                         if(this.inicio != '0000-00-00'){
-                            axios.get('/movimientos_por_fecha', {
-                                params: {inicio: this.inicio, final: this.final, categoria: this.selectCategoria}}).then(response => {
+                            axios.get('/movimientos_por_fecha', {params: {inicio: this.inicio, final: this.final, categoria: this.selectCategoria}}).then(response => {
                                 this.movimientos = [];
                                 this.movimientos = response.data;
                                 this.queryEMov = 'TODO';
                                 this.selected = 'unidades';
 
                                 this.show_tables(false, false, true);
+                            }).catch(error => {
+                                this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                             });
                         } else {
                             this.stateDate = false;

@@ -177,7 +177,7 @@ class LibroController extends Controller
                     'libros.titulo as libro',
                     \DB::raw('SUM(unidades) as entradas'),
                     'libros.piezas as existencia'
-                )->groupBy('libro_id')
+                )->groupBy('libro_id', 'libros.titulo', 'libros.piezas')
                 ->orderBy('libros.titulo', 'asc')
                 ->get();
         return $registros;
@@ -192,7 +192,7 @@ class LibroController extends Controller
                 'libros.titulo as libro',
                 \DB::raw('SUM(unidades) as entradas'),
                 'libros.piezas as existencia'
-            )->groupBy('libro_id')
+            )->groupBy('libro_id', 'libros.titulo', 'libros.piezas')
             ->orderBy('libros.titulo', 'asc')
             ->get();
         return $registros;
@@ -247,7 +247,7 @@ class LibroController extends Controller
                     'libro_id as libro_id',
                     'libros.titulo as libro',
                     \DB::raw('SUM(total) as entradas')
-                )->groupBy('libro_id')
+                )->groupBy('libro_id', 'libros.titulo')
                 ->orderBy('libros.titulo', 'asc')
                 ->get();
         return $registros;
@@ -261,7 +261,7 @@ class LibroController extends Controller
                 'libro_id as libro_id',
                 'libros.titulo as libro',
                 \DB::raw('SUM(total) as entradas')
-            )->groupBy('libro_id')
+            )->groupBy('libro_id', 'libros.titulo')
             ->orderBy('libros.titulo', 'asc')
             ->get();
         return $registros;
@@ -301,11 +301,6 @@ class LibroController extends Controller
         }   
         return $movimientos;
     }
-
-    // BUSQUEDA POR UNIDADES Y FECHA
-    // public function busqueda_unidades($registros){
-        
-    // }
 
     public function assign_array($registro, $devoluciones, $notas_entrada, $remisiones, $notas_salida, $pedidos, $promociones, $donaciones, $tipo){
         if($tipo === 'unidades'){
@@ -416,7 +411,7 @@ class LibroController extends Controller
                     'libros.titulo as libro',
                     \DB::raw('SUM(unidades) as unidades'),
                     \DB::raw('SUM(total) as total')
-                )->groupBy('libro_id')
+                )->groupBy('libro_id', 'libros.titulo')
                 ->orderBy('libros.titulo', 'asc')
                 ->get();
         }
@@ -431,7 +426,7 @@ class LibroController extends Controller
                     \DB::raw('SUM(total) as total')
                 )
                 ->orderBy('libros.titulo', 'asc')
-                ->groupBy('libro_id')
+                ->groupBy('libro_id', 'libros.titulo')
                 ->get();
         }
         if($categoria === 'NOTASDEV'){
@@ -444,7 +439,7 @@ class LibroController extends Controller
                         \DB::raw('SUM(total_devuelto) as total')
                     )->whereBetween('registers.created_at', [$fecha1, $fecha2])
                     ->orderBy('libros.titulo', 'asc')
-                    ->groupBy('libro_id')
+                    ->groupBy('libro_id', 'libros.titulo')
                     ->get();
         }
         // SALIDAS
@@ -461,7 +456,7 @@ class LibroController extends Controller
                         \DB::raw('SUM(datos.total) as total')
                     )
                     ->orderBy('libros.titulo', 'asc')
-                    ->groupBy('libro_id')
+                    ->groupBy('libro_id', 'libros.titulo')
                     ->get();
         }
         if($categoria === 'NOTAS'){
@@ -473,7 +468,7 @@ class LibroController extends Controller
                         \DB::raw('SUM(total) as total')
                     )->whereBetween('registers.created_at', [$fecha1, $fecha2])
                     ->orderBy('libros.titulo', 'asc')
-                    ->groupBy('libro_id')
+                    ->groupBy('libro_id', 'libros.titulo')
                     ->get();
         }
         if($categoria === 'PEDIDOS'){
@@ -486,7 +481,7 @@ class LibroController extends Controller
                         \DB::raw('SUM(total) as total')
                     )->whereBetween('pedidos.created_at', [$fecha1, $fecha2])
                     ->orderBy('libros.titulo', 'asc')
-                    ->groupBy('libro_id')
+                    ->groupBy('libro_id', 'libros.titulo')
                     ->get();
         }
         if($categoria === 'PROMOCIONES'){
@@ -495,7 +490,7 @@ class LibroController extends Controller
                     ->select('libros.titulo as libro', \DB::raw('SUM(unidades) as unidades'))
                     ->whereBetween('departures.created_at', [$fecha1, $fecha2])
                     ->orderBy('libros.titulo', 'asc')
-                    ->groupBy('libro_id')
+                    ->groupBy('libro_id', 'libros.titulo')
                     ->get();
         }
         if($categoria === 'DONACIONES'){
@@ -504,7 +499,7 @@ class LibroController extends Controller
                     ->select('libros.titulo as libro', \DB::raw('SUM(unidades) as unidades'))
                     ->whereBetween('donaciones.created_at', [$fecha1, $fecha2])
                     ->orderBy('libros.titulo', 'asc')
-                    ->groupBy('libro_id')
+                    ->groupBy('libro_id', 'libros.titulo')
                     ->get();
         }
         return response()->json($datos);
